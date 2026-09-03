@@ -52,25 +52,28 @@ async function shareGame() {
   }
 
   // Output Links & QR Code
-  console.log('\n======================================================');
-  console.log('       SLING JUMP - WORLDWIDE PUBLIC MOBILE LINK      ');
-  console.log('======================================================\n');
+  const PERMANENT_URL = 'https://bauerjohannes2-max.github.io/sling-jump/';
 
-  if (publicUrl) {
-    console.log(`  PUBLIC HTTPS URL: ${publicUrl}\n`);
-    if (qrcode) {
-      console.log('  SCAN MIT DEM SMARTPHONE (Weltweit ueberall aufrufbar):\n');
-      qrcode.generate(publicUrl, { small: true }, (qr) => {
-        console.log(qr);
-      });
-    }
-  } else {
-    console.log('  No public tunnel available. Use local network URL:');
-    console.log(`  ${networkUrl}\n`);
+  console.log('\n======================================================');
+  console.log('       SLING JUMP - PERMANENTER LIVE-LINK             ');
+  console.log('======================================================\n');
+  console.log('  DAUERHAFTER LINK FUER FREUNDE & FAMILIE (24/7 ONLINE):');
+  console.log(`  ${PERMANENT_URL}\n`);
+  console.log('  * Funktioniert IMMER weltweit (auf jedem Smartphone/PC)');
+  console.log('  * Kein lokaler Server / kein Laptop-Betrieb notwendig!');
+  console.log('  * Automatisches PWA-Caching fuer Offline-Spielbarkeit\n');
+
+  if (qrcode) {
+    console.log('  QR-CODE ZUM DIREKTEN SCANNEN:\n');
+    qrcode.generate(PERMANENT_URL, { small: true }, (qr) => {
+      console.log(qr);
+    });
   }
 
-  console.log('======================================================');
-  console.log('  Server & Tunnel aktiv! Druecke Strg+C zum Beenden.');
+  if (publicUrl) {
+    console.log(`\n  Temporaerer Dev-Tunnel: ${publicUrl}`);
+  }
+  console.log(`  Lokales Netzwerk:       ${networkUrl}\n`);
   console.log('======================================================\n');
 }
 

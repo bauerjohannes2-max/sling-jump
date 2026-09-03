@@ -1,10 +1,12 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
 > **Status:** Release Candidate (RC21 - v3.21.0 - Clean Deep Space Aesthetic & Background Grid Elimination)  
+> **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
+> **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
-> **Lauffaehigkeit:** Sofort spielbar via Direkt-Doppelklick (`file:///`), Webserver (`npm start`) oder weltweitem Cloudflare-Tunnel (`npm run share`)  
+> **Lauffaehigkeit:** 24/7 Online via GitHub Pages Edge CDN, oder lokal via Direkt-Doppelklick (`file:///`) / `npm start`  
 > **Test-Runner:** Playwright Test-Suite via `npm test` (`scripts/playwright_runner.js`)  
-> **Vertriebs-Dokumentation:** Siehe auch [`DISTRIBUTION.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/DISTRIBUTION.md)
+> **Vertriebs- & Hosting-Dokumentation:** Siehe [`DISTRIBUTION.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/DISTRIBUTION.md)
 
 ---
 
@@ -12,8 +14,9 @@
 
 | Befehl | Zweck | Beschreibung |
 | :--- | :--- | :--- |
+| **Permanenter Link** | **24/7 Freunde & Familie** | [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/) (weltweit, unbegrenzt, PC muss nicht laufen) |
 | `npm start` / `npm run serve` | **Lokales WLAN / LAN** | Startet den HTTP-Server auf Port 3000, ermittelt die lokale IPv4 (`http://192.168.x.x:3000`) und gibt einen scanbaren ASCII-QR-Code im Terminal aus. |
-| `npm run share` | **Weltweiter Cloudflare-Tunnel (4G/5G/WLAN)** | Erstellt einen stabilen Cloudflare Quick Tunnel (`https://...trycloudflare.com`) samt QR-Code, ohne Passwortschranken oder Session-Timeouts weltweit auf jedem Smartphone abrufbar. |
+| `npm run share` | **Dev-Tunnel & QR-Code** | Gibt den permanenten Link samt ASCII-QR-Code im Terminal aus und startet optional einen temporären Entwickler-Tunnel. |
 | `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 17 frische Screenshots und garantiert 0 Konsolenfehler. |
 
 ---

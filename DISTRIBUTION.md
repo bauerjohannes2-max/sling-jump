@@ -1,8 +1,49 @@
-# Sling Jump - Vertriebs- & Monetarisierungs-Roadmap
+# Sling Jump - Vertriebs-, Live-Hosting- & Monetarisierungs-Dokumentation
 
-> **Status:** Release Candidate (RC1 - v2.4.0)  
-> **Zielmaerkte:** Web-Arcade-Portale (Poki, CrazyGames), Indie-Vertrieb (itch.io), Desktop-Store (Steam)  
-> **Letzte Aktualisierung:** 01.09.2026
+> **Status:** Release Candidate (RC21 - v3.21.0)  
+> **Offizieller 24/7 Live-Link:** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
+> **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
+> **Hosting-Typ:** Microsoft/GitHub Global Edge CDN (100% kostenfrei, SSL/HTTPS, 99.99% Uptime)  
+> **Letzte Aktualisierung:** 03.09.2026
+
+---
+
+## 1. Offizieller Live-Link für Freunde & Familie (24/7 Online)
+
+### **Der permanente Link:**
+```
+https://bauerjohannes2-max.github.io/sling-jump/
+```
+
+### **Warum funktioniert dieser Link immer (im Gegensatz zu früheren Tunneln)?**
+* **Früheres Problem (Cloudflare Quick Tunnel / localtunnel):**
+  * Frühere Links wie `*.trycloudflare.com` waren flüchtige Entwickler-Tunnel.
+  * Sie liefen nur auf deinem lokalen Rechner. Sobald der Laptop zugeklappt wurde, in den Energiesparmodus ging oder die Befehlszeile beendet wurde, war der Link sofort tot.
+  * Bei jedem Neustart vergab Cloudflare eine komplett andere Zufalls-Adresse.
+* **Die neue, permanente Lösung (GitHub Pages Edge CDN):**
+  * Das gesamte Spiel ist nun in einem dedizierten GitHub-Repository (`bauerjohannes2-max/sling-jump`) gehostet.
+  * **Unabhängig vom Laptop:** Dein Rechner muss **nicht** laufen. Das Spiel wird 24/7 weltweit über Microsofts Hochleistungs-CDN ausgeliefert.
+  * **Konstante Adresse:** Die URL ändert sich **nie**. Freunde und Familie können sie dauerhaft als Lesezeichen speichern oder zum Homescreen hinzufügen.
+  * **Automatisches PWA-Caching:** Der integrierte Service Worker (`sw.js`) lädt alle Spieldateien im Hintergrund, sodass das Spiel selbst im Flugmodus oder bei Funklöchern flüssig weitergespielt werden kann.
+
+### **Installation als Web-App (Homescreen) auf Smartphones:**
+* **iPhone (iOS / Safari):**
+  1. Link öffnen: `https://bauerjohannes2-max.github.io/sling-jump/`
+  2. Unten auf den **Teilen-Button** (Viereck mit Pfeil nach oben) tippen.
+  3. **"Zum Home-Bildschirm"** auswählen.
+  4. Das Spiel öffnet sich fortan im Vollbildmodus ohne Browser-Leisten wie eine echte App aus dem App Store!
+* **Android (Chrome):**
+  1. Link öffnen.
+  2. Oben rechts auf das Drei-Punkte-Menü tippen und **"App installieren"** oder **"Zum Startbildschirm hinzufügen"** wählen.
+
+### **Automatische Updates für Freunde & Familie:**
+* Bei jeder Code-Änderung reicht ein einfacher Git-Push:
+  ```bash
+  git add .
+  git commit -m "Neues Update"
+  git push origin main
+  ```
+* Innerhalb von ca. 30 bis 60 Sekunden baut GitHub Pages das Spiel automatisch neu und liefert die Version weltweit an alle Geräte aus.
 
 ---
 
