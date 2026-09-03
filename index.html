@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Sling Jump - Von Stern zu Stern</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <meta name="theme-color" content="#080b10">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sling Jump">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body tabindex="0">
+
+  <div id="game-container" tabindex="0">
+    <!-- Master 2D Physics Canvas -->
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- Screen Vignettes -->
+    <div id="slowmo-overlay"></div>
+    <div id="danger-overlay"></div>
+    <div id="flash-overlay"></div>
+
+    <!-- 1. MAIN MENU OVERLAY -->
+    <div class="state-overlay visible" id="menu-overlay">
+      <div class="menu-top-bar">
+        <button class="icon-nav-btn" id="btn-menu-quests" aria-label="Aufgaben">
+          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
+        </button>
+        <div class="menu-top-right-group">
+          <button class="icon-nav-btn" id="btn-menu-leaderboard" aria-label="Bestenliste">
+            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          </button>
+          <button class="icon-nav-btn" id="btn-menu-settings" aria-label="Einstellungen">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="menu-content">
+        <div class="game-title-container">
+          <h1 class="game-title">SLING JUMP</h1>
+          <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
+          <div class="app-version-tag">v3.21.0</div>
+        </div>
+
+        <div class="currency-group">
+          <div class="currency-badge" title="Coins">
+            <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg>
+            <span id="menu-currency-val">0</span>
+          </div>
+          <div class="currency-badge crystal-badge" title="Hyper-Kristalle (Sehr selten - für Wiederbelebung)">
+            <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg>
+            <span id="menu-crystals-val">1</span>
+          </div>
+        </div>
+
+        <div class="menu-buttons">
+          <button class="btn-primary" id="btn-menu-play">
+            <span>SPIEL STARTEN</span>
+            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          </button>
+          <button class="btn-secondary" id="btn-menu-tutorial">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            <span>TUTORIAL</span>
+          </button>
+          <button class="btn-secondary" id="btn-menu-shop">
+            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            <span>SKINS</span>
+          </button>
+          <button class="btn-secondary" id="btn-menu-stats">
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>STATISTIKEN</span>
+          </button>
+        </div>
+
+        <!-- PWA Mobile Install Banner -->
+        <div class="pwa-install-banner" id="pwa-install-banner" style="display: none;">
+          <div class="pwa-banner-content">
+            <div class="pwa-banner-icon">
+              <svg class="icon-svg" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            </div>
+            <div class="pwa-banner-text">
+              <span class="pwa-banner-title">ALS APP INSTALLIEREN</span>
+              <span class="pwa-banner-desc" id="pwa-banner-desc">Vollbild ohne Browserleiste</span>
+            </div>
+            <button class="pwa-install-btn" id="btn-pwa-install">INSTALLIEREN</button>
+            <button class="pwa-dismiss-btn" id="btn-pwa-dismiss" aria-label="Schließen">
+              <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. INGAME HUD LAYER -->
+    <div class="hud-layer" id="hud-layer">
+      <!-- Centered Slow Motion Status Indicator -->
+      <div class="bullet-time-badge" id="bullet-badge">SLOW-MO BEREIT</div>
+
+      <!-- Prominent Glowing HUD Combo Badge -->
+      <div class="hud-combo-badge" id="hud-combo-badge" style="display: none;">COMBO x2!</div>
+
+      <!-- Floating In-Game Real-Time Tutorial Tip Banner -->
+      <div class="hud-tutorial-tip" id="hud-tutorial-tip" style="display: none;">
+        <span class="tutorial-tip-badge">TRAINING</span>
+        <span class="tutorial-tip-text" id="hud-tutorial-tip-text">HALTE GEDRÜCKT ZUM EINHAKEN</span>
+      </div>
+
+      <div class="top-header">
+        <div class="score-container">
+          <div class="altitude-meter"><span id="altitude-val">0</span><span class="altitude-unit">m</span></div>
+          <div class="sub-stats">
+            <div class="stat-badge best">
+              <span>REKORD:</span>
+              <span id="best-val">0m</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-right">
+          <button class="icon-btn" id="btn-hud-pause" title="Pause">
+            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="record-banner" id="record-banner">NEUER HÖHEN-REKORD!</div>
+
+      <!-- Ingame Quest Tracker Widget -->
+      <div class="hud-quest-tracker">
+        <div class="hud-quest-header">
+          <span class="hud-quest-title" id="hud-quest-title">AUFGABE</span>
+          <span id="hud-quest-progress">0 / 0</span>
+        </div>
+        <div class="hud-quest-bar">
+          <div class="hud-quest-fill" id="hud-quest-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mission Completed Toast Notification -->
+    <div class="quest-toast" id="quest-toast">
+      <div class="quest-toast-info">
+        <span class="quest-toast-tag">AUFGABE ERLEDIGT!</span>
+        <span class="quest-toast-title" id="quest-toast-title">AUFGABEN-TITEL</span>
+        <span class="quest-toast-reward" id="quest-toast-reward"></span>
+      </div>
+    </div>
+
+    <!-- 3. PAUSE MODAL -->
+    <div class="modal-overlay" id="pause-modal">
+      <div class="modal-card">
+        <div class="modal-title">PAUSE</div>
+        <div class="modal-button-stack">
+          <button class="btn-primary" id="btn-pause-resume">WEITERSPIELEN</button>
+          <button class="btn-secondary" id="btn-pause-restart">NEUSTART</button>
+          <button class="btn-secondary" id="btn-pause-settings">EINSTELLUNGEN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. GAME OVER MODAL -->
+    <div class="modal-overlay" id="gameover-modal">
+      <div class="modal-card gameover-card">
+        <div class="modal-title danger">ABSTURZ</div>
+        <div class="new-record-indicator" id="new-record-badge" style="display:none;">NEUER REKORD!</div>
+        
+        <!-- Hero Altitude / Score Display -->
+        <div class="gameover-hero-score">
+          <div class="hero-altitude" id="final-altitude">0 m</div>
+        </div>
+
+        <div class="gameover-sub-record">
+          <span class="sub-record-label">BESTLEISTUNG</span>
+          <span class="sub-record-val" id="final-best">0 m</span>
+        </div>
+
+        <div class="gameover-rewards-row">
+          <div class="reward-pill" title="Gesammelte Coins">
+            <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg>
+            <span id="final-orbs">+0</span>
+          </div>
+          <div class="reward-pill crystal-pill" title="Gesammelte Hyper-Kristalle">
+            <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg>
+            <span id="final-crystals">+0</span>
+          </div>
+        </div>
+
+        <!-- Interactive Revive Section (Second Chance) -->
+        <div class="gameover-revive-box" id="revive-box">
+          <div class="revive-header">
+            <span class="revive-badge">ZWEITE CHANCE</span>
+            <span class="revive-title">FLUG FORTSETZEN?</span>
+          </div>
+          <p class="revive-desc">Starte sofort mit 3s Quanten-Schutzschild an der aktuellen Höhe weiter!</p>
+          <button class="btn-revive" id="btn-gameover-revive">
+            <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg>
+            <span id="revive-btn-text">WIEDERBELEBEN (1 KRISTALL)</span>
+          </button>
+          <div class="revive-subtext" id="revive-status-text">Guthaben: 1 Hyper-Kristall (1x pro Runde)</div>
+        </div>
+
+        <div class="modal-button-stack">
+          <button class="btn-primary" id="btn-gameover-restart">NOCHMAL SPIELEN</button>
+          <button class="btn-secondary" id="btn-gameover-shop">SKINS</button>
+          <button class="btn-secondary" id="btn-gameover-menu">HAUPTMENÜ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. SKINS / SHOP MODAL -->
+    <div class="modal-overlay" id="shop-modal">
+      <div class="modal-card hangar-card">
+        <div class="hangar-header">
+          <div class="modal-title" style="margin-bottom:0;">SKINS</div>
+          <div class="currency-group">
+            <div class="currency-badge" title="Coins">
+              <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg>
+              <span id="shop-currency-val">0</span>
+            </div>
+            <div class="currency-badge crystal-badge" title="Hyper-Kristalle">
+              <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg>
+              <span id="shop-crystals-val">1</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-tabs">
+          <button class="shop-tab-btn active" data-tab="ships">RAUMSCHIFFE</button>
+          <button class="shop-tab-btn" data-tab="trails">SCHWEIFE</button>
+        </div>
+
+        <div class="hangar-body">
+          <!-- Item Grid -->
+          <div class="shop-grid-container" id="shop-grid"></div>
+
+          <!-- Preview & Details -->
+          <div class="hangar-preview-pane">
+            <canvas id="hangar-preview-canvas" width="240" height="180"></canvas>
+            <div class="hangar-item-info">
+              <div class="hangar-item-title" id="shop-item-title">PFEIL</div>
+              <div class="hangar-item-desc" id="shop-item-desc">Dein schnelles Start-Schiff.</div>
+            </div>
+            <button class="btn-primary" id="shop-action-btn" style="width:100%;">AUSRÜSTEN</button>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <button class="btn-secondary" id="btn-shop-close" style="width:100%;">SCHLIESSEN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. AUFGABEN MODAL (DEDICATED) -->
+    <div class="modal-overlay" id="quests-modal">
+      <div class="modal-card hub-card">
+        <div class="modal-title" style="margin-bottom:14px;">AUFGABEN</div>
+        <div class="quests-scroll-area">
+          <!-- Daily Quests -->
+          <div class="quest-section-header">
+            <span class="section-subtitle" style="margin:0;">TÄGLICHE AUFGABEN</span>
+            <span class="reset-timer-badge" id="daily-reset-timer">Reset in --:--</span>
+          </div>
+          <div class="quests-list" id="daily-quests-list"></div>
+
+          <!-- Weekly Quests -->
+          <div class="quest-section-header" style="margin-top:16px;">
+            <span class="section-subtitle" style="margin:0;">WÖCHENTLICHE HERAUSFORDERUNGEN</span>
+            <span class="reset-timer-badge" id="weekly-reset-timer">Reset in --:--</span>
+          </div>
+          <div class="quests-list" id="weekly-quests-list"></div>
+        </div>
+        <button class="btn-secondary" id="btn-quests-close" style="width:100%; margin-top:14px;">SCHLIESSEN</button>
+      </div>
+    </div>
+
+    <!-- 7. BESTENLISTE MODAL (DEDICATED) -->
+    <div class="modal-overlay" id="leaderboard-modal">
+      <div class="modal-card hub-card">
+        <div class="modal-title" style="margin-bottom:14px;">BESTENLISTE</div>
+        <div class="section-subtitle">WELTWEITE BESTENLISTE</div>
+        <div class="leaderboard-list" id="global-leaderboard-list"></div>
+
+        <!-- Sticky Player Rank Banner -->
+        <div class="player-rank-card" id="player-rank-card">
+          <div class="rank-card-main">
+            <div class="rank-badge" id="player-rank-badge">#---</div>
+            <div class="rank-info">
+              <div class="rank-title" id="player-rank-percentile">BERECHNE RANG...</div>
+              <div class="rank-delta" id="player-rank-delta">Rekord: 0m</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-secondary" id="btn-leaderboard-close" style="width:100%; margin-top:14px;">SCHLIESSEN</button>
+      </div>
+    </div>
+
+    <!-- 8. STATISTIKEN MODAL (DEDICATED) -->
+    <div class="modal-overlay" id="stats-modal">
+      <div class="modal-card stats-card">
+        <div class="modal-title" style="margin-bottom:14px;">STATISTIKEN</div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-box-label">Geflogene Distanz</div>
+            <div class="stat-box-val" id="stat-lifetime-meters">0 m</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Gespielte Runden</div>
+            <div class="stat-box-val" id="stat-total-runs">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Durchschnitts-Höhe</div>
+            <div class="stat-box-val" id="stat-avg-altitude">0 m</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Gesammelt</div>
+            <div class="stat-box-val" id="stat-total-cores">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Slingshot-Sprünge</div>
+            <div class="stat-box-val" id="stat-total-slingshots">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Knappe Rettungen</div>
+            <div class="stat-box-val" id="stat-total-nearmisses">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Eingelöste Aufgaben</div>
+            <div class="stat-box-val" id="stat-completed-quests">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Beste Slingshot-Combo</div>
+            <div class="stat-box-val" id="stat-best-combo">0x</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Hyper-Kristalle</div>
+            <div class="stat-box-val" id="stat-total-crystals">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Wiederbelebungen</div>
+            <div class="stat-box-val" id="stat-total-revives">0</div>
+          </div>
+        </div>
+        <button class="btn-secondary" id="btn-stats-close" style="width:100%; margin-top:14px;">SCHLIESSEN</button>
+      </div>
+    </div>
+
+    <!-- 7. SETTINGS MODAL -->
+    <div class="modal-overlay" id="settings-modal">
+      <div class="modal-card">
+        <div class="modal-title">EINSTELLUNGEN</div>
+
+        <div class="settings-list">
+          <div class="setting-row">
+            <span class="setting-label">Audio & Musik</span>
+            <span style="font-size:11px; font-weight:800; color:#64748b; letter-spacing:1px;">DEAKTIVIERT</span>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Bildschirm-Wackeln</span>
+            <button class="btn-secondary" id="btn-shake" style="padding:6px 16px;">100%</button>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Performance-Modus</span>
+            <button class="btn-secondary" id="btn-perf" style="padding:6px 16px;">AUS</button>
+          </div>
+        </div>
+
+        <div class="modal-button-stack">
+          <button class="btn-primary" id="btn-open-tutorial">ANLEITUNG & STEUERUNG</button>
+          <button class="btn-secondary" id="btn-check-update">NACH UPDATES SUCHEN</button>
+          <a href="dashboard.html" class="btn-secondary" id="btn-open-dashboard" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <svg class="icon-svg" viewBox="0 0 24 24" style="width:14px;height:14px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>SPIELER-DASHBOARD</span>
+          </a>
+          <button class="btn-danger" id="btn-reset-data">SPIELSTAND ZURÜCKSETZEN</button>
+          <button class="btn-secondary" id="btn-settings-close">SCHLIESSEN</button>
+        </div>
+        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v3.21.0</div>
+      </div>
+    </div>
+
+    <!-- 8. TUTORIAL MODAL (Simple 2-Slide Visual Guide) -->
+    <div class="modal-overlay" id="tutorial-modal" style="z-index: 120;">
+      <div class="modal-card tutorial-card" style="max-width: 440px; text-align: center;">
+        
+        <!-- SLIDE 1: GRUNDSTEUERUNG -->
+        <div class="tutorial-slide" id="tut-slide-1">
+          <div class="tutorial-step-badge">SCHRITT 1 / 2 &bull; GRUNDSTEUERUNG</div>
+          <div class="modal-title" style="margin-top: 6px; font-size: 20px;">WIE MAN SPIELT</div>
+
+          <!-- Clean Vector Graphic for Slide 1 -->
+          <div class="tutorial-visual-box" style="margin: 14px auto; width: 100%; height: 150px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 280 130" style="width: 260px; height: 120px;">
+              <!-- Target Circle with Pulse -->
+              <circle cx="140" cy="40" r="22" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
+              <circle cx="140" cy="40" r="15" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" stroke-width="2.5"/>
+              <circle cx="140" cy="40" r="4.5" fill="#ffffff"/>
+              
+              <!-- Tether Cable -->
+              <line x1="140" y1="40" x2="88" y2="78" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 2"/>
+              
+              <!-- Flight Trajectory Arc -->
+              <path d="M 88,78 Q 115,95 140,85 Q 180,72 195,22" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/>
+              <polygon points="195,16 190,26 200,24" fill="#fbbf24"/>
+
+              <!-- Spaceship at tether point -->
+              <polygon points="88,72 95,84 81,84" fill="#ffffff" stroke="#38bdf8" stroke-width="1.5"/>
+
+              <!-- Labels -->
+              <text x="35" y="108" fill="#38bdf8" font-family="'Orbitron', monospace" font-size="9" font-weight="700">1. HALTEN = EINHAKEN</text>
+              <text x="155" y="108" fill="#fbbf24" font-family="'Orbitron', monospace" font-size="9" font-weight="700">2. LOSLASSEN = FLUG</text>
+            </svg>
+          </div>
+
+          <div class="tutorial-desc-box" style="text-align: left; background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;">
+            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.55; margin: 0 0 8px 0;">
+              <strong style="color: #38bdf8;">GEDRÜCKT HALTEN:</strong> Halte den Bildschirm (oder Leertaste / Klick) gedrückt, um dich an einen nahen Kreis einzuhaken und Schwung aufzubauen.
+            </p>
+            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.55; margin: 0;">
+              <strong style="color: #fbbf24;">LOSLASSEN:</strong> Lass im richtigen Moment los, um mit dem aufgebauten Schwung in deine Flugrichtung geschleudert zu werden!
+            </p>
+          </div>
+
+          <div class="modal-button-stack">
+            <button class="btn-primary" id="btn-tut-next">WEITER</button>
+            <button class="btn-secondary" id="btn-tut-close-1">SCHLIESSEN</button>
+          </div>
+        </div>
+
+        <!-- SLIDE 2: HIMMELSKÖRPER (TEASER) -->
+        <div class="tutorial-slide" id="tut-slide-2" style="display: none;">
+          <div class="tutorial-step-badge">SCHRITT 2 / 2 &bull; HIMMELSKÖRPER</div>
+          <div class="modal-title" style="margin-top: 6px; font-size: 20px;">VERSCHIEDENE KREISE</div>
+
+          <!-- Clean Vector Graphic for Slide 2 (Mysterious Circles Row) -->
+          <div class="tutorial-visual-box" style="margin: 14px auto; width: 100%; height: 150px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: center; align-items: center; gap: 14px;">
+              <!-- Circle 1: Standard Cyan -->
+              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
+                <circle cx="20" cy="20" r="14" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="2"/>
+                <circle cx="20" cy="20" r="4" fill="#ffffff"/>
+              </svg>
+              <!-- Circle 2: Super Boost Green with Arrow -->
+              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
+                <circle cx="20" cy="20" r="14" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2"/>
+                <polyline points="15,22 20,16 25,22" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <!-- Circle 3: Moving Purple with Oscillation Trail -->
+              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
+                <circle cx="20" cy="20" r="14" fill="rgba(168, 85, 247, 0.2)" stroke="#a855f7" stroke-width="2"/>
+                <line x1="8" y1="20" x2="32" y2="20" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="2 2"/>
+                <circle cx="20" cy="20" r="4" fill="#ffffff"/>
+              </svg>
+              <!-- Circle 4: Fragile Red with Clock Markings -->
+              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
+                <circle cx="20" cy="20" r="14" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 2"/>
+                <line x1="20" y1="20" x2="20" y2="13" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <!-- Circle 5: Decoy Brittle with Fracture -->
+              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
+                <circle cx="20" cy="20" r="14" fill="rgba(249, 115, 22, 0.2)" stroke="#f97316" stroke-width="2"/>
+                <polyline points="20,8 18,17 23,22 19,32" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div style="font-size: 10px; font-family: 'Orbitron', monospace; font-weight: 700; color: #a855f7; letter-spacing: 1px;">
+              ENTDECKE DIE GEHEIMNISSE IM FLUG
+            </div>
+          </div>
+
+          <div class="tutorial-desc-box" style="text-align: left; background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;">
+            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.55; margin: 0 0 8px 0;">
+              Im Weltraum erwarten dich <strong style="color: #a855f7;">verschiedene Arten von Kreisen</strong>. Je höher du fliegst, desto mehr neue Himmelskörper wirst du entdecken!
+            </p>
+            <p style="font-size: 13px; color: #94a3b8; line-height: 1.55; margin: 0;">
+              Jeder Typ verhält sich anders: Einige verleihen ungeahnten Schub, andere fordern dein Timing heraus oder bergen Überraschungen... Finde selbst heraus, was sie tun!
+            </p>
+          </div>
+
+          <div class="modal-button-stack">
+            <button class="btn-primary" id="btn-tut-play">SPIEL STARTEN</button>
+            <button class="btn-secondary" id="btn-tut-back">ZURÜCK</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Confirmation Modal for Save Reset -->
+    <div class="modal-overlay" id="confirm-modal" style="z-index:150;">
+      <div class="modal-card" style="max-width:360px;">
+        <div class="modal-title danger">ACHTUNG</div>
+        <p style="color:#94a3b8; font-size:13px; line-height:1.5; margin-bottom:20px;">
+          Möchtest du wirklich deinen gesamten Spielstand, alle gesammelten Coins und freigeschalteten Skins löschen?
+        </p>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-danger" id="btn-confirm-yes" style="flex:1;">JA, LÖSCHEN</button>
+          <button class="btn-secondary" id="btn-confirm-no" style="flex:1;">ABBRECHEN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modular Scripts in Dependency Order -->
+  <script src="js/config/Constants.js"></script>
+  <script src="js/services/StorageService.js"></script>
+  <script src="js/services/AnalyticsService.js"></script>
+  <script src="js/audio/AudioManager.js"></script>
+  <script src="js/engine/ParticleSystem.js"></script>
+  <script src="js/engine/InputManager.js"></script>
+  <script src="js/engine/MissionManager.js"></script>
+  <script src="js/entities/Node.js"></script>
+  <script src="js/entities/EnergyOrb.js"></script>
+  <script src="js/entities/Spaceship.js"></script>
+  <script src="js/world/WorldManager.js"></script>
+  <script src="js/engine/ShopManager.js"></script>
+  <script src="js/engine/StateManager.js"></script>
+  <script src="js/engine/UIManager.js"></script>
+  <script src="js/engine/GameEngine.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

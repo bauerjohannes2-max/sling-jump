@@ -1,0 +1,463 @@
+# Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
+
+> **Status:** Release Candidate (RC21 - v3.21.0 - Clean Deep Space Aesthetic & Background Grid Elimination)  
+> **Letzte Aktualisierung:** 03.09.2026  
+> **Lauffaehigkeit:** Sofort spielbar via Direkt-Doppelklick (`file:///`), Webserver (`npm start`) oder weltweitem Cloudflare-Tunnel (`npm run share`)  
+> **Test-Runner:** Playwright Test-Suite via `npm test` (`scripts/playwright_runner.js`)  
+> **Vertriebs-Dokumentation:** Siehe auch [`DISTRIBUTION.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/DISTRIBUTION.md)
+
+---
+
+## 1. Schnellanleitung: Mobile Zugriff & Server-Befehle
+
+| Befehl | Zweck | Beschreibung |
+| :--- | :--- | :--- |
+| `npm start` / `npm run serve` | **Lokales WLAN / LAN** | Startet den HTTP-Server auf Port 3000, ermittelt die lokale IPv4 (`http://192.168.x.x:3000`) und gibt einen scanbaren ASCII-QR-Code im Terminal aus. |
+| `npm run share` | **Weltweiter Cloudflare-Tunnel (4G/5G/WLAN)** | Erstellt einen stabilen Cloudflare Quick Tunnel (`https://...trycloudflare.com`) samt QR-Code, ohne Passwortschranken oder Session-Timeouts weltweit auf jedem Smartphone abrufbar. |
+| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 17 frische Screenshots und garantiert 0 Konsolenfehler. |
+
+---
+
+## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.21.0 (03.09.2026) - Clean Deep Space Aesthetic & Background Grid Elimination
+* **Vollständige Entfernung des Hintergrund-Gitters (`WorldManager.js`, `ShopManager.js`, `GameEngine.js`):**
+  * Auf ausdrücklichen Nutzerwunsch wurde das künstliche Gitternetz (`Perspective Grid`) im Hintergrund des Spielfelds komplett entfernt.
+  * Ebenfalls wurde das feine Kachelraster im Hangar-Preview-Canvas (`ShopManager.js`) eliminiert.
+  * **Visuelle Wirkung:** Das Spielfeld wirkt nun deutlich eleganter, aufgeräumter und moderner. Der samtweiche, tiefe Weltraumhintergrund lässt die leuchtenden Orbit-Ringe, glitzernde Sterne, Hyperspace-Warp-Streifen und neonfarbene Schweife mit maximalem Kontrast zur Geltung kommen.
+* **Versions-Gleichstand:** `v3.21.0` in `Constants.js`, `package.json`, `sw.js`, `index.html`.
+* **Playwright Suite:** 17 Screenshots frisch erfasst, visuell auditiert, 0 Konsolenfehler.
+
+### v3.20.0 (03.09.2026) - Ultra-Rare Hyper-Kristall Currency & Quantum Revive Engine
+* **Neue Premium-Währung: "HYPER-KRISTALL" (`EnergyOrb.js`, `WorldManager.js`, `StorageService.js`):**
+  * Entwickelt als seltene Quantum-Währung in strahlendem Magenta (`#d946ef`) mit Facetten-Vektor-Diamant-Geometrie, rotierenden Energie-Strahlen und pulsierender Partikel-Aura.
+  * **Ultra-Rare Spawning:** Spawnt in `WorldManager.js` erst ab 250m Höhe mit einer Wahrscheinlichkeit von nur ~1.5% pro Chunk in offenen Sprungkorridoren.
+  * **Sammlung:** Löst bei Aufnahme magenta Kristall-Splitter, Schockwellen, Spezial-Sound und vergrößerten Floating Text `+1 KRISTALL!` aus.
+  * **Storage & Stats:** Persistiert in `storage.data.hyperCrystals` (1 Willkommens-Kristall zum sofortigen Erproben) und protokolliert lebenslang gesammelte Kristalle in `storage.data.stats.totalCrystalsCollected`.
+* **Interaktives Wiederbelebungs-System (Quantum Revive Engine) (`GameEngine.js`, `Spaceship.js`, `UIManager.js`, `index.html`):**
+  * **Zweite Chance:** Beim Absturz bietet das Spiel im `#gameover-modal` eine hervorgehobene Revive-Box (`ZWEITE CHANCE - FLUG FORTSETZEN?`) an (1x pro Run).
+  * **Kosten:** 1 Hyper-Kristall (oder Vorbereitung für Werbevideos: zeigt bei 0 Kristallen "WERBUNG BALD VERFÜGBAR" an).
+  * **Mechanik (`gameEngine.revivePlayer()`):**
+    * Zieht 1 Kristall ab und markiert `hasRevivedThisRun = true`.
+    * Setzt das Raumschiff an den höchsten stabilen Anker nahe der Absturzhöhe mit sicherem Aufwärtsschwung.
+    * Aktiviert für 3.0 Sekunden einen unzerstörbaren Quanten-Schutzschild (`shieldTimer = 3.0`), der als pulsierende violette Energieblase mit rotierenden Hexagon-Facetten gerendert wird und vor Fall-Toden schützt.
+    * Entfesselt eine Quantum-Schockwelle (`spawnShards`, `spawnSparks`, Floating Text `WIEDERBELEBT!`), schließt das Modal und setzt den aktuellen Run nahtlos mit allen erreichten Höhen und Münzen fort.
+* **UI & Währungsanzeigen:**
+  * Hauptmenü und Hangar zeigen nun sowohl Coins als auch Hyper-Kristalle in modernen Vektor-Pillen an.
+  * Absturz-Bildschirm zeigt gesammelte Coins und gesammelte Kristalle nebeneinander (`+12 Coins`, `+1 Kristall`).
+  * Statistiken-Modal um lebenslange Hyper-Kristalle und Wiederbelebungen erweitert.
+* **Playwright Suite & Screenshots:**
+  * Erweitert um automatisierten Klick auf `#btn-gameover-revive`, Verifikation der Wiederbelebung und Erfassung von `10b_revived_gameplay.png` mit aktiver Schutzschild-Blase.
+  * 0 Konsolenfehler, alle 17 Screenshots frisch erfasst.
+
+### v3.19.0 (03.09.2026) - Single Active Ship & Trail, Tighter 90° Precision & Enlarged Dynamic Combo Visuals
+* **Reduktion auf 1 aktives Schiff & 1 aktiven Schweif (`Constants.js`, `StorageService.js`, `ShopManager.js`):**
+  * Alle sekundären Schiffe (`phoenix`, `spectre`, `titan`) und Schweife (`solar_flame`, `void_purple`, `rainbow_wave`) wurden auf Nutzeranweisung entfernt.
+  * Im Hangar wird ausschließlich das aktive Standard-Schiff (`PFEIL` / `dart`) sowie der aktive Schweif (`CYAN-LASER` / `neon_cyan`) präsentiert.
+  * Eine elegante Teaser-Karte ("WEITERE MODELLE IN ENTWICKLUNG") signalisiert Spielern den Ausbau für zukünftige Versionen.
+  * `StorageService` migriert Bestandsspielstände automatisch und verhindert Inkonsistenzen.
+* **Härterer, anspruchsvollerer 90°-Steilsprung (`Spaceship.js`):**
+  * Das Winkel-Toleranzfenster für den perfekten Steilsprung wurde von `tangentY >= 0.86` ($\pm 30.7^\circ$) auf `tangentY >= 0.965` ($\pm 15.2^\circ$) mehr als halbiert.
+  * Der Spieler muss das Raumschiff mit hoher Präzision genau im Scheitelpunkt vertikal nach oben entlassen, um den Ketten-Combo-Bonus auszulösen.
+* **Massiv vergrößertes & präsentes Combo-Visual (`ParticleSystem.js`, `GameEngine.js`, `index.html`):**
+  * **Großer Floating Text:** Von ehemals 15px auf **28px bis 42px** vergrößert (skaliert dynamisch mit der Combo-Stufe).
+  * **Kontraststarker 6px-Stroke (`strokeText`):** Dunkler Backdrop-Rand garantiert exzellente Ablesbarkeit vor Sternenfeldern und bunten Ringen.
+  * **Stufenfarbener Neon-Glow:** Kräftige Aura (`shadowBlur: 20`) in dynamischen Farbstufen (`#38bdf8`, `#818cf8`, `#a855f7`, `#fbbf24`, `#ef4444` etc.).
+  * **Zentrales HUD-Combo-Badge (`#hud-combo-badge`):** Leuchtet bei jedem erfolgreichen Steilsprung auf und zelebriert den Multiplikator (`COMBO x2!`, `HYPER x5!`, `MAX COMBO x10!`).
+* **Automatisierte Playwright-Verifikation:**
+  * 0 Konsolenfehler; Screenshot `08_gameplay_hud.png` erfasst die vergrößerte Combo-Anzeige und das HUD-Badge.
+
+### v3.18.0 (03.09.2026) - Clean Vector Gameplay: Dotted Trajectory Line Removal
+* **Gepunktete Hilfslinien vor dem Spielermodell vollständig entfernt (`Spaceship.js`):**
+  * `drawTrajectoryLaser` entfernt: Vor dem Raumschiff wird während des Orbitens keine gepunktete Vorhersage-Flugbahn mehr projiziert.
+  * `drawAimPreview` entfernt: Keine gestrichelte Verbindungslinie oder Bogen mehr beim Annähern an Knoten.
+  * **Purer Arcade-Flow:** Der Bildschirm ist komplett aufgeräumt. Der Spieler steuert das Raumschiff rein intuitiv anhand der sichtbaren physikalischen Rotation, der leuchtenden Seillinie und des Geschwindigkeitsgefühls.
+* **Automatisierte Playwright-Verifikation:**
+  * Screenshot `08_gameplay_hud.png` verifiziert die cleane Darstellung ohne gepunktete Linien vor der Schiffsnase bei 0 Konsolenfehlern.
+
+### v3.17.0 (03.09.2026) - Simple 2-Slide Modal Tutorial & Bulletproof PWA Auto-Update Engine
+* **Kompaktes, übersichtliches Button-Tutorial (`#tutorial-modal`):**
+  * Aufrufbar über den Button **"TUTORIAL"** im Hauptmenü sowie über **"ANLEITUNG & STEUERUNG"** in den Einstellungen.
+  * Folie 1 (Grundsteuerung): Erklärt präzise und einfach das Einhaken (Halten zum Schwungaufbau an nahen Kreisen) und das Loslassen (mit Schwung in Flugrichtung nach oben geschleudert werden) inklusive anschaulicher Vektor-Grafik.
+  * Folie 2 (Himmelskörper-Teaser): Zeigt geheimnisvolle Kreis-Silhouetten und teasert an, dass es im Weltraum verschiedene Arten von Kreisen mit einzigartigen Besonderheiten gibt, ohne deren genaue Funktionen zu verraten, damit die Spieler sie selbst während des Flugs entdecken und erfahren.
+  * Reibungslose Navigation mit Buttons `WEITER`, `ZURÜCK`, `SPIEL STARTEN` und `SCHLIESSEN`.
+  * Das reguläre Spiel läuft ohne störende Unterbrechungen als purer Arcade-Run ab.
+* **Bulletproof PWA Auto-Update & Versions-Synchronisation:**
+  * **Single Source of Truth (`Constants.VERSION = '3.17.0'`):** Dynamische Injektion in alle DOM-Versionstags (`.app-version-tag`, `.settings-version-tag`) und in den Telemetriedienst.
+  * **Network-First für HTML & App-Shell (`sw.js`):** Der Service Worker liefert Navigations- und HTML-Anfragen online stets direkt und frisch vom Server aus (mit Offline-Fallback) anstatt veraltetes HTML aus dem Cache anzuzeigen.
+  * **Strikte No-Cache Header (`scripts/serve.js`):** `sw.js`, `index.html`, `Constants.js` und `manifest.json` werden verbindlich mit `Cache-Control: no-store, no-cache, must-revalidate, max-age=0` ausgeliefert, sodass Mobilbrowser (iOS Safari / Chrome) keine veralteten Skripte auf Disk vorhalten.
+  * **Live Versions-Endpunkt (`/api/version`):** Liefert bei jedem Check die aktuelle Serverversion.
+  * **Automatischer Background-Check & Instant Reload (`main.js`):** Prüft beim App-Start und bei jedem Tab-Wechsel (`visibilitychange`) die Serverversion; bei neuem Build werden veraltete Caches geleert und die App aktualisiert sich nahtlos via `controllerchange`.
+  * **Manueller "NACH UPDATES SUCHEN"-Button:** Im Einstellungsmenü integriert für sofortige manuelle Versionsprüfung und Cache-Bereinigung.
+* **Automatisierte Playwright-Verifikation:**
+  * Alle Screens, Tutorial-Folien und der neue Update-Button werden automatisiert getestet (`13_tutorial_modal.png` und `13b_tutorial_slide2.png`); 0 Konsolenfehler garantiert.
+
+### v3.16.0 (03.09.2026) - Doodle Jump Distance Scaling, Screen Shake Calming, 1:1 Coin Harmonization & Screenshot Purge
+* **Doodle Jump Distanz-Progression (`WorldManager.js`):**
+  * Stufenweise Einführung der Knotentypen drastisch gestreckt, angelehnt an die bewährte Arcade-Progression von Doodle Jump:
+    * Zone 1 (0m – 500m): 100% solide Standard-Anker. Fokussierter Einstieg ohne Ablenkungen zum Erlernen der Flugkurven.
+    * Zone 2 (500m – 1.500m): Seltener Super-Boost (5%) mit Aufwärtspfeil als erhabener Katapult-Glücksmoment.
+    * Zone 3 (1.500m – 3.500m): Sanft pendelnde bewegliche Knoten (16%) fordern Timing und Vorausschau.
+    * Zone 4 (3.500m – 6.500m): Zerfallende Zeituhr-Knoten (12%) erzeugen spürbaren Druck durch Countdown.
+    * Zone 5 (6.500m – 10.000m): Brüchige Decoy-Fallen (7%) zerspringen sofort; erfordern selektives Überspringen.
+    * Zone 6 (10.000m+): Hardcore Meister-Kosmos für globale Bestenlisten.
+* **Screenshake beruhigt & butterweiches Fluggefühl (`GameEngine.js`):**
+  * Dauergewackel restlos beseitigt:
+    * Normales Einhaken: 0 Screenshake (vorher 2px).
+    * Normales Loslassen: 0 Screenshake (vorher 4px).
+    * Münzen einsammeln: 0 Screenshake (vorher 2px).
+    * Niedrige Combos (x1 bis x3): 0 Screenshake.
+    * Hohe Combos (x4+): Gezielter, dezenter Punch (max 4px).
+    * Super-Boost: Reduziert auf 4px (vorher 12px).
+    * Brüchiger Bruch: Reduziert auf 5px (vorher 14px).
+    * Crash / Game Over: Reduziert auf 8px (vorher 24px).
+    * Abklingzeit: Beschleunigt auf `rawDt * 36` für sofortige Kameraberuhigung.
+* **Münzen-Grafik 1:1 vereinheitlicht (`EnergyOrb.js`, `UIManager.js`, `index.html`, `dashboard.html`):**
+  * Sämtliche UI-Münzsymbole (Hauptmenü, Absturzmenü, Hangar, Quests, Dashboard) wurden exakt an das In-Game Canvas-Design der Münzen angepasst.
+  * Einheitliche Vektor-Geometrie: Goldener Außenring (`#fbbf24`), facettenreicher weißer Diamantkern mit Amber-Kontur (`#f59e0b`) und zentriertem Goldglanz-Punkt.
+* **Vollständige Verbannung des Begriffs "Apex" (`GameEngine.js`, `Spaceship.js`, `GAME_SYSTEMS.md`):**
+  * Ersetzt durch intuitive deutsche Begriffe: "90°-Steilsprung", "Perfekter Aufwärtsschwung".
+  * Tutorial-Hinweis aktualisiert: `SCHWUNG: LASS BEIM SCHWUNG NACH OBEN LOS (90°)`.
+  * Interne Engine-Variablen konsistent umbenannt (`isPerfectLaunch`, `launchBonus`).
+* **Automatisierter Screenshot-Purge & Frische-Garantie (`playwright_runner.js`):**
+  * Vor jedem Playwright-Lauf werden ausnahmslos alle bestehenden `.png`-Dateien im Ordner `screenshots/` bereinigt.
+  * Jeder Screenshot wird mit aktuellem Datumsstempel und Dateigröße im Terminal quittiert.
+
+### v3.15.0 (03.09.2026) - PWA Smartphone Optimization & Live Telemetry Player Dashboard
+* **Progressive Web App (PWA) Homescreen-Optimierung:**
+  * Hochauflösende Vektor-App-Icons generiert: `assets/icon.svg`, `assets/icon-192.png` (192x192) und `assets/icon-512.png` (512x512) mit Vektor-Raumschiff, Cyan-Orbitringen und Goldenem Stern.
+  * Apple Touch Icons und mobile Vollbild-Metatags (`apple-mobile-web-app-capable`, `black-translucent`) in `index.html` integriert.
+  * Startbildschirm-Installationsbanner (`#pwa-install-banner`) im Hauptmenü: Unterstützt native Installation unter Android Chrome (`beforeinstallprompt`) sowie visuelle Anleitung für iOS Safari ("Teilen -> Zum Home-Bildschirm").
+* **Offline-Caching & Sofortige Hintergrund-Updates (`sw.js`):**
+  * Service Worker mit Cache-First- und Stale-While-Revalidate-Strategie für alle Core-Dateien implementiert.
+  * Automatisches Claiming (`skipWaiting()`, `clients.claim()`): Neue Builds werden sofort im Hintergrund geladen und beim nächsten Start nahtlos aktiv.
+* **Server-Telemetrie & Live-Statistiken (`scripts/serve.js`, `data/analytics.json`):**
+  * Endpunkte `POST /api/telemetry` und `GET /api/telemetry/stats` in `scripts/serve.js` integriert.
+  * In-Memory-Tracking für aktive Spieler (Heartbeat alle 25 Sekunden) plus dauerhafte Speicherung von Gesamt-Besuchern, Runden heute/gesamt, Rekorden und Flugdauer in `data/analytics.json`.
+* **Echtzeit-Spieler-Dashboard (`dashboard.html`):**
+  * Eigenständiges, responsives Admin- und Monitoring-Dashboard unter `/dashboard` bzw. `/dashboard.html`.
+  * Live-KPIs mit grünem Radar-Puls ("SPIELER ONLINE"), Unique Geräten, Runden heute, Allzeit-Rekord und gesammelten Münzen.
+  * Tabelle der letzten Flüge mit Zeitstempeln, Schiffen und Rekord-Markierungen.
+  * Automatischer Daten-Reload alle 4 Sekunden mit Ausweich-Modus für Offline-Sessions.
+* **Client-Telemetrie (`js/services/AnalyticsService.js`, `js/main.js`, `js/engine/GameEngine.js`):**
+  * Fehlertolerantes Telemetrie-Tracking bei Sitzungsstart, Spielstart (`run_start`) und Spielende (`run_completed`).
+  * Direkter Zugang zum Dashboard im Spiel über die Einstellungen sowie per geheimem Dreifach-Tipp auf das Versions-Label (`v3.14.0`).
+* **Automatisierte Playwright-Verifikation:**
+  * Dashboard in Testlauf aufgenommen (`14_player_dashboard.png`); 0 Konsolenfehler über das gesamte Projekt bestätigt.
+
+### v3.14.0 (03.09.2026) - 90-Degree Apex Combos (x1-x10), Step-by-Step Circle Progression, Seamless Live Tutorial & Dedicated Modals
+* **Bugfix Warp-Streifen beim Einhaken (`Spaceship.js`, `GameEngine.js`):**
+  * `this.vx = 0; this.vy = 0;` beim Einhaken in den Orbit.
+  * Hintergrundsterne wechseln beim Einhaken sofort wieder zu scharfen Punkten.
+* **Combo-System: 90-Grad Apex-Abschüsse (x1 bis x10) (`Spaceship.js`, `GameEngine.js`):**
+  * Tangentialer Abschuss nach oben (`tangentY >= 0.86`) löst Apex-Combo aus.
+  * Aufeinanderfolgende Apex-Sprünge erhöhen den Combo-Multiplikator von x1 bis zu x10.
+  * Progressiver Geschwindigkeitsbonus: von `+65` bis `+245` Einheiten Schub.
+  * Unpräzise Sprünge setzen die Combo auf 0 zurück.
+* **Knoten-Einführung stufenweise nach Höhe (`WorldManager.js`):**
+  * 0m - 100m (Zone 1): 100% Standard-Anker (Erlernen der Flugdynamik).
+  * 100m - 250m (Zone 2): Super-Boost (Grün) mit Aufwärtspfeil eingeführt.
+  * 250m - 500m (Zone 3): Bewegliche Pendel-Knoten (Lila) eingeführt.
+  * 500m - 850m (Zone 4): Fragile Timer-Knoten (Rot) mit Countdown eingeführt.
+  * 850m+ (Zone 5): Brüchige Riss-Knoten (Decoy) eingeführt.
+* **Brüchige Knoten brechen sofort ohne Schwung (`Spaceship.js`):**
+  * Versuch, sich an einen Decoy-Knoten einzuhaken, zerspaltet diesen sofort in Partikel.
+  * Kein Einhaken, kein Schwungaufbau, null Impulsübertrag.
+* **Game-Over Screen Hero-Score Redesign (`index.html`, `style.css`, `UIManager.js`):**
+  * Erreichte Höhe (`final-altitude`, z.B. 482 m) steht riesig und zentriert im Vordergrund (58px Cyan).
+  * Darunter Subtitle `BESTLEISTUNG 620 m`.
+  * Darunter dezente Münzanzeige mit goldenem Vektor-Icon und Betrag (`+12`).
+  * Altes tabellarisches Punkte-Formelsystem entfernt.
+* **Interaktives 60 FPS Live-Tutorial ohne Freeze (`GameEngine.js`, `UIManager.js`):**
+  * Kein Einfrieren des Spiels mehr; nahtloses Training im 60 FPS Echtzeit-Flug.
+  * Schwebende HUD-Tippkarte (`#hud-tutorial-tip`) wechselt Tipps dynamisch nach Höhe und Situation.
+  * Bei Erreichen von ~100m: `TRAINING ERFOLGREICH! +50 GOLD BONUS`, +50 Münzen gutgeschrieben.
+  * Das Spiel stoppt nicht, sondern setzt den Flug nahtlos als regulären Run fort.
+* **Menü-Top-Navigation & Entkopplung der Pilotenzentrale (`index.html`, `style.css`, `UIManager.js`, `main.js`):**
+  * Oben Links: Icon-Button für Aufgaben mit grünem Benachrichtigungspunkt.
+  * Oben Rechts: Icon-Buttons für Bestenliste und Einstellungen.
+  * Pilotenzentrale-Tabs entfernt; 3 dedizierte, saubere Modals (`#quests-modal`, `#leaderboard-modal`, `#stats-modal`).
+  * Quests-Aufgaben skaliert (Tages- und Wochenziele erhöht); redundantes "Täglich" im Kachelfuß entfernt.
+* **Strict Zero Text 'Coins' Policy (`index.html`, `UIManager.js`):**
+  * Wort "COINS" überall durch goldenes Vektor-Icon ersetzt.
+* **App-Versionierung & Interne Dokumentation:**
+  * Versionsanzeige `v3.14.0` im Hauptmenü und in den Einstellungen integriert.
+  * Neue vollständige interne Referenz `GAME_SYSTEMS.md` im Projektstamm angelegt.
+
+### v3.13.0 (03.09.2026) - Gameplay Challenge, Hyperspace Warp Streaks, Node Visuals & Interactive Playable Tutorial
+* **Greifhaken-Radius & Balancing (`Constants.js`, `WorldManager.js`):**
+  * `HOOK_RANGE` von 205px auf **160px** herabgesetzt.
+  * Vertikaler Knoten-Abstand in allen Höhenzonen vergrößert. Verhindert mühelosen "Dauer-Auto-Lock"; der Spieler muss präzise zielen und das Timing abpassen.
+* **Coin-Rarität & Entfernung des Münz-Magneten (`WorldManager.js`, `EnergyOrb.js`):**
+  * Münzen-Spawn-Wahrscheinlichkeit von 35% auf **16%** reduziert. Coins sind nun eine echte Kostbarkeit für den Hangar.
+  * Der magnetische Saugeffekt (`pullForce`) wurde vollständig entfernt. Münzen schweben fest im Raum; man muss seine Flugbahn aktiv durch die Münze steuern.
+* **Hyperspace-Warp-Streifen & Parallaxe-Richtungskorrektur (`WorldManager.js`, `GameEngine.js`):**
+  * **Parallaxe korrigiert:** Beim Aufsteigen bewegen sich die Hintergrundsterne nun physikalisch korrekt nach unten an der Kamera vorbei.
+  * **Hyperspace-Warp-Streifen:** Bei hohen Vertikalgeschwindigkeiten (`playerVy > 320`) strecken sich die Sterne zu leuchtenden Vektor-Lichtstreifen (Sci-Fi-Filmeffekt).
+* **Visuelle Klarheit: Brüchige & Timer-Knoten (`Node.js`):**
+  * **Brüchige Knoten (`DECOY`):** Ausgeprägte Zick-Zack-Frakturen quer durch den Kern und fragmentierte Ring-Segmente wie bei zerbrechenden Plattformen in *Doodle Jump*.
+  * **Timer-Knoten (`FRAGILE`):** 12 Zifferblatt-Striche (Tick-Marks) und kreisender Zeiger bereits vor dem Einhaken; hochkontrastiger radialer Countdown-Zeiger während des Schwungs.
+* **Interaktives spielbares Freeze-Frame-Tutorial (`GameEngine.js`, `UIManager.js`, `index.html`, `style.css`):**
+  * Neuer Hauptmenü-Button **"TUTORIAL"** mit minimalistischem Vektor-Icon.
+  * Vollständig spielbarer Trainingskurs, der das Spiel an Schlüsselmomenten einfriert und die Mechaniken erklärt:
+    * 1. Grundlagen & Ziel ("Drücken & Halten").
+    * 2. Slingshot-Schwung ("Loslassen im Apex").
+    * 3. Grüner Turbo-Knoten mit Warp-Streifen.
+    * 4. Ablaufende Zeituhr.
+    * 5. Brüchiger Schein-Knoten (Decoy).
+    * Abschluss: Erfolgs-Freeze mit Gutschrift von **+50 Bonus-Coins**!
+* **UI- & Interaktions-Bugfixes:**
+  * **"ANSEHEN"-Button:** `setStateManager(state)` in `UIManager` verdrahtet; Klick auf "ANSEHEN" nach einem Run öffnet nun zuverlässig den Hangar und fokussiert das freigeschaltete Item.
+  * **Tastatur-Kürzel entfernt:** `[ENTER]` aus dem Button "NOCHMAL SPIELEN" visuell entfernt.
+  * **Todeslinie bei Zoom:** Todeslinie wird in absoluten Bildschirmkoordinaten mit 150% Breitenüberhang gerendert; schrumpft bei hoher Geschwindigkeit nicht mehr zusammen.
+* **Automatisierte Playwright-Verifikation:**
+  * Alle 13 Screenshot-Zustände in `screenshots/` erfolgreich mit 0 Konsolenfehlern validiert.
+
+### v3.12.0 (03.09.2026) - Cloudflare Quick Tunnel Mobile Sharing & Stabilitäts-Upgrade
+* **Cloudflare Quick Tunnel Integration (`scripts/share.js`, `package.json`):**
+  * Umstellung der weltweiten Smartphone-Freigabe von fehleranfälligem `localtunnel` auf Cloudflare Quick Tunnels via `untun`.
+  * Löst das Problem des "Tunnel unavailable" Fehlers (504/Gateway-Drops nach Inaktivität) vollständig.
+  * Keine nervigen IP-Abfragen oder Bestätigungsseiten mehr beim ersten Aufruf auf Mobilgeräten.
+  * Nahtlose HTTPS-Verbindung mit gültigem SSL-Zertifikat für iOS Safari und Android Chrome.
+  * Automatischer Fallback auf `localtunnel`, falls Cloudflare-Dienste blockiert sein sollten.
+* **Coin-Raritäts-Feinabstimmung (`WorldManager.js`):**
+  * Münzen-Spawn-Wahrscheinlichkeit auf **35%** balanciert (vorher 70%).
+  * Saubere Platzierung an Sprung-Apex-Punkten (60%) oder 2er-Korridoren (40%) für ein fokussiertes, belohnendes Sammelerlebnis ohne visuelle Überladung.
+* **Automatisierte Qualitätssicherung & Playwright-Prüfung:**
+  * Vollständiger Testlauf (`npm test`) mit 13 Screenshots in `screenshots/` erfolgreich mit 0 Konsolenfehlern abgeschlossen.
+
+### v3.11.0 (02.09.2026) - In-Depth Review, Perfect Releases, Combo Streaks & Game-Over Tally
+* **"PERFECT!" Release Sweet Spot (`Spaceship.js`):**
+  * Loslassen des Seils bei optimaler vertikaler Tangente (`tangentY > 0.82`) triggert eine "PERFECT!" Auszeichnung.
+  * Gewährt +55px/s Launch-Geschwindigkeitsbonus, goldene Funken-Partikel und sichtbares Belohnungs-Feedback für präzises Timing.
+* **Dynamische Slingshot-Combo-Streaks (`GameEngine.js`, `StorageService.js`):**
+  * Fließendes Aneinanderketten von Sprüngen (<3.2s Intervall) baut eine sichtbare Combo auf (`COMBO x2`, `COMBO x3`, `COMBO x4`, `HYPER x5!`).
+  * Progressive Farbcodierung (`#38bdf8` -> `#c084fc` -> `#fbbf24` -> `#f43f5e`), Mikroeinschlag-Hitstop (8ms) und dauerhafte Speicherung der Best-Combo im Spielerprofil.
+* **Game-Over Arcade Count-Up Animation (`UIManager.js`):**
+  * Flüssiges Hochzählen der Endpunktzahl mit Ease-Out-Kurve auf dem Game-Over-Bildschirm sorgt für ein befriedigendes Run-Abschlussgefühl.
+* **Architektur- & Fun-Faktor-Review (`implementation_plan.md`):**
+  * Detaillierte Evaluation aller Subsysteme (Architektur, UI/UX, Physik, Gameloop, Retention) erstellt.
+  * Bereitstellung von 3 optionalen Major-Feature-Entscheidungen (Audio-Aktivierung, Ghost-Ship-Replay, Challenge-Modifikatoren).
+
+### v3.10.0 (02.09.2026) - Grapple Hitbox Balancing, Richtungs-Scoring & Tutorial QA
+* **Grapple Hitbox & Reichweiten-Balancing (`Constants.js`):**
+  * `HOOK_RANGE` von vormals überdimensionierten 285px auf **205px** justiert.
+  * Verhindert mühelosen "Auto-Lock" quer über den halben Bildschirm; das Einhaken erfordert nun echtes Timing und Annäherung an den Knoten.
+* **Flugbahn- & Richtungs-Scoring (`WorldManager.js`):**
+  * `getNearestNode(ship, cameraY)` filtert strikt auf Reichweite und bewertet Knoten anhand des Geschwindigkeitsvektors (`dot product`).
+  * Knoten im direkten Vorwärts-Flugkorridor und oberhalb des Schiffs werden bevorzugt; Knoten hinter oder weit unterhalb des Schiffs werden abgewertet.
+* **Taktiles Miss- & Whiff-Feedback (`GameEngine.js`):**
+  * Tippt der Spieler ins Leere (außerhalb der Reichweite), erfolgt ein akustisches Klick-Feedback sowie ein dezenter Partikel-Impuls.
+  * Verhindert Frust und vermittelt intuitiv: "Noch zu weit weg".
+* **Tutorial QA & Reaktivierung jederzeit (`index.html`, `main.js`, `playwright_runner.js`):**
+  * Vollständige QA-Prüfung des Tutorial-Overlays (`#tutorial-modal`): korrekte deutsche Beschreibungen aller Mechaniken (Schwingen, Boost-Pfeile, fragile Knoten, rissige Decoys, Coins).
+  * Neuer Menüpunkt **`ANLEITUNG & STEUERUNG`** im Einstellungs-Menü erlaubt das erneute Aufrufen der Anleitung zu jedem Zeitpunkt ohne Spielstand-Reset.
+  * Playwright-Testsuite um automatisierten Tutorial-Workflow (`13_tutorial_modal.png`) erweitert (0 Konsolenfehler).
+
+### v3.9.0 (02.09.2026) - De-Vibe UI Overhaul, 5-Stufen Difficulty Scaling, Decoy-Knoten & Skins Rework
+* **Progressives 5-Zonen Schwierigkeits-Scaling (`WorldManager.js`):**
+  * **Zone 1 (0–80m):** Entspanntes Onboarding, nur stationäre Normal-Knoten und klare Sprunglinien.
+  * **Zone 2 (80–250m):** Erste bewegliche Knoten (15% Spawn, 18–30px/s Oszillation).
+  * **Zone 3 (250–600m):** Rote Fragile-Knoten (20% Spawn, dynamischer Countdown von 1.6s auf 0.9s schrumpfend) und seltene rissige Fake-Knoten (10% Spawn) mit garantierter Lösbarkeit.
+  * **Zone 4 (600–1200m):** Komplexe Kombinationen (beweglich + fragil + Decoys, Sprungdistanzen bis 135px).
+  * **Zone 5 (1200m+):** Hyperspace-Sturm (schnelle Oszillationen, messerscharfe Fragile-Timer, anspruchsvolle Slingshot-Präzision).
+* **Decoy / Fake-Knoten Mechanik (`Node.js`, `WorldManager.js`):**
+  * Rissige, instabile Knoten, die bei Grapple-Kontakt sofort zerbrechen (`node.breakNode()`) und 35 Partikel-Splitter emittieren.
+  * Visuell eindeutig als brüchige, gestrichelte Ringe mit Riss-Muster dargestellt.
+  * Sicherheits-Regel: Decoys spawnen niemals als einziger erreichbarer Pfad – ein solider/beweglicher Knoten ist immer in Reichweite garantiert!
+* **Boost-Knoten & Pfeil-Klarheit (`Node.js`):**
+  * Boost-Knoten zeigen nun einen präzisen, nach oben gerichteten Vektorpfeil (`^`) in energetischem Grün (`#34d399`), der die Katapult-Richtung anzeigt.
+  * Spawn-Wahrscheinlichkeit auf ~12% justiert für fokussierte Dopamin-Momente.
+* **Skins-System & Schiffs-Geometrien (1 Basis + 3 Upgrades, `Constants.js`, `Spaceship.js`):**
+  * Umbenennung des Menüs von *Hangar* zu **`SKINS`**.
+  * 4 progressive Raumschiff-Stufen mit individuellen Vektor-Modellen:
+    * **PFEIL (Basis, 0 Coins):** Schlanker, agiler Scout-Jäger.
+    * **PHÖNIX (Stufe I, 150 Coins):** Aerodynamischer Doppelflügel-Jäger mit ionisierten Flügelkanten.
+    * **SPECTRE (Stufe II, 350 Coins):** Facettierter Stealth-Interceptor mit 3 Triebwerken & Puls-Reaktorkern.
+    * **NEXUS-TITAN (Stufe III, 750 Coins):** Gepanzerter Orbital-Dreadnought mit 4 Ionen-Düsen & rotierendem Energieschild-Ring.
+  * 4 progressive Schweif-Stufen: `CYAN-LASER` (Basis), `SONNEN-FEUER` (Stufe I, 100 Coins), `QUANTEN-LILA` (Stufe II, 250 Coins), `HYPERDRIVE-CHROMA` (Stufe III, 500 Coins).
+* **Währungs- & Begriffs-Harmonisierung:**
+  * Kompletter Austausch von "Sterne" zu **`Coins`** im gesamten Projekt (HTML, HUD, Game Over, Aufgaben, Statistiken, Toasts, Shop).
+  * Menü-Button `AUFGABEN` matcht 1:1 mit dem Modal-Reiter `AUFGABEN`.
+  * Coin-Spawn-Rate auf ~70% angehoben (Coins deutlich weniger selten).
+* **De-Vibe / De-Glare Aerospace UI & Mobile QA (`css/style.css`):**
+  * Vollständige Entfernung greller, verschwommener Neon-Glows (`text-shadow`, `box-shadow`).
+  * Edles mattes Aerospace-Dark-Design (`#0f172a` / `#1e293b`) mit scharfen 1px Micro-Borders.
+  * Vertikal gestacktes Skins-Layout garantiert null Text-Truncation oder abgeschnittene Preis-Badges auf Desktop und Mobile (390x844).
+* **Playwright Visual Verification:**
+  * 12 Screens/Dialoge automatisiert erfasst und visuell geprüft; 0 Konsolenfehler.
+* **Feste Aspect-Ratio (16:9 Hochformat):**
+  * Auf Desktop-Bildschirmen wird das UI und das Canvas nicht mehr über die gesamte Monitorbreite in die Länge gezogen. Stattdessen wird durch `#game-container` in `style.css` eine maximale Breite (`max-width: calc(100vh * (9 / 16))`) erzwungen, was das typische mobile Hochformat simuliert.
+  * Links und rechts gibt es nun elegante, echte schwarze Ränder.
+* **GameEngine Resize-Anpassung:**
+  * Die Spielphysik (`GameEngine.js`) nutzt nun nicht mehr gnadenlos `window.innerWidth`, sondern liest präzise via `getBoundingClientRect()` die Pixel-Dimensionen des neuen Containers aus, sodass Spiellogik, UI und Rendering stets 1:1 übereinstimmen.
+
+### v3.7.0 (02.09.2026) - First-Time Tutorial & Visual Fixes
+* **Tutorial-Onboarding:**
+  * Ein interaktives Flug-Training-Overlay (`tutorial-modal`) wurde implementiert. Es öffnet sich zwingend beim allerersten Start (`totalRuns === 0`) und erklärt die Steuerung in klaren Worten.
+* **Behebung visueller Kamera-Glitches:**
+  * Der Bug, durch den bei hohen Geschwindigkeiten (Kamera zoomt raus) Ränder oder aufploppende Sterne/Knoten sichtbar wurden, ist behoben. `WorldManager.js` rendert nun mit 30% Margin-Puffer (`padX`, `padY`) und das Node/Orb-Culling toleriert weitere Viewport-Grenzen (-200 bis +200).
+* **Entfernung Dummy-Daten:**
+  * Die Fake-Daten im globalen Leaderboard (`GLOBAL_LEADERBOARD_TOP`) wurden komplett entfernt. Solange keine echten Online-Daten existieren, zeigt die Liste einen eleganten Empty-State-Hinweis.
+* **QA / Playwright Testing:**
+  * Die Test-Suite wurde um einen Check für das Tutorial-Overlay erweitert.
+
+### v3.6.0 (02.09.2026) - 10-Point Deep Polish & Juiciness
+* **Death Sequence & Feedback:**
+  * 700ms Verzögerung vor dem Game-Over-Menü eingebaut, um die Schiffs-Explosion sichtbar zu machen (`GameEngine.js`).
+  * Node-Break Screenshake und Splitter-Anzahl (von 22 auf 35) deutlich erhöht.
+* **Lebendiges Universum:**
+  * Sterne im Hintergrund driften nun auch sanft horizontal, was dem Starfield mehr Räumlichkeit gibt (`WorldManager.js`).
+  * Orbs (Sterne) emittieren winzige Funken, wenn sie magnetisch vom Schiff angezogen werden (`EnergyOrb.js`).
+  * Einsammeln von Orbs löst nun einen minimalen Hitstop (12ms) und Screenshake (2%) aus.
+  * "+50" Text-Popups schweben länger und blenden weicher aus.
+* **HUD & UI-Haptik:**
+  * Lock-On Brackets (Visiere) rotieren nun sanft im Sci-Fi-Stil (`Node.js`).
+  * Motion Trail des Raumschiffs wurde von 14 auf 22 Segmente verlängert und blendet eleganter aus (`Spaceship.js`).
+  * Im Hangar skaliert die Hover-Animation (`transform: scale(1.03)`) die Shop-Karten.
+  * Das ausgerüstete Item ("AKTIV") pulsiert nun leicht cyan-leuchtend, um visuell sofort aufzufallen (`style.css`).
+
+### v3.5.0 (02.09.2026) - Systematisches Polish & Anfänger-Onboarding
+* **Dynamisches Onboarding (`GameEngine.js`):**
+  * Für die ersten 3 Versuche (oder solange der Highscore unter 150m liegt) werden kontextsensitive Tooltips ("DRÜCKEN & HALTEN" beim Fallen, "LOSLASSEN!" beim Rotieren) direkt auf das Canvas neben das Schiff gerendert.
+* **Game Feel & Tension Polish:**
+  * **Dynamischer Kamera-Zoom:** Die Kamera zoomt dynamisch etwas heraus, wenn das Schiff eine hohe vertikale Geschwindigkeit erreicht (z. B. nach einem Super-Boost), um das Geschwindigkeitsgefühl drastisch zu verstärken (`GameEngine.js`).
+  * **Pulsierender Tether:** Das Seil (`Spaceship.js`) pulsiert in Dicke und Transparenz abhängig von der Rotationsgeschwindigkeit, um physische "Spannung" (Tension) visuell darzustellen.
+* **UI/UX Klarheit:**
+  * Das `ZEITLUPE BEREIT`-Badge wurde für eine noch klarere, universellere Verständlichkeit in `SLOW-MO BEREIT` umbenannt.
+
+### v3.4.0 (02.09.2026) - Minimales Ingame-HUD, Emoji-Entfernung & Zeitlupen-Badge Fix
+* **Zeitlupen-Badge Entkopplung (`index.html`, `css/style.css`):**
+  * Das `ZEITLUPE BEREIT`-Badge wurde aus der rechten oberen Ecke geloest und zentriert am oberen Bildschirmrand mit eigener Glasmorphismus-Pille positioniert (`rgba(15, 23, 42, 0.92)`).
+  * Kollisionen mit rechts generierten Orbit-Knoten und dem Pause-Button sind damit vollstaendig eliminiert.
+* **Strikte Zero-Emoji & Symbol-Bereinigung:**
+  * Saemtliche Emojis (`⚡`) und Sonderzeichen (`★`, `▲`) wurden aus HTML, CSS und JS entfernt und durch minimalistische SVG-Vektorgrafiken ersetzt.
+* **Minimalistisches Ingame-HUD ("Keep it simple"):**
+  * Der permanente Kontostand der gesammelten Sterne (`★ 511`) wurde waehrend des Flugs aus dem oberen linken HUD entfernt.
+  * Das Flug-HUD zeigt nur noch die wesentlichen Werte: aktuelle Hoehe (`0m`) und persoenlichen Rekord (`REKORD: 3901m`).
+* **Sicherheitsabstaende in der Welt-Generierung (`WorldManager.js`):**
+  * Zusaetzliches horizontales Padding (`edgePadding = 85px`) verhindert, dass Orbit-Knoten an den Bildschirmraendern kleben oder HUD-Elemente ueberdecken.
+
+### v3.3.0 (02.09.2026) - 3 Separate Hauptmenü-Buttons & Direkte Tab-Navigation
+* **Direkt-Zugriff im Hauptmenü:**
+  * Der kombinierte Button *Piloten-Zentrale* wurde durch 3 dedizierte Buttons ersetzt:
+    1. **`BESTENLISTE`** (Trophäen-Vektor-Icon): Öffnet direkt das weltweite Leaderboard und den Perzentil-Rang.
+    2. **`HERAUSFORDERUNGEN`** (Ziel-Vektor-Icon + Live-Badge `[X BEREIT]`): Öffnet direkt die täglichen und wöchentlichen Quests.
+    3. **`STATISTIKEN`** (Diagramm-Vektor-Icon): Öffnet direkt die persönlichen Flug- und Lebenszeit-Statistiken.
+* **Architektur & Event-Routing:**
+  * [`UIManager.openHubTab(tabName)`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/engine/UIManager.js) aktiviert den korrespondierenden Tab programmatisch.
+  * Menü-Klick-Handler in [`main.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/main.js) übergeben den Ziel-Tab an den `StateManager`.
+* **Playwright-Verifikation:**
+  * Testsuite prüft das direkte Anklicken aller 3 neuen Menü-Buttons und verifiziert 0 Konsolenfehler.
+* **OneDrive Synchronisation:**
+  * Vollständiges Projektverzeichnis nach `C:\Users\hannes.bauer\OneDrive - Farbenbauer GmbH & Co KG\Antigravity\privat\blissful-euclid` synchronisiert.
+
+### v3.2.0 (02.09.2026) - Mobile Phone Link, QR-Code Terminal Server & PWA Integration
+* **Lokaler QR-Code HTTP-Server (`scripts/serve.js`):**
+  * Erkennt automatisch die lokale IPv4-Netzwerkadresse im Heim-/Bueronetz.
+  * Gibt im Terminal automatisch einen scanbaren QR-Code fuer die Smartphone-Kamera aus.
+  * Zuverlaessiges MIME-Type-Streaming fuer HTML5 Canvas, Audio, JSON und Webfonts.
+* **Weltweites Instant-Sharing (`scripts/share.js`):**
+  * Ermoeglicht sofortigen oeffentlichen Zugriff ueber HTTPS-Tunnel ohne Router-Konfiguration oder Port-Forwarding.
+* **PWA & Mobile Web App Polish (`manifest.json`, `index.html`, `css/style.css`):**
+  * `manifest.json` mit Standalone-Konfiguration fuer "Zum Startbildschirm hinzufuegen".
+  * iOS/Android Meta-Tags: `viewport-fit=cover`, `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style: black-translucent`.
+  * Mobile Touch Safeguards: `touch-action: manipulation`, `overscroll-behavior: none` (verhindert versehentliches Pull-to-Refresh beim Spielen), `-webkit-touch-callout: none`.
+* **Historische Dokumentations-Richtlinie:**
+  * Verbindliche Regel in `GEMINI.md` und `.agents/rules/standards.md` verankert: `GAME_STATUS.md` wird kumulativ gefuehrt; fruehere Versionen werden niemals geloescht oder ueberschrieben.
+
+---
+
+### v3.1.0 (02.09.2026) - Quest-Claiming Fix & Sternen-Balancing
+* **Bugfix `UIManager.updateCurrency()`:**
+  * Fehlende Methode in `UIManager.js` implementiert und mit synchroner Aktualisierung von Menue-, Hangar- und HUD-Guthaben verknuepft.
+  * Aktiver Claim Flow: Klick auf `[ EINSAMMELN (+X STERNE) ]` loest Belohnung ein, wechselt auf `✓ EINGELÖST`, blendet Toast ein und dekrementiert Badges ohne Konsolenfehler.
+* **Ausgewogene Sternen-Dichte auf der Map (Clutter Reduction):**
+  * 55% der regulaeren Sprungdistanzen bleiben voellig frei von Sternen fuer optimale Flugbahn-Sicht.
+  * Spawns erzeugen kompakte 1er-Apex-Sterne (45%), 2er-Laser-Linien (35%) oder leichte 3er-Boegen (20%).
+  * Turbo-Katapulte spawnen 2 statt 4 Sterne, Gabelungen erhalten eine 35%-Spawnchance (ca. 65% weniger Clutter).
+
+---
+
+### v3.0.0 (02.09.2026) - Globale Playwright Test-Integration
+* **Vollstaendige Testsuite (`scripts/playwright_runner.js`):**
+  * Headless Chromium/Edge mit 2x Device-Pixel-Ratio.
+  * Automatische Erfassung aller Screens in `screenshots/`.
+  * Strikte Durchsetzung von 0 Konsolenfehlern und 0 ungefangenen Exceptions.
+
+---
+
+### v2.9.0 (01.09.2026) - Piloten-Zentrale (3-Tab Hub) & Hangar
+* **Tab 1 - Globales Leaderboard & Prozentrang:** Weltweite Top 10 + dynamische Berechnung des Spieler-Rangs (`#X von 10.000 Piloten (TOP Y%)`).
+* **Tab 2 - Taegliche & Woechentliche Aufgaben:** Quests mit 24h / 7-Tage Reset-Timern und aktiver `[ EINSAMMELN ]`-Mechanik.
+* **Tab 3 - Detaillierte Statistiken:** Uebersicht aller Lebenszeit-Flugdaten.
+* **Fokussierter Hangar:** 6 Raumschiffe und 6 Schweife mit rotierender Live-Vorschau.
+* **Einmaliger Upgrade-Hinweis:** Poppt im Game-Over-Screen genau 1x pro freischaltbarem Upgrade auf.
+
+---
+
+### v2.4.0 (31.08.2026) - Universum-Themen, Raumschiffe & Aufgaben-Katalog
+* **4 Farbwelten:** Weltraum, Neon-City, Sonnenfeuer, Nacht.
+* **6 Schiffe:** Pfeil, Falke, Tarn-Flieger, UFO, Doppel-Fluegel, Titan.
+* **6 Schweife:** Blau, Gruen, Feuer, Lila, Regenbogen, Weiss.
+
+---
+
+### v1.0.0 (30.08.2026) - Physik-Engine & Slingshot-Kinetik
+* **Mathematischer Forward-Reach Solver:** 285px Fangreichweite bei 140px Mindestabstand (100% faire Spruenge).
+* **Viewport-Culling:** Saubere Bereinigung unterhalb des Sichtfelds.
+
+---
+
+## 3. Visuelles UI-Audit & Screenshots (`screenshots/`)
+
+Alle 12 Bildschirme wurden ueber Playwright (`npm test`) validiert (0 Konsolenfehler):
+
+* **`01_main_menu.png`**: Hauptmenue mit Vektor-Buttons.
+* **`02_hangar_ships.png`**: Hangar (Raumschiffe mit Live-Vorschau).
+* **`03_hangar_trails.png`**: Hangar (Schweife mit Farbverlaeufen).
+* **`04_hub_leaderboard.png`**: Piloten-Zentrale (Globales Ranking & Perzentil-Rang).
+* **`05_hub_quests.png`**: Piloten-Zentrale (Taegliche & woechentliche Aufgaben mit `[ EINSAMMELN ]`).
+* **`05b_hub_quests_claimed.png`**: Piloten-Zentrale (Eingeloester Status `✓ EINGELÖST` + Toast-Banner).
+* **`06_hub_stats.png`**: Piloten-Zentrale (Detaillierte Lebenszeit-Statistiken).
+* **`07_settings.png`**: Aufgeraeumte Optionen (Audio stummgeschaltet, Shake, Performance).
+* **`08_gameplay_hud.png`**: Ingame-HUD mit Missions-Anzeige.
+* **`09_pause_modal.png`**: Pause-Menue.
+* **`10_game_over.png`**: Absturz-Screen mit Auswertung und Upgrade-Banner.
+* **`11_mobile_responsive.png`**: Mobile Portrait-Ansicht (390x844).
+
+---
+
+## 4. Modulare Dateistruktur
+
+```
+blissful-euclid/
+├── index.html                   # HTML5-Geruest mit PWA- & Mobile-Meta-Tags
+├── manifest.json                # Web App Manifest fuer Standalone-Fullscreen
+├── package.json                 # npm start, npm run share, npm test
+├── GAME_STATUS.md               # Kumulatives, historisches Dokumentations-Log (dieses Dokument)
+├── DISTRIBUTION.md              # Vertriebs- & Monetarisierungs-Roadmap
+├── GEMINI.md                    # Verbindliche Playwright, Zero Emoji & History-Regeln
+├── .agents/rules/standards.md   # Agenten-Standards fuer kontinuierliche Dokumentation
+├── css/style.css                # Mobile-Touch Optimierung (overscroll-behavior, touch-action)
+├── screenshots/                 # 12 Playwright UI-Screenshots aller States
+├── scripts/
+│   ├── serve.js                 # Lokaler HTTP-Server mit LAN-Erkennung & Terminal QR-Code
+│   ├── share.js                 # Weltweiter Instant-HTTPS-Tunnel mit QR-Code
+│   └── playwright_runner.js     # Automatisierte Playwright Test-Suite
+└── js/
+    ├── config/Constants.js
+    ├── services/StorageService.js
+    ├── audio/AudioManager.js    # Global stummgeschaltet (enabled = false)
+    ├── engine/ParticleSystem.js
+    ├── engine/InputManager.js   # Touch- & Gamepad-Handler
+    ├── engine/MissionManager.js
+    ├── engine/ShopManager.js
+    ├── engine/StateManager.js
+    ├── engine/UIManager.js
+    ├── engine/GameEngine.js
+    ├── entities/Spaceship.js
+    ├── entities/Node.js
+    ├── entities/EnergyOrb.js
+    └── world/WorldManager.js
+```

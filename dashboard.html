@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sling Jump - Live Spieler-Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #080b10;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+    }
+    .dashboard-container {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px 24px;
+      backdrop-filter: blur(12px);
+    }
+    .dash-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .dash-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #fff;
+    }
+    .dash-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .dash-nav {
+      display: flex;
+      gap: 12px;
+    }
+    .dash-btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dash-btn:hover {
+      background: #334155;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .dash-btn.primary {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .dash-btn.primary:hover {
+      background: #0369a1;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .kpi-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .kpi-card.live-card {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.8));
+    }
+    .kpi-card.highlight {
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+    .kpi-card.gold-card {
+      border-color: rgba(251, 191, 36, 0.4);
+    }
+    .kpi-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+    .live-pulse {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #10b981;
+      letter-spacing: 1px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 14px #10b981; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+    .kpi-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-unit {
+      font-size: 16px;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-left: 4px;
+    }
+    .kpi-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    /* Recent Runs Table */
+    .table-section {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .table-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #e2e8f0;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      font-variant-numeric: tabular-nums;
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .record-pill {
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.5);
+      color: #fbbf24;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+    .coin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #fbbf24;
+      font-weight: 700;
+    }
+    .icon-svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .status-bar {
+      font-size: 11px;
+      color: #64748b;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Header -->
+    <header class="dash-header">
+      <div class="dash-title-group">
+        <div class="dash-title">SLING JUMP TELEMETRIE</div>
+        <div class="dash-subtitle">Echtzeit-Spieler & Runden Dashboard</div>
+      </div>
+      <div class="dash-nav">
+        <button class="dash-btn" id="btn-refresh">
+          <svg class="icon-svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          <span>AKTUALISIEREN</span>
+        </button>
+        <a href="index.html" class="dash-btn primary">
+          <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span>SPIELEN</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- KPI Grid -->
+    <section class="kpi-grid">
+      <!-- 1. Online Now -->
+      <div class="kpi-card live-card">
+        <div class="kpi-top">
+          <span class="kpi-label">SPIELER ONLINE</span>
+          <span class="live-pulse"><span class="pulse-dot"></span> LIVE</span>
+        </div>
+        <div class="kpi-value" id="val-online">0</div>
+        <div class="kpi-sub">Aktiv in den letzten 45 Sek.</div>
+      </div>
+
+      <!-- 2. Unique Devices / Visitors -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">GERÄTE (UNIQUE)</span>
+          <svg class="icon-svg" style="color:#94a3b8;" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        </div>
+        <div class="kpi-value" id="val-devices">0</div>
+        <div class="kpi-sub" id="sub-sessions">0 Sitzungen insgesamt</div>
+      </div>
+
+      <!-- 3. Runs Today -->
+      <div class="kpi-card highlight">
+        <div class="kpi-top">
+          <span class="kpi-label">RUNDEN HEUTE</span>
+          <svg class="icon-svg" style="color:#38bdf8;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="kpi-value" id="val-runs-today">0</div>
+        <div class="kpi-sub" id="sub-runs-total">0 Runden gesamt</div>
+      </div>
+
+      <!-- 4. Max Altitude Record -->
+      <div class="kpi-card highlight">
+        <div class="kpi-top">
+          <span class="kpi-label">HÖCHSTER REKORD</span>
+          <svg class="icon-svg" style="color:#38bdf8;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <div class="kpi-value"><span id="val-record">0</span><span class="kpi-unit">m</span></div>
+        <div class="kpi-sub" id="sub-avg-alt">Schnitt: 0m pro Runde</div>
+      </div>
+
+      <!-- 5. Total Coins Collected -->
+      <div class="kpi-card gold-card">
+        <div class="kpi-top">
+          <span class="kpi-label">MÜNZEN GESAMMELT</span>
+          <svg class="icon-svg" viewBox="0 0 24 24" style="width:16px;height:16px;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg>
+        </div>
+        <div class="kpi-value" id="val-coins">0</div>
+        <div class="kpi-sub">Quer über alle Piloten</div>
+      </div>
+    </section>
+
+    <!-- Recent Runs Table -->
+    <section class="table-section">
+      <div class="table-header-row">
+        <div class="table-title">LETZTE FLÜGE</div>
+        <span style="font-size:12px;color:#64748b;" id="table-count">0 Einträge</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Zeit</th>
+              <th>Höhe</th>
+              <th>Münzen</th>
+              <th>Schiff</th>
+              <th>Dauer</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="runs-tbody">
+            <tr>
+              <td colspan="6" style="text-align:center;color:#64748b;padding:24px;">Noch keine Runden aufgezeichnet. Starte das Spiel für erste Daten!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="status-bar" id="last-update-time">Zuletzt aktualisiert: Lädt...</div>
+    </section>
+  </div>
+
+  <script>
+    async function loadStats() {
+      if (!window.location.protocol.startsWith('http')) {
+        renderLocalFallback();
+        return;
+      }
+      try {
+        const res = await fetch('/api/telemetry/stats');
+        if (!res.ok) throw new Error('Status ' + res.status);
+        const data = await res.json();
+        
+        document.getElementById('val-online').textContent = data.onlineNow || 0;
+        document.getElementById('val-devices').textContent = data.uniqueDevices || 0;
+        document.getElementById('sub-sessions').textContent = `${data.totalVisits || 0} Sitzungen insgesamt`;
+        document.getElementById('val-runs-today').textContent = data.todayRuns || 0;
+        document.getElementById('sub-runs-total').textContent = `${data.totalRuns || 0} Runden gesamt`;
+        document.getElementById('val-record').textContent = data.recordAltitude || 0;
+        document.getElementById('sub-avg-alt').textContent = `Schnitt: ${data.averageAltitude || 0}m pro Runde`;
+        document.getElementById('val-coins').textContent = data.totalCoinsCollected || 0;
+
+        const tbody = document.getElementById('runs-tbody');
+        const runs = data.recentRuns || [];
+        document.getElementById('table-count').textContent = `${runs.length} Einträge`;
+
+        if (runs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#64748b;padding:24px;">Noch keine Runden aufgezeichnet.</td></tr>';
+        } else {
+          tbody.innerHTML = runs.map(r => {
+            const date = new Date(r.timestamp);
+            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            return `
+              <tr>
+                <td>${timeStr}</td>
+                <td style="font-weight:800;color:#38bdf8;">${r.altitude} m</td>
+                <td>
+                  <span class="coin-badge">
+                    <svg class="icon-svg" viewBox="0 0 24 24" style="width:13px;height:13px;vertical-align:middle;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg>
+                    +${r.coins}
+                  </span>
+                </td>
+                <td style="text-transform:uppercase;font-weight:700;">${r.shipId}</td>
+                <td>${r.duration}s</td>
+                <td>${r.isNewRecord ? '<span class="record-pill">NEUER REKORD</span>' : '<span style="color:#64748b;">REGULÄR</span>'}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        document.getElementById('last-update-time').textContent = 'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString();
+      } catch (err) {
+        // Fallback to local storage history if viewing via static file:// protocol
+        renderLocalFallback();
+      }
+    }
+
+    function renderLocalFallback() {
+      try {
+        const stored = localStorage.getItem('sling_local_runs');
+        const list = stored ? JSON.parse(stored) : [];
+        document.getElementById('val-online').textContent = '1 (Lokal)';
+        document.getElementById('val-devices').textContent = '1';
+        document.getElementById('sub-sessions').textContent = 'Lokale Datenspeicherung';
+        document.getElementById('val-runs-today').textContent = list.length;
+        document.getElementById('sub-runs-total').textContent = `${list.length} Runden lokal`;
+        
+        let maxAlt = 0;
+        let sumAlt = 0;
+        let sumCoins = 0;
+        list.forEach(r => {
+          if (r.altitude > maxAlt) maxAlt = r.altitude;
+          sumAlt += r.altitude;
+          sumCoins += (r.coins || 0);
+        });
+
+        document.getElementById('val-record').textContent = maxAlt;
+        document.getElementById('sub-avg-alt').textContent = `Schnitt: ${list.length ? Math.round(sumAlt / list.length) : 0}m`;
+        document.getElementById('val-coins').textContent = sumCoins;
+
+        const tbody = document.getElementById('runs-tbody');
+        if (list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#64748b;padding:24px;">Noch keine lokalen Runden aufgezeichnet.</td></tr>';
+        } else {
+          tbody.innerHTML = list.map(r => `
+            <tr>
+              <td>${new Date(r.timestamp).toLocaleTimeString()}</td>
+              <td style="font-weight:800;color:#38bdf8;">${r.altitude} m</td>
+              <td>+${r.coins}</td>
+              <td style="text-transform:uppercase;">${r.shipId || 'arrow'}</td>
+              <td>${r.durationSeconds || 0}s</td>
+              <td>${r.isNewRecord ? '<span class="record-pill">REKORD</span>' : '<span style="color:#64748b;">REGULÄR</span>'}</td>
+            </tr>
+          `).join('');
+        }
+        document.getElementById('last-update-time').textContent = 'Lokalmodus (Offline)';
+      } catch (e) {}
+    }
+
+    document.getElementById('btn-refresh').addEventListener('click', loadStats);
+    loadStats();
+    setInterval(loadStats, 4000);
+  </script>
+</body>
+</html>
