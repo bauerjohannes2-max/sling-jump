@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '3.26.0',
+  VERSION: '3.27.0',
   STORAGE_KEY: 'sling_jump_save_v2',
 
   // Physics & Mechanics
@@ -130,7 +130,7 @@ const CONSTANTS = {
     {
       id: 'daily_reach_350',
       title: 'HÖHEN-SPRINT',
-      description: 'Erreiche 600 Meter Höhe in einem einzigen Flug.',
+      description: '600m in einem Flug',
       target: 600,
       type: 'altitude_single',
       reward: 150,
@@ -138,8 +138,8 @@ const CONSTANTS = {
     },
     {
       id: 'daily_collect_12',
-      title: 'GOLD-SAMMLER',
-      description: 'Sammle 16 Gold-Münzen in einem Flug ein.',
+      title: 'MÜNZ-SAMMLER',
+      description: '16 Münzen sammeln',
       target: 16,
       type: 'cores_single',
       reward: 175,
@@ -147,8 +147,8 @@ const CONSTANTS = {
     },
     {
       id: 'daily_boost_3',
-      title: 'TURBO-KATAPULT',
-      description: 'Nutze 5 grüne Turbo-Punkte in einem Flug.',
+      title: 'SUPER-BOOST',
+      description: '5 Katapulte nutzen',
       target: 5,
       type: 'boost_single',
       reward: 200,
@@ -157,7 +157,7 @@ const CONSTANTS = {
     {
       id: 'daily_slingshots_20',
       title: 'FLUG-TRAINING',
-      description: 'Mache insgesamt 45 Sprünge an einem Tag.',
+      description: '45 Sprünge ausführen',
       target: 45,
       type: 'slingshot_cumulative',
       reward: 175,
@@ -166,7 +166,7 @@ const CONSTANTS = {
     {
       id: 'daily_near_miss_3',
       title: 'KNAPPE RETTUNG',
-      description: 'Rette dich 5x knapp vor dem roten Abgrund.',
+      description: '5x vor Abgrund retten',
       target: 5,
       type: 'near_miss_cumulative',
       reward: 225,
@@ -174,42 +174,51 @@ const CONSTANTS = {
     }
   ],
 
-  // Wöchentliche Herausforderungen (Weeklies - 7 Tage Reset)
+  // Wöchentliche Herausforderungen (Weeklies - 7 Tage Reset: ~2-2.5h aktive Spielzeit nötig)
   WEEKLY_QUEST_POOL: [
     {
-      id: 'weekly_altitude_8000',
-      title: 'MARATHON-FLIEGER',
-      description: 'Fliege in dieser Woche insgesamt 14.000 Meter weit.',
-      target: 14000,
+      id: 'weekly_altitude_150k',
+      title: 'KOSMISCHER MARATHON',
+      description: '150.000m Gesamtdistanz',
+      target: 150000,
       type: 'altitude_cumulative',
-      reward: 750,
+      reward: 1500,
       category: 'weekly'
     },
     {
-      id: 'weekly_cores_100',
+      id: 'weekly_cores_800',
       title: 'SCHATZKAMMER',
-      description: 'Sammle in dieser Woche 140 Gold-Münzen ein.',
-      target: 140,
+      description: '800 Münzen sammeln',
+      target: 800,
       type: 'cores_cumulative',
-      reward: 850,
+      reward: 1400,
       category: 'weekly'
     },
     {
-      id: 'weekly_slingshots_80',
+      id: 'weekly_slingshots_1500',
       title: 'ORBITAL-MEISTER',
-      description: 'Vollführe insgesamt 150 erfolgreiche Sprünge.',
-      target: 150,
+      description: '1.500 Sprünge ausführen',
+      target: 1500,
       type: 'slingshot_cumulative',
-      reward: 900,
+      reward: 1600,
       category: 'weekly'
     },
     {
-      id: 'weekly_reach_800_clean',
-      title: 'PERFEKTE PRÄZISION',
-      description: 'Erreiche 1.200m Höhe ohne rote Punkte zu berühren.',
-      target: 1200,
-      type: 'altitude_no_fragile',
-      reward: 1200,
+      id: 'weekly_reach_8000_single',
+      title: 'EXOSPHÄREN-VORSTOSS',
+      description: '8.000m in einem Flug',
+      target: 8000,
+      type: 'altitude_single',
+      reward: 2000,
+      category: 'weekly'
+    },
+    {
+      id: 'weekly_near_miss_60',
+      title: 'REFLEX-AKROBAT',
+      description: '60 knappe Rettungen',
+      target: 60,
+      type: 'near_miss_cumulative',
+      reward: 1500,
       category: 'weekly'
     }
   ],

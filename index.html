@@ -56,7 +56,7 @@
         <div class="game-title-container">
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v3.26.0</div>
+          <div class="app-version-tag">v3.27.0</div>
         </div>
 
         <div class="currency-group">
@@ -265,15 +265,15 @@
         <div class="quests-scroll-area">
           <!-- Daily Quests -->
           <div class="quest-section-header">
-            <span class="section-subtitle" style="margin:0;">TÄGLICHE AUFGABEN</span>
-            <span class="reset-timer-badge" id="daily-reset-timer">Reset in --:--</span>
+            <span class="section-subtitle" style="margin:0; font-size:11px; font-weight:800; letter-spacing:1.2px;">TÄGLICH</span>
+            <span class="reset-timer-badge" id="daily-reset-timer">--:--</span>
           </div>
           <div class="quests-list" id="daily-quests-list"></div>
 
           <!-- Weekly Quests -->
-          <div class="quest-section-header" style="margin-top:16px;">
-            <span class="section-subtitle" style="margin:0;">WÖCHENTLICHE HERAUSFORDERUNGEN</span>
-            <span class="reset-timer-badge" id="weekly-reset-timer">Reset in --:--</span>
+          <div class="quest-section-header" style="margin-top:14px;">
+            <span class="section-subtitle" style="margin:0; font-size:11px; font-weight:800; letter-spacing:1.2px;">WÖCHENTLICH</span>
+            <span class="reset-timer-badge" id="weekly-reset-timer">--:--</span>
           </div>
           <div class="quests-list" id="weekly-quests-list"></div>
         </div>
@@ -449,48 +449,39 @@
       </div>
     </div>
 
-    <!-- 7. PILOTEN-PROFIL MODAL -->
+    <!-- 7. PROFIL MODAL (MINIMALIST & SLEEK) -->
     <div class="modal-overlay" id="profile-modal" style="z-index: 125;">
-      <div class="modal-card profile-card" style="max-width: 420px; text-align: center;">
-        <div class="modal-title" style="margin-bottom: 2px;">PILOTEN-LIZENZ</div>
-        <div style="font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;">SPIELER-REGISTRIERUNG & DATENSTAND</div>
+      <div class="modal-card profile-card" style="max-width: 360px; text-align: center; padding: 22px 20px;">
+        <div class="modal-title" style="margin-bottom: 16px; font-size: 22px; letter-spacing: 2px;">PROFIL</div>
 
-        <!-- Pilot License Hologram Card -->
-        <div class="license-card" style="background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 18px 20px; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-            <div>
-              <div style="font-size: 9px; font-weight: 800; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">RUFNAME</div>
-              <div id="profile-display-name" style="font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 900; letter-spacing: 1.5px; color: #fff; margin-top: 2px;">PILOT</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-size: 9px; font-weight: 800; color: #64748b; letter-spacing: 1px;">PILOT-ID</div>
-              <div id="profile-display-id" style="font-family: monospace; font-size: 12px; font-weight: 800; color: #38bdf8; margin-top: 2px;">SJ-84920</div>
-            </div>
+        <!-- Sleek Avatar Circle -->
+        <div style="width: 58px; height: 58px; margin: 0 auto 16px; border-radius: 50%; background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1.5px solid rgba(56, 189, 248, 0.45); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);">
+          <svg viewBox="0 0 24 24" style="width: 26px; height: 26px; fill: none; stroke: #38bdf8; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+
+        <!-- Inline Name Form -->
+        <form id="profile-form" onsubmit="window._uiManager && window._uiManager.saveProfile(event)" style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <input type="text" id="profile-name-input" maxlength="16" placeholder="Dein Name..." style="flex: 1; min-width: 0; padding: 10px 14px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; color: #fff; font-size: 13px; font-weight: 700; outline: none; font-family: 'Orbitron', sans-serif;">
+          <button type="submit" class="btn-primary" style="padding: 10px 16px; font-size: 11px; white-space: nowrap;">SPEICHERN</button>
+        </form>
+
+        <!-- 2 Clean Hero Stat Tiles -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px;">
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px 8px;">
+            <div style="font-size: 9px; font-weight: 800; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">REKORD</div>
+            <div id="profile-display-highscore" style="font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 900; color: #fbbf24; margin-top: 4px;">0 m</div>
           </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 12px; background: rgba(2, 6, 23, 0.6); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 12px;">
-            <div>
-              <div style="font-size: 9px; color: #64748b; font-weight: 700;">STATUS</div>
-              <div id="profile-status-badge" style="font-size: 10px; font-weight: 800; color: #10b981; margin-top: 2px;">REGISTRIERT</div>
-            </div>
-            <div>
-              <div style="font-size: 9px; color: #64748b; font-weight: 700;">BESTLEISTUNG</div>
-              <div id="profile-display-highscore" style="font-size: 11px; font-weight: 900; color: #fbbf24; margin-top: 2px;">0 m</div>
-            </div>
-          </div>
-
-          <div style="font-size: 10px; color: #64748b; display: flex; justify-content: space-between;">
-            <span id="profile-registered-date">Aktiv seit: Heute</span>
-            <span id="profile-runs-count">0 Flüge</span>
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px 8px;">
+            <div style="font-size: 9px; font-weight: 800; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">FLÜGE</div>
+            <div id="profile-runs-count" style="font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 900; color: #38bdf8; margin-top: 4px;">0</div>
           </div>
         </div>
 
-        <!-- Registration / Edit Form -->
-        <form id="profile-form" onsubmit="window._uiManager && window._uiManager.saveProfile(event)" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
-          <label style="font-size: 11px; font-weight: 800; color: #94a3b8; letter-spacing: 1px; text-align: left;">PILOTEN-NAMEN ÄNDERN / FESTLEGEN:</label>
-          <input type="text" id="profile-name-input" maxlength="16" placeholder="Dein Spielername..." style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #fff; font-size: 14px; font-weight: 700; outline: none;">
-          <button type="submit" class="btn-primary" style="width: 100%; padding: 10px;">PROFIL SPEICHERN</button>
-        </form>
+        <!-- Hidden compat anchors for JS listeners -->
+        <span id="profile-display-name" style="display: none;"></span>
+        <span id="profile-display-id" style="display: none;"></span>
+        <span id="profile-status-badge" style="display: none;"></span>
+        <span id="profile-registered-date" style="display: none;"></span>
 
         <button class="btn-secondary" id="btn-profile-close" style="width: 100%;">SCHLIESSEN</button>
       </div>

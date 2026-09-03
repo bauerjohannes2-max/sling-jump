@@ -1408,72 +1408,85 @@ canvas#gameCanvas {
   gap: 6px;
 }
 .quest-card {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 8px 12px;
+  background: rgba(30, 41, 59, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
   transition: all 0.18s ease;
 }
 .quest-card.ready-to-claim {
-  border-color: rgba(16, 185, 129, 0.4);
-  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.6);
+  background: rgba(16, 185, 129, 0.08);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.15);
 }
 .quest-card.is-claimed {
-  opacity: 0.55;
+  opacity: 0.45;
 }
 
 .quest-card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3px;
+  margin-bottom: 8px;
 }
 .quest-card-title {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
-  color: #fff;
+  color: #f1f5f9;
+  letter-spacing: 0.3px;
 }
 .quest-card-reward {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
-.quest-card-desc {
-  font-size: 10px;
-  color: #94a3b8;
-  margin-bottom: 6px;
-}
+
 .quest-bar-bg {
+  position: relative;
   width: 100%;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
+  height: 16px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
   overflow: hidden;
-  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
 }
 .quest-bar-fill {
   height: 100%;
-  background: #0284c7;
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+  border-radius: 8px;
   transition: width 0.25s ease;
 }
-.quest-card-foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 9px;
-  color: #64748b;
+.quest-bar-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 9.5px;
+  font-weight: 800;
+  font-family: 'Orbitron', monospace;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  z-index: 2;
 }
 
 .btn-claim {
-  padding: 4px 10px !important;
-  font-size: 9px !important;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 12px !important;
+  font-size: 10.5px !important;
   font-weight: 800 !important;
-  letter-spacing: 0.5px !important;
-  background: #059669 !important;
-  border: 1px solid #10b981 !important;
+  letter-spacing: 1px !important;
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  border: 1px solid #34d399 !important;
+  border-radius: 8px !important;
   color: #ffffff !important;
   cursor: pointer !important;
-  border-radius: 4px !important;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
 }
 .btn-claim:hover {
   background: #047857 !important;

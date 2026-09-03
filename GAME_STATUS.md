@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC26 - v3.26.0 - Lethal Hazard Space Mine, Progressive Timer & Moving Scaling & Comprehensive Difficulty Table)  
+> **Status:** Release Candidate (RC27 - v3.27.0 - Ultra-Minimalist Profile & Quests UI, Harder Weekly Challenges & Global Minimalism Standards)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
@@ -53,6 +53,31 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.27.0 (03.09.2026) - Ultra-Minimalist Profile & Quests UI, Harder Weekly Challenges & Global Minimalism Standards
+* **1. Schlankes Minimalistisches Profil-Modal (`index.html`, `UIManager.js`):**
+  * Entbürokratisierung nach dem Vorbild führender Mobile-Bestseller (Subway Surfers, Brawl Stars):
+  * Umbenennung von bürokratischem "Piloten-Lizenz" in klares, prägnantes **"PROFIL"**.
+  * Eliminierung überflüssiger Textblöcke und Metadaten (Pilot-ID, Registrierungs-Badge, Registrierungsdatum und lange Hilfetexte entfernt).
+  * Neues minimalistisches Layout:
+    * Leuchtendes Vektor-Avatar-Icon im Zentrum.
+    * Schlankes Inline-Namensfeld mit direktem `SPEICHERN`-Button.
+    * 2 prominente Helden-Kacheln: **REKORD** (in Metern) und **FLÜGE** (Rundenzahl).
+* **2. Minimalistisches Aufgaben-Design (`index.html`, `UIManager.js`, `style.css`):**
+  * Aufgabenkarten radikal entschlackt:
+    * Redundante doppelte Beschreibungsabsätze entfernt; stattdessen kurze, direkte Zieltitel (z.B. `150.000m Gesamtdistanz`).
+    * Fortschrittsbalken mit zentrierter Zahlenanzeige (`12.450 / 150.000 m` bzw. `EINGELÖST`) direkt im Balken.
+    * Sektions-Header auf das Wesentliche verdichtet: `TÄGLICH` und `WÖCHENTLICH` mit kompakten Restzeit-Badges.
+* **3. Spürbar anspruchsvollere Wöchentliche Herausforderungen (`Constants.js`):**
+  * Die wöchentlichen Aufgaben wurden mathematisch neu kalkuliert, sodass ein Spieler über die 7 Tage verteilt **ca. 2,0 bis 2,5 Stunden aktive Spielzeit** (~70–80 Runden) investieren muss:
+    * **Kosmischer Marathon:** 150.000 m Gesamtdistanz (~75 Runs × 2.000 m = ~131 Min. Nettoflugzeit) -> 1.500 Münzen Belohnung.
+    * **Orbital-Meister:** 1.500 erfolgreiche Sprünge (~68 Runs × 22 Sprünge = ~120 Min. Spielzeit) -> 1.600 Münzen Belohnung.
+    * **Schatzkammer:** 800 Münzen einsammeln (~80 Runs × 10 Münzen = ~140 Min. Spielzeit) -> 1.400 Münzen Belohnung.
+    * **Exosphären-Vorstoss:** 8.000 m in einem einzigen Flug (High-Skill Herausforderung, erfordert 30–50 Versuche) -> 2.000 Münzen Belohnung.
+    * **Reflex-Akrobat:** 60 knappe Rettungen vor dem Abgrund (~75 Runs = ~131 Min. Spielzeit) -> 1.500 Münzen Belohnung.
+* **4. Globale Regel-Erweiterung (`GEMINI.md`, `standards.md`):**
+  * Verankerung von Regel 5/6: "Strict Commercial Minimalism & Industry Best-Practice UI (Weniger ist mehr)". Alle künftigen Dialoge und UIs müssen dem Prinzip "Simple & Minimalistic" folgen.
+* **5. Playwright-Suite:** 18 Screenshots frisch erfasst, 0 Konsolenfehler, 0 Exceptions.
 
 ### v3.26.0 (03.09.2026) - Lethal Hazard Space Mine, Progressive Scaling, Performance Mode & Comprehensive Systems Manual Overhaul
 * **1. Vollständige Aktualisierung von `GAME_SYSTEMS.md` auf v3.26.0:**

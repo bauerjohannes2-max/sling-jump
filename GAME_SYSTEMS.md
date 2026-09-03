@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.26.0  
+Dokumentationsstand: Version 3.27.0  
 Aktualisiert am: 03. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -82,27 +82,52 @@ Die prozedurale Generierung (`WorldManager.js`) skaliert die Schwierigkeit dynam
 ---
 
 ## 5. PERFORMANCE-MODUS & HARDWARE-OPTIMIERUNG (VOLLSTÄNDIGE TECHNISCHE DOKUMENTATION)
+  * Das Raumschiff bindet sich rein visuell über eine transparente Gravitationskraft an Himmelsknoten. Es gibt keine sichtbare Hakenleine mehr, was ein aufgeräumtes, elegantes Gesamtbild erzeugt.
+* **Präziser Katapultwinkel (90° Steilsprung):**
+  * Ein perfekter senkrechter Katapultsprung (`PERFEKTER 90° SPRUNG!`) wird nur ausgelöst, wenn die Tangente der Flugbahn exakt nach oben zeigt (`tangentY >= 0.985`, Winkeltoleranz unter ±10°).
+  * Belohnung: Sofortiger Vertikalschub (`launchSpeed *= 1.35`) und schwebender Bonustext.
+* **Combo-System & Floating Texts:**
+  * Aneinandergereihte Katapultflüge ohne Bodenkontakt bauen einen Multiplikator auf (Combo x2, x3, etc.).
+  * Schwebende Texte sind hierarchisch getrennt, sodass Combo-Badges und 90°-Texte sich niemals überlagern.
 
-Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, Budget-Smartphones, Tablets und maximale Akkulaufzeit entwickelt.
+---
 
-### 5.1 Aktivierung & Bedienung
-* **Pfad:** Hauptmenü -> Zahnrad-Icon (`#btn-menu-settings`) -> Schalter **LEISTUNGS-MODUS** (`#btn-setting-perf`).
-* **Zustände:** `AN` (Optimiert) oder `AUS` (Volle Neon-Pracht).
-* **Echtzeit-Umschaltung:** Änderungen werden sofort im laufenden Spielbetrieb übernommen, ohne dass die Seite neu geladen werden muss.
+## 3. PROGRESSIVE WELTEN-GENERIERUNG & KREIS-TYPEN
 
-### 5.2 Technische Wirkungsweise unter der Haube
-1. **Halbierung des Partikel-Objektpools (`300` statt `600`):**
-   * Im Standardmodus hält das Spiel ein voralloziertes Ringpuffer-Array von 600 Partikeln für Funken, Triebwerksfeuer und Trümmer bereit.
-   * Im Performance-Modus wird dieser Puffer dynamisch auf **300 Partikel** begrenzt. Dadurch werden Iterationsschleifen und Update-Zyklen pro Frame um 50% reduziert.
-2. **GPU `shadowBlur` Bypass (`shadowBlur = 0`):**
-   * Im 2D-Canvas-Kontext auf Mobilgeräten führt `context.shadowBlur` zu extrem teuren, hardware-intensiven Off-Screen-Gauß-Weichzeichner-Passes bei jedem einzelnen gezeichneten Partikel und Text.
-   * Im Performance-Modus wird `shadowBlur` für alle Partikel, Funken und Texte vollständig umgangen (`shadowBlur = 0`).
-   * Dies eliminiert den Hauptgrund für Ruckler und Framedrops auf mobilen Grafikprozessoren (GPU).
-3. **Thermische Entlastung & Akku-Schonung:**
-   * Durch den Wegfall teurer Rasterisierungs-Passes sinkt die CPU- und GPU-Last drastisch.
-   * Das Gerät erwärmt sich bei langen Highscore-Runs nicht, und thermisches Throttling (Heruntertakten des Mobilprozessors) wird verhindert.
-4. **Garantierte Framerate:**
-   * Garantiert felsenfest stabile 60 bis 120 FPS selbst auf älteren Android- und iOS-Geräten.
+Die Welt skaliert entlang von 7 Zonen (0m bis 15.000m+). Im späteren Spielverlauf machen dynamische Knoten 62% des Feldes aus:
+
+1. **STANDARD (Cyan):** Statischer Knoten, unbegrenzt stabil.
+2. **SUPER-BOOST (Grün):** Mit rotierenden Aufwärtspfeilen; verleiht beim Lösen massiven Zusatzturbo.
+3. **BEWEGLICH (Violett):** Pendelt horizontal hin und her; erfordert präzises Vorhalten beim Einhaken.
+4. **ZEITUHR / FRAGIL (Gold):** Tickernder Countdown-Ring; zerbricht nach 1,8 Sekunden Orbitdauer.
+5. **KÖDER-FALLE (Orange):** Instabile Fissuren-Textur; zerbricht unmittelbar beim Einhakversuch.
+6. **WELTRAUM-MINE (Crimson-Rot, ab 10.000m):** Tödliches Hindernis mit 8 rotierenden Stacheln. Nicht einhakbar; sofortige Detonation und Spielende bei Berührung!
+
+---
+
+## 4. HERAUSFORDERUNGS-SYSTEM (DAILIES & WEEKLIES)
+
+Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen täglichen Aufgaben und anspruchsvollen Wochen-Zielen:
+
+* **Tägliche Aufgaben (24h Reset):** Konzipiert für 5–10 Minuten tägliche Spielzeit (z.B. 600m Einzelflug, 16 Münzen, 5 Katapulte).
+* **Wöchentliche Herausforderungen (7-Tage Reset):** Mathematisch austariert auf **ca. 2,0 bis 2,5 Stunden aktive Spielzeit** über die Woche verteilt:
+
+| Wöchentliche Herausforderung | Zielwert | Typischer Durchschnitt | Benötigte Runs | Errechnete Spielzeit | Rationale |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Kosmischer Marathon** | **150.000 m** | ~2.000 m / Run | ~75 Runs | **~131 Min. (~2,2 Std.)** | ~11 Runs täglich über 7 Tage. |
+| **Orbital-Meister** | **1.500 Sprünge** | ~22 Sprünge / Run | ~68 Runs | **~120 Min. (~2,0 Std.)** | ~10 Runs täglich über 7 Tage. |
+| **Schatzkammer** | **800 Münzen** | ~10 Münzen / Run | ~80 Runs | **~140 Min. (~2,3 Std.)** | ~11 Runs täglich über 7 Tage. |
+| **Exosphären-Vorstoss** | **8.000 m** (Einzelflug) | Elite-Skill | 30–50 Versuche | **~60–90 Min. (~1,2 Std.)** | Meisterung aller Zonen 1 bis 5. |
+| **Reflex-Akrobat** | **60 Knappe Rettungen** | ~0,8 Rettungen / Run | ~75 Runs | **~131 Min. (~2,2 Std.)** | Intensives Risikospiel vor dem Abgrund. |
+
+---
+
+## 5. PERFORMANCE-MODUS & HARDWARE-ARCHITEKTUR
+
+Für schwächere Smartphones, Laptops und zur Akkuschonung implementiert:
+* **Partikel-Halbierung:** Ringpuffer auf 300 Partikel limitiert (50% CPU-Einsparung).
+* **GPU `shadowBlur` Hardware-Bypass:** `context.shadowBlur = 0` eliminiert teure Gauß-Rasterungsdurchläufe auf mobilen GPUs.
+* **Echtzeit-Schaltung:** Sofortige Wirkung ohne Neuladen via Einstellungen (`#btn-setting-perf`).
 
 ---
 
@@ -110,25 +135,28 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, Bu
 
 * **Verlustfreies Wiederaufsetzen auf Absturzhöhe:**
   * Beim Absturz sichert die Engine einen genauen Checkpoint (`reviveCheckpoint`) mit der exakten erreichten Höhe (`maxAltitudeMeters`), Kamera-Position (`cameraY`) und dem nächsten sicheren Himmelsknoten.
-  * Nach Klick auf `WIEDERBELEBEN` im Game-Over-Screen wird der Spieler nicht auf 0m zurückgeworfen, sondern **exakt an der Absturzhöhe** an einem sicheren Knoten im Orbit neu gestartet.
+  * Nach Klick auf `WIEDERBELEBEN` im Game-Over-Screen startet der Spieler exakt auf seiner erreichten Höhe im Orbit neu.
 * **4,0 Sekunden Quanten-Schutzschild:**
-  * Das Schiff erhält einen leuchtenden blauen Schutzschild (`shieldTimer = 4.0`), der vorzeitige Kollisionen oder Minenkontakte absorbiert und einen fairen Neuanlauf garantiert.
+  * Schützt vor sofortigen Kollisionen nach der Wiederbelebung.
 * **Kosten:** 1 Hyper-Kristall (später erweiterbar um Video-Ads).
 
 ---
 
-## 7. MENÜ-STRUKTUR, MODALS & DESIGN-SYSTEM
+## 7. MENÜ-STRUKTUR, MODALS & MINIMALISTISCHES DESIGN-SYSTEM
 
+* **Globale Design-Regel: Kommerzieller Minimalismus ("Weniger ist mehr"):**
+  * Keine überladenen Texte, keine bürokratischen Bezeichnungen, kein visueller Ballast.
+* **Schlankes Profil-Modal (`#profile-modal`):**
+  * Schlicht als **"PROFIL"** betitelt (keine umständlichen "Piloten-Lizenzen").
+  * Glowing Vektor-Avatar, direktes Namensfeld mit `SPEICHERN`, zwei markante Kern-Kacheln: **REKORD** und **FLÜGE**.
+* **Minimalistisches Aufgaben-Modal (`#quests-modal`):**
+  * Kompakte Aufgabenkarten ohne redundante Beschreibungstexte.
+  * Fortschrittszahlen (`12.450 / 150.000 m`) direkt in den Progressbar integriert.
+  * Klare, reduzierte Header: `TÄGLICH` und `WÖCHENTLICH` mit Restzeit-Badge.
 * **Strict Zero Emoji Policy:**
-  * Absolutes Verbot von Emojis in UI, HUD, Buttons, Toasts oder Code. Ausschließlich minimalistische SVG-Vektoricons und scharfe Canvas-Geometrie.
-* **Opaque Header Navigation (Slate-800 `#1e293b`):**
-  * Oben Links: `#btn-menu-quests` (Klemmbrett-SVG mit separater Benachrichtigungspille).
-  * Oben Rechts: `#btn-menu-profile` (Pilot-SVG), `#btn-menu-leaderboard` (Meisterschafts-Pokal/Trophäe-SVG), `#btn-menu-settings` (Zahnrad-SVG).
-* **Hauptmenü-Button im Pause-Menü:**
-  * Ermöglicht das sofortige geordnete Beenden eines Runs zurück ins Hauptmenü.
+  * Ausschließlich minimalistische SVG-Vektoricons und Canvas-Geometrie.
 * **Admin-Dashboard (`dashboard.html`):**
-  * Exklusiver Administrationsbereich, abgesichert durch Master-PIN `1337` und geschützte SessionStorage-Tokens.
-* **Piloten-Lizenz Modal (`#profile-modal`):**
+  * Gesichert durch Master-PIN `1337`.
   * Ermöglicht Spielern die Registrierung ihres Rufnamens und dauerhafte Speicherung ihrer Rekorde und Statistiken.
 
 ---

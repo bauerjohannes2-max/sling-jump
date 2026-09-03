@@ -507,7 +507,7 @@ class UIManager {
       const d = profile.registeredAt ? new Date(profile.registeredAt).toLocaleDateString('de-DE') : 'Heute';
       dateEl.textContent = `Aktiv seit: ${d}`;
     }
-    if (runsEl) runsEl.textContent = `${stats.totalRuns || 0} Flüge`;
+    if (runsEl) runsEl.textContent = (stats.totalRuns || 0).toString();
     if (inputEl) inputEl.value = profile.pilotName || '';
 
     this.dom.profileModal.classList.add('visible');
@@ -1039,27 +1039,22 @@ class UIManager {
 
     const pct = Math.min(100, Math.floor((q.progress / q.target) * 100));
 
-    let actionHtml = '';
-    if (q.isClaimed) {
-      actionHtml = '<span class="badge-claimed">EINGELÖST</span>';
-    } else if (q.isComplete) {
-      actionHtml = `<button class="btn-claim" data-id="${q.id}">BELOHNUNG EINSAMMELN</button>`;
-    } else {
-      actionHtml = `<span>${q.progress} / ${q.target} (${pct}%)</span>`;
-    }
+    const statusText = q.isClaimed
+      ? 'EINGELÖST'
+      : (q.isComplete
+          ? 'FERTIG'
+          : `${q.progress.toLocaleString('de-DE')} / ${q.target.toLocaleString('de-DE')}`);
 
     card.innerHTML = `
       <div class="quest-card-top">
-        <span class="quest-card-title">${q.title}</span>
-        <span class="quest-card-reward">+${q.reward} ${UIManager.COIN_SVG}</span>
+        <span class="quest-card-title">${q.description || q.title}</span>
+        <span class="quest-card-reward">+${q.reward.toLocaleString('de-DE')} ${UIManager.COIN_SVG}</span>
       </div>
-      <div class="quest-card-desc">${q.description}</div>
       <div class="quest-bar-bg">
         <div class="quest-bar-fill" style="width:${pct}%"></div>
+        <div class="quest-bar-text">${statusText}</div>
       </div>
-      <div class="quest-card-foot">
-        <div class="quest-action-slot">${actionHtml}</div>
-      </div>
+      ${isReady ? `<button class="btn-claim" data-id="${q.id}">BELOHNUNG EINSAMMELN</button>` : ''}
     `;
 
     const claimBtn = card.querySelector('.btn-claim');

@@ -23,3 +23,9 @@ description: Mandatory zero emoji policy, Playwright automated testing, and cont
   * Always formulate a structured plan with a detailed step-by-step checklist in `implementation_plan.md`.
   * Execute each item systematically.
   * Continuously verify and document progress.
+
+## 5. Strict Commercial Minimalism & Industry Best-Practice UI (Weniger ist mehr)
+* **Always follow the proven UX/UI standards of mobile bestsellers and top-grossing arcade games** (e.g. Subway Surfers, Crossy Road, Alto's Adventure, Brawl Stars):
+  * **Keep it simple, punchy, and minimalistic:** Eliminate visual clutter, excessive subtitles, micro-metadata, redundant counters, and wall-of-text explanations.
+  * **No bureaucratic terminology:** Never use overcomplicated or bureaucratic naming (e.g. use clean 'PROFIL' instead of 'Piloten-Lizenz').
+  * **Generous whitespace & clear visual hierarchy:** Bold tracked typography, clean cards, high contrast, and direct action buttons.

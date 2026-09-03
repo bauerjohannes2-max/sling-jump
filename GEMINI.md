@@ -35,3 +35,9 @@ For any web application, UI, Canvas, or frontend project:
   * Always create a comprehensive, structured plan with a detailed step-by-step to-do checklist in `implementation_plan.md` before or during execution.
   * Execute each item systematically and methodically.
   * Verify each deliverable with fresh visual tests and document the complete lifecycle in `GAME_STATUS.md`.
+
+## 6. Strict Commercial Minimalism & Industry Best-Practice UI (Absolute Regel: Weniger ist mehr / Keep it Simple)
+* **Always follow the proven UX/UI standards of mobile bestsellers and top-grossing arcade games** (e.g. Subway Surfers, Crossy Road, Alto's Adventure, Brawl Stars):
+  * **Keep it simple, punchy, and minimalistic:** Eliminate visual clutter, excessive subtitles, micro-metadata, redundant counters, and wall-of-text explanations.
+  * **No bureaucratic terminology:** Never use overcomplicated or bureaucratic naming (e.g. use clean 'PROFIL' instead of 'Piloten-Lizenz').
+  * **Generous whitespace & clear visual hierarchy:** Bold tracked typography, clean cards, high contrast, and direct action buttons.
