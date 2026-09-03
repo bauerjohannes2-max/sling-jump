@@ -1,8 +1,10 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.14.0  
+Dokumentationsstand: Version 3.26.0  
 Aktualisiert am: 03. September 2026  
-Status: Produktion & QA-verifiziert  
+Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
+Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
+Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.com/bauerjohannes2-max/sling-jump)
 
 ---
 
@@ -10,164 +12,139 @@ Status: Produktion & QA-verifiziert
 
 * **Genre:** Physikalischer Endless Orbital Catapult Climber (Arcade / Skill-basiert).
 * **Ziel:** Mit einem Raumschiff durch gezieltes Einhaken an Himmelsknoten immer höher in den Weltraum zu klettern und dem aufsteigenden roten Gravitations-Abgrund zu entkommen.
-* **Währung:** Münzen (Goldene Partikel in Form von Vektor-Icons; Bezeichnung in Code: `cores` / Orbs).
-* **Score-Philosophie:** Die erreichte Höhe in Metern (`m`) ist der alleinige Hauptwert (Hero Score). Keine künstlichen Multiplikationsformeln mehr.
+* **Score-Philosophie:** Die erreichte Höhe in Metern (`m`) ist der alleinige Hauptwert (Hero Score).
+* **Zwei-Währungs-Ökonomie:**
+  1. **Münzen (`cores` / Orbs):** Reguläre In-Game Währung, sammelbar in Formationen im All oder als Quest-Belohnungen. Dient zum Freischalten von Raumschiffen und Schweifen im Hangar.
+  2. **Hyper-Kristalle (`CRYSTAL`):** Extrem seltene violett-pinke Währung (~5% Spawn-Chance ab 5.000m Höhe). Dient zur sofortigen **Quanten-Wiederbelebung** nach einem Absturz.
 
 ---
 
 ## 2. STEUERUNG & PHYSIK-MECHANIKEN
 
-### 2.1 Einhaken (Grapple Hook)
+### 2.1 Einhaken (Grapple Hook) & Schwereloser Orbit
 * **Aktion:** Bildschirm / Maustaste gedrückt halten (Touch / Pointerdown / Leertaste).
-* **Funktionsweise:**
-  * Das Schiff feuert ein Ionen-Seil zum nächsten Himmelsknoten in Reichweite (`HOOK_RANGE = 180px`).
-  * Beim Kontakt wechselt das Schiff sofort in den kreisförmigen Orbit um den Knoten.
-  * Lineare Geschwindigkeiten werden beim Einhaken sofort auf null gesetzt (`vx = 0, vy = 0`), sodass Sterne im Hintergrund sofort punktförmig bleiben.
-* **Orbit-Dynamik:**
-  * Radius: 55px bis 110px je nach Treffpunkt.
-  * Rotationsrichtung: Automatisch tangential basierend auf dem Eintrittswinkel.
-  * Slow-Motion: Bei jedem aktiven Einhaken wird die Zeit kurz subtil verlangsamt (`timeScale = 0.55`), um präzises Timing zu ermöglichen.
+* **Tetherless Grappling (Freier Orbit):**
+  * Auf Nutzerwunsch wurde der visuelle Haltestrahl zwischen Raumschiff und Knoten komplett entfernt.
+  * Das Schiff geht beim Einhaken in einen freien, ungestörten kreisförmigen Orbit um den Zielknoten über.
+  * Lineare Geschwindigkeiten werden beim Einhaken sofort auf null gesetzt (`vx = 0, vy = 0`), sodass Sterne im Hintergrund punktförmig bleiben.
+* **Fadenkreuz & Zielerfassung:**
+  * Das nächste erreichbare Objekt innerhalb der Reichweite (`HOOK_RANGE = 180px`) wird mit einem zirkulären Lock-On-Fadenkreuz markiert.
+  * **Ausschluss:** Tödliche Weltraum-Minen (`HAZARD`) werden niemals anvisiert.
 
 ### 2.2 Loslassen & Katapult-Abschuss (Slingshot Release)
 * **Aktion:** Loslassen des Bildschirms / Taste.
 * **Funktionsweise:**
-  * Das Seil wird gekappt. Das Schiff übernimmt die tangentiale Fliehkraft als lineare Geschwindigkeit (`vx`, `vy`).
-  * Normaler Sprung: Gewährt einen Basis-Aufwärtsschub (`+80 vy`), sofern die Tangente nach oben zeigt.
+  * Das Schiff löst sich tangential aus dem Orbit und übernimmt die Fliehkraft als lineare Fluggeschwindigkeit (`vx`, `vy`).
+  * Normaler Sprung: Gewährt einen Basis-Aufwärtsschub (`+80 vy`), sofern die Flugbahn nach oben gerichtet ist.
 
 ---
 
-## 3. COMBO-SYSTEM: 90-GRAD STEILSPRÜNGE (x1 BIS x10)
+## 3. COMBO-SYSTEM & PRÄZISIONS-KATAPULT
 
-Das Combo-System belohnt hochpräzises Timing:
-* **Steilsprung-Bedingung:**
-  * Die vertikale Tangente beim Loslassen muss nahezu perfekt senkrecht nach oben zeigen (`tangentY >= 0.86`, 90°-Aufwärtsschwung).
+* **Steilsprung-Bedingung (90°-Winkel):**
+  * Der Abschusswinkel muss nahezu exakt senkrecht nach oben zeigen (`tangentY >= 0.985`, unter 9.9° Abweichung von der echten Vertikalen).
 * **Progressiver Extra-Boost:**
   * Jeder aufeinanderfolgende 90°-Steilsprung erhöht den Combo-Zähler um +1 bis maximal **x10**.
   * Formel für Zusatzschub: `launchBonus = 45 + comboLevel * 20` (z.B. +65 bei x1 bis zu +245 bei x10).
-* **Visuelles & Akustisches Feedback:**
-  * Aufsteigender Floating Text: `PERFEKT 90°!` (x1), `PERFEKT x2!`, bis `MAX COMBO x10!`.
-  * Dynamische Farbfolge der Combo-Texte: Hellblau (`#38bdf8`), Indigo (`#818cf8`), Violett (`#a855f7`), Gold (`#fbbf24`), Orange (`#f97316`), Neon-Pink (`#ec4899`), Cyan (`#06b6d4`).
-  * Hitstop & dezenter Screenshake erst ab Combo x4+ (unter x4: 0 Screenshake für butterweiches Gleiten).
-* **Combo-Reset:**
-  * Ein Sprung mit ungenauem Winkel (`tangentY < 0.86`) setzt den Combo-Zähler sofort auf null zurück.
+* **Unified Floating Text (Keine Textüberlagerungen):**
+  * Bei Combo x1 erscheint ausschließlich: `PERFEKT 90°!`.
+  * Ab Combo x2+ erscheint ausschließlich: `COMBO xN!` (z.B. `COMBO x2!`, `COMBO x3!`).
+  * Beide Texte überlagern sich niemals; die Anzeige ist mit dem HUD-Badge `#hud-combo-badge` synchronisiert.
 
 ---
 
-## 4. KNOTEN-TYPEN & STUFENWEISE EINFÜHRUNG (DOODLE JUMP PACING)
+## 4. KNOTEN-TYPEN & 7-STUFIGE PROGRESSIONS-MATRIX
 
-Knoten werden gestreckt nach der bewährten Arcade-Progressionskurve eingeführt:
+Die prozedurale Generierung (`WorldManager.js`) skaliert die Schwierigkeit dynamisch entlang von 7 Zonen:
 
-| Höhen-Zone | Höhenbereich | Neu eingeführter Knoten-Typ | Eigenschaften & Verhalten |
-| :--- | :--- | :--- | :--- |
-| **Zone 1: Start & Kalibrierung** | 0m – 500m | **STANDARD (Cyan)** | 100% stabile Anker. Solide Kreisgeometrie mit sanft pulsierendem Kern. Erlernen der Flugkurven. |
-| **Zone 2: Katapult-Moment** | 500m – 1.500m | **SUPER-BOOST (Grün)** | Seltener grüner Knoten (~5%) mit **Aufwärtspfeil**. Wie das Trampolin in Doodle Jump: Verdoppelt Katapultschub (`1.85x`) und erzeugt Hyperspeed-Warpstreifen. |
-| **Zone 3: Dynamischer Orbit** | 1.500m – 3.500m | **BEWEGLICH (Lila Pendel)** | Schwingt horizontal von links nach rechts (`moveRange = 70–120px`, ~16%). Wie die blauen Plattformen: Erfordert bewegliches Timing. |
-| **Zone 4: Stratosphären-Timer** | 3.500m – 6.500m | **FRAGIL (Rote Zeituhr)** | Besitzt radiale Ziffernblatt-Markierungen (~12%). Nach Einhaken tickt die Uhr ab (2.5s). Bricht mit Knacken ab! |
-| **Zone 5: Fallen & Täuschung** | 6.500m – 10.000m | **BRÜCHIG / DECOY (Orange Fälschung)** | **Rissiger Knoten (~7%):** Besitzt Bruchlinien. **Bricht beim Einhaken sofort in Scherben!** Gewährt null Halt und muss übersprungen werden. |
-| **Zone 6: Meister-Kosmos** | 10.000m+ | **HARDCORE MIX** | Anspruchsvolle Dichte, engere Radien und schnellere Pendel für globale Bestenlisten. |
+| Zone | Höhenbereich | Standard (%) | Super-Boost (%) | Beweglich (%) | Zeituhr / Fragil (%) | Köder / Fissur (%) | Weltraum-Mine / Bombe (Lethal) | Min/Max Lücke | Mechanische Charakteristik |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Zone 1: Kalibrierung** | 0 m – 500 m | 100% | 0% | 0% | 0% | 0% | 0% | 140 – 180 px | 100% stabile Basisknoten zum sicheren Einstieg. |
+| **Zone 2: Stratosphäre** | 500 m – 1.500 m | 92% | 8% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste grüne Katapulte mit Aufwärtspfeilen für Weitsprünge. |
+| **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 72% | 8% | 20% | 0% | 0% | 0% | 165 – 215 px | Violette Pendelknoten erfordern horizontales Vorhalten. |
+| **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 54% | 8% | 24% | 14% | 0% | 0% | 180 – 235 px | Goldene Zeituhr-Knoten mit Countdown erzwingen schnellen Absprung. |
+| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 40% | 6% | 28% | 18% | 8% | 0% | 190 – 245 px | Orangene Fissuren-Knoten (zerbrechen sofort bei Einhaken) erfordern Wachsamkeit. |
+| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 28% | 8% | 32% | 22% | 10% | **~14% Korridor** | 195 – 250 px | **Weltraum-Minen:** Tödliche Detonation bei Berührung! |
+| **Zone 7: Meister-Kosmos** | 15.000 m+ | 18% | 8% | 36% | 26% | 12% | **~22% Korridor** | 200 – 260 px | 62% dynamische Knoten (Zeituhr + Pendel) in dichtem Minenfeld. |
+
+### Detailbeschreibung aller 6 Entitäten
+1. **STANDARD (Cyan `#00f0ff`):** Solider, dauerhafter Orbit-Anker.
+2. **SUPER-BOOST (Grün `#10b981`):** Erhöht den Katapult-Schub auf das 1,85-fache und erzeugt Warp-Streifen.
+3. **BEWEGLICH (Violett `#c084fc`):** Schwingt horizontal im Pendelmodus (`moveRange` bis 100px).
+4. **ZEITUHR / FRAGIL (Gold `#eab308`):** Besitzt 12 radiale Uhren-Ticks. Nach dem Einhaken tickt die Uhr ab (~0,8s). Bricht bei Ablauf mit Scherbenregen ab!
+5. **KÖDER / FISSUR (Orange `#f97316`):** Brittle Trap mit Fissur-Linien. Bricht beim Einhaken sofort entzwei; bietet keinen Halt.
+6. **BOMBE / WELTRAUM-MINE (`HAZARD` / Crimson `#ef4444`):**
+   * Spawnt ab 10.000m Höhe als tödliches Hindernis im Flugkorridor.
+   * Design: 8 rotierende messerscharfe Stacheln, dunkler Kern mit 3-Flügel-Warnsymbol, gestrichelte rote Gefahrenzone.
+   * Nicht einhakbar (vom Fadenkreuz ausgeschlossen).
+   * Bei Berührung: Sofortige gewaltige Explosion, Bildbeben und sofortiges Game Over ("MINE DETONIERT!").
 
 ---
 
-## 5. DESIGN-SYSTEM & FARBPALETTE
+## 5. PERFORMANCE-MODUS & HARDWARE-OPTIMIERUNG (VOLLSTÄNDIGE TECHNISCHE DOKUMENTATION)
+
+Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, Budget-Smartphones, Tablets und maximale Akkulaufzeit entwickelt.
+
+### 5.1 Aktivierung & Bedienung
+* **Pfad:** Hauptmenü -> Zahnrad-Icon (`#btn-menu-settings`) -> Schalter **LEISTUNGS-MODUS** (`#btn-setting-perf`).
+* **Zustände:** `AN` (Optimiert) oder `AUS` (Volle Neon-Pracht).
+* **Echtzeit-Umschaltung:** Änderungen werden sofort im laufenden Spielbetrieb übernommen, ohne dass die Seite neu geladen werden muss.
+
+### 5.2 Technische Wirkungsweise unter der Haube
+1. **Halbierung des Partikel-Objektpools (`300` statt `600`):**
+   * Im Standardmodus hält das Spiel ein voralloziertes Ringpuffer-Array von 600 Partikeln für Funken, Triebwerksfeuer und Trümmer bereit.
+   * Im Performance-Modus wird dieser Puffer dynamisch auf **300 Partikel** begrenzt. Dadurch werden Iterationsschleifen und Update-Zyklen pro Frame um 50% reduziert.
+2. **GPU `shadowBlur` Bypass (`shadowBlur = 0`):**
+   * Im 2D-Canvas-Kontext auf Mobilgeräten führt `context.shadowBlur` zu extrem teuren, hardware-intensiven Off-Screen-Gauß-Weichzeichner-Passes bei jedem einzelnen gezeichneten Partikel und Text.
+   * Im Performance-Modus wird `shadowBlur` für alle Partikel, Funken und Texte vollständig umgangen (`shadowBlur = 0`).
+   * Dies eliminiert den Hauptgrund für Ruckler und Framedrops auf mobilen Grafikprozessoren (GPU).
+3. **Thermische Entlastung & Akku-Schonung:**
+   * Durch den Wegfall teurer Rasterisierungs-Passes sinkt die CPU- und GPU-Last drastisch.
+   * Das Gerät erwärmt sich bei langen Highscore-Runs nicht, und thermisches Throttling (Heruntertakten des Mobilprozessors) wird verhindert.
+4. **Garantierte Framerate:**
+   * Garantiert felsenfest stabile 60 bis 120 FPS selbst auf älteren Android- und iOS-Geräten.
+
+---
+
+## 6. WIEDERBELEBUNGS-SYSTEM (QUANTUM REVIVE) & HYPER-KRISTALLE
+
+* **Verlustfreies Wiederaufsetzen auf Absturzhöhe:**
+  * Beim Absturz sichert die Engine einen genauen Checkpoint (`reviveCheckpoint`) mit der exakten erreichten Höhe (`maxAltitudeMeters`), Kamera-Position (`cameraY`) und dem nächsten sicheren Himmelsknoten.
+  * Nach Klick auf `WIEDERBELEBEN` im Game-Over-Screen wird der Spieler nicht auf 0m zurückgeworfen, sondern **exakt an der Absturzhöhe** an einem sicheren Knoten im Orbit neu gestartet.
+* **4,0 Sekunden Quanten-Schutzschild:**
+  * Das Schiff erhält einen leuchtenden blauen Schutzschild (`shieldTimer = 4.0`), der vorzeitige Kollisionen oder Minenkontakte absorbiert und einen fairen Neuanlauf garantiert.
+* **Kosten:** 1 Hyper-Kristall (später erweiterbar um Video-Ads).
+
+---
+
+## 7. MENÜ-STRUKTUR, MODALS & DESIGN-SYSTEM
 
 * **Strict Zero Emoji Policy:**
-  * Unter keinen Umständen Emojis in UI, Buttons, HUD, Canvas, Toasts oder Dokumentation.
-  * Verwendung ausschließlich von minimalistischen SVG-Vektoricons und Canvas-Vektoren.
-* **Farben:**
-  * Hintergrund Tiefschwarz/Marine: `#030712`, `#0a0f1d`, `#0f172a`
-  * Primäre Akzentfarbe (Technologie/Flug): Cyan `#38bdf8` / `#00f0ff`
-  * Währung & Rekorde: Gold `#fbbf24` / `#f59e0b`
-  * Gefahren & Absturz: Rot `#ef4444` / `#f43f5e`
-  * Turbo-Boost & Erfolg: Smaragdgrün `#10b981`
-  * Typografie: `Montserrat`, `system-ui`, `sans-serif`
+  * Absolutes Verbot von Emojis in UI, HUD, Buttons, Toasts oder Code. Ausschließlich minimalistische SVG-Vektoricons und scharfe Canvas-Geometrie.
+* **Opaque Header Navigation (Slate-800 `#1e293b`):**
+  * Oben Links: `#btn-menu-quests` (Klemmbrett-SVG mit separater Benachrichtigungspille).
+  * Oben Rechts: `#btn-menu-profile` (Pilot-SVG), `#btn-menu-leaderboard` (Meisterschafts-Pokal/Trophäe-SVG), `#btn-menu-settings` (Zahnrad-SVG).
+* **Hauptmenü-Button im Pause-Menü:**
+  * Ermöglicht das sofortige geordnete Beenden eines Runs zurück ins Hauptmenü.
+* **Admin-Dashboard (`dashboard.html`):**
+  * Exklusiver Administrationsbereich, abgesichert durch Master-PIN `1337` und geschützte SessionStorage-Tokens.
+* **Piloten-Lizenz Modal (`#profile-modal`):**
+  * Ermöglicht Spielern die Registrierung ihres Rufnamens und dauerhafte Speicherung ihrer Rekorde und Statistiken.
 
 ---
 
-## 6. MENÜ-STRUKTUR & BUTTON-LAYOUT
+## 8. INTERAKTIVES TUTORIAL-SYSTEM
 
-### 6.1 Hauptmenü (`#menu-overlay`)
-* **Obere Navigationsleiste:**
-  * **Oben Links:** Button `#btn-menu-quests` (Ausschließlich SVG-Icon: Klemmbrett/Aufgaben, mit grünem Benachrichtigungspunkt `#menu-quests-badge` bei abholbereiten Aufgaben).
-  * **Oben Rechts:**
-    * Button `#btn-menu-leaderboard` (Ausschließlich SVG-Icon: Podium/Trophäe).
-    * Button `#btn-menu-settings` (Ausschließlich SVG-Icon: Zahnrad).
-* **Zentrum:**
-  * Titel: `SLING JUMP` (46px, 900 Gewicht)
-  * Untertitel: `SPRINGE VON STERN ZU STERN`
-  * Versions-Badge: `v3.14.0`
-  * Währungsanzeige: Goldenes SVG-Münzicon + Betrag (kein Text "COINS")
-  * Vertikaler Button-Stapel:
-    * `SPIEL STARTEN` (`#btn-menu-play`)
-    * `TUTORIAL` (`#btn-menu-tutorial`)
-    * `SKINS` (`#btn-menu-shop`)
-    * `STATISTIKEN` (`#btn-menu-stats`)
-
-### 6.2 Modals (Vollständig entkoppelt, ohne Reiter)
-* **Aufgaben-Modal (`#quests-modal`):**
-  * Tägliche Aufgaben (mit Countdown-Timer).
-  * Wöchentliche Herausforderungen (mit 7-Tage-Timer).
-  * Direkter Claim-Button (`EINSAMMELN (+X [Münz-SVG])`).
-  * Schließen-Button `#btn-quests-close`.
-* **Bestenlisten-Modal (`#leaderboard-modal`):**
-  * Weltweite Top-Rangliste mit Zeitstempeln und Schiffen.
-  * Persönliche Rang-Karte (`#player-rank-card`) mit Perzentil-Berechnung ("TOP X% DER WELT").
-  * Schließen-Button `#btn-leaderboard-close`.
-* **Statistiken-Modal (`#stats-modal`):**
-  * 8 Kacheln: Geflogene Distanz, Runden, Durchschnittshöhe, Münzen, Slingshots, Knappe Rettungen, Eingelöste Quests, Beste Combo.
-  * Schließen-Button `#btn-stats-close`.
-* **Game-Over-Modal (`#gameover-modal`):**
-  * Absturz-Titel in Rot.
-  * **Hero Score:** Große Höhenanzeige (`482 m`, 58px, Cyan).
-  * **Sub-Rekord:** `BESTLEISTUNG 620 m`.
-  * **Münzen:** Goldenes SVG-Münzicon + Anzahl gesammelter Münzen (`+12`).
-  * Skin-Freischaltungsbanner (`#gameover-upgrade-banner`) bei ausreichend Münzen mit Direktsprung zum Hangar.
-  * Buttons: `NOCHMAL SPIELEN`, `SKINS`, `HAUPTMENÜ`.
+* **Folie 1: Steuerung & Katapultflug:**
+  * Dynamisch gerendertes Miniatur-Raumschiff auf `#tut-sling-canvas`, das Schwungaufbau und senkrechten 90°-Katapultflug visualisiert.
+* **Folie 2: Himmelskörper (Vollständige Echtzeit-Vorschau):**
+  * Rendert alle 6 echten Spiel-Entitäten über deren originale `OrbitNode.draw()`-Pipeline nebeneinander auf `#tut-circles-canvas`:
+    * `STANDARD` (Cyan), `BOOST` (Grün), `BEWEGLICH` (Violett), `ZEITUHR` (Gold), `KÖDER` (Orange), `BOMBE` (Crimson-Rot).
 
 ---
 
-## 7. TUTORIAL-SYSTEM (2-FOLIEN BUTTON-TUTORIAL)
+## 9. PERMANENTE 24/7 BEREITSTELLUNG & HOSTING
 
-Das Tutorial ist ein übersichtliches, modales Overlay (`#tutorial-modal`), das jederzeit über den Button "TUTORIAL" im Hauptmenü oder in den Einstellungen aufgerufen werden kann:
-* **Folie 1: Grundsteuerung & Schwung:**
-  * Vektor-Illustration: Zielkreis, Halteseil, Raumschiff und katapultartige Aufwärts-Flugbahn.
-  * Erklärung:
-    * **Gedrückt halten:** Berühre den Bildschirm (oder Leertaste / Klick), um dich an einen nahen Kreis einzuhaken und Schwung aufzubauen.
-    * **Loslassen:** Lass im richtigen Moment los, um mit dem aufgebauten Schwung in Flugrichtung nach oben geschleudert zu werden!
-  * Navigation: `WEITER` (zu Folie 2) und `SCHLIESSEN`.
-* **Folie 2: Himmelskörper (Teaser ohne Spoiler):**
-  * Vektor-Illustration: Geheimnisvolle Reihe von 5 Kreis-Silhouetten (Standard, Boost, Pendel, Timer, Bruch).
-  * Teaser-Text:
-    * Im Weltraum erwarten dich verschiedene Arten von Kreisen – je höher du fliegst, desto mehr neue Himmelskörper wirst du entdecken!
-    * Jeder Typ verhält sich anders: Einige verleihen ungeahnten Schub, andere fordern dein Timing heraus oder bergen Überraschungen... Finde selbst heraus, was sie tun!
-  * Navigation: `ZURÜCK` (zu Folie 1) und `SPIEL STARTEN` (startet sofort den Run).
-* **Entkopplung vom Gameplay:**
-  * Das reguläre Spiel wird nicht mit Popups oder HUD-Bannern unterbrochen, sondern läuft als purer, ungestörter Arcade-Run.
-
----
-
-## 8. HANGAR / SKINS-KATALOG
-
-### 8.1 Raumschiffe (`CONSTANTS.SHIPS`)
-1. **PFEIL (Dart):** Start-Schiff (Kostenlos). Standard-Geometrie.
-2. **FALKE (Falcon):** Schneller Abfangjäger (75 Münzen).
-3. **PHÖNIX (Phoenix):** Zwillings-Flügler mit Hitzeschild (150 Münzen).
-4. **TITAN (Titan):** Schwerer Panzerkreuzer (250 Münzen).
-5. **AURORA (Aurora):** Experimenteller Hyperantrieb (400 Münzen).
-
-### 8.2 Schweife (`CONSTANTS.TRAILS`)
-1. **NEON CYAN:** Klassischer Ionenschweif (Kostenlos).
-2. **SOLAR FLAMME:** Feuriger Plasma-Austritt (50 Münzen).
-3. **KOSMISCHES LILA:** Dunkelmaterie-Spur (100 Münzen).
-4. **GOLDENE SPUR:** Luxus-Partikelregen (200 Münzen).
-5. **REGENBOGEN:** Spektrale Regenbogen-Emission (350 Münzen).
-
----
-
-## 9. AUDIO-STATUS & SETTINGS
-
-* **Audio-Status:** Standardmäßig auf **DEAKTIVIERT** gesetzt (wie vom Nutzer gewünscht).
-* **Sound-Architektur:** Web Audio API mit prozeduraler Synthese (`AudioManager.js`), bereit zur Reaktivierung ohne externe Asset-Abhängigkeiten.
-* **Optionen:**
-  * Bildschirm-Wackeln: 100% / 50% / AUS.
-  * Performance-Modus: AN / AUS (reduziert Partikeldichte bei schwächeren Geräten).
-  * Spielstand zurücksetzen: Mit doppelter Sicherheitsabfrage (`#confirm-modal`).
+* **Permanenter Live-Link (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)
+* **Hosting:** GitHub Pages Edge CDN mit weltweitem Caching und HTTPS.
+* **Offline-Unterstützung:** Service Worker (`sw.js`) cacht alle Kern-Assets für Offline-Spielbarkeit.

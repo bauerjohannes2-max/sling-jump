@@ -14,9 +14,9 @@ description: Mandatory zero emoji policy, Playwright automated testing, and cont
 * **Strict Freshness Guarantee:** Under no circumstances rely on old or cached screenshots. Every test run must produce 100% fresh screenshots with current `CreationTime` and `LastWriteTime` timestamps (neutralizing Windows NTFS tunneling) and output `screenshots/LATEST_RUN.md` with SHA-256 hashes.
 * Verify 0 console errors and inspect generated screenshots in `screenshots/` to confirm layout integrity, contrast, and alignment across desktop and mobile viewports.
 
-## 3. Continuous Cumulative Project Documentation
-* Maintain `GAME_STATUS.md` in the project root as the definitive, cumulative source of truth.
-* **Append-Only / History Preservation:** Never remove, overwrite, or delete past versions. Always add new versioned sections for recent changes while keeping all historic logs and architectural descriptions intact.
+## 3. Continuous Cumulative Project Documentation (`GAME_STATUS.md` & `GAME_SYSTEMS.md`)
+* Maintain `GAME_STATUS.md` in the project root as the definitive, cumulative, append-only changelog and release history. Never delete past versions.
+* Maintain `GAME_SYSTEMS.md` as the authoritative, up-to-date manual of all game systems, mechanics, physics equations, performance modes, and entities. Keep it fully synchronized with the latest version at all times.
 
 ## 4. Mandatory Structured Planning & Step-by-Step Execution
 * Whenever the user submits any request or instructions:

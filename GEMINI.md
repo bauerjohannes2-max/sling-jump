@@ -21,12 +21,10 @@ For any web application, UI, Canvas, or frontend project:
 * Assert 0 console errors and 0 uncaught exceptions across all test runs.
 * Visually inspect each screenshot using the file viewer to detect and fix any layout overlaps, contrast defects, or clipping before concluding the turn.
 
-## 3. Mandatory Continuous Historical Documentation (`GAME_STATUS.md` / `DOCUMENTATION.md`)
-* Always maintain a dedicated, comprehensive documentation markdown file in the workspace root (`GAME_STATUS.md` for games or `DOCUMENTATION.md` for applications).
-* **Historical Changelog Policy (Append-Only):**
-  * **Never delete, truncate, or overwrite past versions or historical entries.**
-  * The file must serve as a complete, cumulative history of all changes across the lifecycle of the project.
-  * At the conclusion of every feature addition, refactoring, or bugfix, **always append/prepend the recent changes as a new versioned entry** while fully preserving all previous versions, module descriptions, physics/mechanics, and Playwright test logs.
+## 3. Mandatory Continuous Historical Documentation (`GAME_STATUS.md` & `GAME_SYSTEMS.md`)
+* Always maintain both dedicated documentation markdown files in the workspace root:
+  * `GAME_STATUS.md`: The definitive, cumulative, append-only history of all releases, changelogs, and Playwright verification logs. Never delete, truncate, or overwrite past versions.
+  * `GAME_SYSTEMS.md`: The comprehensive game systems, physics formulas, node mechanics, performance modes, and design architecture manual. Always keep it 100% updated to the latest version on every iteration without exception.
 
 ## 4. Commercial Polish & Code Quality
 * Ensure zero console errors, graceful asset fallbacks, and modular decoupled architectures.

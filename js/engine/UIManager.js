@@ -1150,9 +1150,13 @@ class UIManager {
     if (this.dom.btnPerf) {
       this.updatePerfButtonText();
       this.dom.btnPerf.addEventListener('click', () => {
-        this.storage.data.settings.performanceMode = !this.storage.data.settings.performanceMode;
+        const newMode = !this.storage.data.settings.performanceMode;
+        this.storage.data.settings.performanceMode = newMode;
         this.storage.save();
         this.updatePerfButtonText();
+        if (window._gameEngine && window._gameEngine.particles) {
+          window._gameEngine.particles.maxParticles = newMode ? 300 : 600;
+        }
         if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
       });
     }

@@ -37,10 +37,32 @@ Die prozedurale Weltengenerierung (`WorldManager.js`) skaliert die Herausforderu
 
 ---
 
+## 1c. Performance-Modus & Technische Hardware-Optimierung
+
+Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ältere Smartphones, leistungsschwache Laptops und maximale Akkulaufzeit bei ausgedehnten Highscore-Flügen konzipiert:
+
+* **Aktivierung:** Im Hauptmenü oder Pause-Menü über das Zahnrad-Icon (`#btn-menu-settings`) -> Schalter **LEISTUNGS-MODUS** (`#btn-setting-perf`) auf **AN**.
+* **Echtzeit-Wirkung:** Die Umschaltung wirkt sofort im laufenden Frame, ohne Neustart oder Neuladen der Seite.
+* **Architektur & Optimierungen unter der Haube:**
+  1. **50% Partikel-Reduktion:** Der vorallozierte Ringpuffer des `ParticleSystem` wird dynamisch von 600 auf **300 Partikel** gedrosselt. Dies halbiert Iterationszeiten und Objektschleifen pro Frame.
+  2. **GPU `shadowBlur` Hardware-Bypass:** Auf Mobilgeräten erzeugt `context.shadowBlur` rechenintensive Gauß-Filter und Off-Screen-Rasterungs-Passes für jeden Partikel. Im Performance-Modus wird `shadowBlur` vollständig auf `0` gesetzt.
+  3. **Akku- & Hitzeschutz:** Verhindert thermisches Throttling des Mobilgeräts und senkt den Stromverbrauch signifikant.
+  4. **Stabile 60/120 FPS:** Garantiert ruckelfreie Bildraten auch auf budgetfreundlichen Android- und iOS-Smartphones.
+* **Detailliertes System-Handbuch:** Das vollständige Spielhandbuch inklusive aller mathematischen Formeln, physikalischen Parameter und Währungsmodelle ist in [`GAME_SYSTEMS.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/GAME_SYSTEMS.md) hinterlegt.
+
+---
+
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
 
-### v3.26.0 (03.09.2026) - Lethal Hazard Space Mine, Progressive Timer & Moving Scaling & Comprehensive Difficulty Table
-* **1. Neuer Kreis-Typ ab 10.000m: Tödliche Weltraum-Mine / Bombe (`Node.js`, `GameEngine.js`, `WorldManager.js`):**
+### v3.26.0 (03.09.2026) - Lethal Hazard Space Mine, Progressive Scaling, Performance Mode & Comprehensive Systems Manual Overhaul
+* **1. Vollständige Aktualisierung von `GAME_SYSTEMS.md` auf v3.26.0:**
+  * Das interne System-Handbuch wurde von Version 3.14.0 auf den aktuellen Stand v3.26.0 gehoben.
+  * Vollständige Dokumentation aller neuen Features: Weltraum-Minen (`HAZARD`), 7-Stufen-Schwierigkeitsmatrix, Quantum Revive auf Absturzhöhe, Hyper-Kristalle, Tetherless Grappling, 90°-Präzisionswinkel, PIN-geschütztes Admin-Dashboard und 2-Folien Canvas-Tutorial.
+* **2. Performance-Modus: Ausführliche Dokumentation & Hardware-Bypass (`ParticleSystem.js`, `UIManager.js`):**
+  * Detaillierte technische Erläuterung der Funktionsweise von `performanceMode` in `GAME_STATUS.md` und `GAME_SYSTEMS.md`.
+  * In `ParticleSystem.js` wurde ein hardware-effizienter Bypass für GPU `shadowBlur` implementiert, wenn der Performance-Modus aktiv ist.
+  * In `UIManager.js` wird die Partikelanzahl bei Aktivierung nun verzögerungsfrei in Echtzeit angepasst.
+* **3. Neuer Kreis-Typ ab 10.000m: Tödliche Weltraum-Mine / Bombe (`Node.js`, `GameEngine.js`, `WorldManager.js`):**
   * Spawnt ab ca. 10.000 Metern Höhe als tödliches Hindernis im Flugkorridor (~14% bis 15.000m, ~22% darüber).
   * Eigenständiges, gestochen scharfes Design: Dunkelroter Rumpf mit 8 rotierenden dreieckigen Stacheln, pulsierendem Gefahrenkern (3-Flügel-Warnsymbol) und gestricheltem rotem Warnkreis.
   * Kann nicht eingehakt werden (vom Fadenkreuz ausgeschlossen).

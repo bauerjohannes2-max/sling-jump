@@ -186,21 +186,27 @@ class ParticleSystem {
 
       const alpha = Math.max(0, p.life);
 
+      const isPerf = Boolean(window._gameEngine && window._gameEngine.storage && window._gameEngine.storage.data.settings.performanceMode);
+
       if (p.type === 'shard') {
         context.save();
         context.translate(p.x, sy);
         context.rotate(p.angle);
         context.globalAlpha = alpha;
         context.fillStyle = p.color;
-        context.shadowColor = p.color;
-        context.shadowBlur = 8;
+        if (!isPerf) {
+          context.shadowColor = p.color;
+          context.shadowBlur = 8;
+        }
         context.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
         context.restore();
       } else {
         context.globalAlpha = p.type === 'thrust' ? alpha * 0.75 : alpha;
         context.fillStyle = p.color;
-        context.shadowColor = p.color;
-        context.shadowBlur = p.type === 'thrust' ? 10 : 8;
+        if (!isPerf) {
+          context.shadowColor = p.color;
+          context.shadowBlur = p.type === 'thrust' ? 10 : 8;
+        }
         context.beginPath();
         context.arc(p.x, sy, p.size * (p.type === 'spark' ? alpha : 1), 0, Math.PI * 2);
         context.fill();
@@ -216,6 +222,8 @@ class ParticleSystem {
       if (sy < -60 || sy > screenHeight + 60) continue;
 
       const alpha = Math.max(0, t.life);
+      const isPerf = Boolean(window._gameEngine && window._gameEngine.storage && window._gameEngine.storage.data.settings.performanceMode);
+
       context.save();
       context.globalAlpha = alpha;
       context.textAlign = 'center';
@@ -238,8 +246,10 @@ class ParticleSystem {
 
         // Radiant Neon Glow & Fill
         context.fillStyle = t.color;
-        context.shadowColor = t.color;
-        context.shadowBlur = 20;
+        if (!isPerf) {
+          context.shadowColor = t.color;
+          context.shadowBlur = 20;
+        }
         context.fillText(t.text, 0, 0);
       } else {
         const fontSize = t.size || 16;
@@ -249,8 +259,10 @@ class ParticleSystem {
         context.strokeText(t.text, t.x, sy);
 
         context.fillStyle = t.color;
-        context.shadowColor = t.color;
-        context.shadowBlur = 10;
+        if (!isPerf) {
+          context.shadowColor = t.color;
+          context.shadowBlur = 10;
+        }
         context.fillText(t.text, t.x, sy);
       }
 
