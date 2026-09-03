@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC22 - v3.22.0 - Bulletproof Screenshot Freshness, NTFS Tunneling Neutralization & Verification Manifest)  
+> **Status:** Release Candidate (RC23 - v3.23.0 - Player Dashboard PIN Gate, Dynamic Tutorial Engine, Player Profile System & Complete UX Streamlining)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
@@ -17,11 +17,38 @@
 | **Permanenter Link** | **24/7 Freunde & Familie** | [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/) (weltweit, unbegrenzt, PC muss nicht laufen) |
 | `npm start` / `npm run serve` | **Lokales WLAN / LAN** | Startet den HTTP-Server auf Port 3000, ermittelt die lokale IPv4 (`http://192.168.x.x:3000`) und gibt einen scanbaren ASCII-QR-Code im Terminal aus. |
 | `npm run share` | **Dev-Tunnel & QR-Code** | Gibt den permanenten Link samt ASCII-QR-Code im Terminal aus und startet optional einen temporären Entwickler-Tunnel. |
-| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 17 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
+| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 18 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
 
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.23.0 (03.09.2026) - Player Dashboard PIN Gate, Dynamic Tutorial Engine, Player Profile System & Complete UX Streamlining
+* **1. Player Dashboard Absicherung (`dashboard.html`):**
+  * Das Telemetrie-Dashboard ist nun durch ein sicheres Master-PIN-Gate geschützt (Standard Master-PIN: `2026`).
+  * Unbefugte Besucher sehen ausschließlich den abgeriegelten Screen `DASHBOARD GESCHÜTZT` mit Lock-Symbol und PIN-Eingabe; es werden ohne Freigabe keinerlei Daten geladen.
+  * In der Kopfzeile wurde ein `SPERREN`-Button hinzugefügt, mit dem die Sitzung jederzeit mit einem Klick wieder gesperrt werden kann.
+* **2. Dynamische Tutorial-Kreise via `Node.js` (`index.html`, `UIManager.js`):**
+  * Slide 2 des Tutorials (`tut-slide-2`) nutzt nun ein dediziertes Canvas (`#tut-circles-canvas`), auf dem die echten Spiel-Entitäten `OrbitNode` (`STANDARD`, `BOOST`, `BEWEGLICH`, `FRAGIL`, `KÖDER`) instanziiert und über `node.draw(ctx, ...)` gerendert werden.
+  * **Zukunftssichere Konsistenz:** Wenn in Zukunft das Design oder die Effekte der Kreise in `Node.js` verändert werden, übernehmen die Kreise im Tutorial diese Änderungen vollautomatisch.
+* **3. Tutorial Slide 1 Grafik-Rework (`index.html`, `UIManager.js`):**
+  * Die alte SVG-Grafik wurde durch eine flüssige Canvas-Physiksimulation (`#tut-sling-canvas`) ersetzt.
+  * Zeigt in einem Endlos-Zyklus Anflug, strahlenden Halte-Strahl, Schwungaufbau um den Orbit-Knoten und den kraftvollen Katapult-Abschuss nach oben mit animiertem Phasen-Badge.
+* **4. Spieler-Registrierung & Piloten-Profil (`StorageService.js`, `UIManager.js`, `index.html`, `main.js`):**
+  * Einführung eines persistenten Spieler-Profils mit Rufname, Rufzeichen, automatischer Pilot-ID (z. B. `SJ-82156`), Registrierungsdatum und Highscore-Bindung.
+  * Neues Hologramm-Modal `PILOTEN-LIZENZ` (`#profile-modal`), aufrufbar über den neuen Piloten-Button in der Menü-Kopfzeile. Ermöglicht das Anpassen des Namens und das Speichern der Piloten-Identität.
+* **5. Aufgaben-Sektion bereinigt (`UIManager.js`, `style.css`):**
+  * Die redundante doppelte Münzen-Anzeige wurde eliminiert: Der Wert steht nun ausschließlich oben rechts auf der Karte (`+150 Coins`), während der Button sauber `BELOHNUNG EINSAMMELN` lautet.
+* **6. "SLOW-MO BEREIT" gelöscht (`index.html`, `UIManager.js`):**
+  * Das HUD-Element `#bullet-badge` wurde restlos aus dem DOM und dem Game-Loop entfernt, was das Spielfeld noch minimalistischer und aufgeräumter macht.
+* **7. Skins-Sektion komplett überarbeitet (`index.html`, `ShopManager.js`, `UIManager.js`):**
+  * Der redundante Reiter `SCHWEIFE` wurde entfernt.
+  * Die dreifache Wiederholung von "AKTIV AUSGERÜSTET" (im Canvas, im Button und in der Liste) wurde vollständig beseitigt.
+  * Die Schiffs-Vorschau wurde als zentrales Hero-Element vergrößert, ergänzt um eine dezente Status-Pille `AKTIV IM EINSATZ` und eine elegante Vorschau-Karte für kommende Modelle.
+* **8. Absturz-Menü minimalistisch umgestaltet (`index.html`, `UIManager.js`):**
+  * Der klobige 160px-Textkasten für die Wiederbelebung wurde durch einen kompakten, hochmodernen Arcade-Action-Button ersetzt (`WIEDERBELEBEN [1 KRISTALL]`, inklusive `3s Schutzschild`-Subtext).
+  * Die Button-Hierarchie ist perfekt austariert: `NOCHMAL SPIELEN` prominent oben, darunter symmetrisch `[SKINS] [HAUPTMENÜ]`.
+* **Playwright Test-Suite:** 18 Screenshots frisch erfasst und visuell geprüft, 0 Konsolenfehler.
 
 ### v3.22.0 (03.09.2026) - Bulletproof Screenshot Freshness, NTFS Tunneling Neutralization & Verification Manifest
 * **Ursachen-Analyse des "Alte Screenshots"-Problems:**

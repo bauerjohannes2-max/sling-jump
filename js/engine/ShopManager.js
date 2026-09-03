@@ -122,36 +122,7 @@ class ShopManager {
     ctx.fill();
     ctx.restore();
 
-    // 6. Live Status Badge on Preview Stage (Top-Seller UI Best Practice)
-    ctx.save();
-    ctx.font = '900 10px sans-serif';
-    ctx.letterSpacing = '1px';
-    const tagText = isEquipped ? 'AKTIV AUSGERÜSTET' : 'LIVE-VORSCHAU';
-    const tagColor = isEquipped ? '#00f0ff' : '#fbbf24';
-    const tagBg = isEquipped ? 'rgba(0, 240, 255, 0.15)' : 'rgba(251, 191, 36, 0.15)';
-    const tagBorder = isEquipped ? 'rgba(0, 240, 255, 0.5)' : 'rgba(251, 191, 36, 0.5)';
-
-    const textWidth = ctx.measureText(tagText).width;
-    const pillW = textWidth + 16;
-    const pillH = 18;
-    const pillX = width / 2 - pillW / 2;
-    const pillY = 12;
-
-    ctx.fillStyle = tagBg;
-    ctx.strokeStyle = tagBorder;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect(pillX, pillY, pillW, pillH, 9);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = tagColor;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(tagText, width / 2, pillY + pillH / 2);
-    ctx.restore();
-
-    // 7. Render Selected Vector Ship Hull with Selected Trail
+    // 6. Render Selected Vector Ship Hull with Selected Trail
     ctx.save();
     ctx.translate(width / 2, height / 2 + 6);
     ctx.scale(2.2, 2.2);

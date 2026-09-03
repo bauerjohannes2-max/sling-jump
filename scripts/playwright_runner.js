@@ -92,19 +92,11 @@ async function runPlaywrightSuite() {
 
   // 2. Open Hangar / Skins (Ships)
   console.log('[Playwright] Capturing 02_hangar_ships.png');
+  // 2. Hangar / Skins Showcase (Overhauled Hero Preview)
+  console.log('[Playwright] Capturing 02_hangar_skins.png (Overhauled Skins Showcase)');
   await page.click('#btn-menu-shop');
   await sleep(400);
-  await page.click('.shop-card[data-id="dart"]');
-  await sleep(300);
-  await captureScreenshot(page, '02_hangar_ships.png');
-
-  // 3. Hangar / Skins (Trails)
-  console.log('[Playwright] Capturing 03_hangar_trails.png');
-  await page.click('.shop-tab-btn[data-tab="trails"]');
-  await page.waitForSelector('.shop-card[data-id="neon_cyan"]', { state: 'visible', timeout: 5000 });
-  await page.click('.shop-card[data-id="neon_cyan"]');
-  await sleep(300);
-  await captureScreenshot(page, '03_hangar_trails.png');
+  await captureScreenshot(page, '02_hangar_skins.png');
 
   // Close Hangar
   await page.click('#btn-shop-close');
@@ -162,6 +154,18 @@ async function runPlaywrightSuite() {
 
   // Close Stats Modal
   await page.click('#btn-stats-close');
+  await sleep(300);
+
+  // 6b. Pilot Profile & Registration
+  console.log('[Playwright] Testing #btn-menu-profile...');
+  await page.click('#btn-menu-profile');
+  await sleep(400);
+  await page.fill('#profile-name-input', 'Johannes');
+  await page.click('#profile-form button[type="submit"]');
+  await sleep(300);
+  console.log('[Playwright] Capturing 06b_pilot_profile.png');
+  await captureScreenshot(page, '06b_pilot_profile.png');
+  await page.click('#btn-profile-close');
   await sleep(300);
 
   // 7. Settings Modal
@@ -257,8 +261,8 @@ async function runPlaywrightSuite() {
   await sleep(400);
   await captureScreenshot(page, '12_mobile_skins.png');
 
-  // 14. Live Telemetry Dashboard View
-  console.log('[Playwright] Capturing 14_player_dashboard.png');
+  // 14. Live Telemetry Dashboard View (Auth Protection & Unlocked View)
+  console.log('[Playwright] Testing Protected Dashboard Auth Gate...');
   const DASHBOARD_FILE = 'file:///' + path.join(__dirname, '..', 'dashboard.html').replace(/\\/g, '/');
   const dashPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   dashPage.on('console', msg => {
@@ -268,8 +272,17 @@ async function runPlaywrightSuite() {
     consoleErrors.push(`[Dashboard Exception] ${err.message}`);
   });
   await dashPage.goto(DASHBOARD_FILE, { waitUntil: 'load' });
-  await sleep(500);
-  await captureScreenshot(dashPage, '14_player_dashboard.png');
+  await sleep(400);
+  console.log('[Playwright] Capturing 14_dashboard_locked.png');
+  await captureScreenshot(dashPage, '14_dashboard_locked.png');
+
+  // Authenticate with Master PIN '2026'
+  console.log('[Playwright] Entering Master PIN on Dashboard...');
+  await dashPage.fill('#auth-pin-input', '2026');
+  await dashPage.click('#auth-form button[type="submit"]');
+  await sleep(600);
+  console.log('[Playwright] Capturing 14b_dashboard_unlocked.png');
+  await captureScreenshot(dashPage, '14b_dashboard_unlocked.png');
   await dashPage.close();
 
   await browser.close();

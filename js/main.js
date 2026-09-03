@@ -109,6 +109,22 @@
       });
     }
 
+    const btnMenuProfile = document.getElementById('btn-menu-profile');
+    if (btnMenuProfile) {
+      btnMenuProfile.addEventListener('click', () => {
+        clickSfx();
+        ui.openProfileModal();
+      });
+    }
+
+    const btnProfileClose = document.getElementById('btn-profile-close');
+    if (btnProfileClose) {
+      btnProfileClose.addEventListener('click', () => {
+        clickSfx();
+        ui.closeProfileModal();
+      });
+    }
+
     // --- HUD BUTTONS ---
     const btnHudPause = document.getElementById('btn-hud-pause');
     if (btnHudPause) {

@@ -34,6 +34,9 @@
           <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
         </button>
         <div class="menu-top-right-group">
+          <button class="icon-nav-btn" id="btn-menu-profile" aria-label="Piloten-Profil" title="Piloten-Profil">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </button>
           <button class="icon-nav-btn" id="btn-menu-leaderboard" aria-label="Bestenliste">
             <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
           </button>
@@ -47,7 +50,7 @@
         <div class="game-title-container">
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v3.22.0</div>
+          <div class="app-version-tag">v3.23.0</div>
         </div>
 
         <div class="currency-group">
@@ -101,9 +104,6 @@
 
     <!-- 2. INGAME HUD LAYER -->
     <div class="hud-layer" id="hud-layer">
-      <!-- Centered Slow Motion Status Indicator -->
-      <div class="bullet-time-badge" id="bullet-badge">SLOW-MO BEREIT</div>
-
       <!-- Prominent Glowing HUD Combo Badge -->
       <div class="hud-combo-badge" id="hud-combo-badge" style="display: none;">COMBO x2!</div>
 
@@ -193,33 +193,34 @@
           </div>
         </div>
 
-        <!-- Interactive Revive Section (Second Chance) -->
-        <div class="gameover-revive-box" id="revive-box">
-          <div class="revive-header">
-            <span class="revive-badge">ZWEITE CHANCE</span>
-            <span class="revive-title">FLUG FORTSETZEN?</span>
-          </div>
-          <p class="revive-desc">Starte sofort mit 3s Quanten-Schutzschild an der aktuellen Höhe weiter!</p>
-          <button class="btn-revive" id="btn-gameover-revive">
-            <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg>
-            <span id="revive-btn-text">WIEDERBELEBEN (1 KRISTALL)</span>
+        <!-- Compact Modern Revive Action (Best Practice) -->
+        <div class="revive-compact-container" id="revive-box" style="margin: 10px 0 14px 0; width: 100%;">
+          <button class="btn-revive" id="btn-gameover-revive" style="padding: 10px 16px;">
+            <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg>
+            <span id="revive-btn-text">WIEDERBELEBEN</span>
+            <span style="background: rgba(0, 0, 0, 0.25); padding: 2px 7px; border-radius: 6px; font-size: 10px; border: 1px solid rgba(255,255,255,0.2);">1 KRISTALL</span>
           </button>
-          <div class="revive-subtext" id="revive-status-text">Guthaben: 1 Hyper-Kristall (1x pro Runde)</div>
+          <div class="revive-subtext" id="revive-status-text" style="font-size: 10px; color: #94a3b8; margin-top: 4px; text-align: center; letter-spacing: 0.5px;">1x pro Flug &bull; Inkl. 3s Schutzschild</div>
         </div>
 
         <div class="modal-button-stack">
           <button class="btn-primary" id="btn-gameover-restart">NOCHMAL SPIELEN</button>
-          <button class="btn-secondary" id="btn-gameover-shop">SKINS</button>
-          <button class="btn-secondary" id="btn-gameover-menu">HAUPTMENÜ</button>
+          <div style="display: flex; gap: 8px; width: 100%;">
+            <button class="btn-secondary" id="btn-gameover-shop" style="flex: 1;">SKINS</button>
+            <button class="btn-secondary" id="btn-gameover-menu" style="flex: 1;">HAUPTMENÜ</button>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 5. SKINS / SHOP MODAL -->
     <div class="modal-overlay" id="shop-modal">
-      <div class="modal-card hangar-card">
-        <div class="hangar-header">
-          <div class="modal-title" style="margin-bottom:0;">SKINS</div>
+      <div class="modal-card hangar-card" style="max-width: 440px; text-align: center;">
+        <div class="hangar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <div>
+            <div class="modal-title" style="margin-bottom: 2px; text-align: left;">SKINS</div>
+            <div style="font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-align: left;">HANGAR &bull; RAUMSCHIFFE</div>
+          </div>
           <div class="currency-group">
             <div class="currency-badge" title="Coins">
               <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg>
@@ -232,29 +233,31 @@
           </div>
         </div>
 
-        <div class="shop-tabs">
-          <button class="shop-tab-btn active" data-tab="ships">RAUMSCHIFFE</button>
-          <button class="shop-tab-btn" data-tab="trails">SCHWEIFE</button>
-        </div>
-
-        <div class="hangar-body">
-          <!-- Item Grid -->
-          <div class="shop-grid-container" id="shop-grid"></div>
-
-          <!-- Preview & Details -->
-          <div class="hangar-preview-pane">
-            <canvas id="hangar-preview-canvas" width="240" height="180"></canvas>
-            <div class="hangar-item-info">
-              <div class="hangar-item-title" id="shop-item-title">PFEIL</div>
-              <div class="hangar-item-desc" id="shop-item-desc">Dein schnelles Start-Schiff.</div>
+        <!-- Central Hero Preview Stage -->
+        <div class="hangar-hero-box" style="position: relative; background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 14px; padding: 14px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center;">
+          <canvas id="hangar-preview-canvas" width="280" height="190" style="border-radius: 10px; max-width: 100%; height: auto;"></canvas>
+          
+          <div style="margin-top: 10px; width: 100%;">
+            <div class="hangar-item-title" id="shop-item-title" style="font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 900; letter-spacing: 2px; color: #fff;">PFEIL</div>
+            <div class="hangar-item-desc" id="shop-item-desc" style="font-size: 12px; color: #94a3b8; margin: 4px 0 10px 0;">Wendiger Starter-Aufklärer mit doppelter Impulsdüse.</div>
+            <div id="shop-status-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 16px; color: #38bdf8; font-size: 10px; font-weight: 800; letter-spacing: 1px;">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 6px #38bdf8;"></span>
+              AKTIV IM EINSATZ
             </div>
-            <button class="btn-primary" id="shop-action-btn" style="width:100%;">AUSRÜSTEN</button>
           </div>
         </div>
 
-        <div style="margin-top:16px;">
-          <button class="btn-secondary" id="btn-shop-close" style="width:100%;">SCHLIESSEN</button>
+        <!-- Future Models Teaser -->
+        <div style="padding: 12px 14px; background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 10px; margin-bottom: 16px; text-align: center;">
+          <div style="font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">WEITERE MODELLE IN ENTWICKLUNG</div>
+          <div style="font-size: 11px; color: #475569; margin-top: 2px;">Neue Raumschiff-Designs folgen in kommenden Updates.</div>
         </div>
+
+        <!-- Hidden compat anchors for JS listeners -->
+        <div id="shop-grid" style="display: none;"></div>
+        <button id="shop-action-btn" style="display: none;"></button>
+
+        <button class="btn-primary" id="btn-shop-close" style="width: 100%;">SCHLIESSEN</button>
       </div>
     </div>
 
@@ -395,28 +398,12 @@
           <div class="tutorial-step-badge">SCHRITT 1 / 2 &bull; GRUNDSTEUERUNG</div>
           <div class="modal-title" style="margin-top: 6px; font-size: 20px;">WIE MAN SPIELT</div>
 
-          <!-- Clean Vector Graphic for Slide 1 -->
-          <div class="tutorial-visual-box" style="margin: 14px auto; width: 100%; height: 150px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-            <svg viewBox="0 0 280 130" style="width: 260px; height: 120px;">
-              <!-- Target Circle with Pulse -->
-              <circle cx="140" cy="40" r="22" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
-              <circle cx="140" cy="40" r="15" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" stroke-width="2.5"/>
-              <circle cx="140" cy="40" r="4.5" fill="#ffffff"/>
-              
-              <!-- Tether Cable -->
-              <line x1="140" y1="40" x2="88" y2="78" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 2"/>
-              
-              <!-- Flight Trajectory Arc -->
-              <path d="M 88,78 Q 115,95 140,85 Q 180,72 195,22" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/>
-              <polygon points="195,16 190,26 200,24" fill="#fbbf24"/>
-
-              <!-- Spaceship at tether point -->
-              <polygon points="88,72 95,84 81,84" fill="#ffffff" stroke="#38bdf8" stroke-width="1.5"/>
-
-              <!-- Labels -->
-              <text x="35" y="108" fill="#38bdf8" font-family="'Orbitron', monospace" font-size="9" font-weight="700">1. HALTEN = EINHAKEN</text>
-              <text x="155" y="108" fill="#fbbf24" font-family="'Orbitron', monospace" font-size="9" font-weight="700">2. LOSLASSEN = FLUG</text>
-            </svg>
+          <!-- Dynamic Simulation Canvas for Slide 1 -->
+          <div class="tutorial-visual-box" style="margin: 14px auto; width: 100%; height: 160px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+            <canvas id="tut-sling-canvas" width="360" height="160" style="width: 100%; max-width: 360px; height: 160px; border-radius: 12px;"></canvas>
+            <div id="tut-phase-badge" style="position: absolute; bottom: 8px; font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 800; letter-spacing: 1px; padding: 3px 10px; border-radius: 12px; background: rgba(15,23,42,0.85); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8;">
+              1. HALTEN = SCHWUNG AUFBAUEN
+            </div>
           </div>
 
           <div class="tutorial-desc-box" style="text-align: left; background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;">
@@ -439,37 +426,10 @@
           <div class="tutorial-step-badge">SCHRITT 2 / 2 &bull; HIMMELSKÖRPER</div>
           <div class="modal-title" style="margin-top: 6px; font-size: 20px;">VERSCHIEDENE KREISE</div>
 
-          <!-- Clean Vector Graphic for Slide 2 (Mysterious Circles Row) -->
-          <div class="tutorial-visual-box" style="margin: 14px auto; width: 100%; height: 150px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px;">
-            <div style="display: flex; justify-content: center; align-items: center; gap: 14px;">
-              <!-- Circle 1: Standard Cyan -->
-              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
-                <circle cx="20" cy="20" r="14" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="2"/>
-                <circle cx="20" cy="20" r="4" fill="#ffffff"/>
-              </svg>
-              <!-- Circle 2: Super Boost Green with Arrow -->
-              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
-                <circle cx="20" cy="20" r="14" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2"/>
-                <polyline points="15,22 20,16 25,22" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
-              </svg>
-              <!-- Circle 3: Moving Purple with Oscillation Trail -->
-              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
-                <circle cx="20" cy="20" r="14" fill="rgba(168, 85, 247, 0.2)" stroke="#a855f7" stroke-width="2"/>
-                <line x1="8" y1="20" x2="32" y2="20" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="2 2"/>
-                <circle cx="20" cy="20" r="4" fill="#ffffff"/>
-              </svg>
-              <!-- Circle 4: Fragile Red with Clock Markings -->
-              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
-                <circle cx="20" cy="20" r="14" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 2"/>
-                <line x1="20" y1="20" x2="20" y2="13" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              <!-- Circle 5: Decoy Brittle with Fracture -->
-              <svg viewBox="0 0 40 40" style="width: 36px; height: 36px;">
-                <circle cx="20" cy="20" r="14" fill="rgba(249, 115, 22, 0.2)" stroke="#f97316" stroke-width="2"/>
-                <polyline points="20,8 18,17 23,22 19,32" fill="none" stroke="#ffffff" stroke-width="1.5"/>
-              </svg>
-            </div>
-            <div style="font-size: 10px; font-family: 'Orbitron', monospace; font-weight: 700; color: #a855f7; letter-spacing: 1px;">
+          <!-- Real Game Canvas for Slide 2 Circles (Dynamic Node.js rendering) -->
+          <div class="tutorial-visual-box" style="margin: 14px auto; width: 100%; height: 160px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; position: relative; overflow: hidden; padding: 8px;">
+            <canvas id="tut-circles-canvas" width="360" height="100" style="width: 100%; max-width: 360px; height: 100px; border-radius: 8px;"></canvas>
+            <div style="font-size: 10px; font-family: 'Orbitron', monospace; font-weight: 700; color: #a855f7; letter-spacing: 1.5px; text-transform: uppercase;">
               ENTDECKE DIE GEHEIMNISSE IM FLUG
             </div>
           </div>
@@ -489,6 +449,53 @@
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- 7. PILOTEN-PROFIL MODAL -->
+    <div class="modal-overlay" id="profile-modal" style="z-index: 125;">
+      <div class="modal-card profile-card" style="max-width: 420px; text-align: center;">
+        <div class="modal-title" style="margin-bottom: 2px;">PILOTEN-LIZENZ</div>
+        <div style="font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;">SPIELER-REGISTRIERUNG & DATENSTAND</div>
+
+        <!-- Pilot License Hologram Card -->
+        <div class="license-card" style="background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 18px 20px; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <div style="font-size: 9px; font-weight: 800; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">RUFNAME</div>
+              <div id="profile-display-name" style="font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 900; letter-spacing: 1.5px; color: #fff; margin-top: 2px;">PILOT</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 9px; font-weight: 800; color: #64748b; letter-spacing: 1px;">PILOT-ID</div>
+              <div id="profile-display-id" style="font-family: monospace; font-size: 12px; font-weight: 800; color: #38bdf8; margin-top: 2px;">SJ-84920</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 12px; background: rgba(2, 6, 23, 0.6); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 12px;">
+            <div>
+              <div style="font-size: 9px; color: #64748b; font-weight: 700;">STATUS</div>
+              <div id="profile-status-badge" style="font-size: 10px; font-weight: 800; color: #10b981; margin-top: 2px;">REGISTRIERT</div>
+            </div>
+            <div>
+              <div style="font-size: 9px; color: #64748b; font-weight: 700;">BESTLEISTUNG</div>
+              <div id="profile-display-highscore" style="font-size: 11px; font-weight: 900; color: #fbbf24; margin-top: 2px;">0 m</div>
+            </div>
+          </div>
+
+          <div style="font-size: 10px; color: #64748b; display: flex; justify-content: space-between;">
+            <span id="profile-registered-date">Aktiv seit: Heute</span>
+            <span id="profile-runs-count">0 Flüge</span>
+          </div>
+        </div>
+
+        <!-- Registration / Edit Form -->
+        <form id="profile-form" onsubmit="window._uiManager && window._uiManager.saveProfile(event)" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+          <label style="font-size: 11px; font-weight: 800; color: #94a3b8; letter-spacing: 1px; text-align: left;">PILOTEN-NAMEN ÄNDERN / FESTLEGEN:</label>
+          <input type="text" id="profile-name-input" maxlength="16" placeholder="Dein Spielername..." style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #fff; font-size: 14px; font-weight: 700; outline: none;">
+          <button type="submit" class="btn-primary" style="width: 100%; padding: 10px;">PROFIL SPEICHERN</button>
+        </form>
+
+        <button class="btn-secondary" id="btn-profile-close" style="width: 100%;">SCHLIESSEN</button>
       </div>
     </div>
 

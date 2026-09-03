@@ -23,6 +23,15 @@ class StorageService {
       unlockedThemes: ['deep_space'],
       notifiedUpgradeIds: [], // Tracks upgrade IDs that have already been notified (one-time per item)
       
+      // Player Profile & Registration System
+      playerProfile: {
+        registered: false,
+        pilotName: 'Gast-Pilot',
+        callsign: 'KOSMOS-1',
+        playerId: null,
+        registeredAt: null
+      },
+      
       // Daily & Weekly Mission System
       dailyResetTimestamp: 0,
       weeklyResetTimestamp: 0,
@@ -84,6 +93,7 @@ class StorageService {
     merged.stats = { ...defaultState.stats, ...(saved.stats || {}) };
     merged.settings = { ...defaultState.settings, ...(saved.settings || {}) };
     merged.questProgress = { ...defaultState.questProgress, ...(saved.questProgress || {}) };
+    merged.playerProfile = { ...defaultState.playerProfile, ...(saved.playerProfile || {}) };
 
     // Ensure array integrity & valid selected equipment
     if (!CONSTANTS.SHIPS.some(s => s.id === merged.selectedShip)) {
@@ -136,6 +146,28 @@ class StorageService {
       this.data.notifiedUpgradeIds.push(id);
       this.save();
     }
+  }
+
+  registerPlayer(pilotName, callsign = 'PILOT') {
+    const cleanName = (pilotName || 'Pilot').trim().substring(0, 18);
+    const existing = this.getPlayerProfile();
+    const id = existing.playerId || ('SJ-' + Math.floor(10000 + Math.random() * 90000));
+    this.data.playerProfile = {
+      registered: true,
+      pilotName: cleanName,
+      callsign: (callsign || 'PILOT').trim().toUpperCase().substring(0, 12),
+      playerId: id,
+      registeredAt: existing.registeredAt || new Date().toISOString()
+    };
+    this.save();
+    return this.data.playerProfile;
+  }
+
+  getPlayerProfile() {
+    if (!this.data.playerProfile) {
+      this.data.playerProfile = this.getDefaultState().playerProfile;
+    }
+    return this.data.playerProfile;
   }
 
   isQuestClaimed(questId) {

@@ -274,12 +274,36 @@
           <svg class="icon-svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
           <span>AKTUALISIEREN</span>
         </button>
+        <button class="dash-btn" id="btn-logout" onclick="logoutAdmin()" title="Dashboard wieder sperren">
+          <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>SPERREN</span>
+        </button>
         <a href="index.html" class="dash-btn primary">
           <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
           <span>SPIELEN</span>
         </a>
       </div>
     </header>
+
+    <!-- Private Access Gate / PIN Protection -->
+    <div id="auth-overlay" style="position: fixed; inset: 0; background: rgba(8, 11, 16, 0.95); backdrop-filter: blur(16px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 32px 28px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+        <div style="width: 48px; height: 48px; margin: 0 auto 16px; background: rgba(56, 189, 248, 0.12); border: 1px solid #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: #38bdf8; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <h2 style="font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 6px; color: #fff;">DASHBOARD GESCHÜTZT</h2>
+        <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px;">Dieser Telemetrie-Bereich ist privat und ausschließlich für den Entwickler einsehbar. Bitte Master-PIN eingeben:</p>
+        
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+          <input type="password" id="auth-pin-input" placeholder="PIN eingeben..." autocomplete="current-password" autofocus style="width: 100%; padding: 12px 16px; background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; color: #fff; font-size: 16px; text-align: center; letter-spacing: 3px; font-family: monospace; outline: none;">
+          <div id="auth-error" style="display: none; color: #ef4444; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">Ungültiger PIN. Zugriff verweigert.</div>
+          <button type="submit" class="dash-btn primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 13px;">ENTSPERREN</button>
+        </form>
+        <div style="margin-top: 16px;">
+          <a href="index.html" style="font-size: 11px; color: #64748b; text-decoration: none; letter-spacing: 0.5px;">&larr; Zurück zum Spiel</a>
+        </div>
+      </div>
+    </div>
 
     <!-- KPI Grid -->
     <section class="kpi-grid">
@@ -460,9 +484,60 @@
       } catch (e) {}
     }
 
-    document.getElementById('btn-refresh').addEventListener('click', loadStats);
-    loadStats();
-    setInterval(loadStats, 4000);
+    const ADMIN_PIN_HASH = 'b89eaac7e61436d82f6e520eb0c96c4a88c3a1005a7698539265f24ec49be588'; // '2026'
+
+    async function sha256(str) {
+      try {
+        if (window.crypto && crypto.subtle) {
+          const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+          return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+      } catch (e) {}
+      return str;
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('auth-pin-input');
+      const pin = (input ? input.value : '').trim();
+      const hash = await sha256(pin);
+      if (hash === ADMIN_PIN_HASH || pin === '2026') {
+        sessionStorage.setItem('sj_admin_auth', 'true');
+        unlockDashboard();
+      } else {
+        const err = document.getElementById('auth-error');
+        if (err) err.style.display = 'block';
+        if (input) input.value = '';
+      }
+    }
+
+    function unlockDashboard() {
+      const overlay = document.getElementById('auth-overlay');
+      if (overlay) overlay.style.display = 'none';
+      loadStats();
+      if (!window._statsInterval) {
+        window._statsInterval = setInterval(loadStats, 4000);
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('sj_admin_auth');
+      location.reload();
+    }
+
+    document.getElementById('btn-refresh').addEventListener('click', () => {
+      if (sessionStorage.getItem('sj_admin_auth') === 'true') {
+        loadStats();
+      }
+    });
+
+    // Check auth on load
+    if (sessionStorage.getItem('sj_admin_auth') === 'true') {
+      unlockDashboard();
+    } else {
+      const pinInput = document.getElementById('auth-pin-input');
+      if (pinInput) setTimeout(() => pinInput.focus(), 150);
+    }
   </script>
 </body>
 </html>

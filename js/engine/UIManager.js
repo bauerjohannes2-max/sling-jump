@@ -33,6 +33,7 @@ class UIManager {
       settingsModal: document.getElementById('settings-modal'),
       confirmModal: document.getElementById('confirm-modal'),
       tutorialModal: document.getElementById('tutorial-modal'),
+      profileModal: document.getElementById('profile-modal'),
 
       // Screen Effects
       slowmoOverlay: document.getElementById('slowmo-overlay'),
@@ -47,7 +48,6 @@ class UIManager {
       altitudeVal: document.getElementById('altitude-val'),
       bestVal: document.getElementById('best-val'),
       orbsVal: document.getElementById('orbs-val'),
-      bulletBadge: document.getElementById('bullet-badge'),
       hudComboBadge: document.getElementById('hud-combo-badge'),
       hudQuestTitle: document.getElementById('hud-quest-title'),
       hudQuestProgress: document.getElementById('hud-quest-progress'),
@@ -120,6 +120,7 @@ class UIManager {
     };
 
     this.initSettingsUI();
+    window._uiManager = this;
   }
 
   setStateManager(stateManager) {
@@ -141,7 +142,8 @@ class UIManager {
       this.dom.leaderboardModal,
       this.dom.statsModal,
       this.dom.settingsModal,
-      this.dom.tutorialModal
+      this.dom.tutorialModal,
+      this.dom.profileModal
     ];
     overlays.forEach(el => {
       if (el) el.classList.remove('active', 'visible');
@@ -224,14 +226,17 @@ class UIManager {
     if (!this.dom.tutorialModal) return;
     this.showTutorialSlide(slide);
     this.dom.tutorialModal.classList.add('visible');
+    this.startTutorialAnimation();
   }
 
   closeTutorialModal() {
     if (!this.dom.tutorialModal) return;
     this.dom.tutorialModal.classList.remove('visible');
+    this.stopTutorialAnimation();
   }
 
   showTutorialSlide(slideNumber) {
+    this.activeTutorialSlide = slideNumber;
     const s1 = document.getElementById('tut-slide-1');
     const s2 = document.getElementById('tut-slide-2');
     if (s1 && s2) {
@@ -243,6 +248,281 @@ class UIManager {
         s2.style.display = 'flex';
       }
     }
+  }
+
+  startTutorialAnimation() {
+    this.stopTutorialAnimation();
+    const slingCanvas = document.getElementById('tut-sling-canvas');
+    const circlesCanvas = document.getElementById('tut-circles-canvas');
+    const slingCtx = slingCanvas ? slingCanvas.getContext('2d') : null;
+    const circlesCtx = circlesCanvas ? circlesCanvas.getContext('2d') : null;
+
+    const loop = (timestamp) => {
+      if (this.activeTutorialSlide === 1 && slingCtx && slingCanvas) {
+        this.renderTutorialSlide1(slingCtx, slingCanvas.width, slingCanvas.height, timestamp);
+      } else if (this.activeTutorialSlide === 2 && circlesCtx && circlesCanvas) {
+        this.renderTutorialSlide2(circlesCtx, circlesCanvas.width, circlesCanvas.height, timestamp);
+      }
+      this.tutAnimFrame = requestAnimationFrame(loop);
+    };
+    this.tutAnimFrame = requestAnimationFrame(loop);
+  }
+
+  stopTutorialAnimation() {
+    if (this.tutAnimFrame) {
+      cancelAnimationFrame(this.tutAnimFrame);
+      this.tutAnimFrame = null;
+    }
+  }
+
+  renderTutorialSlide1(ctx, w, h, t) {
+    ctx.clearRect(0, 0, w, h);
+
+    // Deep space background gradient
+    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 1.5);
+    bgGrad.addColorStop(0, 'rgba(15, 23, 42, 0.9)');
+    bgGrad.addColorStop(1, 'rgba(2, 6, 23, 0.95)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Background stars
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    const starCoords = [[40, 30], [80, 110], [130, 20], [240, 25], [290, 120], [330, 45], [190, 140]];
+    starCoords.forEach(([sx, sy]) => {
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    const cycle = 3.8;
+    const time = (t / 1000) % cycle;
+    const nodeX = 180;
+    const nodeY = 70;
+    const orbitRadius = 46;
+
+    // Game Orbit Node Visual (Matching OrbitNode exactly)
+    ctx.save();
+    ctx.translate(nodeX, nodeY);
+    // Outer dashed lock ring
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.arc(0, 0, 24 + Math.sin(t * 0.005) * 2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Glow halo
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.arc(0, 0, 15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    // Inner core
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    let shipX = 0;
+    let shipY = 0;
+    let shipAngle = 0;
+    let phaseText = '';
+    let phaseColor = '#38bdf8';
+
+    if (time < 0.9) {
+      // Approach Phase
+      const progress = time / 0.9;
+      shipX = 50 + progress * (nodeX - orbitRadius - 50);
+      shipY = 140 - progress * (140 - nodeY);
+      shipAngle = -Math.PI / 4;
+      phaseText = '1. GEDRÜCKT HALTEN = EINHAKEN';
+      phaseColor = '#38bdf8';
+    } else if (time < 2.3) {
+      // Orbit / Swing Phase
+      const progress = (time - 0.9) / 1.4;
+      const startAngle = Math.PI; // 180 deg (left)
+      const currentAngle = startAngle - progress * (Math.PI * 1.5); // counterclockwise around to -Math.PI/2 (top)
+      shipX = nodeX + Math.cos(currentAngle) * orbitRadius;
+      shipY = nodeY + Math.sin(currentAngle) * orbitRadius;
+      shipAngle = currentAngle - Math.PI / 2;
+
+      // Active tether beam
+      ctx.save();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 10;
+      ctx.setLineDash([4, 2]);
+      ctx.beginPath();
+      ctx.moveTo(nodeX, nodeY);
+      ctx.lineTo(shipX, shipY);
+      ctx.stroke();
+      ctx.restore();
+
+      // Orbital arc trace
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.arc(nodeX, nodeY, orbitRadius, startAngle, currentAngle, true);
+      ctx.stroke();
+      ctx.restore();
+
+      phaseText = '1. HALTEN = SCHWUNG AUFBAUEN';
+      phaseColor = '#38bdf8';
+    } else if (time < 3.5) {
+      // Release & Catapult Launch Phase
+      const progress = (time - 2.3) / 1.2;
+      shipX = nodeX;
+      shipY = (nodeY - orbitRadius) - progress * 90;
+      shipAngle = -Math.PI / 2; // facing straight up
+
+      // Boost trajectory trail
+      ctx.save();
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#fbbf24';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.moveTo(nodeX, nodeY - orbitRadius);
+      ctx.lineTo(shipX, shipY + 14);
+      ctx.stroke();
+      ctx.restore();
+
+      phaseText = '2. LOSLASSEN = KRAFTVOLLER FLUG!';
+      phaseColor = '#fbbf24';
+    } else {
+      shipX = nodeX;
+      shipY = -50;
+      phaseText = 'SCHWUNGVOLL IN DEN WELTRAUM';
+      phaseColor = '#38bdf8';
+    }
+
+    // Render Spaceship Model
+    if (shipY > -20 && shipY < h + 20) {
+      ctx.save();
+      ctx.translate(shipX, shipY);
+      ctx.rotate(shipAngle + Math.PI / 2);
+      ctx.scale(1.3, 1.3);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(0, -10);
+      ctx.lineTo(7, 8);
+      ctx.lineTo(0, 4);
+      ctx.lineTo(-7, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = phaseColor;
+      ctx.beginPath();
+      ctx.arc(0, 5, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Update Phase Badge DOM
+    const badge = document.getElementById('tut-phase-badge');
+    if (badge) {
+      badge.textContent = phaseText;
+      badge.style.color = phaseColor;
+      badge.style.borderColor = phaseColor;
+    }
+  }
+
+  renderTutorialSlide2(ctx, w, h, t) {
+    ctx.clearRect(0, 0, w, h);
+
+    // Instantiate real game OrbitNode entities so tutorial mirrors game circles dynamically
+    if (!this.tutNodes && typeof OrbitNode !== 'undefined') {
+      this.tutNodes = [
+        { node: new OrbitNode(38, 55, 'STANDARD', w, 0), label: 'STANDARD' },
+        { node: new OrbitNode(108, 55, 'BOOST', w, 0), label: 'BOOST' },
+        { node: new OrbitNode(180, 55, 'MOVING', w, 0), label: 'BEWEGLICH' },
+        { node: new OrbitNode(252, 55, 'FRAGILE', w, 0), label: 'FRAGIL' },
+        { node: new OrbitNode(322, 55, 'DECOY', w, 0), label: 'KÖDER' }
+      ];
+    }
+
+    if (!this.tutNodes) return;
+
+    const theme = { primary: '#00f0ff', accent: '#fbbf24' };
+    const dt = 0.016;
+
+    this.tutNodes.forEach(item => {
+      // Update entity state for live procedural animation
+      item.node.pulse += dt * 3.2;
+
+      // Directly invoke the game entity draw method!
+      // In OrbitNode.draw(context, camY, height): screenY = height - (y - camY)
+      // height = 100, y = 55, camY = 0 => screenY = 45 (vertically centered in 100px canvas)
+      item.node.draw(ctx, 0, 100, theme);
+
+      // Clean typographic badge
+      ctx.save();
+      ctx.font = '800 8px Orbitron, monospace';
+      ctx.fillStyle = '#64748b';
+      ctx.textAlign = 'center';
+      ctx.fillText(item.label, item.node.x, 90);
+      ctx.restore();
+    });
+  }
+
+  /* =========================================================================
+     PILOT PROFILE & REGISTRATION
+     ========================================================================= */
+  openProfileModal() {
+    if (!this.dom.profileModal) return;
+    const profile = this.storage.getPlayerProfile();
+    const stats = this.storage.data.stats || {};
+    
+    const nameEl = document.getElementById('profile-display-name');
+    const idEl = document.getElementById('profile-display-id');
+    const statusEl = document.getElementById('profile-status-badge');
+    const hsEl = document.getElementById('profile-display-highscore');
+    const dateEl = document.getElementById('profile-registered-date');
+    const runsEl = document.getElementById('profile-runs-count');
+    const inputEl = document.getElementById('profile-name-input');
+
+    if (nameEl) nameEl.textContent = profile.pilotName || 'PILOT';
+    if (idEl) idEl.textContent = profile.playerId || 'SJ-INIT';
+    if (statusEl) {
+      statusEl.textContent = profile.registered ? 'REGISTRIERT' : 'GAST-MODUS';
+      statusEl.style.color = profile.registered ? '#10b981' : '#f59e0b';
+    }
+    if (hsEl) hsEl.textContent = `${this.storage.data.highScore || 0} m`;
+    if (dateEl) {
+      const d = profile.registeredAt ? new Date(profile.registeredAt).toLocaleDateString('de-DE') : 'Heute';
+      dateEl.textContent = `Aktiv seit: ${d}`;
+    }
+    if (runsEl) runsEl.textContent = `${stats.totalRuns || 0} Flüge`;
+    if (inputEl) inputEl.value = profile.pilotName || '';
+
+    this.dom.profileModal.classList.add('visible');
+  }
+
+  closeProfileModal() {
+    if (this.dom.profileModal) this.dom.profileModal.classList.remove('visible');
+  }
+
+  saveProfile(e) {
+    if (e) e.preventDefault();
+    const inputEl = document.getElementById('profile-name-input');
+    const name = inputEl ? inputEl.value : '';
+    this.storage.registerPlayer(name);
+    this.openProfileModal();
+    if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
   }
 
   /* =========================================================================
@@ -357,20 +637,20 @@ class UIManager {
             this.dom.btnGameOverRevive.disabled = false;
           }
           if (this.dom.reviveBtnText) {
-            this.dom.reviveBtnText.textContent = 'WIEDERBELEBEN (1 KRISTALL)';
+            this.dom.reviveBtnText.textContent = 'WIEDERBELEBEN';
           }
           if (this.dom.reviveStatusText) {
-            this.dom.reviveStatusText.textContent = `Guthaben: ${currentCrystals} Hyper-Kristall${currentCrystals > 1 ? 'e' : ''} (1x pro Runde)`;
+            this.dom.reviveStatusText.textContent = '1x pro Flug • Inkl. 3s Schutzschild';
           }
         } else {
           if (this.dom.btnGameOverRevive) {
             this.dom.btnGameOverRevive.disabled = true;
           }
           if (this.dom.reviveBtnText) {
-            this.dom.reviveBtnText.textContent = '0 KRISTALLE (WERBUNG BALD VERFÜGBAR)';
+            this.dom.reviveBtnText.textContent = '0 KRISTALLE (WERBUNG BALD)';
           }
           if (this.dom.reviveStatusText) {
-            this.dom.reviveStatusText.textContent = 'Finde seltene Kristalle im Flug oder schaue bald Werbeclips!';
+            this.dom.reviveStatusText.textContent = 'Finde seltene Kristalle im Flug!';
           }
         }
       } else {
@@ -379,10 +659,10 @@ class UIManager {
           this.dom.btnGameOverRevive.disabled = true;
         }
         if (this.dom.reviveBtnText) {
-          this.dom.reviveBtnText.textContent = 'WIEDERBELEBUNG BEREITS GENUTZT';
+          this.dom.reviveBtnText.textContent = 'BEREITS GENUTZT';
         }
         if (this.dom.reviveStatusText) {
-          this.dom.reviveStatusText.textContent = 'Maximal 1 Wiederbelebung pro Runde möglich.';
+          this.dom.reviveStatusText.textContent = '1x pro Flug möglich.';
         }
       }
     }
@@ -760,9 +1040,9 @@ class UIManager {
 
     let actionHtml = '';
     if (q.isClaimed) {
-      actionHtml = '<span class="badge-claimed">✓ EINGELÖST</span>';
+      actionHtml = '<span class="badge-claimed">EINGELÖST</span>';
     } else if (q.isComplete) {
-      actionHtml = `<button class="btn-claim" data-id="${q.id}">EINSAMMELN (+${q.reward} ${UIManager.COIN_SVG})</button>`;
+      actionHtml = `<button class="btn-claim" data-id="${q.id}">BELOHNUNG EINSAMMELN</button>`;
     } else {
       actionHtml = `<span>${q.progress} / ${q.target} (${pct}%)</span>`;
     }
