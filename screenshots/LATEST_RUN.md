@@ -1,26 +1,26 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 3.9.2026, 22:59:45  
+> **Laufzeit:** 3.9.2026, 23:24:32  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
 > **Erfasste Screenshots:** 18  
 > **Garantierte Frische:** Alle Dateien wurden in diesem Testlauf frisch erzeugt.
 
 | Datei | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- |
-| `01_main_menu.png` | 22:59:29 | 199 KB | `e8a604a6a931a5f1` |
-| `02_hangar_skins.png` | 22:59:30 | 243 KB | `cbcdf69cb690bf03` |
-| `04_hub_leaderboard.png` | 22:59:31 | 93 KB | `74d0cdf713cb21a5` |
-| `05_hub_quests.png` | 22:59:32 | 112 KB | `5434573e60fcc483` |
-| `05b_hub_quests_claimed.png` | 22:59:33 | 132 KB | `1468e235f34b6254` |
-| `06_hub_stats.png` | 22:59:34 | 92 KB | `6c565cad335cbf14` |
-| `06b_pilot_profile.png` | 22:59:35 | 211 KB | `de581826a7dd73f6` |
-| `07_settings.png` | 22:59:37 | 94 KB | `8c3b8fff6f0f4fcb` |
-| `13_tutorial_modal.png` | 22:59:38 | 171 KB | `3267740bac681394` |
-| `13b_tutorial_slide2.png` | 22:59:38 | 218 KB | `a377323659a994d5` |
-| `08_gameplay_hud.png` | 22:59:40 | 212 KB | `3d278547befc74c2` |
-| `09_pause_modal.png` | 22:59:40 | 80 KB | `a33404dec1f1486c` |
-| `10_game_over.png` | 22:59:41 | 168 KB | `6be888ca8cc90ba8` |
-| `10b_revived_gameplay.png` | 22:59:42 | 147 KB | `6cb12a2dcaa225c3` |
-| `11_mobile_responsive.png` | 22:59:42 | 127 KB | `3f527cdc14eac5c0` |
-| `12_mobile_skins.png` | 22:59:43 | 210 KB | `6cd8bec030502088` |
-| `14_dashboard_locked.png` | 22:59:44 | 35 KB | `0cca065736421d60` |
-| `14b_dashboard_unlocked.png` | 22:59:45 | 181 KB | `d02c75b805695751` |
+| `01_main_menu.png` | 23:24:16 | 172 KB | `6be64c3a91deb17c` |
+| `02_hangar_skins.png` | 23:24:17 | 242 KB | `c783a83ab4c88157` |
+| `04_hub_leaderboard.png` | 23:24:18 | 93 KB | `986f8b4010542423` |
+| `05_hub_quests.png` | 23:24:19 | 117 KB | `97265564c41254f8` |
+| `05b_hub_quests_claimed.png` | 23:24:20 | 136 KB | `3b10aeb4ccdfde89` |
+| `06_hub_stats.png` | 23:24:21 | 90 KB | `a0677abbbdf5132d` |
+| `06b_pilot_profile.png` | 23:24:22 | 210 KB | `823dfaa129668b07` |
+| `07_settings.png` | 23:24:24 | 97 KB | `95edd8182dcce7d4` |
+| `13_tutorial_modal.png` | 23:24:25 | 173 KB | `b0988a6ad58f94b0` |
+| `13b_tutorial_slide2.png` | 23:24:26 | 219 KB | `a7dd9df44be7ac9a` |
+| `08_gameplay_hud.png` | 23:24:27 | 212 KB | `c86696cc3a614a1e` |
+| `09_pause_modal.png` | 23:24:27 | 85 KB | `d02a6433677cf9ef` |
+| `10_game_over.png` | 23:24:28 | 165 KB | `c8d6b4ff47e79f73` |
+| `10b_revived_gameplay.png` | 23:24:29 | 323 KB | `58b91bfd4f1608b2` |
+| `11_mobile_responsive.png` | 23:24:29 | 277 KB | `8f6e28ee091289ef` |
+| `12_mobile_skins.png` | 23:24:30 | 228 KB | `f009992db32e8fdf` |
+| `14_dashboard_locked.png` | 23:24:31 | 35 KB | `202784370b2e2335` |
+| `14b_dashboard_unlocked.png` | 23:24:32 | 181 KB | `ef9b5c417525dc6c` |

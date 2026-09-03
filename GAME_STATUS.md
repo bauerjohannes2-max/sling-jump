@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC24 - v3.24.0 - Tetherless Grappling, 90° Combo Text Unification, Pause Menu Navigation, Deep Space Crystal Balancing & Solid Header UI)  
+> **Status:** Release Candidate (RC25 - v3.25.0 - Leaderboard Championship Trophy Icon & Quantum Revive Altitude Fix)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
@@ -22,6 +22,21 @@
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.25.0 (03.09.2026) - Leaderboard Championship Trophy Icon & Quantum Revive Altitude Fix
+* **1. Bestenlisten-Icon: Universeller Meisterschafts-Pokal (`index.html`):**
+  * Der bisherige, missverständliche 5-zackige Stern im Header-Button `#btn-menu-leaderboard` wurde durch eine minimalistische, hochpräzise Vektor-Trophäe (Pokal) mit Sockel und Griffen ersetzt.
+  * Das Icon signalisiert nun weltweit unmissverständlich "Bestenliste / Highscores / Rangliste".
+* **2. Fehlerbehebung bei Wiederbelebung an der Absturzhöhe (`GameEngine.js`):**
+  * Ursachenanalyse: Beim Zustandswechsel von `GAME_OVER` zu `PLAYING` nach Klick auf `Wiederbeleben` rief `handleStateTransition` fälschlicherweise `startNewRun()` auf, was Welt, Kamera und Höhe auf 0 Meter zurücksetzte.
+  * Lösung:
+    * Beim Absturz wird ein präziser Checkpoint (`reviveCheckpoint`) mit exakter Kamera-Höhe (`cameraY`), Maximalhöhe (`maxAltitudeMeters`) und dem nächsten soliden Orbit-Knoten gespeichert.
+    * In `handleStateTransition` wird `startNewRun()` übersprungen, wenn das Flag `isRevive` übergeben wird.
+    * In `revivePlayer()` wird der Spieler direkt an einem sicheren Knoten auf der Absturzhöhe im Orbit platziert, mit einem 4-sekündigen Quanten-Schutzschild (`shieldTimer = 4.0`) ausgestattet und das HUD mit der echten Höhe aktualisiert.
+    * Der Spieler setzt seinen Flug unmittelbar an der erreichten Höhe fort, ohne jeglichen Verlust des Spielfortschritts.
+* **3. Automatisierte Playwright-Verifikation:**
+  * Zusätzliche mathematische Assertion in `scripts/playwright_runner.js`: Prüft nach Klick auf `Wiederbeleben` strikt, dass die Höhe nicht auf 0m zurückspringt, sondern exakt auf der Absturzhöhe (482m) fortgesetzt wird.
+  * 18 frische Screenshots erfasst, NTFS-Tunneling neutralisiert, 0 Konsolenfehler.
 
 ### v3.24.0 (03.09.2026) - Tetherless Grappling, 90° Combo Text Unification, Pause Menu Navigation, Deep Space Crystal Balancing & Solid Header UI
 * **1. Haltestrahl beim Einhaken entfernt (`Spaceship.js`):**

@@ -122,7 +122,9 @@ class GameEngine {
     this.ui.showState(newState, oldState, contextData);
 
     if (newState === StateManager.STATES.PLAYING && oldState !== StateManager.STATES.PAUSED) {
-      this.startNewRun();
+      if (!contextData || !contextData.isRevive) {
+        this.startNewRun();
+      }
     }
 
     if (newState === StateManager.STATES.PLAYING && oldState === StateManager.STATES.PAUSED) {
@@ -215,6 +217,7 @@ class GameEngine {
     this.runCores = 0;
     this.runCrystals = 0;
     this.hasRevivedThisRun = false;
+    this.reviveCheckpoint = null;
     this.runSlingshots = 0;
     this.runNearMisses = 0;
     this.slingshotCombo = 0;
@@ -374,6 +377,19 @@ class GameEngine {
 
     this.particles.spawnShards(this.player.x, this.player.y, 35, '#ef4444');
 
+    // Save accurate crash checkpoint state immediately
+    const safeCandidates = this.world.nodes.filter(n => !n.isBroken && n.type !== 'DECOY' && n.y >= this.cameraY);
+    const anchor = safeCandidates.length > 0
+      ? safeCandidates[0]
+      : (this.world.nodes[this.world.nodes.length - 1] || null);
+
+    this.reviveCheckpoint = {
+      cameraY: this.cameraY,
+      maxAltitudeMeters: this.maxAltitudeMeters,
+      anchorY: anchor ? anchor.y : this.cameraY + this.height * 0.45,
+      anchorX: anchor ? anchor.x : this.width / 2
+    };
+
     // Run Record calculation
     const runResult = this.storage.recordRun(
       this.maxAltitudeMeters,
@@ -417,15 +433,40 @@ class GameEngine {
     this.storage.recordRevive();
     this.isDying = false;
 
-    // Find the closest solid/boost anchor above the camera
-    const safeNodes = this.world.nodes.filter(n => !n.isBroken && n.type !== 'DECOY' && n.y > this.cameraY + 30);
-    const targetAnchor = safeNodes.length > 0 ? safeNodes[0] : (this.world.nodes[this.world.nodes.length - 1] || { x: this.width / 2, y: this.cameraY + 160 });
+    // Restore altitude and camera state from checkpoint
+    const cp = this.reviveCheckpoint || {
+      cameraY: this.cameraY,
+      maxAltitudeMeters: this.maxAltitudeMeters,
+      anchorY: this.cameraY + this.height * 0.45,
+      anchorX: this.width / 2
+    };
 
-    this.player.x = targetAnchor.x;
-    this.player.y = targetAnchor.y - 40;
+    this.cameraY = cp.cameraY;
+    this.maxAltitudeMeters = cp.maxAltitudeMeters;
+    this.gameStarted = true;
+
+    // Find or create a safe solid anchor node at the crash height
+    let targetAnchor = this.world.nodes.find(n => !n.isBroken && n.type !== 'DECOY' && Math.abs(n.y - cp.anchorY) < 250);
+    if (!targetAnchor) {
+      targetAnchor = new OrbitNode(cp.anchorX, cp.anchorY, 'STANDARD', this.width, cp.maxAltitudeMeters);
+      this.world.nodes.push(targetAnchor);
+    }
+
+    targetAnchor.isBroken = false;
+
+    // Hook player directly to this safe anchor with quantum invulnerability shield
+    this.player.x = targetAnchor.x + 65;
+    this.player.y = targetAnchor.y;
     this.player.vx = 0;
-    this.player.vy = 360;
-    this.player.shieldTimer = 3.0; // 3 seconds quantum invulnerability
+    this.player.vy = 260;
+    this.player.orbitSpeed = 820;
+    this.player.orbitAngle = 0;
+    this.player.orbitDirection = 1;
+    this.player.orbitRadius = 65;
+    this.player.shieldTimer = 4.0; // 4 seconds quantum invulnerability shield
+
+    // Directly hook player to anchor
+    this.player.tryHook(targetAnchor, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY);
 
     // Shockwave & Quantum VFX
     this.triggerScreenShake(6);
@@ -437,8 +478,11 @@ class GameEngine {
     // Audio
     this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
 
-    // Transition back to PLAYING state
-    this.state.changeState(StateManager.STATES.PLAYING);
+    // Generate upcoming world ahead of camera
+    this.world.generateUpTo(this.cameraY + this.height + 700, this.width, this.cameraY);
+
+    // Transition back to PLAYING state with isRevive flag (bypasses startNewRun)
+    this.state.changeState(StateManager.STATES.PLAYING, { isRevive: true });
     this.ui.updateHUD(this.maxAltitudeMeters, this.storage.data.highScore, this.storage.data.cores);
     this.ui.updateCurrency();
     return true;

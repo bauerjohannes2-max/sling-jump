@@ -233,6 +233,16 @@ async function runPlaywrightSuite() {
   console.log('[Playwright] Capturing 10_game_over.png');
   await page.evaluate(() => {
     if (window._gameEngine) {
+      window._gameEngine.maxAltitudeMeters = 482;
+      window._gameEngine.cameraY = 3856;
+      window._gameEngine.reviveCheckpoint = {
+        cameraY: 3856,
+        maxAltitudeMeters: 482,
+        anchorY: 3900,
+        anchorX: 200
+      };
+      window._gameEngine.storage.data.hyperCrystals = 5;
+      window._gameEngine.hasRevivedThisRun = false;
       window._gameEngine.state.changeState(StateManager.STATES.GAME_OVER, {
         altitude: 482,
         cores: 12,
@@ -253,6 +263,11 @@ async function runPlaywrightSuite() {
   if (btnRevive) {
     await btnRevive.click({ force: true });
     await sleep(400);
+    const revivedAltitude = await page.evaluate(() => window._gameEngine.maxAltitudeMeters);
+    console.log(`[Playwright] Revived Altitude Verified: ${revivedAltitude}m`);
+    if (revivedAltitude !== 482) {
+      throw new Error(`Revive failed to restore altitude! Expected 482m, got ${revivedAltitude}m`);
+    }
     console.log('[Playwright] Capturing 10b_revived_gameplay.png');
     await captureScreenshot(page, '10b_revived_gameplay.png');
   }
