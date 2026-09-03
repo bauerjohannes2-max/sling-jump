@@ -540,6 +540,32 @@ class GameEngine {
         );
       }
 
+      // 1b. Lethal Space Mine / Hazard Detonation Check
+      for (const node of this.world.nodes) {
+        if (node.type === 'HAZARD' && !node.isBroken) {
+          const lethalDist = this.player.radius + node.radius + 6;
+          const dist = Math.hypot(this.player.x - node.x, this.player.y - node.y);
+          if (dist < lethalDist) {
+            node.isBroken = true;
+            this.triggerScreenShake(14);
+            this.triggerHitstop(70);
+            this.particles.spawnShards(node.x, node.y, 45, '#ef4444');
+            this.particles.spawnSparks(node.x, node.y, 35, '#f97316', 2.5);
+            this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE DETONIERT!', '#ef4444', 32, true);
+            if (this.audio) this.audio.playSfx('sfx_node_shatter');
+
+            if (!this.player.shieldTimer || this.player.shieldTimer <= 0) {
+              this.isDying = true;
+              this.triggerGameOver();
+            } else {
+              this.player.shieldTimer = 0.5;
+              this.particles.spawnFloatingText(this.player.x, this.player.y - 30, 'SCHILD ABSORBIERT!', '#38bdf8', 22);
+            }
+            break;
+          }
+        }
+      }
+
       // 2. Cores, Coins & Ultra-Rare Hyper-Kristalle
       for (const orb of this.world.energyOrbs) {
         orb.update(dt, this.player, this.particles);

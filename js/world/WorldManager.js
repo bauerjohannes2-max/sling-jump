@@ -80,40 +80,46 @@ class WorldManager {
       let forkProbability = 0.0;
 
       if (altitude < 500) {
-        // ZONE 1: START & CALIBRATION (0m - 500m) -> 100% Solid standard anchors
+        // ZONE 1: START & KALIBRIERUNG (0m - 500m) -> 100% Solide Basis-Anker
         minGap = 140;
         maxGap = 180;
         typeProbabilities = { standard: 1.0, boost: 0.0, moving: 0.0, fragile: 0.0, decoy: 0.0 };
         forkProbability = 0.15;
       } else if (altitude < 1500) {
-        // ZONE 2: SUPER-BOOST INTRODUCED (500m - 1500m) -> Green Boost catapult nodes appear (~5%)
+        // ZONE 2: STRATOSPHÄRE (500m - 1500m) -> Grüne Super-Boost Katapulte (~8%)
         minGap = 150;
         maxGap = 195;
-        typeProbabilities = { standard: 0.95, boost: 0.05, moving: 0.0, fragile: 0.0, decoy: 0.0 };
+        typeProbabilities = { standard: 0.92, boost: 0.08, moving: 0.0, fragile: 0.0, decoy: 0.0 };
         forkProbability = 0.15;
       } else if (altitude < 3500) {
-        // ZONE 3: MOVING NODES INTRODUCED (1500m - 3500m) -> Horizontal pendulum nodes appear
+        // ZONE 3: MESOSPHÄRE (1500m - 3500m) -> Erste horizontale Pendelknoten (20%)
         minGap = 165;
         maxGap = 215;
-        typeProbabilities = { standard: 0.78, moving: 0.16, boost: 0.06, fragile: 0.0, decoy: 0.0 };
+        typeProbabilities = { standard: 0.72, moving: 0.20, boost: 0.08, fragile: 0.0, decoy: 0.0 };
         forkProbability = 0.14;
       } else if (altitude < 6500) {
-        // ZONE 4: FRAGILE TIMERS INTRODUCED (3500m - 6500m) -> Clock ticks & timer nodes appear
+        // ZONE 4: THERMOSPHÄRE (3500m - 6500m) -> Zeituhr-Knoten mit Countdown (14%) + mehr Bewegliche (24%)
         minGap = 180;
         maxGap = 235;
-        typeProbabilities = { standard: 0.66, moving: 0.17, fragile: 0.12, decoy: 0.0, boost: 0.05 };
+        typeProbabilities = { standard: 0.54, moving: 0.24, fragile: 0.14, boost: 0.08, decoy: 0.0 };
         forkProbability = 0.12;
       } else if (altitude < 10000) {
-        // ZONE 5: DECOY BRITTLE CIRCLES INTRODUCED (6500m - 10000m) -> Shatter traps appear
+        // ZONE 5: EXOSPHÄRE (6500m - 10000m) -> Zeituhr (18%) + Bewegliche (28%) + Köder-Fissuren (8%)
         minGap = 190;
         maxGap = 245;
-        typeProbabilities = { standard: 0.56, moving: 0.20, fragile: 0.12, decoy: 0.07, boost: 0.05 };
+        typeProbabilities = { standard: 0.40, moving: 0.28, fragile: 0.18, decoy: 0.08, boost: 0.06 };
+        forkProbability = 0.10;
+      } else if (altitude < 15000) {
+        // ZONE 6: TIEFRAUM-GEFAHRENZONE (10000m - 15000m) -> Zeituhr (22%) + Bewegliche (32%) + Weltraum-Minen
+        minGap = 195;
+        maxGap = 250;
+        typeProbabilities = { standard: 0.28, moving: 0.32, fragile: 0.22, decoy: 0.10, boost: 0.08 };
         forkProbability = 0.10;
       } else {
-        // ZONE 6: MASTER COSMOS (10000m+) -> Deep hazardous cosmos for highscore runners
-        minGap = 195;
-        maxGap = 255;
-        typeProbabilities = { standard: 0.45, moving: 0.24, fragile: 0.15, decoy: 0.10, boost: 0.06 };
+        // ZONE 7: MEISTER-KOSMOS (15000m+) -> Extreme Dynamik (26% Zeituhr + 36% Beweglich) + hohe Minendichte
+        minGap = 200;
+        maxGap = 260;
+        typeProbabilities = { standard: 0.18, moving: 0.36, fragile: 0.26, decoy: 0.12, boost: 0.08 };
         forkProbability = 0.10;
       }
 
@@ -223,6 +229,22 @@ class WorldManager {
         this.spawnStarFormation(prevNode, newNode, width);
       }
 
+      // 5. LETHAL HAZARD SPACE MINE SPAWN (Altitude >= 10,000m)
+      const mineChance = altitude >= 15000 ? 0.22 : 0.14;
+      if (altitude >= 10000 && Math.random() < mineChance) {
+        const prevNode = this.nodes[this.nodes.length - 2] || this.nodes[this.nodes.length - 1];
+        if (prevNode && prevNode.type !== 'HAZARD') {
+          const midY = (prevNode.y + nextY) / 2;
+          const mineX = Math.random() * (width - 160) + 80;
+          const distPrev = Math.hypot(mineX - prevNode.x, midY - prevNode.y);
+          const distNext = Math.hypot(mineX - this.lastNodeX, midY - nextY);
+          if (distPrev > 82 && distNext > 82) {
+            const hazardMine = new OrbitNode(mineX, midY, 'HAZARD', width, altitude);
+            this.nodes.push(hazardMine);
+          }
+        }
+      }
+
       this.lastNodeY = nextY;
     }
 
@@ -317,7 +339,7 @@ class WorldManager {
     const maxReach = CONSTANTS.PHYSICS.HOOK_RANGE;
 
     for (const node of this.nodes) {
-      if (node.isBroken || node.y < minVisibleY) continue;
+      if (node.isBroken || node.type === 'HAZARD' || node.y < minVisibleY) continue;
       const dx = node.x - ship.x;
       const dy = node.y - ship.y;
       const dist = Math.hypot(dx, dy);

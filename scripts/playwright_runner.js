@@ -210,13 +210,16 @@ async function runPlaywrightSuite() {
   await page.click('#btn-tut-play');
   await sleep(500);
 
-  // 8. Gameplay HUD (with enlarged combo visual verification)
-  console.log('[Playwright] Triggering Combo x3 visual...');
+  // 8. Gameplay HUD (with enlarged combo and live Hazard Mine verification)
+  console.log('[Playwright] Triggering Combo x3 visual & Hazard Mine...');
   await page.evaluate(() => {
     if (window._gameEngine) {
       window._gameEngine.slingshotCombo = 3;
       window._gameEngine.particles.spawnFloatingText(window._gameEngine.player.x, window._gameEngine.player.y + 50, 'COMBO x3!', '#a855f7', 32, true);
       window._gameEngine.ui.showComboBadge('COMBO x3!', '#a855f7');
+      // Spawn live hazard space mine on screen to visually verify in-game geometry
+      const hazardNode = new OrbitNode(window._gameEngine.width * 0.75, window._gameEngine.player.y + 130, 'HAZARD', window._gameEngine.width, 10200);
+      window._gameEngine.world.nodes.push(hazardNode);
     }
   });
   await sleep(200);

@@ -28,11 +28,24 @@ class OrbitNode {
     // Decoy (Fake) Node properties: breaks immediately on grapple
     this.isDecoy = (type === 'DECOY');
 
+    // Hazard / Space Mine properties (lethal explosive contact above 10,000m)
+    this.isHazard = (type === 'HAZARD');
+    if (this.isHazard) {
+      this.radius = 18;
+      this.rotation = Math.random() * Math.PI * 2;
+    }
+
     // Visual Lock-On state
     this.isTargeted = false;
   }
 
   update(dt, screenWidth, audio, onBreak) {
+    if (this.type === 'HAZARD') {
+      this.pulse += dt * 5.5; // Rapid aggressive warning pulse
+      this.rotation += dt * 1.35; // Menacing continuous rotation
+      return;
+    }
+
     this.pulse += dt * 3.2;
 
     if (this.type === 'MOVING') {
@@ -80,6 +93,90 @@ class OrbitNode {
     let coreColor = theme ? theme.primary : '#00f0ff';
     let glowColor = 'rgba(0, 240, 255, 0.45)';
     let outerRadius = this.radius + Math.sin(this.pulse) * 2.5;
+
+    if (this.type === 'HAZARD') {
+      // --- LETHAL SPACE MINE / BOMB ENTITY ---
+      // 1. Pulsating lethal danger perimeter ring (dashed red warning boundary)
+      const warningRadius = this.radius + 18 + Math.sin(this.pulse) * 3;
+      context.save();
+      context.strokeStyle = '#ef4444';
+      context.lineWidth = 1.8;
+      context.globalAlpha = 0.55 + Math.sin(this.pulse) * 0.25;
+      context.setLineDash([4, 4]);
+      context.beginPath();
+      context.arc(0, 0, warningRadius, 0, Math.PI * 2);
+      context.stroke();
+      context.restore();
+
+      // 2. Glowing Red Danger Aura
+      const aura = context.createRadialGradient(0, 0, 3, 0, 0, this.radius + 16);
+      aura.addColorStop(0, 'rgba(239, 68, 68, 0.7)');
+      aura.addColorStop(0.6, 'rgba(239, 68, 68, 0.2)');
+      aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      context.fillStyle = aura;
+      context.beginPath();
+      context.arc(0, 0, this.radius + 16, 0, Math.PI * 2);
+      context.fill();
+
+      // 3. Spiked Mine Hull (8 sharp geometric triangular spikes rotating menacingly)
+      context.save();
+      context.rotate(this.rotation || 0);
+
+      const numSpikes = 8;
+      const baseR = this.radius;
+      const spikeR = this.radius + 9;
+
+      context.fillStyle = '#991b1b'; // Deep Crimson Hull
+      context.strokeStyle = '#f87171'; // Neon Red Spikes Rim
+      context.lineWidth = 1.8;
+      context.shadowColor = '#ef4444';
+      context.shadowBlur = 12;
+
+      context.beginPath();
+      for (let i = 0; i < numSpikes; i++) {
+        const a1 = (i / numSpikes) * Math.PI * 2;
+        const aTip = a1 + (Math.PI / numSpikes);
+        const a2 = ((i + 1) / numSpikes) * Math.PI * 2;
+
+        if (i === 0) {
+          context.moveTo(Math.cos(a1) * baseR, Math.sin(a1) * baseR);
+        }
+        context.lineTo(Math.cos(aTip) * spikeR, Math.sin(aTip) * spikeR);
+        context.lineTo(Math.cos(a2) * baseR, Math.sin(a2) * baseR);
+      }
+      context.closePath();
+      context.fill();
+      context.stroke();
+
+      // 4. Inner Dark Core
+      context.fillStyle = '#1e0505';
+      context.beginPath();
+      context.arc(0, 0, baseR * 0.65, 0, Math.PI * 2);
+      context.fill();
+
+      // 5. Pulsating Hazard Warning Tri-Blade Pattern in Center
+      context.fillStyle = '#fca5a5';
+      context.shadowColor = '#ef4444';
+      context.shadowBlur = 6;
+      for (let b = 0; b < 3; b++) {
+        const bAngle = (b / 3) * Math.PI * 2 + (this.rotation * -0.5);
+        context.beginPath();
+        context.arc(0, 0, baseR * 0.52, bAngle - 0.38, bAngle + 0.38);
+        context.lineTo(0, 0);
+        context.closePath();
+        context.fill();
+      }
+
+      // Center glowing detonator pin
+      context.fillStyle = '#ffffff';
+      context.beginPath();
+      context.arc(0, 0, 3, 0, Math.PI * 2);
+      context.fill();
+
+      context.restore();
+      context.restore();
+      return;
+    }
 
     if (this.type === 'DECOY') {
       // Fake brittle node: distinct cracked orange/amber warning appearance

@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC25 - v3.25.0 - Leaderboard Championship Trophy Icon & Quantum Revive Altitude Fix)  
+> **Status:** Release Candidate (RC26 - v3.26.0 - Lethal Hazard Space Mine, Progressive Timer & Moving Scaling & Comprehensive Difficulty Table)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
@@ -21,7 +21,39 @@
 
 ---
 
+## 1b. Detaillierte Schwierigkeits- & Progressions-Matrix (Höhenzonen & Kreis-Verteilung)
+
+Die prozedurale Weltengenerierung (`WorldManager.js`) skaliert die Herausforderung kontinuierlich entlang von 7 klar definierten Zonen. Je höher der Pilot aufsteigt, desto mehr verdrängen dynamische Kreisarten (`MOVING`, `FRAGILE`) die statischen Kreise, und ab 10.000 m treten tödliche Weltraum-Minen auf:
+
+| Zone | Höhenbereich (Meter) | Standard (%) | Super-Boost (%) | Beweglich (%) | Zeituhr / Fragil (%) | Köder / Fissur (%) | Weltraum-Mine / Bombe (Lethal) | Min/Max Lücke (px) | Mechanische Herausforderung & Gameplay-Verhalten |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Zone 1: Kalibrierung** | 0 m – 500 m | 100% | 0% | 0% | 0% | 0% | 0% | 140 – 180 px | Reine statische Basis-Knoten zum sicheren Eingewöhnen und Schwungaufbau. |
+| **Zone 2: Stratosphäre** | 500 m – 1.500 m | 92% | 8% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste grüne Katapult-Knoten mit Aufwärtspfeilen für weite Katapultsprünge. |
+| **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 72% | 8% | 20% | 0% | 0% | 0% | 165 – 215 px | Einführung violetter horizontal pendelnder Knoten; erfordert Timing und Vorhalten. |
+| **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 54% | 8% | 24% | 14% | 0% | 0% | 180 – 235 px | Erste goldene Zeituhr-Knoten mit Countdown-Tick; langes Verweilen führt zum Zerbersten. |
+| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 40% | 6% | 28% | 18% | 8% | 0% | 190 – 245 px | Brüchige Köder-Fallen (zerbrechen sofort bei Haken) erfordern optische Wachsamkeit. |
+| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 28% | 8% | 32% | 22% | 10% | **~14% Korridor-Spawn** | 195 – 250 px | **Weltraum-Minen (BOMBE):** Spawnen als tödliche Hindernisse; sofortige Detonation bei Kontakt! |
+| **Zone 7: Meister-Kosmos** | 15.000 m+ | 18% | 8% | 36% | 26% | 12% | **~22% Korridor-Spawn** | 200 – 260 px | 62% dynamische Knoten (Zeituhr + Beweglich) in dichter Minenumgebung; extreme Präzision nötig. |
+
+---
+
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.26.0 (03.09.2026) - Lethal Hazard Space Mine, Progressive Timer & Moving Scaling & Comprehensive Difficulty Table
+* **1. Neuer Kreis-Typ ab 10.000m: Tödliche Weltraum-Mine / Bombe (`Node.js`, `GameEngine.js`, `WorldManager.js`):**
+  * Spawnt ab ca. 10.000 Metern Höhe als tödliches Hindernis im Flugkorridor (~14% bis 15.000m, ~22% darüber).
+  * Eigenständiges, gestochen scharfes Design: Dunkelroter Rumpf mit 8 rotierenden dreieckigen Stacheln, pulsierendem Gefahrenkern (3-Flügel-Warnsymbol) und gestricheltem rotem Warnkreis.
+  * Kann nicht eingehakt werden (vom Fadenkreuz ausgeschlossen).
+  * Bei Kontakt oder Kollision erfolgt eine sofortige Detonation mit Bildschirmbeben, Funkenregen und Absturz ("MINE DETONIERT!"), sofern der Spieler nicht durch den Quanten-Schild geschützt ist.
+* **2. Progressiver Anstieg von Zeituhr- und Bewegungskreisen (`WorldManager.js`):**
+  * Mit zunehmender Höhe steigt die Wahrscheinlichkeit für bewegliche Pendelknoten (`MOVING`) kontinuierlich von 0% auf 36%.
+  * Zeituhr-Knoten (`FRAGILE`) steigen schrittweise von 0% auf bis zu 26% an.
+  * In den höchsten Sphären machen diese anspruchsvollen Kreisarten über 62% aller Knoten aus.
+* **3. Strukturierte Schwierigkeits-Matrix in der Dokumentation (`GAME_STATUS.md`):**
+  * Vollständige Tabelle aller 7 Zonen mit genauen Metergrenzen, prozentualen Verteilungen aller 6 Kreistypen, Lückendistanzen und taktischen Verhaltensweisen.
+* **4. Dynamische Tutorial-Aktualisierung (`UIManager.js`):**
+  * Auf Folie 2 des Tutorials werden nun alle 6 Kreistypen nebeneinander dargestellt (`STANDARD`, `BOOST`, `BEWEGLICH`, `ZEITUHR`, `KÖDER`, `BOMBE`).
+* **5. Playwright-Suite:** 18 Screenshots frisch erfasst, 0 Konsolenfehler, 0 Exceptions.
 
 ### v3.25.0 (03.09.2026) - Leaderboard Championship Trophy Icon & Quantum Revive Altitude Fix
 * **1. Bestenlisten-Icon: Universeller Meisterschafts-Pokal (`index.html`):**

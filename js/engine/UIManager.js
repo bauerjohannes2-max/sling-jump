@@ -447,12 +447,14 @@ class UIManager {
     // Instantiate real game OrbitNode entities so tutorial mirrors game circles dynamically
     if (!this.tutNodes && typeof OrbitNode !== 'undefined') {
       this.tutNodes = [
-        { node: new OrbitNode(38, 55, 'STANDARD', w, 0), label: 'STANDARD' },
-        { node: new OrbitNode(108, 55, 'BOOST', w, 0), label: 'BOOST' },
-        { node: new OrbitNode(180, 55, 'MOVING', w, 0), label: 'BEWEGLICH' },
-        { node: new OrbitNode(252, 55, 'FRAGILE', w, 0), label: 'FRAGIL' },
-        { node: new OrbitNode(322, 55, 'DECOY', w, 0), label: 'KÖDER' }
+        { node: new OrbitNode(30, 50, 'STANDARD', w, 0), label: 'STANDARD', color: '#38bdf8' },
+        { node: new OrbitNode(90, 50, 'BOOST', w, 0), label: 'BOOST', color: '#10b981' },
+        { node: new OrbitNode(150, 50, 'MOVING', w, 0), label: 'BEWEGLICH', color: '#c084fc' },
+        { node: new OrbitNode(210, 50, 'FRAGILE', w, 0), label: 'ZEITUHR', color: '#eab308' },
+        { node: new OrbitNode(270, 50, 'DECOY', w, 0), label: 'KÖDER', color: '#f97316' },
+        { node: new OrbitNode(330, 50, 'HAZARD', w, 0), label: 'BOMBE', color: '#ef4444' }
       ];
+      this.tutNodes[2].node.moveRange = 16;
     }
 
     if (!this.tutNodes) return;
@@ -461,18 +463,17 @@ class UIManager {
     const dt = 0.016;
 
     this.tutNodes.forEach(item => {
-      // Update entity state for live procedural animation
+      // Update entity pulse & rotation (without moving position so preview columns remain aligned)
       item.node.pulse += dt * 3.2;
+      if (item.node.isHazard) item.node.rotation += dt * 1.35;
 
       // Directly invoke the game entity draw method!
-      // In OrbitNode.draw(context, camY, height): screenY = height - (y - camY)
-      // height = 100, y = 55, camY = 0 => screenY = 45 (vertically centered in 100px canvas)
       item.node.draw(ctx, 0, 100, theme);
 
       // Clean typographic badge
       ctx.save();
-      ctx.font = '800 8px Orbitron, monospace';
-      ctx.fillStyle = '#64748b';
+      ctx.font = '800 7px Orbitron, monospace';
+      ctx.fillStyle = item.color || '#94a3b8';
       ctx.textAlign = 'center';
       ctx.fillText(item.label, item.node.x, 90);
       ctx.restore();
