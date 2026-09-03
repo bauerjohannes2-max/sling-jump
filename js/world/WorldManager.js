@@ -266,8 +266,9 @@ class WorldManager {
     const dx = newNode.x - prevNode.x;
     const dy = newNode.y - prevNode.y;
 
-    // 1. Ultra-Rare Hyper-Kristall Spawn (~1.5% chance, strictly above 250m altitude)
-    if (this.lastNodeY > 250 && Math.random() < 0.015) {
+    // 1. Ultra-Rare Hyper-Kristall Spawn (~5% chance, strictly above 5,000m deep space altitude)
+    const currentAltitudeMeters = this.lastNodeY * (CONSTANTS.PHYSICS.METERS_PER_PIXEL || 0.125);
+    if (currentAltitudeMeters >= 5000 && Math.random() < 0.05) {
       const crystalX = Math.random() * (width - 140) + 70;
       const crystalY = (prevNode.y + newNode.y) / 2 + (Math.random() * 20 - 10);
       this.addSafeStar(crystalX, crystalY, width, 'CRYSTAL');

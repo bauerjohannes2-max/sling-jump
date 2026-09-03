@@ -922,8 +922,8 @@ class UIManager {
       this.dom.menuStatsBadge.style.display = unclaimed > 0 ? 'inline-block' : 'none';
     }
     if (this.dom.menuQuestsBadge) {
-      this.dom.menuQuestsBadge.textContent = `${unclaimed} BEREIT`;
-      this.dom.menuQuestsBadge.style.display = unclaimed > 0 ? 'inline-block' : 'none';
+      this.dom.menuQuestsBadge.textContent = `${unclaimed}`;
+      this.dom.menuQuestsBadge.style.display = unclaimed > 0 ? 'flex' : 'none';
     }
   }
 

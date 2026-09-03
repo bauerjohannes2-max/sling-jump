@@ -84,7 +84,19 @@ async function runPlaywrightSuite() {
   console.log(`[Playwright] Navigating to ${HTML_FILE}...`);
   await page.goto(HTML_FILE, { waitUntil: 'load' });
   await page.waitForFunction(() => window._gameEngine && window._gameEngine.state);
-  await sleep(600);
+  await sleep(400);
+
+  // Set 1 unclaimed quest so the new separated badge counter is verified on the main menu
+  await page.evaluate(() => {
+    if (window._gameEngine) {
+      window._gameEngine.storage.data.questProgress['daily_reach_350'] = 600;
+      window._gameEngine.storage.data.activeDailyQuestIds = ['daily_reach_350', 'daily_collect_12', 'daily_boost_3'];
+      window._gameEngine.storage.data.claimedQuestIds = [];
+      window._gameEngine.storage.save();
+      window._gameEngine.ui.updateUnclaimedBadges();
+    }
+  });
+  await sleep(300);
 
   // 1. Main Menu
   console.log('[Playwright] Capturing 01_main_menu.png');

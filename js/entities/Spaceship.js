@@ -96,12 +96,12 @@ class Spaceship {
       releaseMultiplier = CONSTANTS.PHYSICS.BOOST_MULTIPLIER;
     }
 
-    // Near perfect 90-degree steep launch check (tightened precision window: tangent within ~15 deg of vertical)
-    const isPerfectLaunch = !forced && tangentY >= 0.965;
+    // Razor-sharp 90-degree steep launch check (tightened precision window: tangent within ~9.9 deg of vertical)
+    const isPerfectLaunch = !forced && tangentY >= 0.985;
     let launchBonus = 0;
     if (isPerfectLaunch) {
       const comboLevel = Math.min(10, Math.max(1, comboCount));
-      launchBonus = 45 + comboLevel * 20; // Progressive boost from +65 at x1 up to +245 at x10
+      launchBonus = 50 + comboLevel * 22; // Progressive boost from +72 at x1 up to +270 at x10
     }
 
     this.vx = tangentX * this.orbitSpeed * releaseMultiplier;
@@ -142,9 +142,7 @@ class Spaceship {
       if (isBoost && !forced) {
         particleSystem.spawnFloatingText(this.x, this.y + 30, 'SUPER BOOST!', '#10b981', 22);
       } else if (isPerfectLaunch) {
-        const comboTxt = comboCount > 1 ? `PERFEKT x${comboCount}!` : 'PERFEKT 90°!';
-        const comboFontSize = Math.min(36, 26 + (comboCount || 1) * 1.5);
-        particleSystem.spawnFloatingText(this.x, this.y + 35, comboTxt, '#fbbf24', comboFontSize, true);
+        // Only spawn particle sparks here; single unified floating text is handled exclusively by GameEngine
         particleSystem.spawnSparks(this.x, this.y, 18, '#fbbf24');
       }
     }
@@ -206,10 +204,8 @@ class Spaceship {
   draw(context, camY, screenWidth, screenHeight, nearestNode = null, theme = null) {
     const screenY = screenHeight - (this.y - camY);
 
-    // 1. Tether during orbit (Dotted trajectory line removed for clean arcade feel)
-    if (this.isHooked && this.hookedNode) {
-      this.drawTether(context, camY, screenHeight);
-    }
+    // 1. Grappling Tether line removed for ultra-clean minimalist gameplay visual
+    // (Player orbits nodes cleanly with no connecting line)
 
     // 2. Motion Trail
     this.drawTrail(context, camY, screenWidth, screenHeight);

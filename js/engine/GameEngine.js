@@ -327,14 +327,18 @@ class GameEngine {
           } else if (isPerfectLaunch) {
             // Consecutive perfect 90-degree steep launch: chain combo up to x10!
             this.slingshotCombo = Math.min(10, this.slingshotCombo + 1);
-            const comboColors = ['#38bdf8', '#818cf8', '#a855f7', '#c084fc', '#f59e0b', '#fbbf24', '#f97316', '#ef4444', '#ec4899', '#06b6d4'];
+            const comboColors = ['#fbbf24', '#f59e0b', '#a855f7', '#c084fc', '#ec4899', '#f43f5e', '#ef4444', '#06b6d4', '#38bdf8', '#10b981'];
             const color = comboColors[Math.min(this.slingshotCombo - 1, comboColors.length - 1)];
-            const label = this.slingshotCombo >= 10
-              ? `MAX COMBO x10!`
-              : (this.slingshotCombo >= 5 ? `HYPER x${this.slingshotCombo}!` : `COMBO x${this.slingshotCombo}!`);
 
-            const comboFontSize = Math.min(42, 28 + this.slingshotCombo * 1.5);
-            this.particles.spawnFloatingText(this.player.x, this.player.y + 50, label, color, comboFontSize, true);
+            // Single unified label: "PERFEKT 90°!" on x1, and "COMBO xN!" on chains (zero overlap)
+            const label = this.slingshotCombo === 1
+              ? 'PERFEKT 90°!'
+              : (this.slingshotCombo >= 10
+                ? 'MAX COMBO x10!'
+                : (this.slingshotCombo >= 5 ? `HYPER x${this.slingshotCombo}!` : `COMBO x${this.slingshotCombo}!`));
+
+            const comboFontSize = Math.min(38, 26 + this.slingshotCombo * 1.5);
+            this.particles.spawnFloatingText(this.player.x, this.player.y + 40, label, color, comboFontSize, true);
             if (this.ui) this.ui.showComboBadge(label, color);
 
             if (this.slingshotCombo >= 4) {

@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC23 - v3.23.0 - Player Dashboard PIN Gate, Dynamic Tutorial Engine, Player Profile System & Complete UX Streamlining)  
+> **Status:** Release Candidate (RC24 - v3.24.0 - Tetherless Grappling, 90° Combo Text Unification, Pause Menu Navigation, Deep Space Crystal Balancing & Solid Header UI)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
@@ -22,6 +22,26 @@
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.24.0 (03.09.2026) - Tetherless Grappling, 90° Combo Text Unification, Pause Menu Navigation, Deep Space Crystal Balancing & Solid Header UI
+* **1. Haltestrahl beim Einhaken entfernt (`Spaceship.js`):**
+  * Auf Nutzerwunsch wurde der visuelle Haltestrahl (`drawTether`) zwischen Schiff und Orbit-Kreis entfernt.
+  * Das Schiff umkreist die Himmelskörper nun frei, schwerelos und ungestört von geometrischen Linien.
+* **2. Präzisions-90°-Winkel & Combo-Text Vereinheitlichung (`Spaceship.js`, `GameEngine.js`):**
+  * Der Winkel für den perfekten 90°-Katapultstart wurde verschärft (`tangentY >= 0.985`, unter 9.9° Abweichung von der echten Vertikalen).
+  * Die störende Überlagerung zweier gleichzeitig spawnender Texte ("PERFEKT 90°" und "COMBO x1") wurde eliminiert: Es erscheint immer nur ein einzelner, nicht-überlappender Text (`PERFEKT 90°!` auf x1, danach `COMBO x2!`, etc.).
+* **3. Hauptmenü-Button im Pause-Modal (`index.html`, `main.js`):**
+  * Das Pause-Modal enthält nun den Button `HAUPTMENÜ` (`#btn-pause-quit`), mit dem Spieler jederzeit direkt ins Hauptmenü zurückkehren können.
+* **4. Hyper-Kristall Rebalancing (`WorldManager.js`):**
+  * Seltene Hyper-Kristalle erscheinen nun erst ab 5.000 Metern Höhe (`currentAltitudeMeters >= 5000`) mit einer Wahrscheinlichkeit von ~5% pro Korridor. Standard-Flüge im erdnahen Bereich bleiben frei von Kristallen.
+* **5. Ingame-Aufgaben-Widget entfernt (`index.html`, `UIManager.js`):**
+  * Der HUD-Kasten `.hud-quest-tracker` ("gold-sammler") am unteren linken Bildschirmrand wurde restlos entfernt.
+* **6. Solide Header-Buttons & Aufgaben-Badge Rework (`css/style.css`, `UIManager.js`):**
+  * Die Buttons im oberen Menübereich (`.icon-nav-btn`) sind nun blickdicht (Slate-800 `#1e293b`), kontrastreich und gestochen scharf.
+  * Das Benachrichtigungs-Badge (`#menu-quests-badge`) sitzt nun als freistehende kreisförmige Pille mit dunkler Trennkante an der oberen rechten Ecke des Aufgaben-Buttons (`top: -6px; right: -6px`) und zeigt ausschließlich die Ziffer an, ohne das Uhr-Icon zu verdecken.
+* **7. Verbindliche Workflow-Regel implementiert (`GEMINI.md`, `.agents/rules/standards.md`):**
+  * Regel 5 bzw. Abschnitt 4 zur verpflichtenden Erstellung eines strukturierten Plans mit Schritt-für-Schritt-Checkliste bei jeder Nutzeranforderung global verankert.
+* **Playwright Suite:** 18 frische Screenshots erfasst, visuell geprüft, 0 Konsolenfehler.
 
 ### v3.23.0 (03.09.2026) - Player Dashboard PIN Gate, Dynamic Tutorial Engine, Player Profile System & Complete UX Streamlining
 * **1. Player Dashboard Absicherung (`dashboard.html`):**

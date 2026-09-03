@@ -31,3 +31,9 @@ For any web application, UI, Canvas, or frontend project:
 ## 4. Commercial Polish & Code Quality
 * Ensure zero console errors, graceful asset fallbacks, and modular decoupled architectures.
 * Keep responses concise and focused on high-level decisions while maintaining detailed records in the markdown files.
+
+## 5. Mandatory Structured Planning & Step-by-Step Execution (Absolute Regel)
+* **Whenever the user provides any instructions, tasks, or feature requests:**
+  * Always create a comprehensive, structured plan with a detailed step-by-step to-do checklist in `implementation_plan.md` before or during execution.
+  * Execute each item systematically and methodically.
+  * Verify each deliverable with fresh visual tests and document the complete lifecycle in `GAME_STATUS.md`.

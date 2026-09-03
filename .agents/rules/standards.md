@@ -17,3 +17,9 @@ description: Mandatory zero emoji policy, Playwright automated testing, and cont
 ## 3. Continuous Cumulative Project Documentation
 * Maintain `GAME_STATUS.md` in the project root as the definitive, cumulative source of truth.
 * **Append-Only / History Preservation:** Never remove, overwrite, or delete past versions. Always add new versioned sections for recent changes while keeping all historic logs and architectural descriptions intact.
+
+## 4. Mandatory Structured Planning & Step-by-Step Execution
+* Whenever the user submits any request or instructions:
+  * Always formulate a structured plan with a detailed step-by-step checklist in `implementation_plan.md`.
+  * Execute each item systematically.
+  * Continuously verify and document progress.
