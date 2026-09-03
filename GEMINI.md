@@ -13,6 +13,10 @@ These guidelines are automatically enforced for all agent tasks and pairs.
 ## 2. Mandatory Playwright Automated Visual Testing & Screenshot Verification
 For any web application, UI, Canvas, or frontend project:
 * **Always execute the Playwright test suite (`npm test` or `node scripts/playwright_runner.js`)** as the mandatory final verification step.
+* **Strict Freshness & Timestamp Guarantee:**
+  * Under no circumstances use old or cached screenshots. Every screenshot must be freshly generated during the current test run.
+  * Neutralize Windows NTFS File System Tunneling: Guarantee that `CreationTime` and `LastWriteTime` are explicitly stamped to the current execution second.
+  * Every test run must generate `screenshots/VERIFICATION_REPORT.json` and `screenshots/LATEST_RUN.md` with execution timestamps and SHA-256 hashes.
 * Capture full-resolution screenshots of all relevant screens, dialogs, and states into the `screenshots/` directory.
 * Assert 0 console errors and 0 uncaught exceptions across all test runs.
 * Visually inspect each screenshot using the file viewer to detect and fix any layout overlaps, contrast defects, or clipping before concluding the turn.

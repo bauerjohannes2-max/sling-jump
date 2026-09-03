@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC21 - v3.21.0 - Clean Deep Space Aesthetic & Background Grid Elimination)  
+> **Status:** Release Candidate (RC22 - v3.22.0 - Bulletproof Screenshot Freshness, NTFS Tunneling Neutralization & Verification Manifest)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
@@ -17,11 +17,23 @@
 | **Permanenter Link** | **24/7 Freunde & Familie** | [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/) (weltweit, unbegrenzt, PC muss nicht laufen) |
 | `npm start` / `npm run serve` | **Lokales WLAN / LAN** | Startet den HTTP-Server auf Port 3000, ermittelt die lokale IPv4 (`http://192.168.x.x:3000`) und gibt einen scanbaren ASCII-QR-Code im Terminal aus. |
 | `npm run share` | **Dev-Tunnel & QR-Code** | Gibt den permanenten Link samt ASCII-QR-Code im Terminal aus und startet optional einen temporären Entwickler-Tunnel. |
-| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 17 frische Screenshots und garantiert 0 Konsolenfehler. |
+| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 17 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
 
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.22.0 (03.09.2026) - Bulletproof Screenshot Freshness, NTFS Tunneling Neutralization & Verification Manifest
+* **Ursachen-Analyse des "Alte Screenshots"-Problems:**
+  * Auf Windows NTFS-Dateisystemen existiert ein Kernel-Mechanismus namens *File System Tunneling*. Wenn eine Datei gelöscht (`fs.unlinkSync()`) und kurz darauf neu erzeugt wird (`page.screenshot()`), behält Windows das ursprüngliche Erstelldatum (`CreationTime`) der gelöschten Datei bei (z. B. 01.09. oder 02.09.).
+  * Standardmäßiges Node.js (`fs.utimesSync`) kann auf Windows nur das Änderungsdatum (`LastWriteTime`), nicht aber `CreationTime` anpassen.
+* **Permanente Lösung in `scripts/playwright_runner.js`:**
+  * **NTFS-Tunneling-Neutralisierung:** Nach jedem Playwright-Lauf wird per PowerShell explizit die `CreationTime` und `LastWriteTime` jeder Bilddatei auf die aktuelle Ausführungssekunde gesetzt.
+  * **Kryptographischer Nachweis:** Jedes Bild erhält eine eindeutige SHA-256-Prüfsumme.
+  * **Automatisierte Berichte:** Generiert `screenshots/VERIFICATION_REPORT.json` und `screenshots/LATEST_RUN.md` mit sekundengenauer Ausführungszeit.
+  * **Brain-Artefakt-Synchronisierung:** Bereinigt verwaiste alte Testdateien und spiegelt die 17 aktuellen Screenshots samt tagesaktuellen Zeitstempeln in den Agenten-Artefakt-Ordner.
+* **Workflow-Standards:** Regeln in `GEMINI.md` und `.agents/rules/standards.md` verbindlich um die Frische-Garantie erweitert.
+* **Versions-Gleichstand:** Synchronisiert auf `v3.22.0` in `Constants.js`, `package.json`, `sw.js`, `index.html`.
 
 ### v3.21.0 (03.09.2026) - Clean Deep Space Aesthetic & Background Grid Elimination
 * **Vollständige Entfernung des Hintergrund-Gitters (`WorldManager.js`, `ShopManager.js`, `GameEngine.js`):**
