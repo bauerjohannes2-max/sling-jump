@@ -362,7 +362,7 @@
         clearTimeout(versionTapTimer);
         versionTapTimer = setTimeout(() => { versionTapCount = 0; }, 800);
         if (versionTapCount >= 3) {
-          window.location.href = 'dashboard.html';
+          window.open('dashboard.html', '_blank') || (window.location.href = 'dashboard.html');
         }
       });
     });

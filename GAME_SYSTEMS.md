@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.27.0  
+Dokumentationsstand: Version 3.28.0  
 Aktualisiert am: 03. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -153,21 +153,31 @@ Für schwächere Smartphones, Laptops und zur Akkuschonung implementiert:
   * Kompakte Aufgabenkarten ohne redundante Beschreibungstexte.
   * Fortschrittszahlen (`12.450 / 150.000 m`) direkt in den Progressbar integriert.
   * Klare, reduzierte Header: `TÄGLICH` und `WÖCHENTLICH` mit Restzeit-Badge.
+* **Eigenständige Dashboard-Begleit-App (`dashboard.html`):**
+  * Entwickelt als vollwertige PWA (`manifest-dashboard.json`) mit mobilem Standalone-Modus.
+  * Bietet die vollständige Telemetrie-Übersicht (Live-Spieler, Unique Devices, Runden heute, Rekorde, Runden-Historie).
+  * Prominenter, neonblau leuchtender Button **"SPIELEN"** führt jederzeit direkt ins Spiel.
+  * Wird aus den Spieleinstellungen im separaten Fenster geöffnet (`target="_blank"`).
+* **AAA App-Icon & Branding:**
+  * Nach Mobile-Bestseller-Standards (Subway Surfers, Alto, Smash Hit) konzipiert:
+  * Fokussierter Hero-Fokus: Diagonales Neon-Raumschiff mit glühendem Ionenantrieb und goldenem Lichtschweif um einen galaktischen Gravitationsknoten.
+  * Multi-Plattform-Export: `assets/icon-512.png`, `assets/icon-192.png`, `assets/favicon.png` und `assets/icon.svg`.
 * **Strict Zero Emoji Policy:**
   * Ausschließlich minimalistische SVG-Vektoricons und Canvas-Geometrie.
-* **Admin-Dashboard (`dashboard.html`):**
-  * Gesichert durch Master-PIN `1337`.
-  * Ermöglicht Spielern die Registrierung ihres Rufnamens und dauerhafte Speicherung ihrer Rekorde und Statistiken.
 
 ---
 
 ## 8. INTERAKTIVES TUTORIAL-SYSTEM
 
-* **Folie 1: Steuerung & Katapultflug:**
-  * Dynamisch gerendertes Miniatur-Raumschiff auf `#tut-sling-canvas`, das Schwungaufbau und senkrechten 90°-Katapultflug visualisiert.
+* **Folie 1: Steuerung & Katapultflug (Physik-Akkurat):**
+  * Dynamische Canvas-Simulation (`#tut-sling-canvas`) mit responsivem `aspect-ratio: 360 / 160`.
+  * **Physikalische Katapult-Präzision:** Das Raumschiff schwingt im Uhrzeigersinn/Gegen-Uhrzeigersinn durch den Orbit und löst sich exakt im 90°-Winkel (Osten: `nodeX + orbitRadius, nodeY`), wo die Flugbahntangente exakt nach Norden (senkrecht nach oben) zeigt.
+  * Die Katapultbeschleunigung schießt das Schiff geradlinig nach Norden in den Kosmos.
+  * Vollständig tetherless ohne Haltestrahl-Leine; veranschaulicht das reine Gravitationsfeld.
 * **Folie 2: Himmelskörper (Vollständige Echtzeit-Vorschau):**
-  * Rendert alle 6 echten Spiel-Entitäten über deren originale `OrbitNode.draw()`-Pipeline nebeneinander auf `#tut-circles-canvas`:
+  * Rendert alle 6 echten Spiel-Entitäten über deren originale `OrbitNode.draw()`-Pipeline nebeneinander auf `#tut-circles-canvas` (`aspect-ratio: 360 / 100`):
     * `STANDARD` (Cyan), `BOOST` (Grün), `BEWEGLICH` (Violett), `ZEITUHR` (Gold), `KÖDER` (Orange), `BOMBE` (Crimson-Rot).
+  * Durch responsive CSS-`aspect-ratio`-Bindung bleiben alle Kreise auf jedem Bildschirm absolut kreisrund und verzerrungsfrei.
 
 ---
 

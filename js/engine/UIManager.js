@@ -337,37 +337,24 @@ class UIManager {
     if (time < 0.9) {
       // Approach Phase
       const progress = time / 0.9;
-      shipX = 50 + progress * (nodeX - orbitRadius - 50);
-      shipY = 140 - progress * (140 - nodeY);
+      shipX = 40 + progress * (nodeX - orbitRadius - 40);
+      shipY = 135 - progress * (135 - nodeY);
       shipAngle = -Math.PI / 4;
       phaseText = '1. GEDRÜCKT HALTEN = EINHAKEN';
       phaseColor = '#38bdf8';
     } else if (time < 2.3) {
-      // Orbit / Swing Phase
+      // Orbit / Swing Phase (Counter-clockwise: West -> South -> East / 90°)
       const progress = (time - 0.9) / 1.4;
-      const startAngle = Math.PI; // 180 deg (left)
-      const currentAngle = startAngle - progress * (Math.PI * 1.5); // counterclockwise around to -Math.PI/2 (top)
+      const startAngle = Math.PI; // West (180°)
+      const currentAngle = startAngle - progress * Math.PI; // counter-clockwise to 0 rad (East / 90° compass)
       shipX = nodeX + Math.cos(currentAngle) * orbitRadius;
       shipY = nodeY + Math.sin(currentAngle) * orbitRadius;
-      shipAngle = currentAngle - Math.PI / 2;
+      shipAngle = currentAngle - Math.PI / 2; // tangent pointing forward
 
-      // Active tether beam
+      // Tetherless Orbital Halo (No tether line, clean gravitational orbit)
       ctx.save();
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2.5;
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 10;
-      ctx.setLineDash([4, 2]);
-      ctx.beginPath();
-      ctx.moveTo(nodeX, nodeY);
-      ctx.lineTo(shipX, shipY);
-      ctx.stroke();
-      ctx.restore();
-
-      // Orbital arc trace
-      ctx.save();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.lineWidth = 1.5;
       ctx.setLineDash([3, 3]);
       ctx.beginPath();
       ctx.arc(nodeX, nodeY, orbitRadius, startAngle, currentAngle, true);
@@ -377,30 +364,31 @@ class UIManager {
       phaseText = '1. HALTEN = SCHWUNG AUFBAUEN';
       phaseColor = '#38bdf8';
     } else if (time < 3.5) {
-      // Release & Catapult Launch Phase
+      // Release & Catapult Launch Phase (Release at 90° East -> Flies straight NORTH)
       const progress = (time - 2.3) / 1.2;
-      shipX = nodeX;
-      shipY = (nodeY - orbitRadius) - progress * 90;
-      shipAngle = -Math.PI / 2; // facing straight up
+      const launchX = nodeX + orbitRadius; // Exactly at 90° (East)
+      shipX = launchX;
+      shipY = nodeY - progress * 105; // Propels straight North / Upward
+      shipAngle = -Math.PI / 2; // Facing North
 
-      // Boost trajectory trail
+      // Boost trajectory trail straight North
       ctx.save();
       ctx.strokeStyle = '#fbbf24';
       ctx.lineWidth = 3;
       ctx.shadowColor = '#fbbf24';
       ctx.shadowBlur = 14;
       ctx.beginPath();
-      ctx.moveTo(nodeX, nodeY - orbitRadius);
+      ctx.moveTo(launchX, nodeY);
       ctx.lineTo(shipX, shipY + 14);
       ctx.stroke();
       ctx.restore();
 
-      phaseText = '2. LOSLASSEN = KRAFTVOLLER FLUG!';
+      phaseText = '2. BEI 90° LOSLASSEN = FLUG NACH NORDEN!';
       phaseColor = '#fbbf24';
     } else {
-      shipX = nodeX;
+      shipX = nodeX + orbitRadius;
       shipY = -50;
-      phaseText = 'SCHWUNGVOLL IN DEN WELTRAUM';
+      phaseText = 'PERFEKTER KATAPULTSPRUNG';
       phaseColor = '#38bdf8';
     }
 

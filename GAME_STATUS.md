@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC27 - v3.27.0 - Ultra-Minimalist Profile & Quests UI, Harder Weekly Challenges & Global Minimalism Standards)  
+> **Status:** Release Candidate (RC28 - v3.28.0 - Tutorial Physics & Aspect-Ratio QA, Standalone Dashboard Companion App & AAA App Icon)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
@@ -53,6 +53,24 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.28.0 (03.09.2026) - Tutorial Physics & Aspect-Ratio QA, Standalone Dashboard Companion App & AAA App Icon
+* **1. Tutorial-Physik QA & Korrektur auf physikalisch akkuraten 90°-Katapultflug (`UIManager.js`):**
+  * Die Animation auf Folie 1 wurde korrigiert: Das Schiff löst sich nun exakt im 90°-Winkel (Osten: `nodeX + orbitRadius, nodeY`) bei gegen den Uhrzeigersinn gerichtetem Orbit.
+  * In dieser Position zeigt die Tangente der Kreisbahn mathematisch präzise nach Norden (senkrecht nach oben). Das Schiff schießt geradlinig nach Norden in den Weltraum.
+  * Alte, unpassende Hakenleine entfernt: Entspricht nun zu 100% dem modernen Tetherless Grappling mit leuchtendem Gravitationsfeld.
+* **2. Beseitigung von Bild-Verzerrungen auf kleinen Bildschirmen (`index.html`, `style.css`):**
+  * Auf kleinen Mobilgeräten führten feste CSS-Höhen (`height: 160px`) in Verbindung mit prozentualen Breiten zu einer horizontalen Stauchung der Canvas-Grafiken.
+  * Vollständige Umstellung auf native CSS-`aspect-ratio` (`360/160` auf Folie 1 und `360/100` auf Folie 2) sowie fluid skalierende Container.
+  * Kreise und Schiffe bleiben auf allen Bildschirmauflösungen und Smartphones ausnahmslos perfekt rund und proportional.
+* **3. Eigenständige Telemetrie- & Dashboard-Begleit-App (`dashboard.html`, `manifest-dashboard.json`):**
+  * `dashboard.html` wurde zu einer vollwertigen, eigenständigen Web-App ausgebaut mit eigenem PWA-Manifest (`manifest-dashboard.json`) und mobilen Standalone-Meta-Tags.
+  * Prominenter, neonblau leuchtender Button **"SPIELEN"** im Header startet und fokussiert direkt das Spiel.
+  * Aus dem Einstellungsmenü des Hauptspiels öffnet sich das Dashboard sauber in einem separaten Fenster/Tab (`target="_blank"`).
+* **4. AAA App-Icon Neugestaltung nach Mobile-Bestseller-Standards:**
+  * Fundierte Best-Practice-Analyse führender Arcade-Hits (Subway Surfers, Alto, Smash Hit): Markanter Single-Focal-Point, lebendiger Neon-Kontrast auf tiefblauem Raum, scharfe geometrische Silhouette, squircle-konforme Sicherheitsränder und null störende Textfragmente.
+  * Exportiert in höchster Auflösung nach `assets/icon-512.png`, `assets/icon-192.png`, `assets/favicon.png` und `assets/icon.svg`.
+* **5. Playwright-Suite:** 18 Screenshots frisch erfasst, 0 Konsolenfehler, 0 Exceptions.
 
 ### v3.27.0 (03.09.2026) - Ultra-Minimalist Profile & Quests UI, Harder Weekly Challenges & Global Minimalism Standards
 * **1. Schlankes Minimalistisches Profil-Modal (`index.html`, `UIManager.js`):**
