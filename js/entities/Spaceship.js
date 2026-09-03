@@ -25,6 +25,19 @@ class Spaceship {
     this.trailHistory = [];
     this.rotationAngle = 0; // For rotating parts like Orbit Ring
     this.shieldTimer = 0; // Quantum invulnerability shield timer (active after revive)
+    this.combo = 0; // Current active consecutive 90-deg launch combo
+  }
+
+  getComboSpeedMultiplier() {
+    const factors = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_SPEED_FACTORS) || [1.0, 1.10, 1.18, 1.26, 1.34, 1.42, 1.48, 1.54, 1.60, 1.65, 1.70];
+    const idx = Math.min(Math.max(0, this.combo), factors.length - 1);
+    return factors[idx];
+  }
+
+  getComboLaunchBonus() {
+    const bonuses = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_LAUNCH_BONUSES) || [0, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480];
+    const idx = Math.min(Math.max(0, this.combo), bonuses.length - 1);
+    return bonuses[idx];
   }
 
   setCustomization(shipId, trailId) {
@@ -65,8 +78,9 @@ class Spaceship {
     this.orbitDirection = cross >= 0 ? 1 : -1;
 
     const currentSpeed = Math.hypot(this.vx, this.vy);
-    this.orbitSpeed = Math.max(currentSpeed * 0.95, CONSTANTS.PHYSICS.MIN_ORBIT_SPEED);
-    this.orbitSpeed = Math.min(this.orbitSpeed, CONSTANTS.PHYSICS.MAX_ORBIT_SPEED);
+    const comboMult = this.getComboSpeedMultiplier();
+    this.orbitSpeed = Math.max(currentSpeed * 0.95, CONSTANTS.PHYSICS.MIN_ORBIT_SPEED * comboMult);
+    this.orbitSpeed = Math.min(this.orbitSpeed, CONSTANTS.PHYSICS.MAX_ORBIT_SPEED * comboMult);
 
     this.vx = 0;
     this.vy = 0;
@@ -96,16 +110,22 @@ class Spaceship {
       releaseMultiplier = CONSTANTS.PHYSICS.BOOST_MULTIPLIER;
     }
 
-    // Razor-sharp 90-degree steep launch check (tightened precision window: tangent within ~9.9 deg of vertical)
-    const isPerfectLaunch = !forced && tangentY >= 0.985;
-    let launchBonus = 0;
+    // Razor-sharp 90-degree steep launch check (tangentY >= 0.980 is within ~11.4 deg of vertical 90-degree release)
+    const isPerfectLaunch = !forced && tangentY >= 0.980;
+
     if (isPerfectLaunch) {
-      const comboLevel = Math.min(10, Math.max(1, comboCount));
-      launchBonus = 50 + comboLevel * 22; // Progressive boost from +72 at x1 up to +270 at x10
+      this.combo = Math.min(10, (comboCount || this.combo) + 1);
+    } else if (!forced) {
+      this.combo = 0;
     }
 
-    this.vx = tangentX * this.orbitSpeed * releaseMultiplier;
-    this.vy = tangentY * this.orbitSpeed * releaseMultiplier + launchBonus;
+    const comboMult = this.getComboSpeedMultiplier();
+    const launchBonus = isPerfectLaunch ? this.getComboLaunchBonus() : 0;
+
+    // Direct launch speed scaling: Base orbit * releaseMultiplier * combo speed multiplier!
+    const effectiveLaunchSpeed = this.orbitSpeed * releaseMultiplier * comboMult;
+    this.vx = tangentX * effectiveLaunchSpeed;
+    this.vy = tangentY * effectiveLaunchSpeed + launchBonus;
 
     if (this.vy > 0 && !forced && !isPerfectLaunch) {
       this.vy += 80;
@@ -121,7 +141,7 @@ class Spaceship {
     if (setSlowMo) setSlowMo(false);
 
     if (!forced && audio) {
-      audio.playSfx('sfx_slingshot_boost', { isBoost, isPerfect: isPerfectLaunch });
+      audio.playSfx('sfx_slingshot_boost', { isBoost, isPerfect: isPerfectLaunch, combo: this.combo });
     }
 
     if (particleSystem) {
@@ -135,20 +155,23 @@ class Spaceship {
           const backX = -tangentX + spread;
           const backY = -tangentY + spread;
           const spd = (Math.random() * 200 + 80) * (isBoost ? 1.6 : (isPerfectLaunch ? 1.4 : 1));
-          particleSystem.spawnThrust(this.x + offset.x, this.y + offset.y, backX * spd, backY * spd, thrustColor, isBoost ? 1.5 : (isPerfectLaunch ? 1.3 : 1));
+          particleSystem.spawnThrust(this.x + offset.x, this.y + offset.y, backX * spd, backY * spd, thrustColor, (isBoost ? 1.5 : (isPerfectLaunch ? 1.3 : 1)) * comboMult);
         }
       }
 
       if (isBoost && !forced) {
         particleSystem.spawnFloatingText(this.x, this.y + 30, 'SUPER BOOST!', '#10b981', 22);
       } else if (isPerfectLaunch) {
-        // Only spawn particle sparks here; single unified floating text is handled exclusively by GameEngine
-        particleSystem.spawnSparks(this.x, this.y, 18, '#fbbf24');
+        // Shockwave ring at launch location + sparks scaled with combo!
+        if (node) {
+          particleSystem.spawnShockwave(node.x, node.y, '#fbbf24', 50 + this.combo * 4);
+        }
+        particleSystem.spawnSparks(this.x, this.y, 16 + this.combo * 2, '#fbbf24', 1.2 + this.combo * 0.1);
       }
     }
 
     if (onReleaseCallback) {
-      onReleaseCallback(isBoost, forced, isPerfectLaunch, tangentY);
+      onReleaseCallback(isBoost, forced, isPerfectLaunch, tangentY, this.combo);
     }
   }
 
@@ -177,7 +200,9 @@ class Spaceship {
         -Math.sin(this.orbitAngle) * this.orbitDirection
       );
     } else {
-      this.vy -= CONSTANTS.PHYSICS.GRAVITY * dt;
+      const dragReduction = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_GRAVITY_DRAG_REDUCTION) || 0.035;
+      const gravityFactor = this.vy > 0 ? Math.max(0.70, 1.0 - (this.combo * dragReduction)) : 1.0;
+      this.vy -= CONSTANTS.PHYSICS.GRAVITY * gravityFactor * dt;
       this.x += this.vx * dt;
       this.y += this.vy * dt;
       this.vx *= Math.pow(0.985, dt * 60);
@@ -187,7 +212,13 @@ class Spaceship {
       if (particleSystem && this.vy > 100 && Math.random() < 0.4) {
         const trailDef = CONSTANTS.TRAILS.find(t => t.id === this.trailId) || CONSTANTS.TRAILS[0];
         const color = trailDef.color === 'rainbow' ? `hsl(${(performance.now() * 0.5) % 360}, 100%, 60%)` : trailDef.color;
-        particleSystem.spawnThrust(this.x, this.y, (Math.random() - 0.5) * 30, -100, color, 0.8);
+        particleSystem.spawnThrust(this.x, this.y, (Math.random() - 0.5) * 30, -100, color, 0.8 * this.getComboSpeedMultiplier());
+      }
+
+      // Hypersonic Speed Streaks for combo >= 2
+      if (this.combo >= 2 && particleSystem && Math.random() < 0.35 + this.combo * 0.05) {
+        const streakColor = this.combo >= 5 ? '#a855f7' : '#38bdf8';
+        particleSystem.spawnSpeedStreaks(this.x, this.y, 1, streakColor);
       }
     }
 

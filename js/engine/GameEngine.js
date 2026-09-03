@@ -322,27 +322,43 @@ class GameEngine {
         this.audio,
         (s) => this.setSlowMo(s),
         this.particles,
-        (isBoost, forced, isPerfectLaunch, tangentY) => {
+        (isBoost, forced, isPerfectLaunch, tangentY, newCombo) => {
           if (isBoost) {
             this.triggerScreenShake(4);
             this.triggerHitstop(20);
             this.missions.onSuperBoostUsed();
           } else if (isPerfectLaunch) {
             // Consecutive perfect 90-degree steep launch: chain combo up to x10!
-            this.slingshotCombo = Math.min(10, this.slingshotCombo + 1);
+            this.slingshotCombo = newCombo || Math.min(10, this.slingshotCombo + 1);
+            if (this.player) this.player.combo = this.slingshotCombo;
+
+            // Direct Immediate Rewards for Hitting 90°:
+            // 1. Direct Bonus Currency (+1 to +10 coins matching combo!)
+            const bonusCoins = this.slingshotCombo;
+            this.runCores += bonusCoins;
+            this.storage.addCores(bonusCoins);
+            this.ui.updateCurrency();
+
+            // 2. Dynamic Speed Boost Feedback
+            const speedFactors = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_SPEED_FACTORS) || [1.0, 1.10, 1.18, 1.26, 1.34, 1.42, 1.48, 1.54, 1.60, 1.65, 1.70];
+            const speedPct = Math.round((speedFactors[Math.min(this.slingshotCombo, speedFactors.length - 1)] - 1.0) * 100);
+
             const comboColors = ['#fbbf24', '#f59e0b', '#a855f7', '#c084fc', '#ec4899', '#f43f5e', '#ef4444', '#06b6d4', '#38bdf8', '#10b981'];
             const color = comboColors[Math.min(this.slingshotCombo - 1, comboColors.length - 1)];
 
-            // Single unified label: "PERFEKT 90°!" on x1, and "COMBO xN!" on chains (zero overlap)
+            // Single unified label: "PERFEKT 90° (+10% TEMPO)" on x1, and "COMBO xN (+N% TEMPO)" on chains (Zero Emojis)
             const label = this.slingshotCombo === 1
-              ? 'PERFEKT 90°!'
+              ? `PERFEKT 90° (+${speedPct}% TEMPO)`
               : (this.slingshotCombo >= 10
-                ? 'MAX COMBO x10!'
-                : (this.slingshotCombo >= 5 ? `HYPER x${this.slingshotCombo}!` : `COMBO x${this.slingshotCombo}!`));
+                ? `MAX COMBO x10 (+${speedPct}% TEMPO)`
+                : (this.slingshotCombo >= 5 ? `HYPER x${this.slingshotCombo} (+${speedPct}% TEMPO)` : `COMBO x${this.slingshotCombo} (+${speedPct}% TEMPO)`));
 
-            const comboFontSize = Math.min(38, 26 + this.slingshotCombo * 1.5);
+            const comboFontSize = Math.min(34, 22 + this.slingshotCombo * 1.2);
             this.particles.spawnFloatingText(this.player.x, this.player.y + 40, label, color, comboFontSize, true);
             if (this.ui) this.ui.showComboBadge(label, color);
+
+            // Pop immediate coin bonus notification
+            this.particles.spawnFloatingText(this.player.x, this.player.y + 70, `+${bonusCoins} GOLD`, '#fbbf24', 15);
 
             if (this.slingshotCombo >= 4) {
               this.triggerScreenShake(Math.min(4, this.slingshotCombo - 2));
@@ -352,6 +368,7 @@ class GameEngine {
           } else {
             // Normal release resets combo - smooth flight with zero shake
             this.slingshotCombo = 0;
+            if (this.player) this.player.combo = 0;
             if (this.ui) this.ui.hideComboBadge();
           }
         },

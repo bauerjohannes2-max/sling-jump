@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.28.0  
+Dokumentationsstand: Version 3.29.0  
 Aktualisiert am: 03. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -39,17 +39,39 @@ Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.co
 
 ---
 
-## 3. COMBO-SYSTEM & PRÄZISIONS-KATAPULT
+## 3. COMBO-SYSTEM & DYNAMISCHE GESCHWINDIGKEITS-SKALIERUNG
 
-* **Steilsprung-Bedingung (90°-Winkel):**
-  * Der Abschusswinkel muss nahezu exakt senkrecht nach oben zeigen (`tangentY >= 0.985`, unter 9.9° Abweichung von der echten Vertikalen).
-* **Progressiver Extra-Boost:**
-  * Jeder aufeinanderfolgende 90°-Steilsprung erhöht den Combo-Zähler um +1 bis maximal **x10**.
-  * Formel für Zusatzschub: `launchBonus = 45 + comboLevel * 20` (z.B. +65 bei x1 bis zu +245 bei x10).
-* **Unified Floating Text (Keine Textüberlagerungen):**
-  * Bei Combo x1 erscheint ausschließlich: `PERFEKT 90°!`.
-  * Ab Combo x2+ erscheint ausschließlich: `COMBO xN!` (z.B. `COMBO x2!`, `COMBO x3!`).
-  * Beide Texte überlagern sich niemals; die Anzeige ist mit dem HUD-Badge `#hud-combo-badge` synchronisiert.
+* **Steilsprung-Bedingung (90°-Präzisionswinkel):**
+  * Der Abschusswinkel muss vertikal nach oben gerichtet sein (`tangentY >= 0.980`, innerhalb von ca. 11,4° Toleranzfenster zur idealen Senkrechten).
+* **Direkte ökonomische Belohnung:**
+  * Jeder erfolgreiche 90°-Katapultwurf schüttet unmittelbar **Bonus-Gold** auf das Spielerkonto aus:
+  * Formel: `Bonus-Gold = Combo-Level` (z.B. +1 Münze bei Stufe 1 bis +10 Münzen bei Stufe 10).
+  * Sofortige Score-Gutschrift: `Bonus-Punkte = 100 * Combo-Level`.
+* **Balancierte Geschwindigkeits-Skalierung (Progressive Hyperspeed-Matrix):**
+  * Je länger eine Kette perfekter 90°-Sprünge aufrechterhalten wird, desto höher steigt die Fluggeschwindigkeit des Schiffs:
+
+| Combo-Stufe | HUD-Kennzeichnung | Tempo-Multiplikator | Min Orbit-Speed | Max Orbit-Speed | Vertikaler Zusatz-Impuls | Aerodynamischer Auftrieb (Drag-Reduktion) | Sofort-Belohnung |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **0** | Basisflug | **1.00x** | 720 px/s | 1.250 px/s | +0 px/s | 100% Gravitation | 0 |
+| **1** | PERFEKT 90° (+10% TEMPO) | **1.10x** | 792 px/s | 1.375 px/s | +120 px/s | 96.5% Gravitation | +1 Gold / +100 Pkt |
+| **2** | COMBO x2 (+18% TEMPO) | **1.18x** | 850 px/s | 1.475 px/s | +160 px/s | 93.0% Gravitation | +2 Gold / +200 Pkt |
+| **3** | COMBO x3 (+26% TEMPO) | **1.26x** | 907 px/s | 1.575 px/s | +200 px/s | 89.5% Gravitation | +3 Gold / +300 Pkt |
+| **4** | COMBO x4 (+34% TEMPO) | **1.34x** | 965 px/s | 1.675 px/s | +240 px/s | 86.0% Gravitation | +4 Gold / +400 Pkt |
+| **5** | HYPER x5 (+42% TEMPO) | **1.42x** | 1.022 px/s | 1.775 px/s | +280 px/s | 82.5% Gravitation | +5 Gold / +500 Pkt |
+| **6** | HYPER x6 (+48% TEMPO) | **1.48x** | 1.065 px/s | 1.850 px/s | +320 px/s | 79.0% Gravitation | +6 Gold / +600 Pkt |
+| **7** | HYPER x7 (+54% TEMPO) | **1.54x** | 1.108 px/s | 1.925 px/s | +360 px/s | 75.5% Gravitation | +7 Gold / +700 Pkt |
+| **8** | HYPER x8 (+60% TEMPO) | **1.60x** | 1.152 px/s | 2.000 px/s | +400 px/s | 72.0% Gravitation | +8 Gold / +800 Pkt |
+| **9** | HYPER x9 (+65% TEMPO) | **1.65x** | 1.188 px/s | 2.062 px/s | +440 px/s | 70.0% Gravitation | +9 Gold / +900 Pkt |
+| **10** | MAX COMBO x10 (+70% TEMPO) | **1.70x** | 1.224 px/s | 2.125 px/s | +480 px/s | 70.0% Gravitation (Cap) | +10 Gold / +1.000 Pkt |
+
+* **Balance-Garantie:**
+  * Durch den automatischen Slow-Mo-Faktor (`SLOWMO_FACTOR = 0.40`) beim Einhaken bleibt der Orbit selbst bei 1.70x Maximal-Tempo jederzeit zu 100% kontrollierbar und reaktiv.
+  * Bei verfehltem 90°-Winkel wird die Combo auf 0 zurückgesetzt und das Tempo geht sanft in die Basisgeschwindigkeit über (kein ruckartiges Bremsen).
+* **Akustische Chimes:**
+  * Dual-Oszillator mit chromatisch aufsteigendem Oberton (+2 Halbtöne pro Stufe von C5 bis C7).
+* **Visuelle High-Speed Effekte:**
+  * Schockwellenring am Katapult-Knoten (`spawnShockwave`).
+  * Hypersonische Warpgeschwindigkeits-Streifen (`spawnSpeedStreaks`) bei Combo ab Stufe 2.
 
 ---
 

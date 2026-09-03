@@ -115,13 +115,45 @@ class ParticleSystem {
       p.y = y;
       p.vx = Math.cos(ang) * spd;
       p.vy = Math.sin(ang) * spd;
-      p.size = Math.random() * 4.5 + 2.5;
+      p.size = Math.random() * 4 + 2;
       p.life = 1.0;
       p.maxLife = 1.0;
-      p.decay = Math.random() * 2.0 + 1.5;
+      p.decay = Math.random() * 1.5 + 1.2;
       p.color = color;
       p.angle = Math.random() * Math.PI * 2;
       p.rotSpeed = (Math.random() - 0.5) * 12;
+    }
+  }
+
+  spawnShockwave(x, y, color = '#fbbf24', maxRadius = 55) {
+    const p = this.getFreeParticle();
+    p.active = true;
+    p.type = 'shockwave';
+    p.x = x;
+    p.y = y;
+    p.vx = 0;
+    p.vy = 0;
+    p.size = maxRadius;
+    p.life = 1.0;
+    p.maxLife = 1.0;
+    p.decay = 2.8;
+    p.color = color;
+  }
+
+  spawnSpeedStreaks(x, y, count = 3, color = '#38bdf8') {
+    for (let i = 0; i < count; i++) {
+      const p = this.getFreeParticle();
+      p.active = true;
+      p.type = 'streak';
+      p.x = x + (Math.random() - 0.5) * 160;
+      p.y = y + Math.random() * 80;
+      p.vx = 0;
+      p.vy = -(Math.random() * 320 + 380);
+      p.size = Math.random() * 25 + 15;
+      p.life = 1.0;
+      p.maxLife = 1.0;
+      p.decay = 4.2;
+      p.color = color;
     }
   }
 
@@ -199,6 +231,34 @@ class ParticleSystem {
           context.shadowBlur = 8;
         }
         context.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        context.restore();
+      } else if (p.type === 'shockwave') {
+        const curRadius = p.size * (1.0 - alpha);
+        context.save();
+        context.globalAlpha = alpha * 0.85;
+        context.strokeStyle = p.color;
+        context.lineWidth = 2.5 * alpha;
+        if (!isPerf) {
+          context.shadowColor = p.color;
+          context.shadowBlur = 12;
+        }
+        context.beginPath();
+        context.arc(p.x, sy, curRadius, 0, Math.PI * 2);
+        context.stroke();
+        context.restore();
+      } else if (p.type === 'streak') {
+        context.save();
+        context.globalAlpha = alpha * 0.7;
+        context.strokeStyle = p.color;
+        context.lineWidth = 2;
+        if (!isPerf) {
+          context.shadowColor = p.color;
+          context.shadowBlur = 8;
+        }
+        context.beginPath();
+        context.moveTo(p.x, sy);
+        context.lineTo(p.x, sy + p.size);
+        context.stroke();
         context.restore();
       } else {
         context.globalAlpha = p.type === 'thrust' ? alpha * 0.75 : alpha;

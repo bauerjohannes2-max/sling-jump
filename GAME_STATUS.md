@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC28 - v3.28.0 - Tutorial Physics & Aspect-Ratio QA, Standalone Dashboard Companion App & AAA App Icon)  
+> **Status:** Release Candidate (RC29 - v3.29.0 - Rewarding 90° Slingshots & Dynamic Combo Speed Scaling)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 03.09.2026  
@@ -53,6 +53,29 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.29.0 (03.09.2026) - Rewarding 90° Slingshots & Dynamic Combo Speed Scaling
+* **1. Belohnendes 90°-Katapult-System (`Spaceship.js`, `GameEngine.js`, `Constants.js`):**
+  * Das Auslösen im senkrechten 90°-Winkel (Osten / Bahntangente nach Norden, Toleranz `tangentY >= 0.980`) wurde massiv aufgewertet:
+  * **Direkte Währungs-Belohnung:** Jeder 90°-Katapultwurf schüttet sofort Bonus-Gold aus (`+1` bis `+10` Münzen direkt auf das Spielerkonto entsprechend der aktuellen Combo-Stufe).
+  * **Direkter Score-Schub:** Zusätzliche `+100` bis `+1.000` Punkte pro perfektem Sprung.
+* **2. Dynamischer Combo-Geschwindigkeits-Multiplikator (Balancierte Hyperspeed-Kurve):**
+  * Je höher die Combo, desto schneller fliegt das Raumschiff:
+    * Combo 1: **1.10x Speed** (+10% Tempo, +120 px/s Impuls)
+    * Combo 2: **1.18x Speed** (+18% Tempo, +160 px/s Impuls)
+    * Combo 3: **1.26x Speed** (+26% Tempo, +200 px/s Impuls)
+    * Combo 4: **1.34x Speed** (+34% Tempo, +240 px/s Impuls)
+    * Combo 5: **1.42x Speed** (+42% Tempo, +280 px/s Impuls - *HYPER STATE*)
+    * Combo 10 (Max): **1.70x Speed** (+70% Tempo, +480 px/s Impuls)
+  * **Ganzheitliche Physik-Kopplung:** Der Multiplikator beschleunigt sowohl die Kreisbahngeschwindigkeit (`orbitSpeed`) als auch die Katapult-Abschussgeschwindigkeit und verringert den Gravitationswiderstand während des Steigflugs um bis zu 30%.
+  * **Perfekte Spielbarkeit durch Slow-Mo:** Weil beim Einhaken an Kreisen die bewährte 40%-Zeitlupe aktiv ist, bleibt das Timing selbst bei 1.70x Hyperspeed voll reaktiv und beherrschbar.
+* **3. Akustische & Visuelle Höhepunkte:**
+  * **Chromatische Tonleiter-Chimes (`AudioManager.js`):** Bei jedem erfolgreichen 90°-Sprung ertönt ein doppelter Synthesizer-Akkord, dessen harmonischer Oberton sich pro Combo-Schritt um 2 Halbtöne nach oben schraubt (C5 bis C7).
+  * **Schockwellen & Warpgeschwindigkeits-Streifen (`ParticleSystem.js`):**
+    * Goldener Schockwellenring (`spawnShockwave`) expandiert am Katapult-Knoten.
+    * Ab Combo 2/3 ziehen vertikale leuchtende Geschwindigkeitsstreifen am Bildschirm vorbei.
+  * **HUD & Floating Text Feedback:** Anzeige von `PERFEKT 90° (+10% TEMPO)` bis `MAX COMBO x10 (+70% TEMPO)` und sofortige Anzeige des erhaltenen Goldes.
+* **4. Playwright-Suite:** 18 Screenshots frisch erfasst, 0 Konsolenfehler, 0 Exceptions.
 
 ### v3.28.0 (03.09.2026) - Tutorial Physics & Aspect-Ratio QA, Standalone Dashboard Companion App & AAA App Icon
 * **1. Tutorial-Physik QA & Korrektur auf physikalisch akkuraten 90°-Katapultflug (`UIManager.js`):**

@@ -307,6 +307,27 @@ class AudioManager {
         gain.connect(this.sfxGain);
         osc.start(now);
         osc.stop(now + 0.36);
+
+        // Ascending Chromatic Chime for Perfect 90-degree Combo launches
+        if (options.isPerfect) {
+          const comboLevel = Math.min(10, Math.max(1, options.combo || 1));
+          const semitones = (comboLevel - 1) * 2; // Ascending whole steps up to octave+
+          const baseFreq = 523.25 * Math.pow(2, semitones / 12); // C5 to C7 scale
+
+          const chimeOsc = this.ctx.createOscillator();
+          const chimeGain = this.ctx.createGain();
+          chimeOsc.type = 'sine';
+          chimeOsc.frequency.setValueAtTime(baseFreq, now);
+          chimeOsc.frequency.exponentialRampToValueAtTime(baseFreq * 1.25, now + 0.15);
+
+          chimeGain.gain.setValueAtTime(0.24, now);
+          chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.36);
+
+          chimeOsc.connect(chimeGain);
+          chimeGain.connect(this.sfxGain);
+          chimeOsc.start(now);
+          chimeOsc.stop(now + 0.37);
+        }
         break;
       }
       case 'sfx_node_shatter': {

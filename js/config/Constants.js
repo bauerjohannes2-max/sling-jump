@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '3.28.0',
+  VERSION: '3.29.0',
   STORAGE_KEY: 'sling_jump_save_v2',
 
   // Physics & Mechanics
@@ -18,7 +18,13 @@ const CONSTANTS = {
     FRAGILE_DURATION: 0.90,
     DEATH_BUFFER_PX: 4,
     HITSTOP_DURATION_MS: 40,
-    METERS_PER_PIXEL: 0.125
+    METERS_PER_PIXEL: 0.125,
+    // Balanced Progressive Combo Speed Multipliers (1x to 10x)
+    COMBO_SPEED_FACTORS: [1.0, 1.10, 1.18, 1.26, 1.34, 1.42, 1.48, 1.54, 1.60, 1.65, 1.70],
+    // Instantaneous catapult impulse bonuses (px/s)
+    COMBO_LAUNCH_BONUSES: [0, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480],
+    // Aerodynamic upward gravity drag reduction factor per combo (down to 70% at combo 8+)
+    COMBO_GRAVITY_DRAG_REDUCTION: 0.035
   },
 
   // Scoring & Currency
