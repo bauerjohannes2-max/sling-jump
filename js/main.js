@@ -240,6 +240,22 @@
       });
     }
 
+    const btnLbTabGlobal = document.getElementById('btn-lb-tab-global');
+    if (btnLbTabGlobal) {
+      btnLbTabGlobal.addEventListener('click', () => {
+        clickSfx();
+        ui.switchLeaderboardTab('global');
+      });
+    }
+
+    const btnLbTabLocal = document.getElementById('btn-lb-tab-local');
+    if (btnLbTabLocal) {
+      btnLbTabLocal.addEventListener('click', () => {
+        clickSfx();
+        ui.switchLeaderboardTab('local');
+      });
+    }
+
     const btnStatsClose = document.getElementById('btn-stats-close');
     if (btnStatsClose) {
       btnStatsClose.addEventListener('click', () => {

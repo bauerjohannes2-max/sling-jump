@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC38 - v3.37.0 - Persistent Mobile-Standard Automatic Fullscreen Engine)  
+> **Status:** Release Candidate (RC39 - v4.0.0 - Standalone Game & Growth Analytics Suite)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -28,12 +28,12 @@ Die prozedurale Weltengenerierung (`WorldManager.js`) skaliert die Herausforderu
 | Zone | Höhenbereich (Meter) | Standard (%) | Super-Boost (%) | Beweglich (%) | Zeituhr / Fragil (%) | Köder / Fissur (%) | Weltraum-Mine / Bombe (Lethal) | Min/Max Lücke (px) | Mechanische Herausforderung & Gameplay-Verhalten |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
 | **Zone 1: Kalibrierung** | 0 m – 500 m | 100% | 0% | 0% | 0% | 0% | 0% | 140 – 180 px | Reine statische Basis-Knoten zum sicheren Eingewöhnen und Schwungaufbau. |
-| **Zone 2: Stratosphäre** | 500 m – 1.500 m | 92% | 8% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste grüne Katapult-Knoten mit Aufwärtspfeilen für weite Katapultsprünge. |
-| **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 72% | 8% | 20% | 0% | 0% | 0% | 165 – 215 px | Einführung violetter horizontal pendelnder Knoten; erfordert Timing und Vorhalten. |
-| **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 54% | 8% | 24% | 14% | 0% | 0% | 180 – 235 px | Erste goldene Zeituhr-Knoten mit Countdown-Tick; langes Verweilen führt zum Zerbersten. |
-| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 34% | 8% | 26% | 26% | 6% | 0% | 190 – 245 px | Deutlich mehr Zeituhr-Knoten (26%) fordern zügigen Rhythmus; seltene Fissuren (6%). |
-| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 24% | 8% | 28% | 34% | 6% | **~7% Korridor-Spawn** | 195 – 250 px | **Dominante Zeituhr-Knoten (34%) & moderate Minen (~7%):** Schneller Absprung; Minenwände entschärft. |
-| **Zone 7: Meister-Kosmos** | 15.000 m+ | 16% | 8% | 28% | 42% | 6% | **~10% Korridor-Spawn** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Beweglich); Minendichte von 22% auf 10% halbiert. |
+| **Zone 2: Stratosphäre** | 500 m – 1.500 m | 95% | 5% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste grüne Katapult-Knoten; Cooldown-Sperre (mind. 8 Knoten zwischen Boosts). |
+| **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 76% | 4% | 20% | 0% | 0% | 0% | 165 – 215 px | Einführung violetter horizontal pendelnder Knoten; Boosts gedrosselt auf 4%. |
+| **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 59% | 3% | 24% | 14% | 0% | 0% | 180 – 235 px | Erste goldene Zeituhr-Knoten mit Countdown-Tick; Boosts selten (3%). |
+| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 40% | 2% | 26% | 26% | 6% | 0% | 190 – 245 px | Deutlich mehr Zeituhr-Knoten (26%) fordern zügigen Rhythmus; Boost extrem dosiert (2%). |
+| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 31% | **1.0%** | 28% | 34% | 6% | **~7% Korridor-Spawn** | 195 – 250 px | **Dominante Zeituhr-Knoten (34%), 87.5% weniger Boosts (1.0%) & 8-Knoten Cooldown.** |
+| **Zone 7: Meister-Kosmos** | 15.000 m+ | 23.2% | **0.8%** | 28% | 42% | 6% | **~10% Korridor-Spawn** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Beweglich); Boosts auf 0.8% minimiert (90% Drop). |
 
 ---
 
@@ -53,6 +53,50 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.0.0 (04.09.2026) - Standalone Game & Growth Analytics Suite (Enterprise Decoupling)
+* **1. Vollständige App-Entkopplung (2 Separate Anwendungen):**
+  * **Dediziertes Dashboard-Verzeichnis (`dashboard/`):** Die bisher rudimentäre Telemetrie-Ansicht wurde in eine eigenständige, vollwertige Enterprise Single-Page-Application (SPA) mit separater PWA-Konfiguration (`dashboard/manifest.json`), modularen Styles (`dashboard/css/dashboard.css`) und entkoppelter App-Architektur (`dashboard/js/app.js`, `dashboard/js/charts.js`, `dashboard/js/mock-data.js`, `dashboard/js/export-service.js`) überführt.
+  * **Eigener Standalone-Server (`dashboard/server.js`):** Läuft unabhängig auf Port 3001 (`npm run serve:dashboard`) und stellt dedizierte REST-Endpunkte für Telemetrie-Zusammenfassungen, Rohdaten und Exporte bereit.
+  * **Zero-Conflict Multi-Agent Hygiene:** Keine einzige Kern-Datei der Live-Spiel-Engine (`index.html`, `js/main.js`, `js/engine/*`, `css/style.css`) wurde berührt; das Live-Spiel bleibt für parallele Agenten-Arbeit vollständig geschützt und isoliert.
+  * **Abwärtskompatibler Root-Adapter (`dashboard.html`):** Das Root-Dokument bindet die Standalone-Module ein, sodass sowohl Direktaufrufe (`http://localhost:3000/dashboard`), GitHub-Pages-Links als auch Playwright (`file:///.../dashboard.html`) ohne Umwege funktionieren.
+* **2. Sechs Dedizierte Analyse- & Wachstums-Sektionen (6-Tab Navigation):**
+  * **Tab 1 - Übersicht:** Executive Summary mit Live-Spieler-Puls, Unique-Geräten, Tagesrunden, Allzeit-Rekorden und 7-Tage-Aktivitäts-Flächengraph (SVG).
+  * **Tab 2 - Marketing & Vertrieb:** UTM-Kampagnen-Attribution (TikTok, Reddit, Discord, Twitter, QR-Flyer, Poki, Itch.io), mehrstufiger Conversion-Funnel (Klick &rarr; Start &rarr; Erster Sprung &rarr; PWA-Install &rarr; D1-Retention) und viraler K-Faktor (> 1.0).
+  * **Tab 3 - Gameplay-Balancing:** Höhenzonen-Dropoff-Heatmap (Zonen 1 bis 6+) zur präzisen Identifikation von Frust- und Abbruchpunkten, Schiff-Nutzungsquoten, Durchschnittshöhen und Todesursachen-Taxonomie.
+  * **Tab 4 - Ökonomie & Upgrades:** Token-Zufluss (Münzen gesammelt, Quests) vs. Token-Abfluss (Hangar-Käufe, Wiederbelebungen), Netto-Sparkonto und Freischaltungs-Progressionskurve aller 6 Raumschiffe.
+  * **Tab 5 - System-Gesundheit:** Plattform- & OS-Verteilung (iOS, Android, Windows, macOS), gemessene FPS-Werte, Leistungsmodus-Adoption und Client-Fehlerprotokolle (0 kritische Fehler).
+  * **Tab 6 - Event-Explorer & BI-Export:** Echtzeit-Filterung nach Ereignistypen (`run_completed`, `session_start`, `share_score`, `pwa_install`), Freitext-Suche, 1-Klick-CSV-Export für Excel/Google Sheets, vollständiger JSON-Dump und Zwischenablage-Kopie.
+* **3. Synthetischer Benchmark-Simulator & Zero-Dependency SVG Engine:**
+  * **Statistisch kalibrierter Benchmark-Generator (`mock-data.js`):** Ermöglicht das Umschalten zwischen Live-Telemetrie und einem 520+ Sitzungen umfassenden Benchmark-Datensatz, um alle Trichter, Heatmaps und Kohorten sofort visualisieren zu können.
+  * **Reine SVG-Grafik-Engine (`charts.js`):** Schlanke, performante Flächen-, Balken-, Funnel- und Heatmap-Visualisierungen ohne externe Bibliotheken.
+* **4. Strikte Commercial-Minimalism & Zero-Emoji-Konformität:**
+  * Durchgängig minimalistische SVG-Vektor-Icons, tracked Sans-Serif- und Monospace-Typografie (`Orbitron`, `Rajdhani`, `Inter`), dunkle Obsidian-SaaS-Ästhetik.
+* **5. Playwright Visual Suite Verifikation:**
+  * Alle 18 Screenshots neu generiert, 0 Konsolenfehler, neutrale NTFS-Zeitstempel (`14_dashboard_locked.png`, `14b_dashboard_unlocked.png`).
+
+### v3.38.0 (04.09.2026) - Global & Local Dual-Tab Leaderboards, 50 Seeded Arcade Contenders & High-Altitude Turbo Balancing
+* **1. Rebalancing der grünen Turbo-Katapulte & 8-Knoten-Cooldown (`WorldManager.js`):**
+  * Drastische Reduktion der Super-Boost-Häufigkeit insbesondere in Höhen über 10.000m:
+    * Zone 2 (500m - 1.500m): von 8% auf **5%** gesenkt.
+    * Zone 3 (1.500m - 3.500m): von 8% auf **4%** gesenkt.
+    * Zone 4 (3.500m - 6.500m): von 8% auf **3%** gesenkt.
+    * Zone 5 (6.500m - 10.000m): von 8% auf **2%** gesenkt.
+    * Zone 6 (10.000m - 15.000m): von 8% auf **1.0%** gesenkt (87.5% Reduktion).
+    * Zone 7 (15.000m+): von 8% auf **0.8%** gesenkt (90% Reduktion).
+  * **Strikter 8-Knoten Cooldown (`nodesSinceLastBoost >= 8`):** Unterbindet Clusterbildung und Turbo-Spam in allen Höhenlagen; nach jedem Super-Boost müssen garantiert mindestens 8 reguläre Knoten folgen.
+* **2. Dual-Tab Leaderboard: GLOBAL (TOP 100) & LOKAL (MEINE FLÜGE) (`index.html`, `style.css`, `UIManager.js`):**
+  * Neue minimalistische Tab-Leiste (`.leaderboard-tab-bar`, `#btn-lb-tab-global`, `#btn-lb-tab-local`) im Leaderboard-Modal.
+  * **GLOBAL (TOP 100):** Zeigt die besten 100 weltweiten Piloten. Integriert den eigenen Spieler-Rekord samt Schiff und `(DU)`-Markierung dynamisch nach Höhe sortiert. Sticky Player-Card liefert Echtzeit-Rang (`#X`), Perzentil ("TOP 1%") und Meter-Delta zum Vorplatzierten.
+  * **LOKAL (MEINE FLÜGE):** Persönliche Flugchronik der letzten 25 Flüge (`StorageService.js`). Enthält Datumsangabe, geflogene Höhe, gesammelte Coins und Gesamtpunktzahl. Bei leerem Speicherstand wird ein eleganter Empty-State (`KEINE FLÜGE GESPEICHERT`) eingeblendet.
+* **3. 50 Authentische Arcade-Kontrahenten (`Constants.js`):**
+  * Vorbestückung von 50 realistischen Konkurrenten in `GLOBAL_LEADERBOARD_TOP` mit abgestuften Rekorden von 4.850m bis 260m, authentischen Schiffen (`TITAN`, `SPECTRE`, `PHÖNIX`, `PFEIL`) und tagesaktuellen Datumsstempeln.
+  * Folgt dem bewährten Standard internationaler Top-Arcade-Games (*Alto's Adventure*, *Crossy Road*, *Subway Surfers*), um Spielern von Tag 1 an motivierende Orientierungspunkte und Progression zu bieten.
+* **4. Erweiterter lokaler Speicher & Versions-Synchronisation (`StorageService.js`, `sw.js`, `version.json`):**
+  * Historien-Kapazität für persönliche Flüge von 5 auf **25 Runs** erweitert.
+  * Systemweit auf Version `3.38.0` angehoben.
+* **5. Playwright Visual Suite Verifikation:**
+  * 19 frische Screenshots erfasst (u.a. `04_hub_leaderboard.png` und `04b_leaderboard_local.png`), 0 Konsolenfehler, NTFS-Tunneling neutralisiert.
 
 ### v3.37.0 (04.09.2026) - Persistent Mobile-Standard Automatic Fullscreen Engine
 * **1. Automatischer Vollbildmodus beim Betreten der App (`main.js`, `style.css`):**

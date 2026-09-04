@@ -318,7 +318,7 @@ class StorageService {
       isNewHighScore = true;
     }
 
-    // Add to Top 5 Leaderboard
+    // Add to Local Flight History (Top 25 runs)
     const profile = this.getPlayerProfile();
     const entry = {
       score: totalScore,
@@ -331,8 +331,8 @@ class StorageService {
 
     this.data.leaderboard.push(entry);
     this.data.leaderboard.sort((a, b) => b.score - a.score);
-    if (this.data.leaderboard.length > 5) {
-      this.data.leaderboard = this.data.leaderboard.slice(0, 5);
+    if (this.data.leaderboard.length > 25) {
+      this.data.leaderboard = this.data.leaderboard.slice(0, 25);
     }
 
     this.save();

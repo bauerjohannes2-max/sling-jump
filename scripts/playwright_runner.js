@@ -118,8 +118,20 @@ async function runPlaywrightSuite() {
   console.log('[Playwright] Testing #btn-menu-leaderboard...');
   await page.click('#btn-menu-leaderboard');
   await sleep(400);
-  console.log('[Playwright] Capturing 04_hub_leaderboard.png');
+  console.log('[Playwright] Capturing 04_hub_leaderboard.png (Global Top 100)');
   await captureScreenshot(page, '04_hub_leaderboard.png');
+
+  // Test Local tab
+  console.log('[Playwright] Testing #btn-lb-tab-local...');
+  await page.click('#btn-lb-tab-local');
+  await sleep(300);
+  console.log('[Playwright] Capturing 04b_leaderboard_local.png (Personal Chronicle)');
+  await captureScreenshot(page, '04b_leaderboard_local.png');
+
+  // Switch back to global
+  await page.click('#btn-lb-tab-global');
+  await sleep(200);
+
   await page.click('#btn-leaderboard-close');
   await sleep(300);
 

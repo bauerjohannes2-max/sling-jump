@@ -82,16 +82,16 @@ Die prozedurale Generierung (`WorldManager.js`) skaliert die Schwierigkeit dynam
 | Zone | Höhenbereich | Standard (%) | Super-Boost (%) | Beweglich (%) | Zeituhr / Fragil (%) | Köder / Fissur (%) | Weltraum-Mine / Bombe (Lethal) | Min/Max Lücke | Mechanische Charakteristik |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
 | **Zone 1: Kalibrierung** | 0 m – 500 m | 100% | 0% | 0% | 0% | 0% | 0% | 140 – 180 px | 100% stabile Basisknoten zum sicheren Einstieg. |
-| **Zone 2: Stratosphäre** | 500 m – 1.500 m | 92% | 8% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste grüne Katapulte mit Aufwärtspfeilen für Weitsprünge. |
-| **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 72% | 8% | 20% | 0% | 0% | 0% | 165 – 215 px | Violette Pendelknoten erfordern horizontales Vorhalten. |
-| **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 54% | 8% | 24% | 14% | 0% | 0% | 180 – 235 px | Goldene Zeituhr-Knoten mit Countdown erzwingen schnellen Absprung. |
-| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 34% | 8% | 26% | 26% | 6% | 0% | 190 – 245 px | Mehr Zeituhr-Knoten (26%) fordern zügigen Rhythmus; seltene Fissuren. |
-| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 24% | 8% | 28% | 34% | 6% | **~7% Korridor** | 195 – 250 px | **Dominante Zeituhr-Knoten (34%) & moderate Minen (~7%):** Schnelles Weiterspringen gefordert. |
-| **Zone 7: Meister-Kosmos** | 15.000 m+ | 16% | 8% | 28% | 42% | 6% | **~10% Korridor** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Pendel) bei reduzierter Minendichte (~10%). |
+| **Zone 2: Stratosphäre** | 500 m – 1.500 m | 95% | 5% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste seltene grüne Katapulte mit 8-Knoten Cooldown. |
+| **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 76% | 4% | 20% | 0% | 0% | 0% | 165 – 215 px | Violette Pendelknoten erfordern horizontales Vorhalten; Boost gedrosselt auf 4%. |
+| **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 59% | 3% | 24% | 14% | 0% | 0% | 180 – 235 px | Goldene Zeituhr-Knoten mit Countdown; Boost selten (3%). |
+| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 40% | 2% | 26% | 26% | 6% | 0% | 190 – 245 px | Mehr Zeituhr-Knoten (26%) fordern zügigen Rhythmus; Boost extrem dosiert (2%). |
+| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 31% | **1.0%** | 28% | 34% | 6% | **~7% Korridor** | 195 – 250 px | **Dominante Zeituhr-Knoten (34%), 87.5% weniger Boosts (1.0%) & 8-Knoten Cooldown.** |
+| **Zone 7: Meister-Kosmos** | 15.000 m+ | 23.2% | **0.8%** | 28% | 42% | 6% | **~10% Korridor** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Pendel); Boosts auf 0.8% minimiert (90% Drop). |
 
 ### Detailbeschreibung aller 6 Entitäten
 1. **STANDARD (Cyan `#00f0ff`):** Solider, dauerhafter Orbit-Anker.
-2. **SUPER-BOOST (Grün `#10b981`):** Erhöht den Katapult-Schub auf das 1,85-fache, erzeugt Warp-Streifen und verleiht temporäre Immunität gegen Weltraum-Minen.
+2. **SUPER-BOOST (Grün `#10b981`):** Erhöht den Katapult-Schub auf das 1,85-fache, erzeugt Warp-Streifen und verleiht temporäre Immunität gegen Weltraum-Minen. **Cooldown-Sperre:** Nach jedem Super-Boost müssen mindestens 8 reguläre Knoten generiert werden (`nodesSinceLastBoost >= 8`), bevor erneut ein Boost spawnen kann. Ab 10.000m auf 1.0% bzw. 0.8% gedrosselt.
 3. **BEWEGLICH (Violett `#c084fc`):** Schwingt horizontal im Pendelmodus (`moveRange` bis 100px).
 4. **ZEITUHR / FRAGIL (Gold `#eab308`):** Besitzt 12 radiale Uhren-Ticks. Nach dem Einhaken tickt die Uhr ab (~0,8s). Bricht bei Ablauf mit Scherbenregen ab!
 5. **KÖDER / FISSUR (Orange `#f97316`):** Brittle Trap mit Fissur-Linien. Bricht beim Einhaken sofort entzwei; bietet keinen Halt.
@@ -295,13 +295,19 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Exakte Kohorten- und Retention-Messung pro Spieler ohne Datenschutz-Verstöße.
   * Grundlage für zielgerichtetes Balancing und zukünftige Monetarisierungs-Optimierungen.
 
-### 10.5 Dynamisches Arcade-Leaderboard (`UIManager.js`, `Constants.js`)
-* **Nahtlose Verschmelzung mit globaler Rangliste:**
-  * Die globale Arcade-Tabelle (`GLOBAL_LEADERBOARD_TOP`) umfasst 8 anspruchsvolle KI-Rivalen (u.a. `VortexStriker`, `CyberPhantom`, `NovaPulse`).
-  * Der persönliche Highscore (`storage.data.highScore`) und der aktive Gaming-Tag des Spielers werden dynamisch in die Rangliste integriert und absteigend sortiert.
-* **Visuelle Hervorhebung des Spielers:**
-  * Die Spielerzeile erhält die Klasse `.player-entry` mit markantem Cyan-Rahmen (`#00f5d4`), Glow-Effekt und einem "DU"-Badge.
-  * Die Summary-Karte am Kopf des Leaderboards aktualisiert in Echtzeit den eigenen Rang (`DEIN RANG #X`) sowie die eigene Bestleistung.
+### 10.5 Globales & Lokales Dual-Tab Leaderboard (`UIManager.js`, `Constants.js`, `StorageService.js`)
+* **Dual-Tab Umschaltung (`GLOBAL` vs `LOKAL`):**
+  * Elegante Reiter-Leiste (`.leaderboard-tab-bar`) im Leaderboard-Modal für schnellen Wechsel zwischen weltweiter Konkurrenz und persönlicher Flugchronik.
+  * **GLOBAL (TOP 100):**
+    * Präsentiert die weltweite Rangliste der besten Piloten mit bis zu 100 Einträgen.
+    * Vorbestückt mit **50 realistischen Arcade-Kontrahenten** (`GLOBAL_LEADERBOARD_TOP`, 4.850m bis 260m) mit unterschiedlichen Schiffen und Datumsstempeln (nach Vorbild von *Alto's Adventure* & *Crossy Road*, um Day-1 Spielern authentische Zielmarken zu bieten).
+    * Der eigene Rekord (`highScore`) wird mit dem Spieler-Namen, Schiff und `(DU)`-Badge dynamisch in die weltweite Liste einsortiert.
+    * Sticky Player-Banner berechnet den globalen Rang (z.B. `#12`), das Perzentil ("TOP 1%") und den Meter-Abstand zum nächsten Rang.
+  * **LOKAL (MEINE FLÜGE):**
+    * Dokumentiert die persönliche Flug-Historie des Spielers mit bis zu **25 Flügen** (`StorageService.js`).
+    * Jeder Eintrag enthält Rang, Spielername, Schiff, erreichte Höhe, Score und Datum.
+    * Bei noch unbespieltem Spielstand zeigt ein moderner Empty-State (`KEINE FLÜGE GESPEICHERT`) Hilfestellung zum Starten des ersten Flugs.
+    * Sticky Player-Banner zeigt die Anzahl absolvierter Flüge und die persönliche Bestleistung.
 
 ### 10.6 Zugängliches Steuerungs-Tutorial (`index.html`, `UIManager.js`)
 * **Minimalistischer Header:** Redundante Subtitel wurden entfernt; die Modal-Kopfzeile trägt einzig den klaren Titel `STEUERUNG`.
@@ -321,5 +327,49 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Automatische Re-Arming-Logik: Wird das Vollbild durch System-Overlays oder Gesten kurzzeitig unterbrochen, schaltet die nächste Interaktion (`pointerdown`, `touchstart`, `click`, `keydown`) sofort wieder ins Vollbild.
 * **100dvh Viewport-Lock:**
   * `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`, wodurch vertikale Browserleisten auf Android und iOS dauerhaft unterdrückt werden.
+
+---
+
+## 11. Standalone Game & Growth Analytics Suite (`dashboard/`)
+
+### 11.1 Entkoppelte Multi-App-Architektur
+* **Vollständige Trennung von Spiel und Analyse:**
+  * Das Dashboard ist eine vollständig autark lauffähige Single-Page-Application in `dashboard/`, die über eine eigene PWA-Konfiguration (`dashboard/manifest.json`), ein modulares SaaS-Design (`dashboard/css/dashboard.css`) und entkoppelte Kontrollskripte verfügt.
+  * **Zero-Coupling Multi-Agent Hygiene:** Keine Code-Abhängigkeit zur Spiel-Physik, Engine-Loops oder den UI-Managern des Hauptspiels. Das Spiel sendet lediglich passive JSON-Telemetrie via HTTP POST (`/api/telemetry`).
+  * **Dedizierter Backend-Server (`dashboard/server.js`):** Unabhängiger Node.js Server auf Port 3001 (`npm run serve:dashboard`) mit REST-Routen (`/api/analytics/summary`, `/api/analytics/events`, etc.).
+
+### 11.2 Sechs Analytische Dimensionen
+1. **Übersicht (Executive Dashboard):**
+   * Live-Puls (aktive Sitzungen in den letzten 45s).
+   * Aggregierte Kennzahlen: Unique Geräte, Tagesrunden, Allzeit-Rekordhöhe, kumulierte Münzen.
+   * 7-Tage-Aktivitätsverlauf über responsive SVG-Flächengraphen.
+2. **Marketing & Vertrieb (Acquisition & Virality):**
+   * **UTM-Attribution:** Erfassung und Aggregation von Kampagnen (`utm_source`: TikTok, Reddit, Discord, Twitter, QR-Flyer, Poki, Itch.io).
+   * **Multi-Step Conversion Funnel:** `Impression / Web-Aufruf` &rarr; `Spielstart` &rarr; `1. Slingshot-Sprung` &rarr; `PWA-Installation` &rarr; `D1-Retention`.
+   * **Virality K-Faktor:** Tracking von Score-Shares (WhatsApp, Link-Kopien) zur Bestimmung organischen Wachstums.
+3. **Gameplay-Balancing & Churn-Heatmap:**
+   * **Höhenzonen-Dropoff-Analyse:** Exakte Häufigkeitsverteilung von Piloten-Abstürzen über alle 7 Höhenzonen (0–500m Kalibrierung bis 15.000m+ Meister-Kosmos).
+   * **Schiff-Performance-Matrix:** Pick-Rate, mittlere Überlebenshöhe und Münz-Ausbeute pro Raumschiff.
+   * **Todesursachen-Taxonomie:** Missglücktes Einrasten (Void-Fall), Zeituhr-Timeout (Fragile Node), Raumminen-Kollision, Pendelhindernis.
+4. **Virtuelle Ökonomie & Upgrades:**
+   * **Faucet vs. Sink Gleichgewicht:** Vergleich von erwirtschafteten Münzen (Sterne, Quests) zu ausgegebenen Münzen (Hangar-Käufe, Wiederbelebungen).
+   * **Freischaltungs-Progressionskurve:** Prozentualer Schiffs-Besitz über die Gesamt-Spielerbasis.
+5. **System-Gesundheit & Hardware-Diagnostik:**
+   * Plattform- und Betriebssystem-Breakdown (iOS, Android, Windows, macOS).
+   * Mittlere Bildrate (FPS) über alle Hardware-Klassen.
+   * Adoptionsrate des Leistungs-Modus (Performance-Mode) zur Batterieschonung.
+   * Fehlerprotokollierung für clientseitige JavaScript-Fehler (0 kritische Fehler garantiert).
+6. **Live Event-Explorer & BI-Datenexport:**
+   * Filterbarer Echtzeit-Eventstream aller Ereignisse (`session_start`, `run_completed`, `share_score`, `pwa_install`).
+   * 1-Klick-Export als CSV für Tabellenkalkulationen (Excel, Google Sheets, Python).
+   * Vollständiger JSON-Datensatz-Dump und Clipboard-Kopierer.
+
+### 11.3 Synthetischer Benchmark-Generator & SVG-Visualisierungen
+* **520+ Benchmark-Sitzungen (`mock-data.js`):**
+  * Statistisch kalibrierter Datensatz erlaubt sofortige visuelle Inspektion aller Trichter und Heatmaps auch ohne Server-Verbindung oder im Offline-Modus.
+  * Umschaltbar über die Schaltfläche `[ WECHSELN ]` in der Kopfleiste.
+* **Reine SVG-Visualisierungs-Engine (`charts.js`):**
+  * Null externe Abhängigkeiten (Zero-Dependency), keine schweren Drittanbieter-Bibliotheken, gestochen scharfe Vektoren, barrierefreie Skalierbarkeit.
+
 
 

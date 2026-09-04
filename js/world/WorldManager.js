@@ -13,6 +13,7 @@ class WorldManager {
     this.lastNodeType = 'STANDARD';
     this.lastNodeX = 0;
     this.lastNodeY = 0;
+    this.nodesSinceLastBoost = 10;
 
     this.currentTheme = this.getActiveTheme();
   }
@@ -49,6 +50,7 @@ class WorldManager {
     this.nodes = [];
     this.energyOrbs = [];
     this.highestGeneratedY = 0;
+    this.nodesSinceLastBoost = 10;
     this.currentTheme = this.getActiveTheme();
 
     // 1. Fully Procedural Start (Randomized initial node around viewport center)
@@ -86,40 +88,40 @@ class WorldManager {
         typeProbabilities = { standard: 1.0, boost: 0.0, moving: 0.0, fragile: 0.0, decoy: 0.0 };
         forkProbability = 0.15;
       } else if (altitude < 1500) {
-        // ZONE 2: STRATOSPHÄRE (500m - 1500m) -> Grüne Super-Boost Katapulte (~8%)
+        // ZONE 2: STRATOSPHÄRE (500m - 1500m) -> Grüne Super-Boost Katapulte (~5%)
         minGap = 150;
         maxGap = 195;
-        typeProbabilities = { standard: 0.92, boost: 0.08, moving: 0.0, fragile: 0.0, decoy: 0.0 };
+        typeProbabilities = { standard: 0.95, boost: 0.05, moving: 0.0, fragile: 0.0, decoy: 0.0 };
         forkProbability = 0.15;
       } else if (altitude < 3500) {
-        // ZONE 3: MESOSPHÄRE (1500m - 3500m) -> Erste horizontale Pendelknoten (20%)
+        // ZONE 3: MESOSPHÄRE (1500m - 3500m) -> Erste horizontale Pendelknoten (20%) + seltenerer Boost (4%)
         minGap = 165;
         maxGap = 215;
-        typeProbabilities = { standard: 0.72, moving: 0.20, boost: 0.08, fragile: 0.0, decoy: 0.0 };
+        typeProbabilities = { standard: 0.76, moving: 0.20, boost: 0.04, fragile: 0.0, decoy: 0.0 };
         forkProbability = 0.14;
       } else if (altitude < 6500) {
-        // ZONE 4: THERMOSPHÄRE (3500m - 6500m) -> Zeituhr-Knoten mit Countdown (14%) + mehr Bewegliche (24%)
+        // ZONE 4: THERMOSPHÄRE (3500m - 6500m) -> Zeituhr-Knoten (14%) + Bewegliche (24%) + seltener Boost (3%)
         minGap = 180;
         maxGap = 235;
-        typeProbabilities = { standard: 0.54, moving: 0.24, fragile: 0.14, boost: 0.08, decoy: 0.0 };
+        typeProbabilities = { standard: 0.59, moving: 0.24, fragile: 0.14, boost: 0.03, decoy: 0.0 };
         forkProbability = 0.12;
       } else if (altitude < 10000) {
-        // ZONE 5: EXOSPHÄRE (6500m - 10000m) -> Zeituhr-Knoten (26%) + Bewegliche (26%) + Standard (34%)
+        // ZONE 5: EXOSPHÄRE (6500m - 10000m) -> Zeituhr-Knoten (26%) + Bewegliche (26%) + rarer Boost (2%)
         minGap = 190;
         maxGap = 245;
-        typeProbabilities = { standard: 0.34, moving: 0.26, fragile: 0.26, decoy: 0.06, boost: 0.08 };
+        typeProbabilities = { standard: 0.40, moving: 0.26, fragile: 0.26, decoy: 0.06, boost: 0.02 };
         forkProbability = 0.10;
       } else if (altitude < 15000) {
-        // ZONE 6: TIEFRAUM-GEFAHRENZONE (10000m - 15000m) -> Mehr Zeituhr-Knoten (34%) + Bewegliche (28%) + reduzierte Minen
+        // ZONE 6: TIEFRAUM-GEFAHRENZONE (10000m - 15000m) -> Stark reduzierter Boost (1.0%), hoher Skill-Anspruch
         minGap = 195;
         maxGap = 250;
-        typeProbabilities = { standard: 0.24, moving: 0.28, fragile: 0.34, decoy: 0.06, boost: 0.08 };
+        typeProbabilities = { standard: 0.31, moving: 0.28, fragile: 0.34, decoy: 0.06, boost: 0.01 };
         forkProbability = 0.10;
       } else {
-        // ZONE 7: MEISTER-KOSMOS (15000m+) -> Dominante Zeituhr-Knoten (42%) + Hohe Dynamik (28% Beweglich)
+        // ZONE 7: MEISTER-KOSMOS (15000m+) -> Ultra-seltener Boost (0.8%), dominante Zeituhr-Knoten (42%)
         minGap = 200;
         maxGap = 260;
-        typeProbabilities = { standard: 0.16, moving: 0.28, fragile: 0.42, decoy: 0.06, boost: 0.08 };
+        typeProbabilities = { standard: 0.232, moving: 0.28, fragile: 0.42, decoy: 0.06, boost: 0.008 };
         forkProbability = 0.10;
       }
 
@@ -161,7 +163,15 @@ class WorldManager {
 
         // Guaranteed safety: at most one fork branch can be tricky/fragile
         const leftType = 'STANDARD';
-        const rightType = Math.random() < 0.10 ? 'BOOST' : (Math.random() < 0.2 ? 'MOVING' : 'STANDARD');
+        const forkBoostChance = altitude >= 10000 ? 0.015 : 0.04;
+        let rightType = 'STANDARD';
+        if (Math.random() < forkBoostChance && this.nodesSinceLastBoost >= 8) {
+          rightType = 'BOOST';
+          this.nodesSinceLastBoost = 0;
+        } else {
+          rightType = Math.random() < 0.2 ? 'MOVING' : 'STANDARD';
+          this.nodesSinceLastBoost++;
+        }
 
         const nodeLeft = new OrbitNode(leftX, nextY, leftType, width, altitude);
         const nodeRight = new OrbitNode(rightX, nextY + (Math.random() * 20 - 10), rightType, width, altitude);
@@ -210,8 +220,16 @@ class WorldManager {
           type = 'STANDARD';
         }
 
-        if (this.lastNodeType === 'BOOST') {
-          type = Math.random() < 0.8 ? 'STANDARD' : 'MOVING';
+        // Enforce 8-node cooldown on BOOST nodes (prevents turbo spam, esp. >= 10,000m)
+        if (type === 'BOOST') {
+          if (this.nodesSinceLastBoost < 8) {
+            type = Math.random() < 0.3 ? 'MOVING' : 'STANDARD';
+            this.nodesSinceLastBoost++;
+          } else {
+            this.nodesSinceLastBoost = 0;
+          }
+        } else {
+          this.nodesSinceLastBoost++;
         }
 
         const newNode = new OrbitNode(nodeX, nextY, type, width, altitude);

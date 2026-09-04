@@ -80,8 +80,10 @@ class UIManager {
       shopActionBtn: document.getElementById('shop-action-btn'),
       hangarCanvas: document.getElementById('hangar-preview-canvas'),
 
-      // Global Leaderboard & Player Rank
+      // Global & Local Leaderboard
       globalLeaderboardList: document.getElementById('global-leaderboard-list'),
+      btnLbTabGlobal: document.getElementById('btn-lb-tab-global'),
+      btnLbTabLocal: document.getElementById('btn-lb-tab-local'),
       playerRankBadge: document.getElementById('player-rank-badge'),
       playerRankPercentile: document.getElementById('player-rank-percentile'),
       playerRankDelta: document.getElementById('player-rank-delta'),
@@ -125,6 +127,7 @@ class UIManager {
       btnProfileRandom: document.getElementById('btn-profile-random')
     };
 
+    this.activeLeaderboardTab = 'global';
     this.initSettingsUI();
     this.updateUserProfileNav();
     window._uiManager = this;
@@ -974,87 +977,147 @@ class UIManager {
     }
   }
 
+  switchLeaderboardTab(tab) {
+    this.activeLeaderboardTab = tab;
+    if (this.dom.btnLbTabGlobal) {
+      this.dom.btnLbTabGlobal.classList.toggle('active', tab === 'global');
+    }
+    if (this.dom.btnLbTabLocal) {
+      this.dom.btnLbTabLocal.classList.toggle('active', tab === 'local');
+    }
+    this.renderLeaderboard();
+  }
+
   renderGlobalLeaderboard() {
+    this.renderLeaderboard();
+  }
+
+  renderLeaderboard() {
     if (!this.dom.globalLeaderboardList) return;
     this.dom.globalLeaderboardList.innerHTML = '';
 
-    const baseList = (CONSTANTS.GLOBAL_LEADERBOARD_TOP || []).map(entry => ({ ...entry, isPlayer: false }));
     const profile = this.storage.getPlayerProfile();
     const playerName = profile.pilotName || 'Player';
     const playerShip = (this.storage.data.selectedShip || 'PFEIL').toUpperCase();
     const bestAltitude = this.storage.data.highScore || 0;
-    const bestScore = (this.storage.data.leaderboard && this.storage.data.leaderboard.length > 0)
-      ? this.storage.data.leaderboard[0].score
-      : Math.floor(bestAltitude * 10);
 
-    const combined = [...baseList];
-    if (bestAltitude > 0) {
-      combined.push({
-        name: `${playerName} (DU)`,
-        ship: playerShip,
-        altitude: bestAltitude,
-        score: bestScore,
-        date: 'Heute',
-        isPlayer: true
-      });
-    }
+    if (this.activeLeaderboardTab === 'global') {
+      const baseList = (CONSTANTS.GLOBAL_LEADERBOARD_TOP || []).map(entry => ({ ...entry, isPlayer: false }));
+      const bestScore = (this.storage.data.leaderboard && this.storage.data.leaderboard.length > 0)
+        ? this.storage.data.leaderboard[0].score
+        : Math.floor(bestAltitude * 10);
 
-    // Sort descending by altitude
-    combined.sort((a, b) => b.altitude - a.altitude);
-
-    // Re-assign ranks
-    combined.forEach((entry, idx) => {
-      entry.rank = idx + 1;
-    });
-
-    const displayList = combined.slice(0, 10);
-
-    displayList.forEach(entry => {
-      const row = document.createElement('div');
-      const rankClass = entry.rank <= 3 ? `top-rank-${entry.rank}` : '';
-      const playerClass = entry.isPlayer ? 'player-entry' : '';
-      row.className = `leaderboard-row ${rankClass} ${playerClass}`.trim();
-      row.innerHTML = `
-        <div class="lb-rank">#${entry.rank}</div>
-        <div class="lb-name">${entry.name}</div>
-        <div class="lb-ship">${entry.ship}</div>
-        <div class="lb-alt">${entry.altitude.toLocaleString('de-DE')}m</div>
-        <div class="lb-score">${entry.score.toLocaleString('de-DE')} Pkt</div>
-        <div class="lb-date">${entry.date}</div>
-      `;
-      this.dom.globalLeaderboardList.appendChild(row);
-    });
-
-    // Calculate player rank & percentile
-    const playerEntry = combined.find(e => e.isPlayer);
-    let rankDisplay = '#---';
-    let percentileDisplay = 'NOCH KEIN FLUG ABSOLVIERT';
-    let deltaText = 'Erreiche 50m für deinen ersten weltweiten Rang.';
-
-    if (bestAltitude > 0 && playerEntry) {
-      rankDisplay = `#${playerEntry.rank}`;
-      const percentile = Math.max(1, Math.min(99, Math.round((playerEntry.rank / 10000) * 100)));
-      percentileDisplay = `RANG #${playerEntry.rank} VON 10.000 PILOTEN (TOP ${percentile}%)`;
-
-      if (playerEntry.rank === 1) {
-        deltaText = 'Unangefochtene weltweite Spitze!';
-      } else if (playerEntry.rank <= 3) {
-        deltaText = 'Podiumsplatz erreicht! Großartige Leistung!';
-      } else {
-        const nextAbove = combined[playerEntry.rank - 2];
-        const gap = nextAbove ? Math.max(1, nextAbove.altitude - bestAltitude + 1) : 10;
-        deltaText = `Noch ${gap}m bis Rang #${playerEntry.rank - 1}`;
+      const combined = [...baseList];
+      if (bestAltitude > 0) {
+        combined.push({
+          name: `${playerName} (DU)`,
+          ship: playerShip,
+          altitude: bestAltitude,
+          score: bestScore,
+          date: 'Heute',
+          isPlayer: true
+        });
       }
-    }
 
-    if (this.dom.playerRankBadge) {
-      this.dom.playerRankBadge.textContent = rankDisplay;
-    }
-    if (this.dom.playerRankPercentile) {
-      this.dom.playerRankPercentile.textContent = percentileDisplay;
-    }
-    if (this.dom.playerRankDelta) {
-      this.dom.playerRankDelta.textContent = deltaText;
+      // Sort descending by altitude
+      combined.sort((a, b) => b.altitude - a.altitude);
+
+      // Re-assign ranks
+      combined.forEach((entry, idx) => {
+        entry.rank = idx + 1;
+      });
+
+      // Show top 100 players
+      const displayList = combined.slice(0, 100);
+
+      displayList.forEach(entry => {
+        const row = document.createElement('div');
+        const rankClass = entry.rank <= 3 ? `top-rank-${entry.rank}` : '';
+        const playerClass = entry.isPlayer ? 'player-entry' : '';
+        row.className = `leaderboard-row ${rankClass} ${playerClass}`.trim();
+        row.innerHTML = `
+          <div class="lb-rank">#${entry.rank}</div>
+          <div class="lb-name">${entry.name}</div>
+          <div class="lb-ship">${entry.ship}</div>
+          <div class="lb-alt">${entry.altitude.toLocaleString('de-DE')}m</div>
+          <div class="lb-score">${entry.score.toLocaleString('de-DE')} Pkt</div>
+          <div class="lb-date">${entry.date}</div>
+        `;
+        this.dom.globalLeaderboardList.appendChild(row);
+      });
+
+      // Calculate player rank & percentile
+      const playerEntry = combined.find(e => e.isPlayer);
+      let rankDisplay = '#---';
+      let percentileDisplay = 'NOCH KEIN FLUG ABSOLVIERT';
+      let deltaText = 'Erreiche 50m für deinen ersten weltweiten Rang.';
+
+      if (bestAltitude > 0 && playerEntry) {
+        rankDisplay = `#${playerEntry.rank}`;
+        const percentile = Math.max(1, Math.min(99, Math.round((playerEntry.rank / 10000) * 100)));
+        percentileDisplay = `RANG #${playerEntry.rank} VON 10.000 PILOTEN (TOP ${percentile}%)`;
+
+        if (playerEntry.rank === 1) {
+          deltaText = 'Unangefochtene weltweite Spitze!';
+        } else if (playerEntry.rank <= 3) {
+          deltaText = 'Podiumsplatz erreicht! Großartige Leistung!';
+        } else {
+          const nextAbove = combined[playerEntry.rank - 2];
+          const gap = nextAbove ? Math.max(1, nextAbove.altitude - bestAltitude + 1) : 10;
+          deltaText = `Noch ${gap}m bis Rang #${playerEntry.rank - 1}`;
+        }
+      }
+
+      if (this.dom.playerRankBadge) {
+        this.dom.playerRankBadge.textContent = rankDisplay;
+      }
+      if (this.dom.playerRankPercentile) {
+        this.dom.playerRankPercentile.textContent = percentileDisplay;
+      }
+      if (this.dom.playerRankDelta) {
+        this.dom.playerRankDelta.textContent = deltaText;
+      }
+    } else {
+      // Local Leaderboard: Personal Flights Chronicle
+      const localRuns = this.storage.data.leaderboard || [];
+
+      if (localRuns.length === 0) {
+        const emptyBox = document.createElement('div');
+        emptyBox.className = 'lb-empty-state';
+        emptyBox.innerHTML = `
+          <div class="lb-empty-title">KEINE FLÜGE GESPEICHERT</div>
+          <div class="lb-empty-desc">Absolviere deinen ersten Flug, um deine persönliche Chronik zu starten.</div>
+        `;
+        this.dom.globalLeaderboardList.appendChild(emptyBox);
+      } else {
+        localRuns.forEach((run, idx) => {
+          const row = document.createElement('div');
+          const rankClass = (idx + 1) <= 3 ? `top-rank-${idx + 1}` : '';
+          row.className = `leaderboard-row ${rankClass} player-entry`.trim();
+          row.innerHTML = `
+            <div class="lb-rank">#${idx + 1}</div>
+            <div class="lb-name">${run.name || playerName}</div>
+            <div class="lb-ship">${(run.ship || playerShip).toUpperCase()}</div>
+            <div class="lb-alt">${(run.altitude || 0).toLocaleString('de-DE')}m</div>
+            <div class="lb-score">${(run.score || 0).toLocaleString('de-DE')} Pkt</div>
+            <div class="lb-date">${run.date || 'Heute'}</div>
+          `;
+          this.dom.globalLeaderboardList.appendChild(row);
+        });
+      }
+
+      // Sticky player rank banner for local mode
+      if (this.dom.playerRankBadge) {
+        this.dom.playerRankBadge.textContent = `${localRuns.length}`;
+      }
+      if (this.dom.playerRankPercentile) {
+        this.dom.playerRankPercentile.textContent = `PERSÖNLICHE BESTLEISTUNG: ${bestAltitude.toLocaleString('de-DE')}m`;
+      }
+      if (this.dom.playerRankDelta) {
+        this.dom.playerRankDelta.textContent = localRuns.length > 0
+          ? `${localRuns.length} dokumentierte Rekord-Flüge in Chronik`
+          : 'Schließe eine Runde ab, um Rekorde zu speichern';
+      }
     }
   }
 

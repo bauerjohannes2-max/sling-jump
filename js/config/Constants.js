@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '3.37.0',
+  VERSION: '3.38.0',
   STORAGE_KEY: 'sling_jump_save_v2',
 
   // Physics & Mechanics
@@ -229,16 +229,58 @@ const CONSTANTS = {
     }
   ],
 
-  // Globales Arcade Leaderboard: Top-Piloten weltweit
+  // Globales Arcade Leaderboard: Top-Piloten weltweit (50 Contenders)
   GLOBAL_LEADERBOARD_TOP: [
-    { rank: 1, name: 'VortexStriker', ship: 'TITAN', altitude: 2840, score: 28400, date: '04.09.2026' },
-    { rank: 2, name: 'CyberPhantom', ship: 'SPECTRE', altitude: 2420, score: 24200, date: '04.09.2026' },
-    { rank: 3, name: 'NovaPulse', ship: 'PHÖNIX', altitude: 1980, score: 19800, date: '03.09.2026' },
-    { rank: 4, name: 'QuantumRider', ship: 'PFEIL', altitude: 1650, score: 16500, date: '03.09.2026' },
-    { rank: 5, name: 'ApexHunter', ship: 'SPECTRE', altitude: 1390, score: 13900, date: '02.09.2026' },
-    { rank: 6, name: 'SolarBlade', ship: 'PHÖNIX', altitude: 1140, score: 11400, date: '02.09.2026' },
-    { rank: 7, name: 'ZeroEcho', ship: 'PFEIL', altitude: 890, score: 8900, date: '01.09.2026' },
-    { rank: 8, name: 'CosmicViper', ship: 'PFEIL', altitude: 620, score: 6200, date: '01.09.2026' }
+    { rank: 1, name: 'VortexStriker', ship: 'TITAN', altitude: 4850, score: 48500, date: '04.09.2026' },
+    { rank: 2, name: 'CyberPhantom', ship: 'SPECTRE', altitude: 4520, score: 45200, date: '04.09.2026' },
+    { rank: 3, name: 'NovaPulse', ship: 'PHÖNIX', altitude: 4180, score: 41800, date: '04.09.2026' },
+    { rank: 4, name: 'QuantumRider', ship: 'PFEIL', altitude: 3940, score: 39400, date: '03.09.2026' },
+    { rank: 5, name: 'ApexHunter', ship: 'SPECTRE', altitude: 3720, score: 37200, date: '03.09.2026' },
+    { rank: 6, name: 'SolarBlade', ship: 'PHÖNIX', altitude: 3510, score: 35100, date: '03.09.2026' },
+    { rank: 7, name: 'ZeroEcho', ship: 'PFEIL', altitude: 3340, score: 33400, date: '03.09.2026' },
+    { rank: 8, name: 'CosmicViper', ship: 'PFEIL', altitude: 3180, score: 31800, date: '02.09.2026' },
+    { rank: 9, name: 'HyperDrifter', ship: 'TITAN', altitude: 3020, score: 30200, date: '02.09.2026' },
+    { rank: 10, name: 'ShadowWolf', ship: 'SPECTRE', altitude: 2890, score: 28900, date: '02.09.2026' },
+    { rank: 11, name: 'TurboHawk', ship: 'PHÖNIX', altitude: 2760, score: 27600, date: '02.09.2026' },
+    { rank: 12, name: 'NeonFalcon', ship: 'PFEIL', altitude: 2630, score: 26300, date: '02.09.2026' },
+    { rank: 13, name: 'PixelStriker', ship: 'TITAN', altitude: 2510, score: 25100, date: '02.09.2026' },
+    { rank: 14, name: 'AstraRunner', ship: 'SPECTRE', altitude: 2400, score: 24000, date: '01.09.2026' },
+    { rank: 15, name: 'ZenithPilot', ship: 'PHÖNIX', altitude: 2290, score: 22900, date: '01.09.2026' },
+    { rank: 16, name: 'ChronoFox', ship: 'PFEIL', altitude: 2180, score: 21800, date: '01.09.2026' },
+    { rank: 17, name: 'StellarGhost', ship: 'TITAN', altitude: 2070, score: 20700, date: '01.09.2026' },
+    { rank: 18, name: 'VelocityAce', ship: 'SPECTRE', altitude: 1970, score: 19700, date: '01.09.2026' },
+    { rank: 19, name: 'PulseMaster', ship: 'PHÖNIX', altitude: 1880, score: 18800, date: '01.09.2026' },
+    { rank: 20, name: 'GravityKing', ship: 'PFEIL', altitude: 1790, score: 17900, date: '01.09.2026' },
+    { rank: 21, name: 'OrbitNinja', ship: 'TITAN', altitude: 1710, score: 17100, date: '31.08.2026' },
+    { rank: 22, name: 'EclipseRaven', ship: 'SPECTRE', altitude: 1630, score: 16300, date: '31.08.2026' },
+    { rank: 23, name: 'BlitzKestrel', ship: 'PHÖNIX', altitude: 1550, score: 15500, date: '31.08.2026' },
+    { rank: 24, name: 'DarkMatter', ship: 'PFEIL', altitude: 1480, score: 14800, date: '31.08.2026' },
+    { rank: 25, name: 'AstralWanderer', ship: 'TITAN', altitude: 1410, score: 14100, date: '31.08.2026' },
+    { rank: 26, name: 'FalconStrike', ship: 'SPECTRE', altitude: 1340, score: 13400, date: '30.08.2026' },
+    { rank: 27, name: 'NebulaRacer', ship: 'PHÖNIX', altitude: 1280, score: 12800, date: '30.08.2026' },
+    { rank: 28, name: 'SonicBoomer', ship: 'PFEIL', altitude: 1220, score: 12200, date: '30.08.2026' },
+    { rank: 29, name: 'VoidWalker', ship: 'TITAN', altitude: 1160, score: 11600, date: '30.08.2026' },
+    { rank: 30, name: 'TitanForge', ship: 'SPECTRE', altitude: 1110, score: 11100, date: '30.08.2026' },
+    { rank: 31, name: 'IronClad', ship: 'PHÖNIX', altitude: 1060, score: 10600, date: '29.08.2026' },
+    { rank: 32, name: 'StarlightGlider', ship: 'PFEIL', altitude: 1010, score: 10100, date: '29.08.2026' },
+    { rank: 33, name: 'SilverLynx', ship: 'TITAN', altitude: 960, score: 9600, date: '29.08.2026' },
+    { rank: 34, name: 'WarpSpeeder', ship: 'SPECTRE', altitude: 920, score: 9200, date: '29.08.2026' },
+    { rank: 35, name: 'PyroClast', ship: 'PHÖNIX', altitude: 880, score: 8800, date: '29.08.2026' },
+    { rank: 36, name: 'AeroDynamics', ship: 'PFEIL', altitude: 840, score: 8400, date: '28.08.2026' },
+    { rank: 37, name: 'EchoRaptor', ship: 'TITAN', altitude: 800, score: 8000, date: '28.08.2026' },
+    { rank: 38, name: 'FluxCapacitor', ship: 'SPECTRE', altitude: 760, score: 7600, date: '28.08.2026' },
+    { rank: 39, name: 'CyberSpark', ship: 'PHÖNIX', altitude: 720, score: 7200, date: '28.08.2026' },
+    { rank: 40, name: 'HorizonChaser', ship: 'PFEIL', altitude: 680, score: 6800, date: '28.08.2026' },
+    { rank: 41, name: 'QuantumPulse', ship: 'TITAN', altitude: 640, score: 6400, date: '27.08.2026' },
+    { rank: 42, name: 'SpectralShift', ship: 'SPECTRE', altitude: 600, score: 6000, date: '27.08.2026' },
+    { rank: 43, name: 'DriftMatrix', ship: 'PHÖNIX', altitude: 560, score: 5600, date: '27.08.2026' },
+    { rank: 44, name: 'TurboStrider', ship: 'PFEIL', altitude: 520, score: 5200, date: '27.08.2026' },
+    { rank: 45, name: 'NovaJumper', ship: 'TITAN', altitude: 480, score: 4800, date: '26.08.2026' },
+    { rank: 46, name: 'AstroScout', ship: 'SPECTRE', altitude: 440, score: 4400, date: '26.08.2026' },
+    { rank: 47, name: 'VectorGlide', ship: 'PHÖNIX', altitude: 400, score: 4000, date: '26.08.2026' },
+    { rank: 48, name: 'KineticRay', ship: 'PFEIL', altitude: 360, score: 3600, date: '25.08.2026' },
+    { rank: 49, name: 'ZeroGravity', ship: 'TITAN', altitude: 310, score: 3100, date: '25.08.2026' },
+    { rank: 50, name: 'CometTail', ship: 'PFEIL', altitude: 260, score: 2600, date: '24.08.2026' }
   ],
 
   // Allgemeine Aufgaben-Pool (Fallback)

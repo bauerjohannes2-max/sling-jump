@@ -1515,6 +1515,58 @@ canvas#gameCanvas {
   margin-bottom: 6px;
 }
 
+.leaderboard-tab-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lb-tab-btn {
+  flex: 1;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.lb-tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+.lb-tab-btn.active {
+  background: rgba(0, 240, 255, 0.14);
+  color: #00f0ff;
+  border-color: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.12);
+}
+.lb-empty-state {
+  text-align: center;
+  padding: 36px 16px;
+  color: #94a3b8;
+}
+.lb-empty-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #e2e8f0;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.lb-empty-desc {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
 .leaderboard-list {
   display: flex;
   flex-direction: column;
