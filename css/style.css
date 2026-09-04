@@ -852,65 +852,20 @@ canvas#gameCanvas {
 }
 
 /* =========================================================================
-   GAME OVER MODAL - COMMERCIAL ARCADE REDESIGN (Cyberpunk Sci-Fi UI)
+   GAME OVER MODAL - MINIMALIST COMMERCIAL ARCADE REDESIGN
    ========================================================================= */
-.gameover-cyber-frame {
+.gameover-card {
   position: relative;
-  max-width: 390px;
-  width: 92%;
-  background: linear-gradient(180deg, rgba(13, 20, 36, 0.96) 0%, rgba(7, 11, 22, 0.98) 100%) !important;
-  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
-  border-radius: 18px !important;
-  padding: 24px 22px 20px 22px !important;
-  box-shadow: 0 0 35px rgba(14, 165, 233, 0.18), 0 24px 48px rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
+  max-width: 370px;
+  width: 90%;
+  background: rgba(13, 17, 28, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 20px !important;
+  padding: 28px 24px 22px 24px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
   text-align: center;
-  overflow: hidden;
-}
-
-/* Sci-Fi Decorative Corner Brackets */
-.cyber-bracket {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-color: #38bdf8;
-  border-style: solid;
-  pointer-events: none;
-  opacity: 0.8;
-}
-.cyber-bracket.top-left {
-  top: 6px;
-  left: 6px;
-  border-width: 2px 0 0 2px;
-  border-top-left-radius: 4px;
-}
-.cyber-bracket.top-right {
-  top: 6px;
-  right: 6px;
-  border-width: 2px 2px 0 0;
-  border-top-right-radius: 4px;
-}
-.cyber-bracket.bottom-left {
-  bottom: 6px;
-  left: 6px;
-  border-width: 0 0 2px 2px;
-  border-bottom-left-radius: 4px;
-}
-.cyber-bracket.bottom-right {
-  bottom: 6px;
-  right: 6px;
-  border-width: 0 2px 2px 0;
-  border-bottom-right-radius: 4px;
-}
-
-.gameover-header-tag {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 3px;
-  color: #94a3b8;
-  text-transform: uppercase;
-  margin-bottom: 6px;
 }
 
 .new-record-indicator {
@@ -918,119 +873,103 @@ canvas#gameCanvas {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: rgba(251, 191, 36, 0.16);
-  border: 1px solid rgba(251, 191, 36, 0.55);
+  background: rgba(251, 191, 36, 0.10);
+  border: 1px solid rgba(251, 191, 36, 0.35);
   padding: 4px 14px;
   border-radius: 20px;
   font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 2px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
   color: #fbbf24;
   text-transform: uppercase;
-  margin-bottom: 8px;
-  box-shadow: 0 0 16px rgba(251, 191, 36, 0.35);
-  animation: pulseGlow 1.8s infinite alternate;
+  margin-bottom: 12px;
 }
 
-@keyframes pulseGlow {
-  0% { transform: scale(0.98); box-shadow: 0 0 10px rgba(251, 191, 36, 0.25); }
-  100% { transform: scale(1.02); box-shadow: 0 0 22px rgba(251, 191, 36, 0.55); }
-}
-
-/* Hero Score Redesign */
+/* Hero Score Redesign - Clean, Crisp Typography */
 .gameover-hero-score {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
-  margin: 4px 0 10px 0;
-}
-
-.hero-altitude-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #64748b;
-  text-transform: uppercase;
-  margin-bottom: 2px;
+  margin: 6px 0 14px 0;
 }
 
 .hero-altitude {
-  font-size: 60px;
-  font-weight: 900;
-  color: #38bdf8;
-  letter-spacing: 1px;
-  line-height: 1;
-  text-shadow: 0 0 26px rgba(56, 189, 248, 0.5), 0 0 6px rgba(255, 255, 255, 0.85);
-  font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Best Altitude Capsule */
-.gameover-best-capsule {
-  display: flex;
+  display: inline-flex;
+  align-items: baseline;
   justify-content: center;
-  margin-bottom: 14px;
-  width: 100%;
+  font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1;
 }
 
-.best-capsule-content {
+.hero-altitude-val {
+  font-size: 68px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+}
+
+.hero-altitude-unit {
+  font-size: 22px;
+  font-weight: 700;
+  color: #64748b;
+  margin-left: 6px;
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
+}
+
+/* Highscore Row - Minimalist, No Background */
+.gameover-highscore-row {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  background: rgba(251, 191, 36, 0.10);
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  border-radius: 24px;
-  padding: 5px 16px;
+  margin-bottom: 18px;
+  width: 100%;
 }
 
-.best-capsule-label {
+.highscore-trophy-icon {
+  width: 13px;
+  height: 13px;
+  stroke: #94a3b8;
+}
+
+.highscore-label {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 1.5px;
-  color: #d97706;
+  color: #64748b;
   text-transform: uppercase;
 }
 
-.best-capsule-val {
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-  color: #fbbf24;
+.highscore-val {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #cbd5e1;
 }
 
-/* Rewards Row */
+/* Rewards Row - Clean Inline Stats, No Background Pills */
 .gameover-rewards-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 24px;
+  margin-bottom: 22px;
 }
 
-.reward-pill {
+.reward-stat {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  border-radius: 24px;
-  padding: 6px 16px;
-  font-size: 13px;
-  font-weight: 800;
   font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.reward-pill.gold-pill {
-  background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.40);
-  color: #fbbf24;
-  box-shadow: 0 0 14px rgba(251, 191, 36, 0.18);
-}
-
-.reward-pill.crystal-pill {
-  background: rgba(217, 70, 239, 0.12);
-  border: 1px solid rgba(217, 70, 239, 0.45);
-  color: #d946ef;
-  box-shadow: 0 0 14px rgba(217, 70, 239, 0.20);
+.reward-val {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #e2e8f0;
 }
 
 /* Compact Revive CTA */
@@ -1045,78 +984,78 @@ canvas#gameCanvas {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 18px;
-  background: linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #9333ea 100%);
-  border: 1px solid rgba(244, 63, 94, 0.6);
+  padding: 11px 16px;
+  background: rgba(168, 85, 247, 0.14);
+  border: 1px solid rgba(168, 85, 247, 0.40);
   border-radius: 12px;
-  color: #ffffff;
+  color: #f3e8ff;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 0 24px rgba(217, 70, 239, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none;
+  transition: all 0.2s ease;
 }
 
 .btn-revive:hover:not(:disabled) {
+  background: rgba(168, 85, 247, 0.22);
+  border-color: rgba(168, 85, 247, 0.65);
   transform: translateY(-1px);
-  box-shadow: 0 0 32px rgba(217, 70, 239, 0.70);
 }
 
 .btn-revive:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
-  background: rgba(51, 65, 85, 0.6);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: none;
+  background: rgba(51, 65, 85, 0.3);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .revive-cost-tag {
-  background: rgba(0, 0, 0, 0.35);
-  padding: 2px 8px;
+  background: rgba(168, 85, 247, 0.22);
+  padding: 2px 7px;
   border-radius: 6px;
   font-size: 10px;
   font-weight: 800;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(168, 85, 247, 0.35);
   color: #fdf4ff;
   letter-spacing: 1px;
 }
 
 .revive-subtext {
   font-size: 10px;
-  font-weight: 700;
-  color: #94a3b8;
+  font-weight: 600;
+  color: #64748b;
   margin-top: 6px;
   text-align: center;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
 }
 
-/* Emerald Replay Button (High-Impact Arcade CTA) */
+/* Emerald Replay Button (Clean, Modern Arcade CTA) */
 .btn-replay-emerald {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 9px;
   padding: 13px 20px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #10b981;
   border: 1px solid #34d399;
   border-radius: 12px;
   color: #ffffff;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.30);
+  transition: all 0.18s ease;
 }
 
 .btn-replay-emerald:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 35px rgba(16, 185, 129, 0.70);
-  filter: brightness(1.08);
+  background: #059669;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.40);
+  transform: translateY(-1px);
 }
 
 .btn-replay-emerald:active {

@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.35.0  
+Dokumentationsstand: Version 3.36.0  
 Aktualisiert am: 04. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -178,6 +178,13 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * **Fokussiertes Login- & Profil-Modal (`#profile-modal`):**
   * Rein auf Spieleridentität und Login fokussiert: Avatar, Namenseingabefeld, `SPEICHERN` und `SCHLIESSEN`.
   * Sämtliche redundanten Highscore- und Flugzähler wurden entfernt (diese verbleiben in der Bestenliste und den Statistiken).
+* **Minimalistisches Game-Over-Modal (`#gameover-modal`):**
+  * **Matte, unaufdringliche Obsidian-Ästhetik:** Störende neonblaue Leuchteffekte, Sci-Fi-Eckwinkel und dicke Kapsel-Hintergründe wurden vollständig entfernt.
+  * **Bereinigte Typografie:** Redundante Labels wie "FLUG-BERICHT" und "ERREICHTE HÖHE" getilgt.
+  * **Kristallklare Höhen-Ziffer:** Das erreichte Ergebnis wird mit 68px in gestochen scharfem Reinweiß (`#ffffff`) ohne weichgezeichneten Scheinwerfer-Glow dargestellt, ergänzt um die dezente Einheit `m` in gedämpftem Slate.
+  * **Highscore statt Bestleistung:** Neutrale, ungerahmte Darstellung als `HIGHSCORE: X m` in edlen Grautönen.
+  * **Transparente Belohnungen:** Münzen und Hyper-Kristalle stehen nahtlos und ungerahmt mit ihren Vektor-Icons im Raum.
+  * **Kompakter Wiederbeleben-Subtext:** Zeigt einzig die essenzielle Information `1x pro Flug` ohne Floskeln.
 * **Aufgaben-Modal mit Touch- & Maus-Scrolling (`#quests-modal`):**
   * Container `.quests-scroll-area` mit voller Touch-Unterstützung (`touch-action: pan-y`, `-webkit-overflow-scrolling: touch`) und zirkulären Cyan-Scrollbars.
   * Ermöglicht unterbrechungsfreies Scrollen bis zu den wöchentlichen Herausforderungen.

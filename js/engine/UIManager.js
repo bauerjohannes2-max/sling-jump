@@ -661,7 +661,9 @@ class UIManager {
     const isNewRecord = data.isNewRecord || false;
     const canRevive = data.canRevive !== false;
 
-    if (this.dom.finalAltitude) this.dom.finalAltitude.textContent = `${Number(altitude).toLocaleString('de-DE')} m`;
+    if (this.dom.finalAltitude) {
+      this.dom.finalAltitude.innerHTML = `<span class="hero-altitude-val">${Number(altitude).toLocaleString('de-DE')}</span><span class="hero-altitude-unit">m</span>`;
+    }
     if (this.dom.finalOrbs) this.dom.finalOrbs.textContent = `+${Number(cores).toLocaleString('de-DE')}`;
     if (this.dom.finalCrystals) this.dom.finalCrystals.textContent = `+${Number(crystals).toLocaleString('de-DE')}`;
     if (this.dom.finalBest) this.dom.finalBest.textContent = `${Number(this.storage.data.highScore).toLocaleString('de-DE')} m`;
@@ -684,7 +686,7 @@ class UIManager {
             this.dom.reviveBtnText.textContent = 'WIEDERBELEBEN';
           }
           if (this.dom.reviveStatusText) {
-            this.dom.reviveStatusText.textContent = '1x pro Flug • Inkl. 4s Quantenschild & Teleport';
+            this.dom.reviveStatusText.textContent = '1x pro Flug';
           }
         } else {
           if (this.dom.btnGameOverRevive) {
@@ -706,7 +708,7 @@ class UIManager {
           this.dom.reviveBtnText.textContent = 'BEREITS GENUTZT';
         }
         if (this.dom.reviveStatusText) {
-          this.dom.reviveStatusText.textContent = '1x pro Flug möglich.';
+          this.dom.reviveStatusText.textContent = 'Bereits genutzt';
         }
       }
     }

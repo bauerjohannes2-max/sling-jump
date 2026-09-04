@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC36 - v3.35.0 - Profile 1x Lock, Dynamic Leaderboard, Minimalist Combo Feedback & Accessible Tutorial)  
+> **Status:** Release Candidate (RC37 - v3.36.0 - Minimalist Game Over Redesign & Highscore Refactoring)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,25 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.36.0 (04.09.2026) - Minimalist Game Over Redesign & Highscore Refactoring
+* **1. Minimalistisches, unaufdringliches Game-Over-Design (`#gameover-modal`, `style.css`):**
+  * **Übermäßige Sci-Fi-Elemente entfernt:** Die blendenden Neonschatten (`box-shadow: 0 0 35px...`), die 4 Eck-Brackets (`.cyber-bracket`) und der knallige Cyan-Rahmen wurden restlos eliminiert.
+  * **Dezente, matte Obsidian-Karte:** Neue Gestaltung mit dunkler Glasoptik (`rgba(13, 17, 28, 0.96)`), unaufdringlichem 1px-Border (`rgba(255, 255, 255, 0.10)`) und natürlicher Tiefenschattierung.
+  * **Harmonisierte Farbpalette:** Strikte Reduzierung von bunten Farbkollisionen zugunsten ruhiger Slate-, Silber- und Weißtöne.
+* **2. Beseitigung redundanter Labels & Banner:**
+  * Entfernung des oberen Header-Tags `FLUG-BERICHT` (`.gameover-header-tag`).
+  * Entfernung des Untertitels `ERREICHTE HÖHE` (`.hero-altitude-label`).
+* **3. Hochwertige, gestochen scharfe Höhen-Visualisierung (`hero-altitude`):**
+  * Verwaschener Cyan-Glow-Effekt (`text-shadow: 0 0 26px...`) wurde durch eine markante, gestochen scharfe weiße Ziffernanzeige (`hero-altitude-val`, 68px, reinweiß `#ffffff`) ersetzt.
+  * Dezente, separate Meter-Einheit (`hero-altitude-unit`, 22px, `#64748b`) für professionelle Typografie nach Vorbild moderner Arcade-Titel.
+* **4. "Bestleistung" zu "Highscore" umbenannt & Box-Hintergründe entfernt:**
+  * **Highscore-Zeile ohne Kapsel-Hintergrund:** Gelbe Pillen-Box (`.best-capsule-content`) entfernt. Saubere, nahtlose Darstellung als `🏆 HIGHSCORE: 482 m` in edlen Silber- und Schiefer-Nuancen.
+  * **Münzen & seltene Kristalle ohne Boxen:** Die pillenförmigen Hintergründe und Rahmen der Belohnungs-Icons wurden vollständig getilgt (`.reward-stat`). Die Beträge (`+0`) stehen nun sauber und transparent mit den Vektor-Icons im Raum.
+* **5. Bereinigung des Wiederbeleben-Subtexts:**
+  * Der überladene Zusatz `• Inkl. 4s Quantenschild & Teleport` wurde entfernt; die Schaltfläche zeigt nun einzig den klaren Vermerk `1x pro Flug`.
+* **6. Playwright-Verifikation:**
+  * 18/18 Screenshots neu generiert, 0 Konsolenfehler, neutrale NTFS-Zeitstempel.
 
 ### v3.35.0 (04.09.2026) - Profile 1x Lock, Dynamic Leaderboard, Minimalist Combo Feedback & Accessible Tutorial
 * **1. Bereinigung des Profil-Modals & 1-malige Namensänderung (`StorageService.js`, `UIManager.js`, `index.html`):**
