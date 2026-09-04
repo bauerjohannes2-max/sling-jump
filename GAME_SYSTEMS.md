@@ -318,15 +318,13 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * **Phase 2 (Einhaken & Orbit, 3,7s):** Ausführliche 1,8s Lesezeit für den Hinweis `HALTEN ZUM EINHAKEN`.
   * **Phase 3 (Katapult & Steigflug, 2,8s):** Übersichtliches Nachvollziehen des idealen 90°-Abwurfs (`LOSLASSEN FÜR KATAPULT`).
 
-### 10.7 Automatische Vollbild-Engine & Mobile-App Standard (`main.js`, `style.css`)
-* **Natives App-Feeling beim Betreten:**
-  * Nach dem weltweiten Standard mobiler Bestseller (Subway Surfers, Alto's Adventure) startet die Anwendung beim ersten Antippen oder Klick automatisch im Vollbildmodus.
-  * Vendor-unabhängige Anbindung (`requestFullscreen`, `webkitRequestFullscreen`, `mozRequestFullScreen`, `msRequestFullscreen`) mit Promise-Rejection-Absicherung (0 Konsolenfehler).
-* **Dauerhaftes Vollbild ohne Deaktivierungs-Option:**
-  * Es existiert im gesamten Spiel kein Schalter zum Ausschalten des Vollbildmodus.
-  * Automatische Re-Arming-Logik: Wird das Vollbild durch System-Overlays oder Gesten kurzzeitig unterbrochen, schaltet die nächste Interaktion (`pointerdown`, `touchstart`, `click`, `keydown`) sofort wieder ins Vollbild.
-* **100dvh Viewport-Lock:**
-  * `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`, wodurch vertikale Browserleisten auf Android und iOS dauerhaft unterdrückt werden.
+### 10.7 Clean Viewport-Engine & Mobile-App Standard (`main.js`, `style.css`)
+* **Natives App-Feeling ohne störende System-Benachrichtigungen:**
+  * Nach dem weltweiten Standard moderner mobiler Web-Bestseller (Alto's Adventure, Subway Surfers) setzt das Spiel auf sauberes `100dvh` Viewport-Locking und PWA-Standalone-Modus (`manifest.json`), anstatt die HTML5 Fullscreen API (`requestFullscreen()`) aufzurufen.
+  * **Unterdrückung von Android-Sicherheits-Overlays:** Durch den Verzicht auf `requestFullscreen()` im normalen Browser-Tab wird der lästige Chromium-System-Toast (`"<domain> – zum Beenden des Vollbildmodus: von oben ziehen"`) dauerhaft und vollständig verhindert.
+* **100dvh Viewport-Lock & Scroll-Stabilisierung:**
+  * `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`, wodurch vertikale Browserleisten auf Android und iOS stabilisiert werden.
+  * Automatische `stabilizeViewport()` Routine auf `load`, `orientationchange` und `resize` hält die Ansicht nahtlos auf `(0, 0)`.
 
 ---
 

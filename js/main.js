@@ -526,75 +526,21 @@
     window.AnalyticsService.init();
   }
 
-  // --- AUTOMATIC FULLSCREEN ENGINE (MOBILE APP STANDARD) ---
-  // Entering the app triggers automatic fullscreen on user interaction.
-  // Fullscreen is persistent with no manual toggle to deactivate.
-  let isAttemptingFullscreen = false;
-
-  function triggerAutoFullscreen() {
-    if (isAttemptingFullscreen) return;
-
-    const isAlreadyFS = !!(document.fullscreenElement ||
-                           document.webkitFullscreenElement ||
-                           document.mozFullScreenElement ||
-                           document.msFullscreenElement);
-    if (isAlreadyFS) return;
-
-    const docEl = document.documentElement;
-    const reqFS = docEl.requestFullscreen ||
-                  docEl.webkitRequestFullscreen ||
-                  docEl.mozRequestFullScreen ||
-                  docEl.msRequestFullscreen;
-
-    if (reqFS) {
-      isAttemptingFullscreen = true;
-      try {
-        const promise = reqFS.call(docEl);
-        if (promise && typeof promise.then === 'function') {
-          promise.then(() => {
-            isAttemptingFullscreen = false;
-          }).catch(() => {
-            // Silently absorb any rejection (e.g. browser gesture restriction or headless environment)
-            isAttemptingFullscreen = false;
-          });
-        } else {
-          isAttemptingFullscreen = false;
-        }
-      } catch (e) {
-        isAttemptingFullscreen = false;
-      }
-    }
-
-    // Scroll to 0,0 on mobile to collapse any browser address bars
+  // --- VIEWPORT STABILIZATION ---
+  // Mobile app standard: rely on 100dvh CSS viewport locking and standalone PWA display mode.
+  // We do NOT invoke the HTML5 Fullscreen API (requestFullscreen) to prevent intrusive
+  // Android Chrome security toasts ("... zum Beenden des Vollbildmodus: von oben ziehen").
+  function stabilizeViewport() {
     if (window.scrollY !== 0) {
       window.scrollTo(0, 0);
     }
   }
 
-  // Bind to every user interaction vector when entering or playing the app
-  const userGestureEvents = ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'];
-  userGestureEvents.forEach((evtName) => {
-    window.addEventListener(evtName, () => {
-      triggerAutoFullscreen();
-    }, { passive: true });
+  window.addEventListener('load', stabilizeViewport);
+  window.addEventListener('orientationchange', () => {
+    setTimeout(stabilizeViewport, 150);
   });
-
-  // Re-arm immediately if user or OS exits fullscreen
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-      window.scrollTo(0, 0);
-    }
-  });
-  document.addEventListener('webkitfullscreenchange', () => {
-    if (!document.webkitFullscreenElement) {
-      window.scrollTo(0, 0);
-    }
-  });
-
-  // Immediate attempt on load (supported in standalone PWAs / mobile web app shortcuts)
-  window.addEventListener('load', () => {
-    triggerAutoFullscreen();
-  });
+  window.addEventListener('resize', stabilizeViewport);
 
   // Start System
   bindUIButtons();

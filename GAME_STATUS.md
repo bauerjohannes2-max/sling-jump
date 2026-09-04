@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC39 - v4.0.0 - Standalone Game & Growth Analytics Suite)  
+> **Status:** Release Candidate (RC40 - v4.0.1 - Suppression of Intrusive Fullscreen Exit Toast & Clean 100dvh Viewport Engine)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -17,7 +17,7 @@
 | **Permanenter Link** | **24/7 Freunde & Familie** | [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/) (weltweit, unbegrenzt, PC muss nicht laufen) |
 | `npm start` / `npm run serve` | **Lokales WLAN / LAN** | Startet den HTTP-Server auf Port 3000, ermittelt die lokale IPv4 (`http://192.168.x.x:3000`) und gibt einen scanbaren ASCII-QR-Code im Terminal aus. |
 | `npm run share` | **Dev-Tunnel & QR-Code** | Gibt den permanenten Link samt ASCII-QR-Code im Terminal aus und startet optional einen temporären Entwickler-Tunnel. |
-| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 18 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
+| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 19 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
 
 ---
 
@@ -53,6 +53,18 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.0.1 (04.09.2026) - Beseitigung des Android-Vollbild-Toasts & Reines 100dvh Viewport-Locking
+* **1. Vollständige Eliminierung des lästigen System-Overlays (`main.js`):**
+  * **Ursachen-Analyse:** Beim mobilen Aufruf im Browser (Android Chrome) löste der automatische Aufruf der HTML5 Fullscreen API (`requestFullscreen()`) eine fest im Chromium-OS-Kernel verankerte Sicherheitswarnung am unteren Bildschirmrand aus (`"bauerjohannes2-max.github.io – zum Beenden des Vollbildmodus: von oben ziehen"`).
+  * **System-Abschaltung:** Die automatische Auslösung von `requestFullscreen()` auf Touch- und Klick-Gesten wurde restlos entfernt.
+  * **Null störende Overlays:** Das Spiel startet und läuft im mobilen Browser völlig banner- und toast-frei, ohne dass Systemhinweise Menüknöpfe oder das Spielfeld verdecken.
+* **2. Robuste Viewport-Stabilisierung (`100dvh` Standard):**
+  * Das bestehende CSS-Layout (`height: 100dvh`, `overscroll-behavior: none`, `touch-action: manipulation`) deckt den dynamischen Viewport zwischen Browser-Adressleisten nahtlos und flimmerfrei ab.
+  * Eine leichtgewichtige passive `stabilizeViewport()`-Routine richtet die Scrollposition auf `(0, 0)` bei Initialisierung, Resize und Orientierungswechsel aus.
+  * Für Home-Screen-Installationen (PWA) bleibt `manifest.json` (`display: standalone`) unverändert voll wirksam, wo kein Browser-Toast auftritt.
+* **3. QA & Playwright-Prüfung:**
+  * 19/19 Screenshots fehlerfrei erzeugt, 0 Konsolenfehler, neutrale NTFS-Zeitstempel.
 
 ### v4.0.0 (04.09.2026) - Standalone Game & Growth Analytics Suite (Enterprise Decoupling)
 * **1. Vollständige App-Entkopplung (2 Separate Anwendungen):**
