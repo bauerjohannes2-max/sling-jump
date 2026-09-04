@@ -16,10 +16,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Sling Jump">
   <meta name="format-detection" content="telephone=no">
-  <link rel="stylesheet" href="css/style.css?v=4.1.0">
+  <link rel="stylesheet" href="css/style.css?v=4.2.0">
   <script>
     (function() {
-      var APP_VERSION = '4.1.0';
+      var APP_VERSION = '4.2.0';
       var storedVer = localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('sling_jump_installed_version', APP_VERSION);
@@ -84,7 +84,7 @@
         <div class="game-title-container">
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v3.35.0</div>
+          <div class="app-version-tag">v4.2.0</div>
         </div>
 
         <div class="currency-group">
@@ -256,8 +256,11 @@
 
     <!-- 5. SKINS / SHOP MODAL -->
     <div class="modal-overlay" id="shop-modal">
-      <div class="modal-card hangar-card" style="max-width: 440px; text-align: center;">
-        <div class="hangar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+      <div class="modal-card hangar-card" style="max-width: 440px; text-align: center; position: relative;">
+        <button class="modal-close-x" id="btn-shop-close" aria-label="Schließen">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <div class="hangar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-right: 36px;">
           <div>
             <div class="modal-title" style="margin-bottom: 2px; text-align: left;">SKINS</div>
             <div style="font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-align: left;">HANGAR &bull; RAUMSCHIFFE</div>
@@ -289,7 +292,7 @@
         </div>
 
         <!-- Future Models Teaser -->
-        <div style="padding: 12px 14px; background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 10px; margin-bottom: 16px; text-align: center;">
+        <div style="padding: 12px 14px; background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 10px; margin-bottom: 8px; text-align: center;">
           <div style="font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">WEITERE MODELLE IN ENTWICKLUNG</div>
           <div style="font-size: 11px; color: #475569; margin-top: 2px;">Neue Raumschiff-Designs folgen in kommenden Updates.</div>
         </div>
@@ -297,14 +300,15 @@
         <!-- Hidden compat anchors for JS listeners -->
         <div id="shop-grid" style="display: none;"></div>
         <button id="shop-action-btn" style="display: none;"></button>
-
-        <button class="btn-primary" id="btn-shop-close" style="width: 100%;">SCHLIESSEN</button>
       </div>
     </div>
 
     <!-- 6. AUFGABEN MODAL (DEDICATED) -->
     <div class="modal-overlay" id="quests-modal">
-      <div class="modal-card hub-card">
+      <div class="modal-card hub-card" style="position: relative;">
+        <button class="modal-close-x" id="btn-quests-close" aria-label="Schließen">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         <div class="modal-title" style="margin-bottom:14px;">AUFGABEN</div>
         <div class="quests-scroll-area">
           <!-- Daily Quests -->
@@ -321,18 +325,26 @@
           </div>
           <div class="quests-list" id="weekly-quests-list"></div>
         </div>
-        <button class="btn-secondary" id="btn-quests-close" style="width:100%; margin-top:14px;">SCHLIESSEN</button>
       </div>
     </div>
 
     <!-- 7. BESTENLISTE MODAL (DEDICATED) -->
     <div class="modal-overlay" id="leaderboard-modal">
-      <div class="modal-card hub-card">
+      <div class="modal-card hub-card" style="position: relative;">
+        <button class="modal-close-x" id="btn-leaderboard-close" aria-label="Schließen">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         <div class="modal-title" style="margin-bottom:14px;">BESTENLISTE</div>
         <!-- Dual Tab Switcher -->
         <div class="leaderboard-tab-bar">
           <button class="lb-tab-btn active" id="btn-lb-tab-global">GLOBAL (TOP 100)</button>
-          <button class="lb-tab-btn" id="btn-lb-tab-local">LOKAL (MEINE FLÜGE)</button>
+          <button class="lb-tab-btn" id="btn-lb-tab-local">LOKAL (REGION)</button>
+        </div>
+        <!-- 3-Column Header Bar -->
+        <div class="leaderboard-header-row">
+          <span class="lb-col-rank">RANG</span>
+          <span class="lb-col-name">PILOT</span>
+          <span class="lb-col-alt">METER</span>
         </div>
         <div class="leaderboard-list" id="global-leaderboard-list"></div>
 
@@ -346,13 +358,15 @@
             </div>
           </div>
         </div>
-        <button class="btn-secondary" id="btn-leaderboard-close" style="width:100%; margin-top:14px;">SCHLIESSEN</button>
       </div>
     </div>
 
     <!-- 8. STATISTIKEN MODAL (DEDICATED) -->
     <div class="modal-overlay" id="stats-modal">
-      <div class="modal-card stats-card">
+      <div class="modal-card stats-card" style="position: relative;">
+        <button class="modal-close-x" id="btn-stats-close" aria-label="Schließen">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         <div class="modal-title" style="margin-bottom:14px;">STATISTIKEN</div>
         <div class="stats-grid">
           <div class="stat-box">
@@ -396,13 +410,15 @@
             <div class="stat-box-val" id="stat-total-revives">0</div>
           </div>
         </div>
-        <button class="btn-secondary" id="btn-stats-close" style="width:100%; margin-top:14px;">SCHLIESSEN</button>
       </div>
     </div>
 
     <!-- 7. SETTINGS MODAL -->
     <div class="modal-overlay" id="settings-modal">
-      <div class="modal-card">
+      <div class="modal-card" style="position: relative;">
+        <button class="modal-close-x" id="btn-settings-close" aria-label="Schließen">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         <div class="modal-title">EINSTELLUNGEN</div>
 
         <div class="settings-list">
@@ -419,26 +435,25 @@
         <div class="modal-button-stack">
           <button class="btn-secondary" id="btn-check-update">NACH UPDATES SUCHEN</button>
           <button class="btn-danger" id="btn-reset-data">SPIELSTAND ZURÜCKSETZEN</button>
-          <button class="btn-secondary" id="btn-settings-close">SCHLIESSEN</button>
         </div>
-        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v3.37.0</div>
+        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v4.2.0</div>
       </div>
     </div>
 
     <!-- 8. TUTORIAL MODAL (Single Minimalist Guide) -->
     <div class="modal-overlay" id="tutorial-modal" style="z-index: 120;">
-      <div class="modal-card tutorial-card" style="max-width: 440px; text-align: center;">
+      <div class="modal-card tutorial-card" style="max-width: 440px; text-align: center; position: relative;">
+        <button class="modal-close-x" id="btn-tut-close-1" aria-label="Schließen">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         
         <!-- SINGLE SLIDE: GRUNDSTEUERUNG -->
         <div class="tutorial-slide" id="tut-slide-1">
           <div class="modal-title" style="margin-bottom: 14px; font-size: 22px; letter-spacing: 2px;">STEUERUNG</div>
 
-          <!-- Interactive Dynamic Canvas for Tutorial (Taller View) -->
+          <!-- Interactive Dynamic Canvas for Tutorial (Taller View, Zero in-video text) -->
           <div class="tutorial-visual-box" style="margin: 12px auto; width: 100%; max-width: 360px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
             <canvas id="tut-sling-canvas" width="360" height="220" style="width: 100%; max-width: 360px; height: auto; aspect-ratio: 360 / 220; display: block; border-radius: 12px;"></canvas>
-            <div id="tut-phase-badge" style="position: absolute; bottom: 10px; font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 800; letter-spacing: 1px; padding: 4px 14px; border-radius: 14px; background: rgba(15,23,42,0.9); border: 1.5px solid rgba(56,189,248,0.5); color: #38bdf8; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
-              1. GEDRÜCKT HALTEN = SCHWUNG AUFBAUEN
-            </div>
           </div>
 
           <div class="tutorial-desc-box" style="text-align: left; background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;">
@@ -451,8 +466,7 @@
           </div>
 
           <div class="modal-button-stack">
-            <button class="btn-primary" id="btn-tut-play">SPIELEN</button>
-            <button class="btn-secondary" id="btn-tut-close-1">SCHLIESSEN</button>
+            <button class="btn-primary" id="btn-tut-play" style="width: 100%;">SPIELEN</button>
           </div>
         </div>
 
@@ -461,7 +475,10 @@
 
     <!-- 7. PROFIL MODAL (MINIMALIST & SLEEK LOGIN) -->
     <div class="modal-overlay" id="profile-modal" style="z-index: 125;">
-      <div class="modal-card profile-card" style="max-width: 380px; text-align: center; padding: 24px 20px;">
+      <div class="modal-card profile-card" style="max-width: 380px; text-align: center; padding: 24px 20px; position: relative;">
+        <button class="modal-close-x" id="btn-profile-close" aria-label="Schließen">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         <!-- Modal Title -->
         <div class="modal-title" style="margin-bottom: 16px; font-size: 20px; letter-spacing: 2px;">PROFIL</div>
 
@@ -496,8 +513,6 @@
         <span id="profile-registered-date" style="display: none;"></span>
         <span id="profile-display-highscore" style="display: none;"></span>
         <span id="profile-runs-count" style="display: none;"></span>
-
-        <button class="btn-secondary" id="btn-profile-close" style="width: 100%;">SCHLIESSEN</button>
       </div>
     </div>
 
@@ -517,21 +532,21 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=3.38.0"></script>
-  <script src="js/services/StorageService.js?v=3.38.0"></script>
-  <script src="js/services/AnalyticsService.js?v=3.38.0"></script>
-  <script src="js/audio/AudioManager.js?v=3.38.0"></script>
-  <script src="js/engine/ParticleSystem.js?v=3.38.0"></script>
-  <script src="js/engine/InputManager.js?v=3.38.0"></script>
-  <script src="js/engine/MissionManager.js?v=3.38.0"></script>
-  <script src="js/entities/Node.js?v=3.38.0"></script>
-  <script src="js/entities/EnergyOrb.js?v=3.38.0"></script>
-  <script src="js/entities/Spaceship.js?v=3.38.0"></script>
-  <script src="js/world/WorldManager.js?v=3.38.0"></script>
-  <script src="js/engine/ShopManager.js?v=3.38.0"></script>
-  <script src="js/engine/StateManager.js?v=3.38.0"></script>
-  <script src="js/engine/UIManager.js?v=3.38.0"></script>
-  <script src="js/engine/GameEngine.js?v=3.38.0"></script>
-  <script src="js/main.js?v=3.38.0"></script>
+  <script src="js/config/Constants.js?v=4.2.0"></script>
+  <script src="js/services/StorageService.js?v=4.2.0"></script>
+  <script src="js/services/AnalyticsService.js?v=4.2.0"></script>
+  <script src="js/audio/AudioManager.js?v=4.2.0"></script>
+  <script src="js/engine/ParticleSystem.js?v=4.2.0"></script>
+  <script src="js/engine/InputManager.js?v=4.2.0"></script>
+  <script src="js/engine/MissionManager.js?v=4.2.0"></script>
+  <script src="js/entities/Node.js?v=4.2.0"></script>
+  <script src="js/entities/EnergyOrb.js?v=4.2.0"></script>
+  <script src="js/entities/Spaceship.js?v=4.2.0"></script>
+  <script src="js/world/WorldManager.js?v=4.2.0"></script>
+  <script src="js/engine/ShopManager.js?v=4.2.0"></script>
+  <script src="js/engine/StateManager.js?v=4.2.0"></script>
+  <script src="js/engine/UIManager.js?v=4.2.0"></script>
+  <script src="js/engine/GameEngine.js?v=4.2.0"></script>
+  <script src="js/main.js?v=4.2.0"></script>
 </body>
 </html>

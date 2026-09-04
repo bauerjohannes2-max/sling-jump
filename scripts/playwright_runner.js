@@ -116,22 +116,41 @@ async function runPlaywrightSuite() {
 
   // 4. Bestenliste (Direct Leaderboard Button)
   console.log('[Playwright] Testing #btn-menu-leaderboard...');
+  await page.evaluate(() => {
+    if (window._gameEngine && window._gameEngine.storage) {
+      window._gameEngine.storage.data.leaderboard = [
+        { name: 'ApexStriker', altitude: 4820, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
+        { name: 'SolarFalcon', altitude: 3650, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
+        { name: 'NeonViper', altitude: 2890, country: 'AT', countryName: 'Österreich', timestamp: Date.now() },
+        { name: 'ShadowPilot', altitude: 1940, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
+        { name: 'VortexAce', altitude: 1420, country: 'CH', countryName: 'Schweiz', timestamp: Date.now() },
+        { name: 'QuantumJump', altitude: 850, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() }
+      ];
+      window._gameEngine.storage.data.highScore = 4820;
+      window._gameEngine.storage.save();
+      if (window._gameEngine.ui) {
+        window._gameEngine.ui.renderLeaderboard();
+      }
+    }
+  });
+  await sleep(200);
   await page.click('#btn-menu-leaderboard');
   await sleep(400);
-  console.log('[Playwright] Capturing 04_hub_leaderboard.png (Global Top 100)');
+  console.log('[Playwright] Capturing 04_hub_leaderboard.png (Global Top 100 - Real Data)');
   await captureScreenshot(page, '04_hub_leaderboard.png');
 
   // Test Local tab
   console.log('[Playwright] Testing #btn-lb-tab-local...');
   await page.click('#btn-lb-tab-local');
   await sleep(300);
-  console.log('[Playwright] Capturing 04b_leaderboard_local.png (Personal Chronicle)');
+  console.log('[Playwright] Capturing 04b_leaderboard_local.png (Regional Top 100)');
   await captureScreenshot(page, '04b_leaderboard_local.png');
 
   // Switch back to global
   await page.click('#btn-lb-tab-global');
   await sleep(200);
 
+  // Close via top-right X button
   await page.click('#btn-leaderboard-close');
   await sleep(300);
 

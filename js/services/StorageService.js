@@ -318,25 +318,45 @@ class StorageService {
       isNewHighScore = true;
     }
 
-    // Add to Local Flight History (Top 25 runs)
+    // Add to Flight Records (Top 100 runs sorted by altitude)
     const profile = this.getPlayerProfile();
+    const region = StorageService.getPlayerRegion();
     const entry = {
-      score: totalScore,
       altitude: altitude,
-      cores: coresCollected,
       name: profile.pilotName || 'Player',
-      ship: this.data.selectedShip || 'dart',
-      date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      country: region.code,
+      countryName: region.name,
+      timestamp: Date.now()
     };
 
     this.data.leaderboard.push(entry);
-    this.data.leaderboard.sort((a, b) => b.score - a.score);
-    if (this.data.leaderboard.length > 25) {
-      this.data.leaderboard = this.data.leaderboard.slice(0, 25);
+    this.data.leaderboard.sort((a, b) => b.altitude - a.altitude);
+    if (this.data.leaderboard.length > 100) {
+      this.data.leaderboard = this.data.leaderboard.slice(0, 100);
     }
 
     this.save();
     return { totalScore, isNewHighScore };
+  }
+
+  static getPlayerRegion() {
+    try {
+      const navLocale = (typeof navigator !== 'undefined' && navigator.language) ? navigator.language : 'de-DE';
+      const parts = navLocale.split('-');
+      const countryCode = (parts[1] || (parts[0].length === 2 ? parts[0] : 'DE')).toUpperCase();
+      let countryName = countryCode;
+      try {
+        if (typeof Intl !== 'undefined' && Intl.DisplayNames) {
+          const dn = new Intl.DisplayNames(['de', 'en'], { type: 'region' });
+          countryName = dn.of(countryCode) || countryCode;
+        }
+      } catch (e) {
+        countryName = countryCode;
+      }
+      return { code: countryCode, name: countryName };
+    } catch (err) {
+      return { code: 'DE', name: 'Deutschland' };
+    }
   }
 
   updateBestCombo(combo) {

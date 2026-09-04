@@ -3,7 +3,7 @@
  * Version: 3.33.0
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'sling-jump-v4.1.0';
+const CACHE_NAME = 'sling-jump-v4.2.0';
 
 const PRECACHE_ASSETS = [
   './',

@@ -273,81 +273,151 @@ class UIManager {
   renderTutorialSlide1(ctx, w, h, t) {
     ctx.clearRect(0, 0, w, h);
 
-    // Deep space background gradient
-    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 1.5);
-    bgGrad.addColorStop(0, 'rgba(15, 23, 42, 0.9)');
-    bgGrad.addColorStop(1, 'rgba(2, 6, 23, 0.95)');
+    // 1. Deep Space Cosmic Background
+    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 1.4);
+    bgGrad.addColorStop(0, '#0a101f');
+    bgGrad.addColorStop(1, '#04070e');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Background stars
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-    const starCoords = [[40, 30], [80, 110], [130, 20], [240, 25], [290, 120], [330, 45], [190, 140]];
-    starCoords.forEach(([sx, sy]) => {
+    // 2. Multi-Layer Twinkling Starfield
+    const starField = [
+      [30, 25, 1.2, 0.4], [75, 40, 1.0, 0.6], [120, 18, 1.4, 0.8], [240, 22, 1.0, 0.5],
+      [310, 35, 1.5, 0.7], [340, 70, 0.8, 0.4], [45, 115, 1.1, 0.5], [85, 160, 1.3, 0.7],
+      [140, 190, 0.9, 0.4], [225, 175, 1.4, 0.6], [295, 130, 1.2, 0.8], [330, 180, 1.0, 0.5],
+      [180, 60, 0.8, 0.3], [20, 195, 1.0, 0.4], [320, 205, 1.2, 0.6]
+    ];
+    starField.forEach(([sx, sy, sr, sAlpha], i) => {
+      const pulseAlpha = Math.max(0.15, Math.min(1.0, sAlpha + Math.sin(t * 0.003 + i) * 0.25));
+      ctx.fillStyle = `rgba(255, 255, 255, ${pulseAlpha})`;
       ctx.beginPath();
-      ctx.arc(sx, sy, 1, 0, Math.PI * 2);
+      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
       ctx.fill();
     });
 
-    // Slower, calmer cycle for clear comprehension (9.0s total - ample reading time for all ages)
-    const cycle = 9.0;
+    const cycle = 6.6;
     const time = (t / 1000) % cycle;
     const nodeX = 180;
-    const nodeY = 98;
-    const orbitRadius = 50;
+    const nodeY = 112;
+    const orbitRadius = 48;
 
-    // Game Orbit Node Visual (Matching OrbitNode exactly)
+    // 3. Distant Destination Node (Shows altitude progression)
+    ctx.save();
+    ctx.translate(nodeX, 26);
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+    ctx.fill();
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 4. Main Orbit Node (Authentic In-Game Shaders & Geometry)
     ctx.save();
     ctx.translate(nodeX, nodeY);
-    // Outer dashed lock ring
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([4, 4]);
+
+    // Soft Radial Energy Aura
+    const aura = ctx.createRadialGradient(0, 0, 2, 0, 0, 36);
+    aura.addColorStop(0, 'rgba(0, 240, 255, 0.4)');
+    aura.addColorStop(0.6, 'rgba(0, 240, 255, 0.1)');
+    aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = aura;
     ctx.beginPath();
-    ctx.arc(0, 0, 26 + Math.sin(t * 0.002) * 2, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    // Glow halo
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 2;
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 14;
-    ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+    ctx.arc(0, 0, 36, 0, Math.PI * 2);
     ctx.fill();
+
+    // Tactical Lock-On Brackets (approaching or hooked)
+    if (time < 4.4) {
+      const bracketPulse = (Math.sin(t * 0.008) + 1) * 0.5;
+      const ringRadius = 26 + bracketPulse * 4;
+      ctx.save();
+      ctx.rotate(t * 0.001);
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 2.0;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 10;
+      const bLen = 6;
+      ctx.beginPath();
+      // 4 Tactical Corner Brackets
+      ctx.moveTo(0, -ringRadius - 3); ctx.lineTo(0, -ringRadius + bLen);
+      ctx.moveTo(0, ringRadius + 3); ctx.lineTo(0, ringRadius - bLen);
+      ctx.moveTo(-ringRadius - 3, 0); ctx.lineTo(-ringRadius + bLen, 0);
+      ctx.moveTo(ringRadius + 3, 0); ctx.lineTo(ringRadius - bLen, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Outer Target Ring
+    ctx.strokeStyle = '#00f0ff';
+    ctx.lineWidth = 2.0;
+    ctx.shadowColor = '#00f0ff';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(0, 0, 16 + Math.sin(t * 0.004) * 1.5, 0, Math.PI * 2);
     ctx.stroke();
-    // Inner core
+
+    // Inner Glowing Core
     ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 8;
     ctx.beginPath();
     ctx.arc(0, 0, 5, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
+    // 5. Slingshot Shockwave Plume (at moment of launch)
+    if (time >= 4.4 && time < 5.4) {
+      const swProgress = (time - 4.4) / 1.0;
+      ctx.save();
+      ctx.translate(nodeX, nodeY);
+      ctx.strokeStyle = `rgba(56, 189, 248, ${Math.max(0, 1.0 - swProgress)})`;
+      ctx.lineWidth = 3.0 * (1.0 - swProgress * 0.5);
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(0, 0, orbitRadius * swProgress * 1.8, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 6. Flight Coordinates & Spaceship Dynamics
     let shipX = 0;
     let shipY = 0;
     let shipAngle = 0;
-    let phaseText = '';
-    let phaseColor = '#38bdf8';
+    let isLaunching = false;
 
-    if (time < 2.5) {
-      // Phase 1: Approach & Hook (2.5s duration - steady approach)
-      const progress = time / 2.5;
-      shipX = 40 + progress * (nodeX - orbitRadius - 40);
-      shipY = 185 - progress * (185 - nodeY);
-      shipAngle = -Math.PI / 4;
-      phaseText = '1. GEDRÜCKT HALTEN = EINHAKEN';
-      phaseColor = '#38bdf8';
-    } else if (time < 6.2) {
-      // Phase 2: Orbit / Swing (3.7s duration - calm, clear rotation)
-      const progress = (time - 2.5) / 3.7;
+    if (time < 1.8) {
+      // Phase 1: Approach & Reticle Lock (1.8s)
+      const p = time / 1.8;
+      shipX = 55 + p * (nodeX - orbitRadius - 55);
+      shipY = 195 - p * (195 - nodeY);
+      shipAngle = Math.atan2(nodeY - 195, (nodeX - orbitRadius) - 55);
+
+      // Aim-Assist Dashed Line from Ship to Node
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(shipX, shipY);
+      ctx.lineTo(nodeX, nodeY);
+      ctx.stroke();
+      ctx.restore();
+    } else if (time < 4.4) {
+      // Phase 2: Gravitational Orbit (2.6s)
+      const p = (time - 1.8) / 2.6;
       const startAngle = Math.PI; // West (180°)
-      const currentAngle = startAngle - progress * Math.PI; // Counter-clockwise to East
+      const currentAngle = startAngle - p * Math.PI; // Counter-clockwise to East (0°)
       shipX = nodeX + Math.cos(currentAngle) * orbitRadius;
       shipY = nodeY + Math.sin(currentAngle) * orbitRadius;
-      shipAngle = currentAngle - Math.PI / 2; // Tangent pointing forward
+      shipAngle = currentAngle - Math.PI / 2; // Forward tangent
 
-      // Tetherless Orbital Orbit Arc
+      // Orbital Tetherless Guide Arc
       ctx.save();
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
       ctx.lineWidth = 1.5;
@@ -356,73 +426,89 @@ class UIManager {
       ctx.arc(nodeX, nodeY, orbitRadius, startAngle, currentAngle, true);
       ctx.stroke();
       ctx.restore();
-
-      phaseText = '1. GEDRÜCKT HALTEN = SCHWUNG AUFBAUEN';
-      phaseColor = '#38bdf8';
-    } else if (time < 8.2) {
-      // Phase 3: Release & Catapult Launch (2.0s launch flight)
-      const progress = (time - 6.2) / 2.0;
+    } else if (time < 5.8) {
+      // Phase 3: Explosive 90° Slingshot Launch (1.4s)
+      isLaunching = true;
+      const p = (time - 4.4) / 1.4;
       const launchX = nodeX + orbitRadius;
       shipX = launchX;
-      shipY = nodeY - progress * 150;
-      shipAngle = -Math.PI / 2;
+      shipY = nodeY - (p * p) * 175; // Accelerating upward ascent
+      shipAngle = -Math.PI / 2; // Pure vertical North
 
-      // Clean cyan launch trail
+      // High-Speed Propulsion Trail
       ctx.save();
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2.5;
+      const trailGrad = ctx.createLinearGradient(launchX, nodeY, launchX, shipY);
+      trailGrad.addColorStop(0, 'rgba(0, 240, 255, 0.1)');
+      trailGrad.addColorStop(1, 'rgba(56, 189, 248, 0.85)');
+      ctx.strokeStyle = trailGrad;
+      ctx.lineWidth = 3.2;
       ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 12;
       ctx.beginPath();
       ctx.moveTo(launchX, nodeY);
-      ctx.lineTo(shipX, shipY + 16);
+      ctx.lineTo(shipX, shipY + 14);
       ctx.stroke();
       ctx.restore();
-
-      phaseText = '2. LOSLASSEN = VORWÄRTS FLIEGEN';
-      phaseColor = '#f8fafc';
     } else {
       // Phase 4: Headroom transition (0.8s)
       shipX = nodeX + orbitRadius;
-      shipY = -60;
-      phaseText = '2. LOSLASSEN = VORWÄRTS FLIEGEN';
-      phaseColor = '#38bdf8';
+      shipY = -50;
+      shipAngle = -Math.PI / 2;
     }
 
-    // Render Spaceship Model
-    if (shipY > -20 && shipY < h + 20) {
+    // 7. Render Authentic PFEIL Spaceship
+    if (shipY > -25 && shipY < h + 25) {
       ctx.save();
       ctx.translate(shipX, shipY);
       ctx.rotate(shipAngle + Math.PI / 2);
-      ctx.scale(1.3, 1.3);
+      ctx.scale(1.25, 1.25);
 
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 1.5;
+      // Thruster Flame Particle Effects
+      const flameLen = isLaunching ? (12 + Math.random() * 6) : (6 + Math.random() * 3);
+      ctx.fillStyle = isLaunching ? '#fbbf24' : '#38bdf8';
+      ctx.shadowColor = isLaunching ? '#fbbf24' : '#00f0ff';
+      ctx.shadowBlur = 10;
+      // Dual Thrusters at (-4, 8) and (4, 8)
+      [-4, 4].forEach(tx => {
+        ctx.beginPath();
+        ctx.moveTo(tx - 2, 7);
+        ctx.lineTo(tx + 2, 7);
+        ctx.lineTo(tx, 7 + flameLen);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // PFEIL Hull Geometry (Identical to in-game Spaceship.js)
+      ctx.beginPath();
+      ctx.moveTo(0, -15);
+      ctx.lineTo(11, 10);
+      ctx.lineTo(4, 7);
+      ctx.lineTo(0, 9);
+      ctx.lineTo(-4, 7);
+      ctx.lineTo(-11, 10);
+      ctx.closePath();
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.6;
       ctx.shadowColor = '#38bdf8';
       ctx.shadowBlur = 8;
+      ctx.stroke();
+
+      // Neon Centerline & Cockpit Core
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.moveTo(0, -10);
-      ctx.lineTo(7, 8);
       ctx.lineTo(0, 4);
-      ctx.lineTo(-7, 8);
-      ctx.closePath();
-      ctx.fill();
       ctx.stroke();
 
       ctx.fillStyle = '#38bdf8';
       ctx.beginPath();
-      ctx.arc(0, 5, 2.5, 0, Math.PI * 2);
+      ctx.arc(0, -3, 2, 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
-    }
 
-    // Update Phase Badge DOM
-    const badge = document.getElementById('tut-phase-badge');
-    if (badge) {
-      badge.textContent = phaseText;
-      badge.style.color = phaseColor;
-      badge.style.borderColor = phaseColor === '#f8fafc' ? 'rgba(255,255,255,0.4)' : phaseColor;
+      ctx.restore();
     }
   }
 
@@ -998,126 +1084,109 @@ class UIManager {
 
     const profile = this.storage.getPlayerProfile();
     const playerName = profile.pilotName || 'Player';
-    const playerShip = (this.storage.data.selectedShip || 'PFEIL').toUpperCase();
     const bestAltitude = this.storage.data.highScore || 0;
+    const region = (typeof StorageService !== 'undefined' && StorageService.getPlayerRegion)
+      ? StorageService.getPlayerRegion()
+      : { code: 'DE', name: 'Deutschland' };
 
-    if (this.activeLeaderboardTab === 'global') {
-      const baseList = (CONSTANTS.GLOBAL_LEADERBOARD_TOP || []).map(entry => ({ ...entry, isPlayer: false }));
-      const bestScore = (this.storage.data.leaderboard && this.storage.data.leaderboard.length > 0)
-        ? this.storage.data.leaderboard[0].score
-        : Math.floor(bestAltitude * 10);
+    // Update local tab button label to show region code
+    if (this.dom.btnLbTabLocal) {
+      this.dom.btnLbTabLocal.textContent = `LOKAL (${region.code})`;
+      this.dom.btnLbTabLocal.title = `Regionale Bestenliste für ${region.name}`;
+    }
 
-      const combined = [...baseList];
-      if (bestAltitude > 0) {
-        combined.push({
-          name: `${playerName} (DU)`,
-          ship: playerShip,
-          altitude: bestAltitude,
-          score: bestScore,
-          date: 'Heute',
-          isPlayer: true
-        });
-      }
+    // Retrieve genuine flights recorded in storage
+    const storedRuns = (this.storage.data.leaderboard || []).map(r => ({
+      name: r.name || playerName,
+      altitude: r.altitude || 0,
+      country: r.country || region.code,
+      countryName: r.countryName || region.name,
+      isPlayer: (r.name === playerName || !r.name)
+    }));
 
-      // Sort descending by altitude
-      combined.sort((a, b) => b.altitude - a.altitude);
-
-      // Re-assign ranks
-      combined.forEach((entry, idx) => {
-        entry.rank = idx + 1;
+    // Ensure the player's personal high score is represented if > 0
+    if (bestAltitude > 0 && !storedRuns.some(r => r.altitude === bestAltitude && r.isPlayer)) {
+      storedRuns.push({
+        name: `${playerName} (DU)`,
+        altitude: bestAltitude,
+        country: region.code,
+        countryName: region.name,
+        isPlayer: true
       });
+    }
 
-      // Show top 100 players
-      const displayList = combined.slice(0, 100);
+    // Sort descending by altitude (highest flight first)
+    storedRuns.sort((a, b) => b.altitude - a.altitude);
 
+    let displayList = [];
+    if (this.activeLeaderboardTab === 'global') {
+      displayList = storedRuns.slice(0, 100);
+    } else {
+      // Local: Filter exclusively by player's country / region
+      displayList = storedRuns.filter(r => r.country === region.code).slice(0, 100);
+    }
+
+    // Assign ranking numbers
+    displayList.forEach((entry, idx) => {
+      entry.rank = idx + 1;
+    });
+
+    if (displayList.length === 0) {
+      const emptyBox = document.createElement('div');
+      emptyBox.className = 'lb-empty-state';
+      if (this.activeLeaderboardTab === 'global') {
+        emptyBox.innerHTML = `
+          <div class="lb-empty-title">KEINE WELTWEITEN EINTRÄGE</div>
+          <div class="lb-empty-desc">Starte deinen ersten Flug, um den globalen Rekord aufzustellen.</div>
+        `;
+      } else {
+        emptyBox.innerHTML = `
+          <div class="lb-empty-title">KEINE REGIONALEN EINTRÄGE</div>
+          <div class="lb-empty-desc">Starte einen Flug in ${region.name}, um die Rangliste anzuführen.</div>
+        `;
+      }
+      this.dom.globalLeaderboardList.appendChild(emptyBox);
+    } else {
       displayList.forEach(entry => {
         const row = document.createElement('div');
         const rankClass = entry.rank <= 3 ? `top-rank-${entry.rank}` : '';
         const playerClass = entry.isPlayer ? 'player-entry' : '';
         row.className = `leaderboard-row ${rankClass} ${playerClass}`.trim();
+        // Strictly 3 columns: Rank, Name, Metres
         row.innerHTML = `
           <div class="lb-rank">#${entry.rank}</div>
           <div class="lb-name">${entry.name}</div>
-          <div class="lb-ship">${entry.ship}</div>
-          <div class="lb-alt">${entry.altitude.toLocaleString('de-DE')}m</div>
-          <div class="lb-score">${entry.score.toLocaleString('de-DE')} Pkt</div>
-          <div class="lb-date">${entry.date}</div>
+          <div class="lb-alt">${entry.altitude.toLocaleString('de-DE')} m</div>
         `;
         this.dom.globalLeaderboardList.appendChild(row);
       });
+    }
 
-      // Calculate player rank & percentile
-      const playerEntry = combined.find(e => e.isPlayer);
-      let rankDisplay = '#---';
-      let percentileDisplay = 'NOCH KEIN FLUG ABSOLVIERT';
-      let deltaText = 'Erreiche 50m für deinen ersten weltweiten Rang.';
+    // Sticky Player Rank Card
+    const playerEntry = displayList.find(e => e.isPlayer);
+    let rankDisplay = '#---';
+    let titleDisplay = this.activeLeaderboardTab === 'global'
+      ? 'GLOBAL (TOP 100)'
+      : `LOKAL (${region.name.toUpperCase()})`;
+    let deltaDisplay = 'Absolviere einen Flug zur Wertung';
 
-      if (bestAltitude > 0 && playerEntry) {
-        rankDisplay = `#${playerEntry.rank}`;
-        const percentile = Math.max(1, Math.min(99, Math.round((playerEntry.rank / 10000) * 100)));
-        percentileDisplay = `RANG #${playerEntry.rank} VON 10.000 PILOTEN (TOP ${percentile}%)`;
+    if (playerEntry) {
+      rankDisplay = `#${playerEntry.rank}`;
+      titleDisplay = `RANG #${playerEntry.rank} • ${this.activeLeaderboardTab === 'global' ? 'GLOBAL' : region.name.toUpperCase()}`;
+      deltaDisplay = `Bestleistung: ${bestAltitude.toLocaleString('de-DE')} m`;
+    } else if (bestAltitude > 0) {
+      rankDisplay = '#1';
+      deltaDisplay = `Bestleistung: ${bestAltitude.toLocaleString('de-DE')} m`;
+    }
 
-        if (playerEntry.rank === 1) {
-          deltaText = 'Unangefochtene weltweite Spitze!';
-        } else if (playerEntry.rank <= 3) {
-          deltaText = 'Podiumsplatz erreicht! Großartige Leistung!';
-        } else {
-          const nextAbove = combined[playerEntry.rank - 2];
-          const gap = nextAbove ? Math.max(1, nextAbove.altitude - bestAltitude + 1) : 10;
-          deltaText = `Noch ${gap}m bis Rang #${playerEntry.rank - 1}`;
-        }
-      }
-
-      if (this.dom.playerRankBadge) {
-        this.dom.playerRankBadge.textContent = rankDisplay;
-      }
-      if (this.dom.playerRankPercentile) {
-        this.dom.playerRankPercentile.textContent = percentileDisplay;
-      }
-      if (this.dom.playerRankDelta) {
-        this.dom.playerRankDelta.textContent = deltaText;
-      }
-    } else {
-      // Local Leaderboard: Personal Flights Chronicle
-      const localRuns = this.storage.data.leaderboard || [];
-
-      if (localRuns.length === 0) {
-        const emptyBox = document.createElement('div');
-        emptyBox.className = 'lb-empty-state';
-        emptyBox.innerHTML = `
-          <div class="lb-empty-title">KEINE FLÜGE GESPEICHERT</div>
-          <div class="lb-empty-desc">Absolviere deinen ersten Flug, um deine persönliche Chronik zu starten.</div>
-        `;
-        this.dom.globalLeaderboardList.appendChild(emptyBox);
-      } else {
-        localRuns.forEach((run, idx) => {
-          const row = document.createElement('div');
-          const rankClass = (idx + 1) <= 3 ? `top-rank-${idx + 1}` : '';
-          row.className = `leaderboard-row ${rankClass} player-entry`.trim();
-          row.innerHTML = `
-            <div class="lb-rank">#${idx + 1}</div>
-            <div class="lb-name">${run.name || playerName}</div>
-            <div class="lb-ship">${(run.ship || playerShip).toUpperCase()}</div>
-            <div class="lb-alt">${(run.altitude || 0).toLocaleString('de-DE')}m</div>
-            <div class="lb-score">${(run.score || 0).toLocaleString('de-DE')} Pkt</div>
-            <div class="lb-date">${run.date || 'Heute'}</div>
-          `;
-          this.dom.globalLeaderboardList.appendChild(row);
-        });
-      }
-
-      // Sticky player rank banner for local mode
-      if (this.dom.playerRankBadge) {
-        this.dom.playerRankBadge.textContent = `${localRuns.length}`;
-      }
-      if (this.dom.playerRankPercentile) {
-        this.dom.playerRankPercentile.textContent = `PERSÖNLICHE BESTLEISTUNG: ${bestAltitude.toLocaleString('de-DE')}m`;
-      }
-      if (this.dom.playerRankDelta) {
-        this.dom.playerRankDelta.textContent = localRuns.length > 0
-          ? `${localRuns.length} dokumentierte Rekord-Flüge in Chronik`
-          : 'Schließe eine Runde ab, um Rekorde zu speichern';
-      }
+    if (this.dom.playerRankBadge) {
+      this.dom.playerRankBadge.textContent = rankDisplay;
+    }
+    if (this.dom.playerRankPercentile) {
+      this.dom.playerRankPercentile.textContent = titleDisplay;
+    }
+    if (this.dom.playerRankDelta) {
+      this.dom.playerRankDelta.textContent = deltaDisplay;
     }
   }
 

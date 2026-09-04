@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC41 - v4.1.0 - Robust Standalone Decoupling of Game PWA & Growth Analytics Suite)  
+> **Status:** Release Candidate (RC42 - v4.2.0 - Pure Real-Time Leaderboards, Regional Local Top 100, Authentic In-Game Tutorial & Global Top-Right 'X' Close Buttons)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -54,7 +54,42 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
 
-### v4.1.0 (04.09.2026) - Robust Standalone Decoupling of Game PWA & Growth Analytics Suite
+### v4.2.0 (04.09.2026) - Pure Real-Time Leaderboard, Regional Local Top 100, Authentic In-Game Tutorial & Global Top-Right 'X' Buttons
+* **1. Vollständige Bereinigung aller Dummy-Daten (`Constants.js`, `StorageService.js`, `UIManager.js`):**
+  * **Null synthetische Kontrahenten:** Sämtliche 50 künstlich generierten Kontrahenten (`VortexStriker`, `CyberPhantom`, etc.) wurden restlos aus `Constants.js` (`GLOBAL_LEADERBOARD_TOP: []`) getilgt.
+  * **100% Echte Flug-Aufzeichnungen:** Die Bestenliste speichert und visualisiert ausschließlich tatsächlich absolvierte Flüge des Spielers und lokaler Piloten (Kapazität auf die besten 100 Flüge erweitert).
+* **2. Best Practice "LOKAL": Regionale / Nationale Bestenliste (Top 100 nach Land):**
+  * **Branchenstandard mobiler Bestseller:** In internationalen Arcade-Hits (*Subway Surfers*, *Clash Royale*, *Brawl Stars*) ist "Lokal" standardmäßig als das **Heimatland** des Spielers definiert (z.B. `DEUTSCHLAND / DE`, `ÖSTERREICH / AT`, `SCHWEIZ / CH`). Dies schützt die Privatsphäre vor invasiven GPS-Freigaben und bündelt Spieler wettbewerbsfähig.
+  * **Dynamische Regions-Erkennung:** Automatische Ermittlung des ISO-Ländercodes und Landesnamens über die Standard-Browser-API (`Intl.DisplayNames`, `navigator.language`).
+  * **Dynamische Reiter-Beschriftung:** Der Tab-Button schaltet automatisch auf z.B. `LOKAL (DE)` mit regionalem Tooltip.
+  * **Regionale Filterung:** Der Reiter "LOKAL" filtert Flüge strikt nach dem Länderkürzel des Spielers und zeigt ansprechende Empty-States, falls in der Region noch keine Flüge dokumentiert sind.
+* **3. Strikte 3-Spalten-Struktur im Leaderboard (Rang, Pilot, Meter):**
+  * Sämtliche überflüssigen und unpassenden Daten wie Zeitstempel/Datum, Punkte und Schiffsauswahl (Schiffe wie Phönix existieren im Spiel nicht mehr) wurden restlos entfernt.
+  * Die Bestenliste zeigt einzig:
+    1. **RANG** (`#1`, `#2`, `#3` etc.)
+    2. **PILOT** (Gamer-Tag mit optischem Highlight für den Spieler)
+    3. **METER** (Erreichte Höhe in Metern, z.B. `4.820 m`)
+  * Neue minimalistische Spaltenkopf-Leiste (`.leaderboard-header-row`) für gestochen scharfe Orientierung.
+* **4. Authentisches In-Game Tutorial ohne Text im Video (`UIManager.js`, `index.html`):**
+  * **Text im Video restlos entfernt:** Das überlagernde Badge `#tut-phase-badge` sowie jeglicher Text auf der Video-Canvas wurden eliminiert. Die Erklärung verbleibt übersichtlich und ruhig in der Textbox darunter.
+  * **Physikalisch exakte Gameplay-Animation:**
+    * Multi-Layer Sternenfeld mit dezent pulsierenden Tiefensternen.
+    * Realistischer `OrbitNode` mit dynamischer Cyan-Aura, pulsierendem Zielring und rotierenden taktischen Visier-Brackets bei Anflug.
+    * Originalgetreues Vektor-Raumschiff `PFEIL` mit dunklem Rumpf, weißem Rand, Neon-Cockpit und Partikelflammen an beiden Triebwerksdüsen.
+    * Zielsuch-Peillinie beim Anflug, runder tangentialer Schwungaufbau und explosiver 90°-Katapult-Abschuss mit expandierendem Schockwellenring und Geschwindigkeits-Partikeln.
+    * Darstellung eines zweiten Zielknotens in der Höhe zur Veranschaulichung des Aufstiegs.
+* **5. Konsistente Schließen-Bedienung: 'X'-Button oben rechts für alle Modale:**
+  * Sämtliche bodenseitigen "SCHLIESSEN"-Buttons im gesamten Spiel wurden restlos entfernt.
+  * Jedes Dialog- und Hub-Fenster verfügt nun über einen minimalistischen, eleganten Vektor-X-Button (`.modal-close-x`) an der oberen rechten Ecke:
+    * Hangar / Skins (`#btn-shop-close`)
+    * Aufgaben / Quests (`#btn-quests-close`)
+    * Bestenliste (`#btn-leaderboard-close`)
+    * Statistiken (`#btn-stats-close`)
+    * Einstellungen (`#btn-settings-close`)
+    * Tutorial (`#btn-tut-close-1`)
+    * Profil (`#btn-profile-close`)
+* **6. Playwright Visual Suite Verifikation:**
+  * 19/19 Screenshots fehlerfrei validiert, 0 Konsolenfehler, neutrale NTFS-Zeitstempel.
 * **1. Vollständige Entkopplung & Scope-Trennung der PWAs (`manifest.json`, `dashboard/manifest.json`):**
   * **Ursachen-Analyse:** Wenn das Spiel als PWA auf dem Home-Screen installiert war und der Nutzer über Entwickler-Gesten oder Links `dashboard.html` aufgerufen hatte, speicherten mobile Browser (iOS Safari WebClip & Android Chrome) den letzten URL-Zustand innerhalb des PWA-Containers. Beim nächsten Antippen des Spiel-Icons vom Startbildschirm öffnete sich daher fälschlicherweise das Dashboard statt des Spiels.
   * **Eindeutige W3C App-Identitäten:**

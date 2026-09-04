@@ -295,28 +295,30 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Exakte Kohorten- und Retention-Messung pro Spieler ohne Datenschutz-Verstöße.
   * Grundlage für zielgerichtetes Balancing und zukünftige Monetarisierungs-Optimierungen.
 
-### 10.5 Globales & Lokales Dual-Tab Leaderboard (`UIManager.js`, `Constants.js`, `StorageService.js`)
+### 10.5 Globales & Regionales Dual-Tab Leaderboard (`UIManager.js`, `Constants.js`, `StorageService.js`)
 * **Dual-Tab Umschaltung (`GLOBAL` vs `LOKAL`):**
-  * Elegante Reiter-Leiste (`.leaderboard-tab-bar`) im Leaderboard-Modal für schnellen Wechsel zwischen weltweiter Konkurrenz und persönlicher Flugchronik.
+  * Elegante Reiter-Leiste (`.leaderboard-tab-bar`) im Leaderboard-Modal für schnellen Wechsel zwischen weltweiter Konkurrenz und regionaler Rangliste.
+  * **Null Dummy-Daten:** Alle synthetischen Kontrahenten (`GLOBAL_LEADERBOARD_TOP`) wurden vollständig entfernt (`[]`). Die Rangliste arbeitet rein organisch mit echten Flügen.
+  * **Strikter 3-Spalten-Standard:** Ausschließlich `RANG`, `PILOT` und `METER`. Veraltete oder ablenkende Metadaten (Punkte/Scores, Zeitstempel/Datum, Raumschiff-Typen) wurden komplett eliminiert.
   * **GLOBAL (TOP 100):**
-    * Präsentiert die weltweite Rangliste der besten Piloten mit bis zu 100 Einträgen.
-    * Vorbestückt mit **50 realistischen Arcade-Kontrahenten** (`GLOBAL_LEADERBOARD_TOP`, 4.850m bis 260m) mit unterschiedlichen Schiffen und Datumsstempeln (nach Vorbild von *Alto's Adventure* & *Crossy Road*, um Day-1 Spielern authentische Zielmarken zu bieten).
-    * Der eigene Rekord (`highScore`) wird mit dem Spieler-Namen, Schiff und `(DU)`-Badge dynamisch in die weltweite Liste einsortiert.
-    * Sticky Player-Banner berechnet den globalen Rang (z.B. `#12`), das Perzentil ("TOP 1%") und den Meter-Abstand zum nächsten Rang.
-  * **LOKAL (MEINE FLÜGE):**
-    * Dokumentiert die persönliche Flug-Historie des Spielers mit bis zu **25 Flügen** (`StorageService.js`).
-    * Jeder Eintrag enthält Rang, Spielername, Schiff, erreichte Höhe, Score und Datum.
+    * Präsentiert die weltweite Rangliste aller Piloten mit bis zu 100 Einträgen.
+    * Der eigene Rekord (`highScore`) wird mit dem Spieler-Namen und `(DU)`-Badge dynamisch in die weltweite Liste einsortiert.
+    * Sticky Player-Banner berechnet den globalen Rang (z.B. `#1`), das Perzentil ("TOP 1%") und den Meter-Abstand zum nächsten Rang.
+  * **LOKAL / REGIONAL (TOP 100 nach Ländercode):**
+    * Automatische Erkennung der Region via Standard Browser `Intl` API (`StorageService.getPlayerRegion()`, z.B. `DE`, `AT`, `CH`, `US`).
+    * Filtert Flüge strikt nach dem Länderkürzel des Piloten und zeigt bis zu 100 regionale Einträge.
     * Bei noch unbespieltem Spielstand zeigt ein moderner Empty-State (`KEINE FLÜGE GESPEICHERT`) Hilfestellung zum Starten des ersten Flugs.
-    * Sticky Player-Banner zeigt die Anzahl absolvierter Flüge und die persönliche Bestleistung.
+    * Sticky Player-Banner zeigt den regionalen Rang und die persönliche Bestleistung.
 
-### 10.6 Zugängliches Steuerungs-Tutorial (`index.html`, `UIManager.js`)
-* **Minimalistischer Header:** Redundante Subtitel wurden entfernt; die Modal-Kopfzeile trägt einzig den klaren Titel `STEUERUNG`.
-* **37% größere Canvas-Fläche:** Video-Canvas auf `360 x 220 px` vergrößert für optimale Erkennbarkeit auf Mobil- und Desktop-Displays.
-* **Entschleunigter 9,0s-Lernzyklus:**
-  * Speziell für Kinder und Gelegenheitsspieler verlängerte Lese- und Reaktionszeiten.
-  * **Phase 1 (Anflug, 2,5s):** Zeit zum Erkennen des Lock-On-Zielkreises.
-  * **Phase 2 (Einhaken & Orbit, 3,7s):** Ausführliche 1,8s Lesezeit für den Hinweis `HALTEN ZUM EINHAKEN`.
-  * **Phase 3 (Katapult & Steigflug, 2,8s):** Übersichtliches Nachvollziehen des idealen 90°-Abwurfs (`LOSLASSEN FÜR KATAPULT`).
+### 10.6 Authentisches Steuerungs-Tutorial (`index.html`, `UIManager.js`)
+* **Minimalistischer Header:** Redundante Subtitel entfernt; die Modal-Kopfzeile trägt einzig den klaren Titel `STEUERUNG`.
+* **Zero In-Video Text:** Vollständige Entfernung jeglicher Text-Badges oder Overlays innerhalb des Video-Canvas. Sämtliche Erklärungen befinden sich klar strukturiert im Textbereich unter dem Video.
+* **Authentische Physik- und Grafik-Simulation:**
+  * Multi-Layer Sternenfeld mit funkelnden Sternen im Hintergrund.
+  * Sekundärer Ziel-Node im oberen Bereich visualisiert den Höhengewinn beim Katapult.
+  * Echte `OrbitNode`-Shader mit weicher Aura, Orbit-Ring, pulsierendem Kern und taktischen Eckmarkern während des Anflugs.
+  * Originalgetreue `PFEIL`-Rumpfgeometrie mit dunklem Obsidian-Körper, doppelten Triebwerks-Partikeln und leuchtender Cockpit-Kanzel.
+  * Slingshot-Abwurf bei 90° Tangente mit expandierender Schockwelle und Beschleunigungs-Spur.
 
 ### 10.7 Clean Viewport-Engine & Mobile-App Standard (`main.js`, `style.css`)
 * **Natives App-Feeling ohne störende System-Benachrichtigungen:**
@@ -325,6 +327,17 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * **100dvh Viewport-Lock & Scroll-Stabilisierung:**
   * `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`, wodurch vertikale Browserleisten auf Android und iOS stabilisiert werden.
   * Automatische `stabilizeViewport()` Routine auf `load`, `orientationchange` und `resize` hält die Ansicht nahtlos auf `(0, 0)`.
+
+### 10.8 Globaler Top-Right 'X' Modal Close Standard (`index.html`, `style.css`)
+* **Beseitigung aller unteren Schließen-Buttons:** Alle redundanten "SCHLIESSEN"-Buttons am unteren Rand von Modals wurden vollständig durch minimalistische Vektor-Icons (`.modal-close-x`) in der oberen rechten Ecke ersetzt.
+* **Einheitliches Verhalten in allen 7 Modals:**
+  * Hangar / Skins (`#btn-shop-close`)
+  * Aufgaben / Quests (`#btn-quests-close`)
+  * Bestenliste / Leaderboard (`#btn-leaderboard-close`)
+  * Statistiken / Stats (`#btn-stats-close`)
+  * Einstellungen / Settings (`#btn-settings-close`)
+  * Tutorial (`#btn-tut-close-1`)
+  * Pilot-Profil (`#btn-profile-close`)
 
 ---
 
