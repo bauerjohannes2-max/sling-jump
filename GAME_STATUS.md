@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC33 - v3.32.0 - Peak-Altitude Respawn & Quantum Safety Trampoline)  
+> **Status:** Release Candidate (RC34 - v3.33.0 - Cyberpunk Death Tab UI, Green Boost Bomb Immunity & Deep Space Balancing)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -31,9 +31,9 @@ Die prozedurale Weltengenerierung (`WorldManager.js`) skaliert die Herausforderu
 | **Zone 2: Stratosphäre** | 500 m – 1.500 m | 92% | 8% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste grüne Katapult-Knoten mit Aufwärtspfeilen für weite Katapultsprünge. |
 | **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 72% | 8% | 20% | 0% | 0% | 0% | 165 – 215 px | Einführung violetter horizontal pendelnder Knoten; erfordert Timing und Vorhalten. |
 | **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 54% | 8% | 24% | 14% | 0% | 0% | 180 – 235 px | Erste goldene Zeituhr-Knoten mit Countdown-Tick; langes Verweilen führt zum Zerbersten. |
-| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 40% | 6% | 28% | 18% | 8% | 0% | 190 – 245 px | Brüchige Köder-Fallen (zerbrechen sofort bei Haken) erfordern optische Wachsamkeit. |
-| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 28% | 8% | 32% | 22% | 10% | **~14% Korridor-Spawn** | 195 – 250 px | **Weltraum-Minen (BOMBE):** Spawnen als tödliche Hindernisse; sofortige Detonation bei Kontakt! |
-| **Zone 7: Meister-Kosmos** | 15.000 m+ | 18% | 8% | 36% | 26% | 12% | **~22% Korridor-Spawn** | 200 – 260 px | 62% dynamische Knoten (Zeituhr + Beweglich) in dichter Minenumgebung; extreme Präzision nötig. |
+| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 34% | 8% | 26% | 26% | 6% | 0% | 190 – 245 px | Deutlich mehr Zeituhr-Knoten (26%) fordern zügigen Rhythmus; seltene Fissuren (6%). |
+| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 24% | 8% | 28% | 34% | 6% | **~7% Korridor-Spawn** | 195 – 250 px | **Dominante Zeituhr-Knoten (34%) & moderate Minen (~7%):** Schneller Absprung; Minenwände entschärft. |
+| **Zone 7: Meister-Kosmos** | 15.000 m+ | 16% | 8% | 28% | 42% | 6% | **~10% Korridor-Spawn** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Beweglich); Minendichte von 22% auf 10% halbiert. |
 
 ---
 
