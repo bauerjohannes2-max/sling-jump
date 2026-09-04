@@ -552,13 +552,13 @@ class UIManager {
     const isNewRecord = data.isNewRecord || false;
     const canRevive = data.canRevive !== false;
 
-    if (this.dom.finalAltitude) this.dom.finalAltitude.textContent = `${altitude} m`;
-    if (this.dom.finalOrbs) this.dom.finalOrbs.textContent = `+${cores}`;
-    if (this.dom.finalCrystals) this.dom.finalCrystals.textContent = `+${crystals}`;
-    if (this.dom.finalBest) this.dom.finalBest.textContent = `${this.storage.data.highScore} m`;
+    if (this.dom.finalAltitude) this.dom.finalAltitude.textContent = `${Number(altitude).toLocaleString('de-DE')} m`;
+    if (this.dom.finalOrbs) this.dom.finalOrbs.textContent = `+${Number(cores).toLocaleString('de-DE')}`;
+    if (this.dom.finalCrystals) this.dom.finalCrystals.textContent = `+${Number(crystals).toLocaleString('de-DE')}`;
+    if (this.dom.finalBest) this.dom.finalBest.textContent = `${Number(this.storage.data.highScore).toLocaleString('de-DE')} m`;
 
     if (this.dom.newRecordBadge) {
-      this.dom.newRecordBadge.style.display = isNewRecord ? 'block' : 'none';
+      this.dom.newRecordBadge.style.display = isNewRecord ? 'inline-flex' : 'none';
     }
 
     // Configure Interactive Revive Section (Second Chance)
@@ -575,7 +575,7 @@ class UIManager {
             this.dom.reviveBtnText.textContent = 'WIEDERBELEBEN';
           }
           if (this.dom.reviveStatusText) {
-            this.dom.reviveStatusText.textContent = '1x pro Flug • Inkl. 3s Schutzschild';
+            this.dom.reviveStatusText.textContent = '1x pro Flug • Inkl. 4s Quantenschild & Teleport';
           }
         } else {
           if (this.dom.btnGameOverRevive) {
@@ -585,7 +585,7 @@ class UIManager {
             this.dom.reviveBtnText.textContent = '0 KRISTALLE (WERBUNG BALD)';
           }
           if (this.dom.reviveStatusText) {
-            this.dom.reviveStatusText.textContent = 'Finde seltene Kristalle im Flug!';
+            this.dom.reviveStatusText.textContent = 'Finde seltene Kristalle im Tiefraum!';
           }
         }
       } else {

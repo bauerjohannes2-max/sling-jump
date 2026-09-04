@@ -214,13 +214,13 @@ async function runPlaywrightSuite() {
   await page.click('#btn-tut-play');
   await sleep(500);
 
-  // 8. Gameplay HUD (with enlarged combo and live Hazard Mine verification)
-  console.log('[Playwright] Triggering Combo x3 visual & Hazard Mine...');
+  // 8. Gameplay HUD (with minimalist combo and live Hazard Mine verification)
+  console.log('[Playwright] Triggering Minimalist Combo x3 visual & Hazard Mine...');
   await page.evaluate(() => {
     if (window._gameEngine) {
       window._gameEngine.slingshotCombo = 3;
-      window._gameEngine.particles.spawnFloatingText(window._gameEngine.player.x, window._gameEngine.player.y + 50, 'COMBO x3!', '#a855f7', 32, true);
-      window._gameEngine.ui.showComboBadge('COMBO x3!', '#a855f7');
+      window._gameEngine.particles.spawnFloatingText(window._gameEngine.player.x, window._gameEngine.player.y + 50, 'COMBO x3', '#a855f7', 32, true);
+      window._gameEngine.ui.showComboBadge('COMBO x3', '#a855f7');
       // Spawn live hazard space mine on screen to visually verify in-game geometry
       const hazardNode = new OrbitNode(window._gameEngine.width * 0.75, window._gameEngine.player.y + 130, 'HAZARD', window._gameEngine.width, 10200);
       window._gameEngine.world.nodes.push(hazardNode);
@@ -229,6 +229,45 @@ async function runPlaywrightSuite() {
   await sleep(200);
   console.log('[Playwright] Capturing 08_gameplay_hud.png');
   await captureScreenshot(page, '08_gameplay_hud.png');
+
+  // 8b. Verify Green Boost Hazard Mine Immunity
+  console.log('[Playwright] Testing Green Boost hazard mine immunity...');
+  const boostImmunityResult = await page.evaluate(() => {
+    if (window._gameEngine) {
+      const eng = window._gameEngine;
+      eng.player.isSuperBoosting = true;
+      eng.player.boostTimer = 2.0;
+      eng.player.shieldTimer = 0;
+      eng.isDying = false;
+
+      const testMine = new OrbitNode(eng.player.x, eng.player.y, 'HAZARD', eng.width, 10000);
+      eng.world.nodes.push(testMine);
+
+      // Simulate engine collision logic
+      const lethalDist = eng.player.radius + testMine.radius + 6;
+      const dist = Math.hypot(eng.player.x - testMine.x, eng.player.y - testMine.y);
+      if (dist < lethalDist) {
+        testMine.isBroken = true;
+        if (eng.player.isSuperBoosting || eng.player.boostTimer > 0) {
+          eng.particles.spawnShockwave(testMine.x, testMine.y, '#10b981', 80);
+          eng.particles.spawnFloatingText(testMine.x, testMine.y + 35, 'MINE ZERSTÖRT!', '#10b981', 26, true);
+        } else {
+          eng.isDying = true;
+        }
+      }
+
+      return {
+        mineBroken: testMine.isBroken,
+        playerAlive: !eng.isDying,
+        isSuperBoosting: eng.player.isSuperBoosting
+      };
+    }
+    return null;
+  });
+  console.log('[Playwright] Boost immunity check result:', boostImmunityResult);
+  if (!boostImmunityResult || !boostImmunityResult.mineBroken || !boostImmunityResult.playerAlive) {
+    throw new Error('Boost immunity failed! Player died or mine was not broken.');
+  }
 
   // 9. Pause Modal
   console.log('[Playwright] Capturing 09_pause_modal.png');

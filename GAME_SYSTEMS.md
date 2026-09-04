@@ -15,7 +15,7 @@ Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.co
 * **Score-Philosophie:** Die erreichte Höhe in Metern (`m`) ist der alleinige Hauptwert (Hero Score).
 * **Zwei-Währungs-Ökonomie:**
   1. **Münzen (`cores` / Orbs):** Reguläre In-Game Währung, sammelbar in Formationen im All oder als Quest-Belohnungen. Dient zum Freischalten von Raumschiffen und Schweifen im Hangar.
-  2. **Hyper-Kristalle (`CRYSTAL`):** Extrem seltene violett-pinke Währung (~5% Spawn-Chance ab 5.000m Höhe). Dient zur sofortigen **Quanten-Wiederbelebung** nach einem Absturz.
+  2. **Hyper-Kristalle (`CRYSTAL`):** Extrem seltene violett-pinke Währung (~1.0% Spawn-Chance ab 5.000m Höhe mit 2.500px Mindestabstand). Dient zur sofortigen **Quanten-Wiederbelebung** nach einem Absturz.
 
 ---
 
@@ -84,21 +84,22 @@ Die prozedurale Generierung (`WorldManager.js`) skaliert die Schwierigkeit dynam
 | **Zone 2: Stratosphäre** | 500 m – 1.500 m | 92% | 8% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste grüne Katapulte mit Aufwärtspfeilen für Weitsprünge. |
 | **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 72% | 8% | 20% | 0% | 0% | 0% | 165 – 215 px | Violette Pendelknoten erfordern horizontales Vorhalten. |
 | **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 54% | 8% | 24% | 14% | 0% | 0% | 180 – 235 px | Goldene Zeituhr-Knoten mit Countdown erzwingen schnellen Absprung. |
-| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 40% | 6% | 28% | 18% | 8% | 0% | 190 – 245 px | Orangene Fissuren-Knoten (zerbrechen sofort bei Einhaken) erfordern Wachsamkeit. |
-| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 28% | 8% | 32% | 22% | 10% | **~14% Korridor** | 195 – 250 px | **Weltraum-Minen:** Tödliche Detonation bei Berührung! |
-| **Zone 7: Meister-Kosmos** | 15.000 m+ | 18% | 8% | 36% | 26% | 12% | **~22% Korridor** | 200 – 260 px | 62% dynamische Knoten (Zeituhr + Pendel) in dichtem Minenfeld. |
+| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 34% | 8% | 26% | 26% | 6% | 0% | 190 – 245 px | Mehr Zeituhr-Knoten (26%) fordern zügigen Rhythmus; seltene Fissuren. |
+| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 24% | 8% | 28% | 34% | 6% | **~7% Korridor** | 195 – 250 px | **Dominante Zeituhr-Knoten (34%) & moderate Minen (~7%):** Schnelles Weiterspringen gefordert. |
+| **Zone 7: Meister-Kosmos** | 15.000 m+ | 16% | 8% | 28% | 42% | 6% | **~10% Korridor** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Pendel) bei reduzierter Minendichte (~10%). |
 
 ### Detailbeschreibung aller 6 Entitäten
 1. **STANDARD (Cyan `#00f0ff`):** Solider, dauerhafter Orbit-Anker.
-2. **SUPER-BOOST (Grün `#10b981`):** Erhöht den Katapult-Schub auf das 1,85-fache und erzeugt Warp-Streifen.
+2. **SUPER-BOOST (Grün `#10b981`):** Erhöht den Katapult-Schub auf das 1,85-fache, erzeugt Warp-Streifen und verleiht temporäre Immunität gegen Weltraum-Minen.
 3. **BEWEGLICH (Violett `#c084fc`):** Schwingt horizontal im Pendelmodus (`moveRange` bis 100px).
 4. **ZEITUHR / FRAGIL (Gold `#eab308`):** Besitzt 12 radiale Uhren-Ticks. Nach dem Einhaken tickt die Uhr ab (~0,8s). Bricht bei Ablauf mit Scherbenregen ab!
 5. **KÖDER / FISSUR (Orange `#f97316`):** Brittle Trap mit Fissur-Linien. Bricht beim Einhaken sofort entzwei; bietet keinen Halt.
 6. **BOMBE / WELTRAUM-MINE (`HAZARD` / Crimson `#ef4444`):**
-   * Spawnt ab 10.000m Höhe als tödliches Hindernis im Flugkorridor.
+   * Spawnt ab 10.000m Höhe als tödliches Hindernis im Flugkorridor (moderat skaliert: 7% bis 10%).
    * Design: 8 rotierende messerscharfe Stacheln, dunkler Kern mit 3-Flügel-Warnsymbol, gestrichelte rote Gefahrenzone.
    * Nicht einhakbar (vom Fadenkreuz ausgeschlossen).
-   * Bei Berührung: Sofortige gewaltige Explosion, Bildbeben und sofortiges Game Over ("MINE DETONIERT!").
+   * Bei regulärer Berührung: Sofortige gewaltige Detonation und Game Over ("MINE DETONIERT!").
+   * **Super-Boost Schild-Durchbruch:** Schlägt das Schiff während eines aktiven Super-Boosts (`isSuperBoosting`) auf eine Mine ein, zerschellt die Mine schadlos in einer smaragdgrünen Schockwelle ("MINE ZERSTÖRT!"). Der Pilot fliegt ungebremst weiter!
 
 ---
 
