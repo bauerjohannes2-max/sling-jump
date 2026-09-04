@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.31.1  
+Dokumentationsstand: Version 3.32.0  
 Aktualisiert am: 04. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -155,15 +155,16 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 
 ## 6. WIEDERBELEBUNGS-SYSTEM (QUANTUM REVIVE) & HYPER-KRISTALLE
 
-* **Zentrierte Kamera-Positionierung & Sichtbarkeits-Garantie:**
-  * **Checkpoint-Ermittlung (`triggerGameOver`):** Beim Absturz sucht die Engine im aktiven Sichtfeld gezielt nach intakten Standard-Knoten im mittleren 25%–75% Bereich (`midScreenY = this.cameraY + this.height * 0.50`).
-  * **Kamera-Neuausrichtung (`revivePlayer`):** Beim Wiederbeleben wird `this.cameraY = targetAnchor.y - this.height * 0.50` gesetzt. Dadurch befindet sich der Anker mathematisch garantiert exakt bei 50% der Bildschirmhöhe (`screenY = this.height * 0.50`), meilenweit entfernt von der unteren Todeslinie (`DEATH_BUFFER_PX = 4px`).
-  * **Direktes, unfehlbares Einhaken:** Die Wiederbelebung hängt nicht von dynamischen Fangradien oder `tryHook`-Prüfungen ab. Das Raumschiff wird sofort und verlässlich im Orbit arretiert (`isHooked = true`, `hookedNode = targetAnchor`, `orbitRadius = 65`, `orbitSpeed = 520 px/s`, `vx = 0`, `vy = 0`).
-  * **Physik-Freeze während der Absturzsequenz:** Sobald `isDying = true` gesetzt wird, sind Positionsupdates des Schiffs und der Kamera während des 700ms Hitstop-Schadensablaufs eingefroren. Dies verhindert, dass das zerstörte Schiff hunderte Pixel tief in den unsichtbaren Abgrund stürzt.
-  * **Garantierter Folge-Pfad:** Die Engine prüft, ob oberhalb des Respawn-Knotens im Bereich `[targetAnchor.y + 110, targetAnchor.y + 240]` ein sicherer Sprungknoten existiert. Ist dies nicht der Fall, wird automatisch ein solider `STANDARD`-Knoten erzeugt, um dem Piloten eine faire, klare Sprungbahn zu gewährleisten.
-  * **Schweif- & Gefahren-Reset:** Frühere Absturz-Schweife werden gelöscht (`trailHistory = []`) und Gefahren-Ränder zurückgesetzt (`setDangerVisual(0)`).
-* **4,0 Sekunden Quanten-Schutzschild:**
-  * Schützt vor sofortigen Kollisionen nach der Wiederbelebung. Dargestellt durch rotierende, hexagonale Vektor-Energiefacetten in pulsierendem Magenta (`#d946ef`).
+* **Garantierter Peak-Altitude Checkpoint & Sichtbarkeits-Garantie:**
+  * **Verankerung am wahren Höhen-Peak (`triggerGameOver`):** Nach einem Void-Absturz orientiert sich die Engine nicht am Absturzort, sondern mathematisch strikt an der erreichten Höchstmarke: $\text{peakY} = \max(380, \text{maxAltitudeMeters} / 0.125)$. Der Pilot verliert somit niemals seinen Höhengewinn.
+  * **Weitsichtige Kamera-Positionierung (`revivePlayer`):** Beim Wiederbeleben wird `this.cameraY = targetAnchor.y - this.height * 0.58` gesetzt. Dadurch befindet sich der Anker im oberen Mittelfeld bei 42% der Bildschirmhöhe (`screenY = 430px`). Es verbleibt ein 58%-Sicherheitskorridor nach unten – die rote Void ist meilenweit entfernt.
+  * **Sicherheits-Perimeter & Desintegration:** Sämtliche Minen (`HAZARD`) und Trümmer im Umkreis von 320px um den Respawn-Anker werden restlos desintegriert.
+  * **Direktes, unfehlbares Einhaken:** Das Raumschiff wird sofort und verlässlich im Orbit arretiert (`isHooked = true`, `hookedNode = targetAnchor`, `orbitRadius = 65`, `orbitSpeed = 420 px/s`, `vx = 0`, `vy = 0`, Aufwärtsorbit).
+  * **Garantierte 3-Stufen Aufstiegsleiter:** Über dem Respawn-Anker werden automatisch drei verlässliche `STANDARD`-Knoten (+155px, +310px, +465px) generiert, um einen fairen, barrierefreien Aufstieg sicherzustellen.
+* **Quanten-Sicherheitsnetz (Automatisches Trampolin):**
+  * Gerät der Pilot während der 4-Sekunden-Schutzphase in die Nähe der unteren Todesgrenze (`player.y <= cameraY + 60`), löst ein automatischer Quanten-Rückstoß aus: $\text{vy} = \max(540, |\text{vy}| + 220)$ samt Schockwelle, violettem Funkenregen und Textanzeige "QUANTEN-RÜCKSTOSS!". Ein Void-Tod ist während des Schildes physikalisch unmöglich.
+* **Absprung-Sicherheit (`Spaceship.releaseHook`):**
+  * Während des 4,0s-Quantenschilds erzwingt jeder Katapultsprung eine garantierte Mindest-Aufwärtsgeschwindigkeit von `vy >= 320 px/s`. Ein versehentliches Schießen nach unten in den Abgrund wird zuverlässig unterbunden.
 * **Kosten:** 1 Hyper-Kristall (1x pro Run nutzbar).
 
 ---

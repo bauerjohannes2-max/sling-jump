@@ -343,19 +343,14 @@ class GameEngine {
             const comboColors = ['#fbbf24', '#f59e0b', '#a855f7', '#c084fc', '#ec4899', '#f43f5e', '#ef4444', '#06b6d4', '#38bdf8', '#10b981'];
             const color = comboColors[Math.min(this.slingshotCombo - 1, comboColors.length - 1)];
 
-            // Single unified label: "PERFEKT 90° (+10% TEMPO)" on x1, and "COMBO xN (+N% TEMPO)" on chains (Zero Emojis)
+            // Minimalist Arcade Combo Label: "PERFEKT" on x1, and "COMBO xN" on chains (Clean & Punchy)
             const label = this.slingshotCombo === 1
-              ? `PERFEKT 90° (+${speedPct}% TEMPO)`
-              : (this.slingshotCombo >= 10
-                ? `MAX COMBO x10 (+${speedPct}% TEMPO)`
-                : (this.slingshotCombo >= 5 ? `HYPER x${this.slingshotCombo} (+${speedPct}% TEMPO)` : `COMBO x${this.slingshotCombo} (+${speedPct}% TEMPO)`));
+              ? 'PERFEKT'
+              : `COMBO x${this.slingshotCombo}`;
 
-            const comboFontSize = Math.min(34, 22 + this.slingshotCombo * 1.2);
+            const comboFontSize = Math.min(32, 22 + this.slingshotCombo * 1.0);
             this.particles.spawnFloatingText(this.player.x, this.player.y + 40, label, color, comboFontSize, true);
             if (this.ui) this.ui.showComboBadge(label, color);
-
-            // Pop immediate coin bonus notification
-            this.particles.spawnFloatingText(this.player.x, this.player.y + 70, `+${bonusCoins} GOLD`, '#fbbf24', 15);
 
             if (this.slingshotCombo >= 4) {
               this.triggerScreenShake(Math.min(4, this.slingshotCombo - 2));
@@ -391,24 +386,23 @@ class GameEngine {
 
     this.particles.spawnShards(this.player.x, this.player.y, 35, '#ef4444');
 
-    // Save accurate crash checkpoint state targeting the comfortable middle region of the visible viewport
-    const midScreenY = this.cameraY + this.height * 0.50;
-    const candidates = this.world.nodes.filter(n =>
+    // Target true peak altitude achieved by the pilot (never leave them stranded at the void bottom)
+    const peakY = Math.max(380, Math.floor(this.maxAltitudeMeters / CONSTANTS.PHYSICS.METERS_PER_PIXEL));
+
+    // Find closest valid anchor to peakY
+    const safeCandidates = this.world.nodes.filter(n =>
       !n.isBroken &&
       n.type !== 'DECOY' &&
       n.type !== 'HAZARD' &&
-      n.y >= this.cameraY + this.height * 0.25 &&
-      n.y <= this.cameraY + this.height * 0.75
+      Math.abs(n.y - peakY) <= 320
     );
-
-    // Sort by proximity to viewport center
-    candidates.sort((a, b) => Math.abs(a.y - midScreenY) - Math.abs(b.y - midScreenY));
-    const anchor = candidates.length > 0 ? candidates[0] : null;
+    safeCandidates.sort((a, b) => Math.abs(a.y - peakY) - Math.abs(b.y - peakY));
+    const anchor = safeCandidates.length > 0 ? safeCandidates[0] : null;
 
     this.reviveCheckpoint = {
-      cameraY: this.cameraY,
+      cameraY: (anchor ? anchor.y : peakY) - this.height * 0.58,
       maxAltitudeMeters: this.maxAltitudeMeters,
-      anchorY: anchor ? anchor.y : midScreenY,
+      anchorY: anchor ? anchor.y : peakY,
       anchorX: anchor ? anchor.x : this.width / 2
     };
 
@@ -455,36 +449,50 @@ class GameEngine {
     this.storage.recordRevive();
     this.isDying = false;
 
-    // Restore altitude and camera state from checkpoint
+    // Restore altitude and checkpoint at pilot's peak height
+    const peakY = Math.max(380, Math.floor(this.maxAltitudeMeters / CONSTANTS.PHYSICS.METERS_PER_PIXEL));
     const cp = this.reviveCheckpoint || {
-      cameraY: this.cameraY,
+      cameraY: peakY - this.height * 0.58,
       maxAltitudeMeters: this.maxAltitudeMeters,
-      anchorY: this.cameraY + this.height * 0.50,
+      anchorY: peakY,
       anchorX: this.width / 2
     };
 
     this.maxAltitudeMeters = cp.maxAltitudeMeters;
     this.gameStarted = true;
 
-    // Find or create a safe solid anchor node at the checkpoint height
-    let targetAnchor = this.world.nodes.find(n =>
+    // Find the closest safe anchor to cp.anchorY (sorted by closeness, never lowest first)
+    const matchingNodes = this.world.nodes.filter(n =>
       !n.isBroken &&
       n.type !== 'DECOY' &&
       n.type !== 'HAZARD' &&
-      Math.abs(n.y - cp.anchorY) < 120
+      Math.abs(n.y - cp.anchorY) < 180
     );
+    matchingNodes.sort((a, b) => Math.abs(a.y - cp.anchorY) - Math.abs(b.y - cp.anchorY));
+
+    let targetAnchor = matchingNodes.length > 0 ? matchingNodes[0] : null;
 
     if (!targetAnchor) {
       targetAnchor = new OrbitNode(cp.anchorX, cp.anchorY, 'STANDARD', this.width, cp.maxAltitudeMeters);
       this.world.nodes.push(targetAnchor);
     }
 
+    // Guarantee targetAnchor is 100% solid STANDARD and safe
     targetAnchor.isBroken = false;
     targetAnchor.type = 'STANDARD';
+    targetAnchor.isHazard = false;
+    targetAnchor.isDecoy = false;
     targetAnchor.isHooked = true;
 
-    // Recenter camera precisely so targetAnchor is centered at 50% viewport height
-    this.cameraY = targetAnchor.y - this.height * 0.50;
+    // Vaporize all hazards and broken debris in a wide 350px safe perimeter around respawn anchor
+    this.world.nodes = this.world.nodes.filter(n =>
+      n === targetAnchor ||
+      n.type !== 'HAZARD' ||
+      Math.hypot(n.x - targetAnchor.x, n.y - targetAnchor.y) > 320
+    );
+
+    // Recenter camera with generous 58% lower buffer (Anchor sits in upper-middle at 42% from top)
+    this.cameraY = targetAnchor.y - this.height * 0.58;
 
     // Direct, guaranteed hook attachment centered in the visible viewport
     this.player.x = targetAnchor.x + 65;
@@ -496,7 +504,7 @@ class GameEngine {
     this.player.orbitRadius = 65;
     this.player.orbitAngle = 0;
     this.player.orbitDirection = 1;
-    this.player.orbitSpeed = 520; // Smooth, manageable entry orbit speed
+    this.player.orbitSpeed = 420; // Smooth, manageable entry orbit speed
     this.player.shieldTimer = 4.0; // 4 seconds quantum invulnerability shield
     this.player.trailHistory = []; // Wipe any void plunge streak
 
@@ -507,6 +515,7 @@ class GameEngine {
     // Shockwave & Quantum VFX
     this.triggerScreenShake(6);
     this.triggerHitstop(16);
+    this.particles.spawnShockwave(targetAnchor.x, targetAnchor.y, '#d946ef', 90);
     this.particles.spawnShards(this.player.x, this.player.y, 40, '#d946ef');
     this.particles.spawnSparks(this.player.x, this.player.y, 25, '#f43f5e', 2.0);
     this.particles.spawnFloatingText(this.player.x, this.player.y + 45, 'WIEDERBELEBT!', '#d946ef', 34, true);
@@ -514,19 +523,25 @@ class GameEngine {
     // Audio
     this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
 
-    // Guarantee at least one valid, safe forward jump target above the respawn node
-    const forwardNodes = this.world.nodes.filter(n =>
-      !n.isBroken &&
-      n.type !== 'DECOY' &&
-      n.type !== 'HAZARD' &&
-      n.y > targetAnchor.y + 110 &&
-      n.y <= targetAnchor.y + 240
-    );
-    if (forwardNodes.length === 0) {
-      const forwardY = targetAnchor.y + 165;
-      const forwardX = Math.max(90, Math.min(this.width - 90, targetAnchor.x + (Math.random() - 0.5) * 120));
-      const nextNode = new OrbitNode(forwardX, forwardY, 'STANDARD', this.width, forwardY * CONSTANTS.PHYSICS.METERS_PER_PIXEL);
-      this.world.nodes.push(nextNode);
+    // Guarantee 3 safe, solid ascending steps above the respawn node
+    let lastLadderX = targetAnchor.x;
+    for (let step = 1; step <= 3; step++) {
+      const minStepY = targetAnchor.y + step * 150 - 45;
+      const maxStepY = targetAnchor.y + step * 150 + 55;
+      const hasNodeInStep = this.world.nodes.some(n =>
+        !n.isBroken &&
+        n.type !== 'DECOY' &&
+        n.type !== 'HAZARD' &&
+        n.y >= minStepY &&
+        n.y <= maxStepY
+      );
+      if (!hasNodeInStep) {
+        const stepY = targetAnchor.y + step * 155;
+        const stepX = Math.max(90, Math.min(this.width - 90, lastLadderX + (step % 2 === 0 ? 110 : -110)));
+        const ladderNode = new OrbitNode(stepX, stepY, 'STANDARD', this.width, stepY * CONSTANTS.PHYSICS.METERS_PER_PIXEL);
+        this.world.nodes.push(ladderNode);
+        lastLadderX = stepX;
+      }
     }
 
     // Sort world nodes monotonically by altitude
@@ -601,14 +616,19 @@ class GameEngine {
           const dist = Math.hypot(this.player.x - node.x, this.player.y - node.y);
           if (dist < lethalDist) {
             node.isBroken = true;
-            this.triggerScreenShake(14);
-            this.triggerHitstop(70);
+            this.triggerScreenShake(12);
+            this.triggerHitstop(40);
             this.particles.spawnShards(node.x, node.y, 45, '#ef4444');
             this.particles.spawnSparks(node.x, node.y, 35, '#f97316', 2.5);
-            this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE DETONIERT!', '#ef4444', 32, true);
             if (this.audio) this.audio.playSfx('sfx_node_shatter');
 
-            if (!this.player.shieldTimer || this.player.shieldTimer <= 0) {
+            if (this.player.isSuperBoosting || this.player.boostTimer > 0) {
+              // Green Super-Boost Immunity: Shatter mine cleanly without dying!
+              this.particles.spawnShockwave(node.x, node.y, '#10b981', 80);
+              this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE ZERSTÖRT!', '#10b981', 26, true);
+              if (this.audio) this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
+            } else if (!this.player.shieldTimer || this.player.shieldTimer <= 0) {
+              this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE DETONIERT!', '#ef4444', 32, true);
               this.isDying = true;
               this.triggerGameOver();
             } else {
@@ -716,7 +736,7 @@ class GameEngine {
           } else if (this.player.y < 680) {
             this.ui.showTutorialTip('ZEITUHR: TICKT AB! SCHNELL WEITERSPRINGEN');
           } else if (this.player.y < 920) {
-            this.ui.showTutorialTip('BRÜCHIGER KNOTEN: RISSIG! NICHT GREIFEN, ÜBERSPRINGEN');
+            this.ui.showTutorialTip('BRÜCHIGER KNOTEN: ZERFÄLLT SOFORT! ÜBERSPRINGEN');
           } else if (this.player.y >= 980) {
             // Tutorial Completed! Seamlessly transition into regular run with +50 bonus currency
             this.isTutorial = false;
@@ -738,6 +758,18 @@ class GameEngine {
             this.player.tryHook(anchor, this.audio, null, this.particles, this.cameraY);
             this.ui.showTutorialTip('WIEDERHOLUNG: HALTE GEDRÜCKT ZUM EINHAKEN');
           }
+        }
+
+        // 6b. Quantum Safety Trampoline (Bounce ship back up if falling near void during quantum shield)
+        if (!this.isTutorial && this.player.shieldTimer > 0 && this.player.y <= this.cameraY + 60) {
+          this.player.vy = Math.max(540, Math.abs(this.player.vy) + 220);
+          this.player.y = this.cameraY + 65;
+          this.triggerScreenShake(5);
+          this.triggerHitstop(12);
+          this.particles.spawnShockwave(this.player.x, this.player.y, '#d946ef', 60);
+          this.particles.spawnSparks(this.player.x, this.player.y, 25, '#d946ef', 2.0);
+          this.particles.spawnFloatingText(this.player.x, this.player.y + 35, 'QUANTEN-RÜCKSTOSS!', '#d946ef', 22, true);
+          if (this.audio) this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
         }
 
         // 7. Death Collision (Disabled in Tutorial and during Active Shield)

@@ -381,7 +381,7 @@
   async function checkServerVersion(isManual = false) {
     if (!window.location.protocol.startsWith('http')) return;
     const btnCheck = document.getElementById('btn-check-update');
-    const currentVer = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? CONSTANTS.VERSION : '3.31.1';
+    const currentVer = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? CONSTANTS.VERSION : '3.32.0';
     const currentVerTag = `v${currentVer}`;
 
     if (isManual && btnCheck) {

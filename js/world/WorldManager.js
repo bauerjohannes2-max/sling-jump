@@ -104,22 +104,22 @@ class WorldManager {
         typeProbabilities = { standard: 0.54, moving: 0.24, fragile: 0.14, boost: 0.08, decoy: 0.0 };
         forkProbability = 0.12;
       } else if (altitude < 10000) {
-        // ZONE 5: EXOSPHÄRE (6500m - 10000m) -> Zeituhr (18%) + Bewegliche (28%) + Köder-Fissuren (8%)
+        // ZONE 5: EXOSPHÄRE (6500m - 10000m) -> Zeituhr-Knoten (26%) + Bewegliche (26%) + Standard (34%)
         minGap = 190;
         maxGap = 245;
-        typeProbabilities = { standard: 0.40, moving: 0.28, fragile: 0.18, decoy: 0.08, boost: 0.06 };
+        typeProbabilities = { standard: 0.34, moving: 0.26, fragile: 0.26, decoy: 0.06, boost: 0.08 };
         forkProbability = 0.10;
       } else if (altitude < 15000) {
-        // ZONE 6: TIEFRAUM-GEFAHRENZONE (10000m - 15000m) -> Zeituhr (22%) + Bewegliche (32%) + Weltraum-Minen
+        // ZONE 6: TIEFRAUM-GEFAHRENZONE (10000m - 15000m) -> Mehr Zeituhr-Knoten (34%) + Bewegliche (28%) + reduzierte Minen
         minGap = 195;
         maxGap = 250;
-        typeProbabilities = { standard: 0.28, moving: 0.32, fragile: 0.22, decoy: 0.10, boost: 0.08 };
+        typeProbabilities = { standard: 0.24, moving: 0.28, fragile: 0.34, decoy: 0.06, boost: 0.08 };
         forkProbability = 0.10;
       } else {
-        // ZONE 7: MEISTER-KOSMOS (15000m+) -> Extreme Dynamik (26% Zeituhr + 36% Beweglich) + hohe Minendichte
+        // ZONE 7: MEISTER-KOSMOS (15000m+) -> Dominante Zeituhr-Knoten (42%) + Hohe Dynamik (28% Beweglich)
         minGap = 200;
         maxGap = 260;
-        typeProbabilities = { standard: 0.18, moving: 0.36, fragile: 0.26, decoy: 0.12, boost: 0.08 };
+        typeProbabilities = { standard: 0.16, moving: 0.28, fragile: 0.42, decoy: 0.06, boost: 0.08 };
         forkProbability = 0.10;
       }
 
@@ -229,8 +229,8 @@ class WorldManager {
         this.spawnStarFormation(prevNode, newNode, width);
       }
 
-      // 5. LETHAL HAZARD SPACE MINE SPAWN (Altitude >= 10,000m)
-      const mineChance = altitude >= 15000 ? 0.22 : 0.14;
+      // 5. LETHAL HAZARD SPACE MINE SPAWN (Altitude >= 10,000m - rebalanced: fewer mines, more time circles)
+      const mineChance = altitude >= 15000 ? 0.10 : 0.07;
       if (altitude >= 10000 && Math.random() < mineChance) {
         const prevNode = this.nodes[this.nodes.length - 2] || this.nodes[this.nodes.length - 1];
         if (prevNode && prevNode.type !== 'HAZARD') {
@@ -288,9 +288,10 @@ class WorldManager {
     const dx = newNode.x - prevNode.x;
     const dy = newNode.y - prevNode.y;
 
-    // 1. Ultra-Rare Hyper-Kristall Spawn (~5% chance, strictly above 5,000m deep space altitude)
+    // 1. Ultra-Rare Hyper-Kristall Spawn (Rebalanced: strictly 1.0% chance above 5,000m deep space altitude)
     const currentAltitudeMeters = this.lastNodeY * (CONSTANTS.PHYSICS.METERS_PER_PIXEL || 0.125);
-    if (currentAltitudeMeters >= 5000 && Math.random() < 0.05) {
+    const hasNearbyCrystal = this.energyOrbs.some(o => o.type === 'CRYSTAL' && Math.abs(o.y - this.lastNodeY) < 2500);
+    if (currentAltitudeMeters >= 5000 && !hasNearbyCrystal && Math.random() < 0.01) {
       const crystalX = Math.random() * (width - 140) + 70;
       const crystalY = (prevNode.y + newNode.y) / 2 + (Math.random() * 20 - 10);
       this.addSafeStar(crystalX, crystalY, width, 'CRYSTAL');

@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC32 - v3.31.1 - Instant Cache-Busting, Static version.json & Robust Auto-Update System)  
+> **Status:** Release Candidate (RC33 - v3.32.0 - Peak-Altitude Respawn & Quantum Safety Trampoline)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,22 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.32.0 (04.09.2026) - Peak-Altitude Respawn & Quantum Safety Trampoline
+* **1. Garantierter Peak-Altitude Checkpoint (`GameEngine.js`):**
+  * **Ursachen-Analyse:** Nach einem Void-Absturz aus großen Höhen (z.B. 500m) suchte die Engine bisher im Bereich der Todes-Kamera nach verbliebenen Knoten und griff über `find()` oft den tiefsten Knoten knapp über der Todeslinie auf.
+  * **Verankerung am wahren Höhen-Peak:** `triggerGameOver()` und `revivePlayer()` orientieren sich nun mathematisch strikt an der vom Piloten erreichten Höchstmarke: $\text{peakY} = \max(380, \text{maxAltitudeMeters} / 0.125)$.
+  * **Sicherheits-Perimeter:** Trümmer und Minen (`HAZARD`) im Umkreis von 320px um den Respawn-Anker werden restlos desintegriert.
+* **2. Weitsichtige Kamera-Positionierung:**
+  * Die Kamera wird mit einem großzügigen 58%-Unterpuffer zentriert: $\text{this.cameraY} = \text{targetAnchor.y} - \text{this.height} \times 0.58$. Der Anker liegt komfortabel im oberen Mittelfeld bei 42% Bildschirmhöhe (`screenY = 430px`), meilenweit entfernt von der roten Void.
+* **3. Quanten-Sicherheitsnetz (Trampolin-Rückstoß):**
+  * Sollte der Pilot während der 4-Sekunden-Schutzphase (`shieldTimer > 0`) in Richtung der unteren Todesgrenze geraten (`player.y <= cameraY + 60`), löst ein automatischer Quanten-Rückstoß aus: $\text{vy} = \max(540, |\text{vy}| + 220)$ mit violetten Partikeln, Schockwelle und Boost-Sound. Ein erneuter Void-Tod nach dem Wiederbeleben ist damit physikalisch unmöglich.
+* **4. Absprung-Schutz während Schutzschild (`Spaceship.js`):**
+  * Bei jedem Katapult-Absprung während aktivem Quantenschild wird eine garantierte Mindest-Aufwärtsgeschwindigkeit von `vy >= 320 px/s` erzwungen, sodass ein versehentliches Schießen nach unten verhindert wird.
+* **5. Garantierte 3-Stufen Aufstiegsleiter:**
+  * Über dem Respawn-Anker werden automatisch drei verlässliche `STANDARD`-Knoten (+155px, +310px, +465px) generiert.
+* **6. Automatisierte Playwright-Verifikation:**
+  * Test-Schritt 10b verifiziert bei 490m Höhe: `screenY = 430.4px` (Ratio 0.54), `hooked = true`, `shield = 3.6s`, 0 Konsolenfehler, 18 frische Screenshots.
 
 ### v3.31.1 (04.09.2026) - Instant Cache-Busting, Static version.json & Robust Auto-Update System
 * **1. Behebung der Service-Worker Cache-Falle & "Server nicht erreicht":**

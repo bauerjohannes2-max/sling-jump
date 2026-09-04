@@ -26,6 +26,8 @@ class Spaceship {
     this.rotationAngle = 0; // For rotating parts like Orbit Ring
     this.shieldTimer = 0; // Quantum invulnerability shield timer (active after revive)
     this.combo = 0; // Current active consecutive 90-deg launch combo
+    this.isSuperBoosting = false; // Green super-boost state (immune to hazard space mine death)
+    this.boostTimer = 0;
   }
 
   getComboSpeedMultiplier() {
@@ -64,13 +66,14 @@ class Spaceship {
       closestNode.breakNode(audio, null);
       if (particleSystem) {
         particleSystem.spawnShards(closestNode.x, closestNode.y, 25, '#f97316');
-        particleSystem.spawnFloatingText(closestNode.x, closestNode.y + 25, 'RISSIG!', '#ef4444');
       }
       return false;
     }
 
     this.isHooked = true;
     this.hookedNode = closestNode;
+    this.isSuperBoosting = false;
+    this.boostTimer = 0;
     this.orbitRadius = Math.max(55, Math.min(dist, 110));
     this.orbitAngle = Math.atan2(dy, dx);
 
@@ -108,6 +111,8 @@ class Spaceship {
     let releaseMultiplier = 1.0;
     if (isBoost && !forced) {
       releaseMultiplier = CONSTANTS.PHYSICS.BOOST_MULTIPLIER;
+      this.isSuperBoosting = true;
+      this.boostTimer = 2.4;
     }
 
     // Razor-sharp 90-degree steep launch check (tightened threshold: ~5.7 deg of pure vertical)
@@ -130,6 +135,11 @@ class Spaceship {
 
     if (this.vy > 0 && !forced && !isPerfectLaunch) {
       this.vy += 80;
+    }
+
+    // Quantum Revive Safety: Guarantee strong upward boost during shield (prevents downward plunge)
+    if (this.shieldTimer > 0 && !forced) {
+      this.vy = Math.max(this.vy, 320);
     }
 
     if (node) {
@@ -180,6 +190,12 @@ class Spaceship {
     this.rotationAngle += dt * 4;
     if (this.shieldTimer > 0) {
       this.shieldTimer = Math.max(0, this.shieldTimer - dt);
+    }
+    if (this.boostTimer > 0) {
+      this.boostTimer = Math.max(0, this.boostTimer - dt);
+      if (this.boostTimer === 0) {
+        this.isSuperBoosting = false;
+      }
     }
 
     // Trail recording
