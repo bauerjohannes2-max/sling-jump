@@ -372,7 +372,7 @@
     document.body.focus();
 
     // Dynamically inject single source of truth version into all DOM elements
-    const currentVerTag = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? `v${CONSTANTS.VERSION}` : 'v3.17.0';
+    const currentVerTag = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? `v${CONSTANTS.VERSION}` : 'v3.33.0';
     document.querySelectorAll('.app-version-tag').forEach(el => { el.textContent = currentVerTag; });
     document.querySelectorAll('.settings-version-tag').forEach(el => { el.textContent = `SLING JUMP ${currentVerTag}`; });
   }
@@ -381,7 +381,7 @@
   async function checkServerVersion(isManual = false) {
     if (!window.location.protocol.startsWith('http')) return;
     const btnCheck = document.getElementById('btn-check-update');
-    const currentVer = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? CONSTANTS.VERSION : '3.32.0';
+    const currentVer = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? CONSTANTS.VERSION : '3.33.0';
     const currentVerTag = `v${currentVer}`;
 
     if (isManual && btnCheck) {
