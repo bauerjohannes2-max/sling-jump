@@ -1196,6 +1196,9 @@ canvas#gameCanvas {
 .shop-grid-container {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1392,6 +1395,9 @@ canvas#gameCanvas {
 .hub-tab-panel {
   display: none;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
   padding-right: 4px;
   max-height: 440px;
 }
@@ -1493,6 +1499,9 @@ canvas#gameCanvas {
   gap: 5px;
   max-height: 280px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
   padding-right: 4px;
 }
 .leaderboard-row {

@@ -21,12 +21,9 @@ class InputManager {
   }
 
   initListeners() {
-    // Keyboard Listeners
+    // Keyboard Listeners (Window capture)
     window.addEventListener('keydown', (e) => this.handleKeyDown(e), { capture: true });
-    document.addEventListener('keydown', (e) => this.handleKeyDown(e), { capture: true });
-
     window.addEventListener('keyup', (e) => this.handleKeyUp(e), { capture: true });
-    document.addEventListener('keyup', (e) => this.handleKeyUp(e), { capture: true });
 
     // Mouse Listeners
     window.addEventListener('mousedown', (e) => {

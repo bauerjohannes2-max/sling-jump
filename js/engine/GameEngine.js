@@ -337,7 +337,7 @@ class GameEngine {
             this.ui.updateCurrency();
 
             // 2. Dynamic Speed Boost Feedback
-            const speedFactors = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_SPEED_FACTORS) || [1.0, 1.10, 1.18, 1.26, 1.34, 1.42, 1.48, 1.54, 1.60, 1.65, 1.70];
+            const speedFactors = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_SPEED_FACTORS) || [1.0, 1.03, 1.06, 1.09, 1.12, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30];
             const speedPct = Math.round((speedFactors[Math.min(this.slingshotCombo, speedFactors.length - 1)] - 1.0) * 100);
 
             const comboColors = ['#fbbf24', '#f59e0b', '#a855f7', '#c084fc', '#ec4899', '#f43f5e', '#ef4444', '#06b6d4', '#38bdf8', '#10b981'];
@@ -506,7 +506,7 @@ class GameEngine {
     this.player.orbitDirection = 1;
     this.player.orbitSpeed = 420; // Smooth, manageable entry orbit speed
     this.player.shieldTimer = 4.0; // 4 seconds quantum invulnerability shield
-    this.player.trailHistory = []; // Wipe any void plunge streak
+    this.player.trailHistory.length = 0; // Wipe any void plunge streak while preserving pool
 
     // Clear danger overlay & enable slow-mo visual
     this.ui.setDangerVisual(0);
@@ -561,7 +561,7 @@ class GameEngine {
      MASTER LOOP & UPDATE CYCLE
      ========================================================================= */
   update(now) {
-    const rawDt = Math.min((now - this.lastFrameTime) / 1000, 0.1);
+    const rawDt = Math.min((now - this.lastFrameTime) / 1000, 0.033);
     this.lastFrameTime = now;
 
     // Poll Gamepad

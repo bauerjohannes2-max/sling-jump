@@ -102,8 +102,17 @@ class StorageService {
     if (!CONSTANTS.TRAILS.some(t => t.id === merged.selectedTrail)) {
       merged.selectedTrail = CONSTANTS.TRAILS[0].id;
     }
-    merged.unlockedShips = [CONSTANTS.SHIPS[0].id];
-    merged.unlockedTrails = [CONSTANTS.TRAILS[0].id];
+    if (!Array.isArray(merged.unlockedShips) || merged.unlockedShips.length === 0) {
+      merged.unlockedShips = [CONSTANTS.SHIPS[0].id];
+    } else if (!merged.unlockedShips.includes(CONSTANTS.SHIPS[0].id)) {
+      merged.unlockedShips.unshift(CONSTANTS.SHIPS[0].id);
+    }
+
+    if (!Array.isArray(merged.unlockedTrails) || merged.unlockedTrails.length === 0) {
+      merged.unlockedTrails = [CONSTANTS.TRAILS[0].id];
+    } else if (!merged.unlockedTrails.includes(CONSTANTS.TRAILS[0].id)) {
+      merged.unlockedTrails.unshift(CONSTANTS.TRAILS[0].id);
+    }
 
     if (!Array.isArray(merged.unlockedThemes) || merged.unlockedThemes.length === 0) {
       merged.unlockedThemes = ['deep_space'];
@@ -185,12 +194,30 @@ class StorageService {
     }
   }
 
-  save() {
+  save(immediate = true) {
+    if (!immediate) {
+      if (this._saveTimer) return;
+      this._saveTimer = setTimeout(() => {
+        this._saveTimer = null;
+        this.save(true);
+      }, 1500);
+      return;
+    }
+
+    if (this._saveTimer) {
+      clearTimeout(this._saveTimer);
+      this._saveTimer = null;
+    }
+
     try {
       localStorage.setItem(this.key, JSON.stringify(this.data));
     } catch (err) {
-      console.error('StorageService: Failed to write to localStorage', err);
+      console.warn('StorageService: Failed to write to localStorage (quota or disabled)', err);
     }
+  }
+
+  saveDeferred() {
+    this.save(false);
   }
 
   resetAll() {
