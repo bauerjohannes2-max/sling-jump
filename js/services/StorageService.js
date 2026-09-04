@@ -42,7 +42,8 @@ class StorageService {
         pilotName: StorageService.generateRandomGamerTag(),
         callsign: 'KOSMOS',
         playerId: StorageService.generateUniqueUserId(),
-        registeredAt: new Date().toISOString()
+        registeredAt: new Date().toISOString(),
+        nameChanges: 0
       },
       
       // Daily & Weekly Mission System
@@ -153,6 +154,9 @@ class StorageService {
     if (!merged.playerProfile.pilotName || merged.playerProfile.pilotName === 'Gast-Pilot' || merged.playerProfile.pilotName.startsWith('Pilot') || merged.playerProfile.pilotName.trim() === '') {
       merged.playerProfile.pilotName = StorageService.generateRandomGamerTag();
     }
+    if (typeof merged.playerProfile.nameChanges !== 'number') {
+      merged.playerProfile.nameChanges = 0;
+    }
     merged.playerProfile.registered = true;
 
     if (typeof merged.hyperCrystals !== 'number' || isNaN(merged.hyperCrystals)) {
@@ -180,29 +184,33 @@ class StorageService {
   }
 
   registerPlayer(pilotName, callsign = 'ACE') {
-    const cleanName = (pilotName || StorageService.generateRandomGamerTag()).trim().substring(0, 18);
     const existing = this.getPlayerProfile();
+    const changesCount = existing.nameChanges || 0;
+
+    // Strict 1x name change restriction
+    if (changesCount >= 1) {
+      return { success: false, profile: existing, message: 'Name kann nur einmal geändert werden.' };
+    }
+
+    const cleanName = (pilotName || '').trim().substring(0, 16);
+    if (!cleanName) {
+      return { success: false, profile: existing, message: 'Ungültiger Name.' };
+    }
+
     const id = existing.playerId || StorageService.generateUniqueUserId();
+    const hasChanged = cleanName !== existing.pilotName;
+
     this.data.playerProfile = {
+      ...existing,
       registered: true,
-      pilotName: cleanName || StorageService.generateRandomGamerTag(),
+      pilotName: cleanName,
       callsign: (callsign || 'ACE').trim().toUpperCase().substring(0, 12),
       playerId: id,
+      nameChanges: hasChanged ? (changesCount + 1) : changesCount,
       registeredAt: existing.registeredAt || new Date().toISOString()
     };
     this.save();
-    return this.data.playerProfile;
-  }
-
-  rerollGamerTag() {
-    const newTag = StorageService.generateRandomGamerTag();
-    if (!this.data.playerProfile) {
-      this.data.playerProfile = this.getDefaultState().playerProfile;
-    }
-    this.data.playerProfile.pilotName = newTag;
-    this.data.playerProfile.registered = true;
-    this.save();
-    return newTag;
+    return { success: true, profile: this.data.playerProfile, message: 'Profil aktualisiert.' };
   }
 
   getPlayerProfile() {
@@ -311,10 +319,13 @@ class StorageService {
     }
 
     // Add to Top 5 Leaderboard
+    const profile = this.getPlayerProfile();
     const entry = {
       score: totalScore,
       altitude: altitude,
       cores: coresCollected,
+      name: profile.pilotName || 'Player',
+      ship: this.data.selectedShip || 'dart',
       date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
     };
 

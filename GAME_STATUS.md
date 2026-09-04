@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC35 - v3.34.0 - Seamless Gaming Profiles, Active Status Pill & Telemetry Analytics)  
+> **Status:** Release Candidate (RC36 - v3.35.0 - Profile 1x Lock, Dynamic Leaderboard, Minimalist Combo Feedback & Accessible Tutorial)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,34 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.35.0 (04.09.2026) - Profile 1x Lock, Dynamic Leaderboard, Minimalist Combo Feedback & Accessible Tutorial
+* **1. Bereinigung des Profil-Modals & 1-malige Namensänderung (`StorageService.js`, `UIManager.js`, `index.html`):**
+  * **Entfernung des "AKTIV"-Badges:** Das grüne "• AKTIV"-Badge im Profil-Modal wurde restlos entfernt, um unnötige visuelle Redundanz zu vermeiden.
+  * **Entfernung des Zufalls-Würfels:** Der Button `#btn-profile-random` zum wiederholten Auswürfeln von Zufallsnamen wurde aus dem UI und dem Event-System getilgt.
+  * **Strikte 1x Namensänderungs-Beschränkung:**
+    * In `StorageService.js` wird die Anzahl vorgenommener Namensänderungen (`nameChanges`) im Spielstand erfasst und migriert.
+    * Spieler starten mit einem automatisch generierten Gaming-Tag und haben das Recht auf exakt **1 Namenswechsel**.
+    * Sobald der Name 1x manuell gespeichert wurde (`nameChanges >= 1`), wird das Eingabefeld gesperrt (`disabled`, opazitätsreduziert), der Speicher-Button ausgeblendet und ein klarer Status-Hinweis angezeigt: `NAME FESTGELEGT (1x GEÄNDERT)`.
+* **2. Voll funktionsfähiges, dynamisches Leaderboard (`UIManager.js`, `Constants.js`):**
+  * **Integration der echten Spieler-Daten:** Der persönliche Highscore (`storage.data.highScore`) und der aktive Gaming-Tag des Spielers werden dynamisch in die globale Highscore-Rangliste der Arcade-Rivalen eingepflegt.
+  * **Automatisches Sortieren:** Die Bestenliste sortiert alle Einträge absteigend nach Höhe.
+  * **Hervorhebung des Spielers:** Der eigene Eintrag wird visuell mit einem leuchtenden Cyan-Rahmen (`.player-entry`), weichem Glow und einem dezenten "DU"-Badge hervorgehoben.
+  * **Rang-Karten-Synchronisation:** Die Zusammenfassungs-Karte am Kopf des Leaderboards zeigt den exakten aktuellen Rang (`DEIN RANG #X`) und die entsprechende Bestleistung des Spielers in Echtzeit an.
+* **3. Minimalistisches In-Game Feedback (`GameEngine.js`, `UIManager.js`):**
+  * **Entfernung doppelter Texte:** Der statische Banner-Text am oberen Bildschirmrand (`#hud-combo-badge`) bei perfekten 90°-Abwürfen und Combos wurde entfernt.
+  * **Fokus auf Absprungpunkt:** Das Feedback (`PERFEKT`, `COMBO x2`, `COMBO x3`) erscheint ausschließlich als dynamischer Floating-Text direkt am Katapult-Punkt des Raumschiffs und lenkt den Blick nicht mehr vom Spielgeschehen ab.
+* **4. Zugängliches, vergrößertes Steuerungs-Tutorial (`index.html`, `UIManager.js`):**
+  * **Fokussierter Header:** Sämtlicher Fließtext oberhalb der Video-Leinwand wurde entfernt; der Dialog trägt einzig den prägnanten Titel `STEUERUNG`.
+  * **Vergrößerte Video-Leinwand:** Die Tutorial-Canvas-Dimensionen wurden von 320x180 px auf **360x220 px** vergrößert, was die Darstellung um über 37% vergrößert.
+  * **Verlangsamte, kinderfreundliche Lese-Taktung:**
+    * Der Animationszyklus wurde von 5,8 s auf **9,0 s** entschleunigt.
+    * Phase 1 (Anflug & Fadenkreuz): Ausgedehnt auf 2,5 s zum Erfassen der Spielsituation.
+    * Phase 2 (Halten & Orbit-Schwung): Erweitert auf 3,7 s mit 1,8 s stabiler Haltezeit, damit Kinder und Gelegenheitsspieler die Anweisung "HALTEN ZUM EINHAKEN" stressfrei lesen können.
+    * Phase 3 (Absprung & Katapult-Steigflug): Auf 2,8 s verlängert, um die Flugdynamik und den 90°-Slingshot ruhig nachvollziehen zu können.
+* **5. Playwright-Verifikation & QA-Sicherheit:**
+  * 18/18 Screenshots aktualisiert, 0 Konsolenfehler, 0 ungefangene Exceptions.
+  * Verifikation der 1x Sperre im Test-Skript (`scripts/playwright_runner.js`).
 
 ### v3.34.0 (04.09.2026) - Seamless Gaming Profiles, Active Status Pill & Telemetry Analytics
 * **1. Automatische & Bequeme Gamer-Profile (`StorageService.js`):**

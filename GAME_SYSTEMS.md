@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.34.0  
+Dokumentationsstand: Version 3.35.0  
 Aktualisiert am: 04. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -68,9 +68,10 @@ Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.co
   * Kein künstliches Aushebeln der Erdanziehung. Die Gravitation greift im Steigflug immer mit vollen 100% (`GRAVITY * dt`), sodass das Steig- und Fallverhalten physikalisch exakt vorhersehbar bleibt.
 * **Akustische Chimes:**
   * Dual-Oszillator mit chromatisch aufsteigendem Oberton (+2 Halbtöne pro Stufe von C5 bis C7).
-* **Visuelle High-Speed Effekte:**
+* **Visuelle High-Speed Effekte & Feedback:**
   * Schockwellenring am Katapult-Knoten (`spawnShockwave`).
   * Hypersonische Warpgeschwindigkeits-Streifen (`spawnSpeedStreaks`) bei Combo ab Stufe 2.
+  * **Minimalistisches Text-Feedback:** Der redundante Banner-Text am oberen Bildschirmrand (`#hud-combo-badge`) wurde entfernt. Combo- und Perfekt-Meldungen (`PERFEKT`, `COMBO x2`, etc.) erscheinen ausschließlich als dezenter Schwebetext direkt am Katapult-Punkt des Raumschiffs.
 
 ---
 
@@ -256,10 +257,14 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * **Aktiver Name im Header:** Gamer-Tag wird direkt auf dem Navigations-Button im Hauptmenü angezeigt (`.profile-nav-name`).
   * **Responsive Truncation:** Passt sich auf mobilen Bildschirmen automatisch an, ohne das Layout zu sprengen.
 
-### 10.3 Profil-Modal & 1-Klick Namenswechsel (`#profile-modal`, `UIManager.js`)
+### 10.3 Profil-Modal & Strikte 1x Namensänderung (`#profile-modal`, `UIManager.js`, `StorageService.js`)
 * **Hero Gamer Tag & ID-Badge:** Großformatige Orbitron-Darstellung und dezente Monospace-Badge (`ID: usr_...`).
-* **1-Klick Zufalls-Generator (`#btn-profile-random`):** Mit einem Klick auf den Würfel-Button wird blitzschnell ein neuer Gaming-Tag generiert und sofort live synchronisiert.
-* **Manuelle Personalisierung:** Eingabefeld für individuelle Wunsch-Tags mit sofortigem Save-Feedback ("PROFIL GESPEICHERT").
+* **Entfernung überflüssiger Elemente:**
+  * Das redundante "• AKTIV"-Badge wurde restlos entfernt.
+  * Der Zufallswürfel-Button (`#btn-profile-random`) wurde entfernt, um das Profil-UI auf das Wesentliche zu reduzieren.
+* **1x Namensänderungs-Schutz:**
+  * Spieler starten mit einem automatisch generierten Gaming-Tag und können ihren Namen genau einmal anpassen (`nameChanges: 0`).
+  * Sobald der Name 1x gespeichert wurde (`nameChanges >= 1`), wird das Textfeld gesperrt (`disabled`), der Speichern-Button ausgeblendet und der Status-Hinweis `NAME FESTGELEGT (1x GEÄNDERT)` eingeblendet.
 * **Strikte Zero-Emoji-Garantie:** Nur scharfe SVG-Vektoricons und moderne Typografie.
 
 ### 10.4 Telemetrie & Monetarisierungs-Analytics (`AnalyticsService.js`)
@@ -269,7 +274,7 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   ```json
   {
     "event": "run_completed",
-    "version": "v3.34.0",
+    "version": "v3.35.0",
     "deviceId": "dev_4k9x...",
     "sessionId": "sess_8m2b...",
     "userId": "usr_mtmx77qn2tz252",
@@ -282,3 +287,21 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Präzise Bestimmung von Daily Active Users (DAU) und Monthly Active Users (MAU).
   * Exakte Kohorten- und Retention-Messung pro Spieler ohne Datenschutz-Verstöße.
   * Grundlage für zielgerichtetes Balancing und zukünftige Monetarisierungs-Optimierungen.
+
+### 10.5 Dynamisches Arcade-Leaderboard (`UIManager.js`, `Constants.js`)
+* **Nahtlose Verschmelzung mit globaler Rangliste:**
+  * Die globale Arcade-Tabelle (`GLOBAL_LEADERBOARD_TOP`) umfasst 8 anspruchsvolle KI-Rivalen (u.a. `VortexStriker`, `CyberPhantom`, `NovaPulse`).
+  * Der persönliche Highscore (`storage.data.highScore`) und der aktive Gaming-Tag des Spielers werden dynamisch in die Rangliste integriert und absteigend sortiert.
+* **Visuelle Hervorhebung des Spielers:**
+  * Die Spielerzeile erhält die Klasse `.player-entry` mit markantem Cyan-Rahmen (`#00f5d4`), Glow-Effekt und einem "DU"-Badge.
+  * Die Summary-Karte am Kopf des Leaderboards aktualisiert in Echtzeit den eigenen Rang (`DEIN RANG #X`) sowie die eigene Bestleistung.
+
+### 10.6 Zugängliches Steuerungs-Tutorial (`index.html`, `UIManager.js`)
+* **Minimalistischer Header:** Redundante Subtitel wurden entfernt; die Modal-Kopfzeile trägt einzig den klaren Titel `STEUERUNG`.
+* **37% größere Canvas-Fläche:** Video-Canvas auf `360 x 220 px` vergrößert für optimale Erkennbarkeit auf Mobil- und Desktop-Displays.
+* **Entschleunigter 9,0s-Lernzyklus:**
+  * Speziell für Kinder und Gelegenheitsspieler verlängerte Lese- und Reaktionszeiten.
+  * **Phase 1 (Anflug, 2,5s):** Zeit zum Erkennen des Lock-On-Zielkreises.
+  * **Phase 2 (Einhaken & Orbit, 3,7s):** Ausführliche 1,8s Lesezeit für den Hinweis `HALTEN ZUM EINHAKEN`.
+  * **Phase 3 (Katapult & Steigflug, 2,8s):** Übersichtliches Nachvollziehen des idealen 90°-Abwurfs (`LOSLASSEN FÜR KATAPULT`).
+

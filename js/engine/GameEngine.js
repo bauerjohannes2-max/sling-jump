@@ -350,7 +350,6 @@ class GameEngine {
 
             const comboFontSize = Math.min(32, 22 + this.slingshotCombo * 1.0);
             this.particles.spawnFloatingText(this.player.x, this.player.y + 40, label, color, comboFontSize, true);
-            if (this.ui) this.ui.showComboBadge(label, color);
 
             if (this.slingshotCombo >= 4) {
               this.triggerScreenShake(Math.min(4, this.slingshotCombo - 2));

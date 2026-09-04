@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '3.34.0',
+  VERSION: '3.35.0',
   STORAGE_KEY: 'sling_jump_save_v2',
 
   // Physics & Mechanics
@@ -229,8 +229,17 @@ const CONSTANTS = {
     }
   ],
 
-  // Globales Leaderboard: Online-Daten (aktuell leer/nur lokaler Spieler)
-  GLOBAL_LEADERBOARD_TOP: [],
+  // Globales Arcade Leaderboard: Top-Piloten weltweit
+  GLOBAL_LEADERBOARD_TOP: [
+    { rank: 1, name: 'VortexStriker', ship: 'TITAN', altitude: 2840, score: 28400, date: '04.09.2026' },
+    { rank: 2, name: 'CyberPhantom', ship: 'SPECTRE', altitude: 2420, score: 24200, date: '04.09.2026' },
+    { rank: 3, name: 'NovaPulse', ship: 'PHÖNIX', altitude: 1980, score: 19800, date: '03.09.2026' },
+    { rank: 4, name: 'QuantumRider', ship: 'PFEIL', altitude: 1650, score: 16500, date: '03.09.2026' },
+    { rank: 5, name: 'ApexHunter', ship: 'SPECTRE', altitude: 1390, score: 13900, date: '02.09.2026' },
+    { rank: 6, name: 'SolarBlade', ship: 'PHÖNIX', altitude: 1140, score: 11400, date: '02.09.2026' },
+    { rank: 7, name: 'ZeroEcho', ship: 'PFEIL', altitude: 890, score: 8900, date: '01.09.2026' },
+    { rank: 8, name: 'CosmicViper', ship: 'PFEIL', altitude: 620, score: 6200, date: '01.09.2026' }
+  ],
 
   // Allgemeine Aufgaben-Pool (Fallback)
   QUEST_POOL: [

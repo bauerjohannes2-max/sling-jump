@@ -1597,6 +1597,15 @@ canvas#gameCanvas {
   background: rgba(205, 127, 50, 0.08);
   border-color: rgba(205, 127, 50, 0.25);
 }
+.leaderboard-row.player-entry {
+  background: rgba(56, 189, 248, 0.16);
+  border: 1.5px solid #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+}
+.leaderboard-row.player-entry .lb-name {
+  color: #38bdf8;
+  font-weight: 900;
+}
 .lb-rank {
   color: #fbbf24;
   font-weight: 800;

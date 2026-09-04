@@ -286,12 +286,12 @@ class UIManager {
       ctx.fill();
     });
 
-    // Slower, calmer cycle for clear comprehension (5.8s total)
-    const cycle = 5.8;
+    // Slower, calmer cycle for clear comprehension (9.0s total - ample reading time for all ages)
+    const cycle = 9.0;
     const time = (t / 1000) % cycle;
     const nodeX = 180;
-    const nodeY = 70;
-    const orbitRadius = 46;
+    const nodeY = 98;
+    const orbitRadius = 50;
 
     // Game Orbit Node Visual (Matching OrbitNode exactly)
     ctx.save();
@@ -301,7 +301,7 @@ class UIManager {
     ctx.lineWidth = 1.5;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
-    ctx.arc(0, 0, 24 + Math.sin(t * 0.003) * 2, 0, Math.PI * 2);
+    ctx.arc(0, 0, 26 + Math.sin(t * 0.002) * 2, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
     // Glow halo
@@ -309,15 +309,15 @@ class UIManager {
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 2;
     ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 14;
     ctx.beginPath();
-    ctx.arc(0, 0, 15, 0, Math.PI * 2);
+    ctx.arc(0, 0, 16, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     // Inner core
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+    ctx.arc(0, 0, 5, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
@@ -327,22 +327,22 @@ class UIManager {
     let phaseText = '';
     let phaseColor = '#38bdf8';
 
-    if (time < 1.3) {
-      // Approach Phase (1.3s)
-      const progress = time / 1.3;
+    if (time < 2.5) {
+      // Phase 1: Approach & Hook (2.5s duration - steady approach)
+      const progress = time / 2.5;
       shipX = 40 + progress * (nodeX - orbitRadius - 40);
-      shipY = 135 - progress * (135 - nodeY);
+      shipY = 185 - progress * (185 - nodeY);
       shipAngle = -Math.PI / 4;
-      phaseText = '1. HALTEN = EINHAKEN & KREISEN';
+      phaseText = '1. GEDRÜCKT HALTEN = EINHAKEN';
       phaseColor = '#38bdf8';
-    } else if (time < 3.7) {
-      // Orbit / Swing Phase (2.4s - smooth, slow, and clear)
-      const progress = (time - 1.3) / 2.4;
+    } else if (time < 6.2) {
+      // Phase 2: Orbit / Swing (3.7s duration - calm, clear rotation)
+      const progress = (time - 2.5) / 3.7;
       const startAngle = Math.PI; // West (180°)
-      const currentAngle = startAngle - progress * Math.PI; // counter-clockwise to East (facing forward)
+      const currentAngle = startAngle - progress * Math.PI; // Counter-clockwise to East
       shipX = nodeX + Math.cos(currentAngle) * orbitRadius;
       shipY = nodeY + Math.sin(currentAngle) * orbitRadius;
-      shipAngle = currentAngle - Math.PI / 2; // tangent pointing forward
+      shipAngle = currentAngle - Math.PI / 2; // Tangent pointing forward
 
       // Tetherless Orbital Orbit Arc
       ctx.save();
@@ -354,17 +354,17 @@ class UIManager {
       ctx.stroke();
       ctx.restore();
 
-      phaseText = '1. HALTEN = SCHWUNG AUFBAUEN';
+      phaseText = '1. GEDRÜCKT HALTEN = SCHWUNG AUFBAUEN';
       phaseColor = '#38bdf8';
-    } else if (time < 5.0) {
-      // Release & Catapult Launch in facing direction (1.3s)
-      const progress = (time - 3.7) / 1.3;
+    } else if (time < 8.2) {
+      // Phase 3: Release & Catapult Launch (2.0s launch flight)
+      const progress = (time - 6.2) / 2.0;
       const launchX = nodeX + orbitRadius;
       shipX = launchX;
-      shipY = nodeY - progress * 110;
+      shipY = nodeY - progress * 150;
       shipAngle = -Math.PI / 2;
 
-      // Clean cyan launch trail (no orange)
+      // Clean cyan launch trail
       ctx.save();
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2.5;
@@ -372,16 +372,17 @@ class UIManager {
       ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.moveTo(launchX, nodeY);
-      ctx.lineTo(shipX, shipY + 14);
+      ctx.lineTo(shipX, shipY + 16);
       ctx.stroke();
       ctx.restore();
 
-      phaseText = '2. LOSLASSEN = IN BLICKRICHTUNG FLIEGEN';
+      phaseText = '2. LOSLASSEN = VORWÄRTS FLIEGEN';
       phaseColor = '#f8fafc';
     } else {
+      // Phase 4: Headroom transition (0.8s)
       shipX = nodeX + orbitRadius;
-      shipY = -50;
-      phaseText = 'SCHWUNG VOLL AUSNUTZEN';
+      shipY = -60;
+      phaseText = '2. LOSLASSEN = VORWÄRTS FLIEGEN';
       phaseColor = '#38bdf8';
     }
 
@@ -449,14 +450,17 @@ class UIManager {
     const runsEl = document.getElementById('profile-runs-count');
     const inputEl = document.getElementById('profile-name-input');
     const msgEl = document.getElementById('profile-status-message');
+    const noticeEl = document.getElementById('profile-change-notice');
+    const saveBtn = document.getElementById('btn-profile-save');
+
+    const nameChanges = profile.nameChanges || 0;
 
     if (heroNameEl) heroNameEl.textContent = profile.pilotName || 'SPIELER';
     if (idBadgeEl) idBadgeEl.textContent = `ID: ${profile.playerId || 'usr_init'}`;
     if (nameEl) nameEl.textContent = profile.pilotName || 'SPIELER';
     if (idEl) idEl.textContent = profile.playerId || 'usr_init';
     if (statusEl) {
-      statusEl.textContent = profile.registered ? 'AKTIV' : 'GAST-MODUS';
-      statusEl.style.color = profile.registered ? '#10b981' : '#f59e0b';
+      statusEl.textContent = 'AKTIV';
     }
     if (hsEl) hsEl.textContent = `${this.storage.data.highScore || 0} m`;
     if (dateEl) {
@@ -464,7 +468,44 @@ class UIManager {
       dateEl.textContent = `Aktiv seit: ${d}`;
     }
     if (runsEl) runsEl.textContent = (stats.totalRuns || 0).toString();
-    if (inputEl) inputEl.value = profile.pilotName || '';
+
+    if (inputEl) {
+      inputEl.value = profile.pilotName || '';
+      if (nameChanges >= 1) {
+        inputEl.disabled = true;
+        inputEl.style.opacity = '0.55';
+        inputEl.style.cursor = 'not-allowed';
+      } else {
+        inputEl.disabled = false;
+        inputEl.style.opacity = '1';
+        inputEl.style.cursor = 'text';
+      }
+    }
+
+    if (noticeEl) {
+      if (nameChanges >= 1) {
+        noticeEl.textContent = 'NAME FESTGELEGT (1x GEÄNDERT)';
+        noticeEl.style.color = '#94a3b8';
+        noticeEl.style.background = 'rgba(255, 255, 255, 0.05)';
+        noticeEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+      } else {
+        noticeEl.textContent = '1x NAMENSWECHSEL VERFÜGBAR';
+        noticeEl.style.color = '#38bdf8';
+        noticeEl.style.background = 'rgba(56, 189, 248, 0.08)';
+        noticeEl.style.borderColor = 'rgba(56, 189, 248, 0.2)';
+      }
+    }
+
+    if (saveBtn) {
+      if (nameChanges >= 1) {
+        saveBtn.disabled = true;
+        saveBtn.style.display = 'none';
+      } else {
+        saveBtn.disabled = false;
+        saveBtn.style.display = 'block';
+      }
+    }
+
     if (msgEl) {
       msgEl.style.opacity = '0';
       msgEl.textContent = '';
@@ -483,48 +524,57 @@ class UIManager {
       e.preventDefault();
       e.stopPropagation();
     }
-    const newName = this.storage.rerollGamerTag();
-    const inputEl = document.getElementById('profile-name-input');
-    const heroNameEl = document.getElementById('profile-hero-name');
-    const msgEl = document.getElementById('profile-status-message');
-
-    if (inputEl) inputEl.value = newName;
-    if (heroNameEl) heroNameEl.textContent = newName;
-    this.updateUserProfileNav();
-
-    if (msgEl) {
-      msgEl.textContent = 'NEUER NAME GENERIERT';
-      msgEl.style.opacity = '1';
-      setTimeout(() => { if (msgEl) msgEl.style.opacity = '0'; }, 1800);
-    }
-    if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
-    if (window.AnalyticsService) {
-      window.AnalyticsService.sendEvent('profile_reroll', { newName });
-    }
   }
 
   saveProfile(e) {
     if (e) e.preventDefault();
     const inputEl = document.getElementById('profile-name-input');
     const name = inputEl ? inputEl.value : '';
-    const profile = this.storage.registerPlayer(name);
+    const res = this.storage.registerPlayer(name);
     
     const heroNameEl = document.getElementById('profile-hero-name');
     const msgEl = document.getElementById('profile-status-message');
+    const noticeEl = document.getElementById('profile-change-notice');
+    const saveBtn = document.getElementById('btn-profile-save');
 
-    if (heroNameEl) heroNameEl.textContent = profile.pilotName;
-    if (inputEl) inputEl.value = profile.pilotName;
-    this.updateUserProfileNav();
+    if (res && res.success) {
+      if (heroNameEl) heroNameEl.textContent = res.profile.pilotName;
+      if (inputEl) {
+        inputEl.value = res.profile.pilotName;
+        inputEl.disabled = true;
+        inputEl.style.opacity = '0.55';
+        inputEl.style.cursor = 'not-allowed';
+      }
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.style.display = 'none';
+      }
+      if (noticeEl) {
+        noticeEl.textContent = 'NAME FESTGELEGT (1x GEÄNDERT)';
+        noticeEl.style.color = '#94a3b8';
+        noticeEl.style.background = 'rgba(255, 255, 255, 0.05)';
+        noticeEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+      }
+      this.updateUserProfileNav();
 
-    if (msgEl) {
-      msgEl.textContent = 'PROFIL GESPEICHERT';
-      msgEl.style.opacity = '1';
-      setTimeout(() => { if (msgEl) msgEl.style.opacity = '0'; }, 1800);
-    }
+      if (msgEl) {
+        msgEl.textContent = 'PROFIL GESPEICHERT';
+        msgEl.style.color = '#10b981';
+        msgEl.style.opacity = '1';
+        setTimeout(() => { if (msgEl) msgEl.style.opacity = '0'; }, 2000);
+      }
 
-    if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
-    if (window.AnalyticsService) {
-      window.AnalyticsService.sendEvent('profile_update', { pilotName: profile.pilotName });
+      if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
+      if (window.AnalyticsService) {
+        window.AnalyticsService.sendEvent('profile_update', { pilotName: res.profile.pilotName });
+      }
+    } else {
+      if (msgEl) {
+        msgEl.textContent = (res && res.message) || 'ÄNDERUNG NICHT MÖGLICH';
+        msgEl.style.color = '#f59e0b';
+        msgEl.style.opacity = '1';
+        setTimeout(() => { if (msgEl) msgEl.style.opacity = '0'; }, 2000);
+      }
     }
   }
 
@@ -538,17 +588,8 @@ class UIManager {
   }
 
   showComboBadge(text, color = '#fbbf24') {
-    if (!this.dom.hudComboBadge) return;
-    this.dom.hudComboBadge.textContent = text;
-    this.dom.hudComboBadge.style.color = color;
-    this.dom.hudComboBadge.style.borderColor = color;
-    this.dom.hudComboBadge.style.boxShadow = `0 0 24px ${color}88, inset 0 0 12px ${color}33`;
-    this.dom.hudComboBadge.style.display = 'block';
-
-    clearTimeout(this.comboBadgeTimer);
-    this.comboBadgeTimer = setTimeout(() => {
-      this.hideComboBadge();
-    }, 2200);
+    // Top-of-screen combo badge removed per user feedback.
+    // Combo / Perfect text displays directly at the release point on the player.
   }
 
   hideComboBadge() {
@@ -935,67 +976,80 @@ class UIManager {
     if (!this.dom.globalLeaderboardList) return;
     this.dom.globalLeaderboardList.innerHTML = '';
 
-    const topList = CONSTANTS.GLOBAL_LEADERBOARD_TOP || [];
-    
-    if (topList.length === 0) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'leaderboard-empty';
-      emptyMsg.style.padding = '20px';
-      emptyMsg.style.textAlign = 'center';
-      emptyMsg.style.color = '#94a3b8';
-      emptyMsg.style.fontSize = '12px';
-      emptyMsg.innerHTML = '<i>Noch keine Online-Daten verfügbar.</i><br>Dein persönlicher Rekord wird hier bald mit der Welt verglichen!';
-      this.dom.globalLeaderboardList.appendChild(emptyMsg);
-    } else {
-      topList.forEach((entry, idx) => {
-        const row = document.createElement('div');
-        row.className = `leaderboard-row top-rank-${idx + 1}`;
-        row.innerHTML = `
-          <div class="lb-rank">#${entry.rank}</div>
-          <div class="lb-name">${entry.name}</div>
-          <div class="lb-ship">${entry.ship}</div>
-          <div class="lb-alt">${entry.altitude}m</div>
-          <div class="lb-score">${entry.score.toLocaleString('de-DE')} Pkt</div>
-          <div class="lb-date">${entry.date}</div>
-        `;
-        this.dom.globalLeaderboardList.appendChild(row);
+    const baseList = (CONSTANTS.GLOBAL_LEADERBOARD_TOP || []).map(entry => ({ ...entry, isPlayer: false }));
+    const profile = this.storage.getPlayerProfile();
+    const playerName = profile.pilotName || 'Player';
+    const playerShip = (this.storage.data.selectedShip || 'PFEIL').toUpperCase();
+    const bestAltitude = this.storage.data.highScore || 0;
+    const bestScore = (this.storage.data.leaderboard && this.storage.data.leaderboard.length > 0)
+      ? this.storage.data.leaderboard[0].score
+      : Math.floor(bestAltitude * 10);
+
+    const combined = [...baseList];
+    if (bestAltitude > 0) {
+      combined.push({
+        name: `${playerName} (DU)`,
+        ship: playerShip,
+        altitude: bestAltitude,
+        score: bestScore,
+        date: 'Heute',
+        isPlayer: true
       });
     }
 
-    // Calculate realistic player global percentile rank
-    const bestAltitude = this.storage.data.highScore || 0;
-    let rank = 10000;
-    let percentile = 99;
-    let deltaText = 'Erreiche 20m für deinen ersten weltweiten Rang.';
+    // Sort descending by altitude
+    combined.sort((a, b) => b.altitude - a.altitude);
 
-    if (bestAltitude > 0) {
-      if (bestAltitude >= 2480) {
-        rank = 1;
-        percentile = 0.01;
+    // Re-assign ranks
+    combined.forEach((entry, idx) => {
+      entry.rank = idx + 1;
+    });
+
+    const displayList = combined.slice(0, 10);
+
+    displayList.forEach(entry => {
+      const row = document.createElement('div');
+      const rankClass = entry.rank <= 3 ? `top-rank-${entry.rank}` : '';
+      const playerClass = entry.isPlayer ? 'player-entry' : '';
+      row.className = `leaderboard-row ${rankClass} ${playerClass}`.trim();
+      row.innerHTML = `
+        <div class="lb-rank">#${entry.rank}</div>
+        <div class="lb-name">${entry.name}</div>
+        <div class="lb-ship">${entry.ship}</div>
+        <div class="lb-alt">${entry.altitude.toLocaleString('de-DE')}m</div>
+        <div class="lb-score">${entry.score.toLocaleString('de-DE')} Pkt</div>
+        <div class="lb-date">${entry.date}</div>
+      `;
+      this.dom.globalLeaderboardList.appendChild(row);
+    });
+
+    // Calculate player rank & percentile
+    const playerEntry = combined.find(e => e.isPlayer);
+    let rankDisplay = '#---';
+    let percentileDisplay = 'NOCH KEIN FLUG ABSOLVIERT';
+    let deltaText = 'Erreiche 50m für deinen ersten weltweiten Rang.';
+
+    if (bestAltitude > 0 && playerEntry) {
+      rankDisplay = `#${playerEntry.rank}`;
+      const percentile = Math.max(1, Math.min(99, Math.round((playerEntry.rank / 10000) * 100)));
+      percentileDisplay = `RANG #${playerEntry.rank} VON 10.000 PILOTEN (TOP ${percentile}%)`;
+
+      if (playerEntry.rank === 1) {
         deltaText = 'Unangefochtene weltweite Spitze!';
-      } else if (bestAltitude >= 2000) {
-        rank = Math.max(2, Math.floor(10 - (bestAltitude - 2000) / 60));
-        percentile = (rank / 100).toFixed(2);
-        deltaText = `Du fliegst in der absoluten Elite!`;
-      } else if (bestAltitude >= 1000) {
-        rank = Math.floor(10 + (2000 - bestAltitude) * 0.45);
-        percentile = ((rank / 10000) * 100).toFixed(1);
-        deltaText = `Noch ${Math.max(1, 1020 - bestAltitude > 0 ? 1020 - bestAltitude : 20)}m bis zu den Top 10`;
+      } else if (playerEntry.rank <= 3) {
+        deltaText = 'Podiumsplatz erreicht! Großartige Leistung!';
       } else {
-        rank = Math.max(12, Math.floor(10000 - Math.pow(bestAltitude / 1000, 0.75) * 9500));
-        percentile = Math.max(1, Math.min(99, ((rank / 10000) * 100).toFixed(1)));
-        const nextTarget = Math.ceil((bestAltitude + 35) / 10) * 10;
-        deltaText = `Noch ${nextTarget - bestAltitude}m bis Rang #${rank - 45}`;
+        const nextAbove = combined[playerEntry.rank - 2];
+        const gap = nextAbove ? Math.max(1, nextAbove.altitude - bestAltitude + 1) : 10;
+        deltaText = `Noch ${gap}m bis Rang #${playerEntry.rank - 1}`;
       }
     }
 
     if (this.dom.playerRankBadge) {
-      this.dom.playerRankBadge.textContent = bestAltitude > 0 ? `#${rank.toLocaleString('de-DE')}` : '#---';
+      this.dom.playerRankBadge.textContent = rankDisplay;
     }
     if (this.dom.playerRankPercentile) {
-      this.dom.playerRankPercentile.textContent = bestAltitude > 0
-        ? `TOP ${percentile}% DER WELT (10.000 PILOTEN)`
-        : 'NOCH KEIN FLUG ABSOLVIERT';
+      this.dom.playerRankPercentile.textContent = percentileDisplay;
     }
     if (this.dom.playerRankDelta) {
       this.dom.playerRankDelta.textContent = deltaText;

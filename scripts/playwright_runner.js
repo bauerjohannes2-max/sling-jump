@@ -179,7 +179,7 @@ async function runPlaywrightSuite() {
   await page.click('#btn-stats-close');
   await sleep(300);
 
-  // 6b. Pilot Profile & Registration
+  // 6b. Pilot Profile & Registration (1x Name Change Policy)
   console.log('[Playwright] Testing #btn-menu-profile...');
   const initialNavName = await page.$eval('#menu-profile-name', el => el.textContent.trim());
   console.log(`[Playwright] Initial gamer tag on header pill: "${initialNavName}"`);
@@ -187,15 +187,15 @@ async function runPlaywrightSuite() {
   await page.click('#btn-menu-profile');
   await sleep(400);
 
-  // Test 1-click random gamer tag button
-  console.log('[Playwright] Testing #btn-profile-random...');
-  await page.click('#btn-profile-random');
-  await sleep(300);
-
-  // Test custom gamer tag input & save
-  await page.fill('#profile-name-input', 'NeonViper88');
+  // Test single name change
+  console.log('[Playwright] Testing single name change to "ApexStriker"...');
+  await page.fill('#profile-name-input', 'ApexStriker');
   await page.click('#profile-form button[type="submit"]');
   await sleep(300);
+
+  // Assert input is now locked/disabled
+  const isInputDisabled = await page.$eval('#profile-name-input', el => el.disabled);
+  console.log(`[Playwright] Profile input locked after 1st save: ${isInputDisabled}`);
 
   console.log('[Playwright] Capturing 06b_pilot_profile.png');
   await captureScreenshot(page, '06b_pilot_profile.png');
