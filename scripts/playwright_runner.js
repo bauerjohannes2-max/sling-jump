@@ -139,16 +139,6 @@ async function runPlaywrightSuite() {
   console.log('[Playwright] Capturing 04_hub_leaderboard.png (Global Top 100 - Real Data)');
   await captureScreenshot(page, '04_hub_leaderboard.png');
 
-  // Test Local tab
-  console.log('[Playwright] Testing #btn-lb-tab-local...');
-  await page.click('#btn-lb-tab-local');
-  await sleep(300);
-  console.log('[Playwright] Capturing 04b_leaderboard_local.png (Regional Top 100)');
-  await captureScreenshot(page, '04b_leaderboard_local.png');
-
-  // Switch back to global
-  await page.click('#btn-lb-tab-global');
-  await sleep(200);
 
   // Close via top-right X button
   await page.click('#btn-leaderboard-close');

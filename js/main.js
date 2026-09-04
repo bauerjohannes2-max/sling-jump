@@ -240,21 +240,6 @@
       });
     }
 
-    const btnLbTabGlobal = document.getElementById('btn-lb-tab-global');
-    if (btnLbTabGlobal) {
-      btnLbTabGlobal.addEventListener('click', () => {
-        clickSfx();
-        ui.switchLeaderboardTab('global');
-      });
-    }
-
-    const btnLbTabLocal = document.getElementById('btn-lb-tab-local');
-    if (btnLbTabLocal) {
-      btnLbTabLocal.addEventListener('click', () => {
-        clickSfx();
-        ui.switchLeaderboardTab('local');
-      });
-    }
 
     const btnStatsClose = document.getElementById('btn-stats-close');
     if (btnStatsClose) {
@@ -540,21 +525,79 @@
     window.AnalyticsService.init();
   }
 
-  // --- VIEWPORT STABILIZATION ---
-  // Mobile app standard: rely on 100dvh CSS viewport locking and standalone PWA display mode.
-  // We do NOT invoke the HTML5 Fullscreen API (requestFullscreen) to prevent intrusive
-  // Android Chrome security toasts ("... zum Beenden des Vollbildmodus: von oben ziehen").
-  function stabilizeViewport() {
+  // --- AUTOMATIC FULLSCREEN ENGINE (MOBILE & DESKTOP ARCADE STANDARD) ---
+  // Directly starts the app in fullscreen mode on launch and user interaction.
+  let isAttemptingFullscreen = false;
+
+  function triggerAutoFullscreen() {
+    if (isAttemptingFullscreen) return;
+
+    const isAlreadyFS = !!(document.fullscreenElement ||
+                           document.webkitFullscreenElement ||
+                           document.mozFullScreenElement ||
+                           document.msFullscreenElement);
+    if (isAlreadyFS) return;
+
+    const docEl = document.documentElement;
+    const reqFS = docEl.requestFullscreen ||
+                  docEl.webkitRequestFullscreen ||
+                  docEl.mozRequestFullScreen ||
+                  docEl.msRequestFullscreen;
+
+    if (reqFS) {
+      isAttemptingFullscreen = true;
+      try {
+        const promise = reqFS.call(docEl);
+        if (promise && typeof promise.then === 'function') {
+          promise.then(() => {
+            isAttemptingFullscreen = false;
+          }).catch(() => {
+            // Silently absorb rejection if browser policy requires active user gesture
+            isAttemptingFullscreen = false;
+          });
+        } else {
+          isAttemptingFullscreen = false;
+        }
+      } catch (e) {
+        isAttemptingFullscreen = false;
+      }
+    }
+
     if (window.scrollY !== 0) {
       window.scrollTo(0, 0);
     }
   }
 
-  window.addEventListener('load', stabilizeViewport);
-  window.addEventListener('orientationchange', () => {
-    setTimeout(stabilizeViewport, 150);
+  // Bind to every user interaction vector to ensure immediate fullscreen
+  const userGestureEvents = ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'];
+  userGestureEvents.forEach((evtName) => {
+    window.addEventListener(evtName, () => {
+      triggerAutoFullscreen();
+    }, { passive: true });
   });
-  window.addEventListener('resize', stabilizeViewport);
+
+  // Re-arm immediately if user or OS exits fullscreen
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      window.scrollTo(0, 0);
+    }
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    if (!document.webkitFullscreenElement) {
+      window.scrollTo(0, 0);
+    }
+  });
+
+  // Direct fullscreen attempt on load (supported in standalone PWAs & mobile web app shortcuts)
+  window.addEventListener('load', () => {
+    triggerAutoFullscreen();
+  });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(triggerAutoFullscreen, 150);
+  });
+  window.addEventListener('resize', () => {
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
+  });
 
   // Start System
   bindUIButtons();

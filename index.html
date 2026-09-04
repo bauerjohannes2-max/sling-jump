@@ -16,10 +16,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Sling Jump">
   <meta name="format-detection" content="telephone=no">
-  <link rel="stylesheet" href="css/style.css?v=4.2.0">
+  <link rel="stylesheet" href="css/style.css?v=4.3.0">
   <script>
     (function() {
-      var APP_VERSION = '4.2.0';
+      var APP_VERSION = '4.3.0';
       var storedVer = localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('sling_jump_installed_version', APP_VERSION);
@@ -84,7 +84,7 @@
         <div class="game-title-container">
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v4.2.0</div>
+          <div class="app-version-tag">v4.3.0</div>
         </div>
 
         <div class="currency-group">
@@ -334,12 +334,7 @@
         <button class="modal-close-x" id="btn-leaderboard-close" aria-label="Schließen">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <div class="modal-title" style="margin-bottom:14px;">BESTENLISTE</div>
-        <!-- Dual Tab Switcher -->
-        <div class="leaderboard-tab-bar">
-          <button class="lb-tab-btn active" id="btn-lb-tab-global">GLOBAL (TOP 100)</button>
-          <button class="lb-tab-btn" id="btn-lb-tab-local">LOKAL (REGION)</button>
-        </div>
+        <div class="modal-title" style="margin-bottom:14px;">BESTENLISTE (TOP 100)</div>
         <!-- 3-Column Header Bar -->
         <div class="leaderboard-header-row">
           <span class="lb-col-rank">RANG</span>
@@ -436,7 +431,7 @@
           <button class="btn-secondary" id="btn-check-update">NACH UPDATES SUCHEN</button>
           <button class="btn-danger" id="btn-reset-data">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v4.2.0</div>
+        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v4.3.0</div>
       </div>
     </div>
 
@@ -532,21 +527,21 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=4.2.0"></script>
-  <script src="js/services/StorageService.js?v=4.2.0"></script>
-  <script src="js/services/AnalyticsService.js?v=4.2.0"></script>
-  <script src="js/audio/AudioManager.js?v=4.2.0"></script>
-  <script src="js/engine/ParticleSystem.js?v=4.2.0"></script>
-  <script src="js/engine/InputManager.js?v=4.2.0"></script>
-  <script src="js/engine/MissionManager.js?v=4.2.0"></script>
-  <script src="js/entities/Node.js?v=4.2.0"></script>
-  <script src="js/entities/EnergyOrb.js?v=4.2.0"></script>
-  <script src="js/entities/Spaceship.js?v=4.2.0"></script>
-  <script src="js/world/WorldManager.js?v=4.2.0"></script>
-  <script src="js/engine/ShopManager.js?v=4.2.0"></script>
-  <script src="js/engine/StateManager.js?v=4.2.0"></script>
-  <script src="js/engine/UIManager.js?v=4.2.0"></script>
-  <script src="js/engine/GameEngine.js?v=4.2.0"></script>
-  <script src="js/main.js?v=4.2.0"></script>
+  <script src="js/config/Constants.js?v=4.3.0"></script>
+  <script src="js/services/StorageService.js?v=4.3.0"></script>
+  <script src="js/services/AnalyticsService.js?v=4.3.0"></script>
+  <script src="js/audio/AudioManager.js?v=4.3.0"></script>
+  <script src="js/engine/ParticleSystem.js?v=4.3.0"></script>
+  <script src="js/engine/InputManager.js?v=4.3.0"></script>
+  <script src="js/engine/MissionManager.js?v=4.3.0"></script>
+  <script src="js/entities/Node.js?v=4.3.0"></script>
+  <script src="js/entities/EnergyOrb.js?v=4.3.0"></script>
+  <script src="js/entities/Spaceship.js?v=4.3.0"></script>
+  <script src="js/world/WorldManager.js?v=4.3.0"></script>
+  <script src="js/engine/ShopManager.js?v=4.3.0"></script>
+  <script src="js/engine/StateManager.js?v=4.3.0"></script>
+  <script src="js/engine/UIManager.js?v=4.3.0"></script>
+  <script src="js/engine/GameEngine.js?v=4.3.0"></script>
+  <script src="js/main.js?v=4.3.0"></script>
 </body>
 </html>

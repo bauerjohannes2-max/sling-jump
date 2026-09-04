@@ -1063,14 +1063,7 @@ class UIManager {
     }
   }
 
-  switchLeaderboardTab(tab) {
-    this.activeLeaderboardTab = tab;
-    if (this.dom.btnLbTabGlobal) {
-      this.dom.btnLbTabGlobal.classList.toggle('active', tab === 'global');
-    }
-    if (this.dom.btnLbTabLocal) {
-      this.dom.btnLbTabLocal.classList.toggle('active', tab === 'local');
-    }
+  switchLeaderboardTab() {
     this.renderLeaderboard();
   }
 
@@ -1085,69 +1078,63 @@ class UIManager {
     const profile = this.storage.getPlayerProfile();
     const playerName = profile.pilotName || 'Player';
     const bestAltitude = this.storage.data.highScore || 0;
-    const region = (typeof StorageService !== 'undefined' && StorageService.getPlayerRegion)
-      ? StorageService.getPlayerRegion()
-      : { code: 'DE', name: 'Deutschland' };
 
-    // Update local tab button label to show region code
-    if (this.dom.btnLbTabLocal) {
-      this.dom.btnLbTabLocal.textContent = `LOKAL (${region.code})`;
-      this.dom.btnLbTabLocal.title = `Regionale Bestenliste für ${region.name}`;
-    }
+    // Deduplicate: Exactly one entry per unique player, keeping their highscore
+    const playerBestMap = new Map();
 
-    // Retrieve genuine flights recorded in storage
     const storedRuns = (this.storage.data.leaderboard || []).map(r => ({
       name: r.name || playerName,
       altitude: r.altitude || 0,
-      country: r.country || region.code,
-      countryName: r.countryName || region.name,
-      isPlayer: (r.name === playerName || !r.name)
+      country: r.country || 'DE',
+      countryName: r.countryName || 'Deutschland',
+      isPlayer: (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')))
     }));
 
-    // Ensure the player's personal high score is represented if > 0
-    if (bestAltitude > 0 && !storedRuns.some(r => r.altitude === bestAltitude && r.isPlayer)) {
+    // Ensure player's stored high score is accounted for
+    if (bestAltitude > 0) {
       storedRuns.push({
-        name: `${playerName} (DU)`,
+        name: playerName,
         altitude: bestAltitude,
-        country: region.code,
-        countryName: region.name,
+        country: 'DE',
+        countryName: 'Deutschland',
         isPlayer: true
       });
     }
 
-    // Sort descending by altitude (highest flight first)
-    storedRuns.sort((a, b) => b.altitude - a.altitude);
+    storedRuns.forEach(r => {
+      // Normalise key: player is identified uniquely, other contenders by name
+      const key = r.isPlayer ? '__CURRENT_PLAYER__' : r.name.trim();
+      const existing = playerBestMap.get(key);
+      if (!existing || r.altitude > existing.altitude) {
+        playerBestMap.set(key, {
+          name: r.isPlayer ? `${playerName} (DU)` : r.name,
+          altitude: r.altitude,
+          country: r.country,
+          countryName: r.countryName,
+          isPlayer: r.isPlayer
+        });
+      }
+    });
 
-    let displayList = [];
-    if (this.activeLeaderboardTab === 'global') {
-      displayList = storedRuns.slice(0, 100);
-    } else {
-      // Local: Filter exclusively by player's country / region
-      displayList = storedRuns.filter(r => r.country === region.code).slice(0, 100);
-    }
+    const displayList = Array.from(playerBestMap.values());
+    displayList.sort((a, b) => b.altitude - a.altitude);
+    const top100 = displayList.slice(0, 100);
 
     // Assign ranking numbers
-    displayList.forEach((entry, idx) => {
+    top100.forEach((entry, idx) => {
       entry.rank = idx + 1;
     });
 
-    if (displayList.length === 0) {
+    if (top100.length === 0) {
       const emptyBox = document.createElement('div');
       emptyBox.className = 'lb-empty-state';
-      if (this.activeLeaderboardTab === 'global') {
-        emptyBox.innerHTML = `
-          <div class="lb-empty-title">KEINE WELTWEITEN EINTRÄGE</div>
-          <div class="lb-empty-desc">Starte deinen ersten Flug, um den globalen Rekord aufzustellen.</div>
-        `;
-      } else {
-        emptyBox.innerHTML = `
-          <div class="lb-empty-title">KEINE REGIONALEN EINTRÄGE</div>
-          <div class="lb-empty-desc">Starte einen Flug in ${region.name}, um die Rangliste anzuführen.</div>
-        `;
-      }
+      emptyBox.innerHTML = `
+        <div class="lb-empty-title">KEINE WELTWEITEN EINTRÄGE</div>
+        <div class="lb-empty-desc">Starte deinen ersten Flug, um den globalen Rekord aufzustellen.</div>
+      `;
       this.dom.globalLeaderboardList.appendChild(emptyBox);
     } else {
-      displayList.forEach(entry => {
+      top100.forEach(entry => {
         const row = document.createElement('div');
         const rankClass = entry.rank <= 3 ? `top-rank-${entry.rank}` : '';
         const playerClass = entry.isPlayer ? 'player-entry' : '';
@@ -1163,19 +1150,19 @@ class UIManager {
     }
 
     // Sticky Player Rank Card
-    const playerEntry = displayList.find(e => e.isPlayer);
+    const playerEntry = top100.find(e => e.isPlayer);
     let rankDisplay = '#---';
-    let titleDisplay = this.activeLeaderboardTab === 'global'
-      ? 'GLOBAL (TOP 100)'
-      : `LOKAL (${region.name.toUpperCase()})`;
+    let titleDisplay = 'GLOBAL (TOP 100)';
     let deltaDisplay = 'Absolviere einen Flug zur Wertung';
 
     if (playerEntry) {
       rankDisplay = `#${playerEntry.rank}`;
-      titleDisplay = `RANG #${playerEntry.rank} • ${this.activeLeaderboardTab === 'global' ? 'GLOBAL' : region.name.toUpperCase()}`;
+      titleDisplay = `RANG #${playerEntry.rank} • GLOBAL (TOP 100)`;
       deltaDisplay = `Bestleistung: ${bestAltitude.toLocaleString('de-DE')} m`;
     } else if (bestAltitude > 0) {
-      rankDisplay = '#1';
+      const fullRank = displayList.findIndex(e => e.isPlayer) + 1;
+      rankDisplay = fullRank > 0 ? `#${fullRank}` : '#---';
+      titleDisplay = fullRank > 0 ? `RANG #${fullRank} • GLOBAL` : 'GLOBAL (TOP 100)';
       deltaDisplay = `Bestleistung: ${bestAltitude.toLocaleString('de-DE')} m`;
     }
 

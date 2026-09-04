@@ -295,20 +295,15 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Exakte Kohorten- und Retention-Messung pro Spieler ohne Datenschutz-Verstöße.
   * Grundlage für zielgerichtetes Balancing und zukünftige Monetarisierungs-Optimierungen.
 
-### 10.5 Globales & Regionales Dual-Tab Leaderboard (`UIManager.js`, `Constants.js`, `StorageService.js`)
-* **Dual-Tab Umschaltung (`GLOBAL` vs `LOKAL`):**
-  * Elegante Reiter-Leiste (`.leaderboard-tab-bar`) im Leaderboard-Modal für schnellen Wechsel zwischen weltweiter Konkurrenz und regionaler Rangliste.
-  * **Null Dummy-Daten:** Alle synthetischen Kontrahenten (`GLOBAL_LEADERBOARD_TOP`) wurden vollständig entfernt (`[]`). Die Rangliste arbeitet rein organisch mit echten Flügen.
-  * **Strikter 3-Spalten-Standard:** Ausschließlich `RANG`, `PILOT` und `METER`. Veraltete oder ablenkende Metadaten (Punkte/Scores, Zeitstempel/Datum, Raumschiff-Typen) wurden komplett eliminiert.
+### 10.5 Globales Leaderboard mit strikter Highscore-Deduplizierung (`UIManager.js`, `Constants.js`, `StorageService.js`)
+* **Reines globales Leaderboard (Global Top 100):**
+  * Das Leaderboard konzentriert sich zu 100% auf die weltweite Rangliste ohne ablenkende Reiter oder lokale Tabs.
+  * **Genau ein Eintrag pro Spieler (Highscore-Prinzip):** Jeder Spieler erscheint mit maximal einem einzigen Eintrag in der Bestenliste – exakt seiner persönlichen Bestleistung. Mehrfache Flüge desselben Spielers werden automatisch aggregiert, sodass ausschließlich der höchste Rekord gewertet wird.
+  * **Strikter 3-Spalten-Standard:** Ausschließlich `RANG`, `PILOT` und `METER`.
   * **GLOBAL (TOP 100):**
-    * Präsentiert die weltweite Rangliste aller Piloten mit bis zu 100 Einträgen.
+    * Präsentiert die weltweite Rangliste aller einzigartigen Piloten mit bis zu 100 Einträgen.
     * Der eigene Rekord (`highScore`) wird mit dem Spieler-Namen und `(DU)`-Badge dynamisch in die weltweite Liste einsortiert.
-    * Sticky Player-Banner berechnet den globalen Rang (z.B. `#1`), das Perzentil ("TOP 1%") und den Meter-Abstand zum nächsten Rang.
-  * **LOKAL / REGIONAL (TOP 100 nach Ländercode):**
-    * Automatische Erkennung der Region via Standard Browser `Intl` API (`StorageService.getPlayerRegion()`, z.B. `DE`, `AT`, `CH`, `US`).
-    * Filtert Flüge strikt nach dem Länderkürzel des Piloten und zeigt bis zu 100 regionale Einträge.
-    * Bei noch unbespieltem Spielstand zeigt ein moderner Empty-State (`KEINE FLÜGE GESPEICHERT`) Hilfestellung zum Starten des ersten Flugs.
-    * Sticky Player-Banner zeigt den regionalen Rang und die persönliche Bestleistung.
+    * Sticky Player-Banner berechnet den globalen Rang (z.B. `#1`) und die persönliche Bestleistung.
 
 ### 10.6 Authentisches Steuerungs-Tutorial (`index.html`, `UIManager.js`)
 * **Minimalistischer Header:** Redundante Subtitel entfernt; die Modal-Kopfzeile trägt einzig den klaren Titel `STEUERUNG`.
@@ -320,13 +315,19 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Originalgetreue `PFEIL`-Rumpfgeometrie mit dunklem Obsidian-Körper, doppelten Triebwerks-Partikeln und leuchtender Cockpit-Kanzel.
   * Slingshot-Abwurf bei 90° Tangente mit expandierender Schockwelle und Beschleunigungs-Spur.
 
-### 10.7 Clean Viewport-Engine & Mobile-App Standard (`main.js`, `style.css`)
-* **Natives App-Feeling ohne störende System-Benachrichtigungen:**
-  * Nach dem weltweiten Standard moderner mobiler Web-Bestseller (Alto's Adventure, Subway Surfers) setzt das Spiel auf sauberes `100dvh` Viewport-Locking und PWA-Standalone-Modus (`manifest.json`), anstatt die HTML5 Fullscreen API (`requestFullscreen()`) aufzurufen.
-  * **Unterdrückung von Android-Sicherheits-Overlays:** Durch den Verzicht auf `requestFullscreen()` im normalen Browser-Tab wird der lästige Chromium-System-Toast (`"<domain> – zum Beenden des Vollbildmodus: von oben ziehen"`) dauerhaft und vollständig verhindert.
+### 10.7 Automatischer Vollbildmodus beim Betreten der App (`main.js`, `style.css`)
+* **Direktes Vollbild-Erlebnis (Arcade-Standard):**
+  * Das Spiel startet beim Betreten der Seite oder der ersten Interaktion (`load`, `pointerdown`, `touchstart`, `click`, `keydown`) unmittelbar und automatisch im nativen Vollbildmodus (`requestFullscreen`).
+  * Vendor-unabhängige Anbindung (`webkitRequestFullscreen`, `mozRequestFullScreen`, `msRequestFullscreen`) mit Promise-Rejection-Absicherung (0 Konsolenfehler).
 * **100dvh Viewport-Lock & Scroll-Stabilisierung:**
-  * `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`, wodurch vertikale Browserleisten auf Android und iOS stabilisiert werden.
-  * Automatische `stabilizeViewport()` Routine auf `load`, `orientationchange` und `resize` hält die Ansicht nahtlos auf `(0, 0)`.
+  * `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`.
+  * Automatische Viewport-Stabilisierung richtet die Ansicht nahtlos auf `(0, 0)` aus.
+
+### 10.9 Minimalistische währungsfreie UI-Badges (Zero-Background Currency)
+* **Reine Vektor-Symbole & Typografie:**
+  * Entfernung aller klobigen Pillen-Hintergründe (`background: none`, `border: none`, `padding: 0`).
+  * Nur das scharfe Vektor-Icon und die leuchtende Zahl sind sichtbar.
+  * Horizontale Anordnung nebeneinander in einer Reihe mit angenehmem Abstand (20px).
 
 ### 10.8 Globaler Top-Right 'X' Modal Close Standard (`index.html`, `style.css`)
 * **Beseitigung aller unteren Schließen-Buttons:** Alle redundanten "SCHLIESSEN"-Buttons am unteren Rand von Modals wurden vollständig durch minimalistische Vektor-Icons (`.modal-close-x`) in der oberen rechten Ecke ersetzt.

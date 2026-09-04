@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC42 - v4.2.0 - Pure Real-Time Leaderboards, Regional Local Top 100, Authentic In-Game Tutorial & Global Top-Right 'X' Close Buttons)  
+> **Status:** Release Candidate (RC43 - v4.3.0 - Global-Only Highscore Leaderboard, Auto-Fullscreen Engine & Borderless Currency Icons)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -17,7 +17,7 @@
 | **Permanenter Link** | **24/7 Freunde & Familie** | [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/) (weltweit, unbegrenzt, PC muss nicht laufen) |
 | `npm start` / `npm run serve` | **Lokales WLAN / LAN** | Startet den HTTP-Server auf Port 3000, ermittelt die lokale IPv4 (`http://192.168.x.x:3000`) und gibt einen scanbaren ASCII-QR-Code im Terminal aus. |
 | `npm run share` | **Dev-Tunnel & QR-Code** | Gibt den permanenten Link samt ASCII-QR-Code im Terminal aus und startet optional einen temporären Entwickler-Tunnel. |
-| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 19 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
+| `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 18 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
 
 ---
 
@@ -53,6 +53,21 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.3.0 (04.09.2026) - Reiner Globaler Highscore-Rang, Vollbild-Engine & Randlose Währungs-Symbole
+* **1. Automatischer Vollbildmodus beim App-Start (`main.js`):**
+  * **Sofortige Immersion:** Das Spiel schaltet bei Start und erster Interaktion (`load`, `pointerdown`, `touchstart`, `click`, `keydown`) unmittelbar in den nativen Vollbildmodus (`requestFullscreen`).
+  * Saubere Promise-Rejection-Absicherung (0 Konsolenfehler) und permanente `100dvh` Viewport-Ausrichtung.
+* **2. Reines globales Leaderboard & strikte Highscore-Deduplizierung (`UIManager.js`, `index.html`):**
+  * **Ein Eintrag pro Spieler:** Jeder Spieler wird mit genau einem Eintrag in der Bestenliste geführt – seiner persönlichen Bestleistung (`highScore`). Mehrfache Flüge desselben Spielers werden automatisch zusammengefasst.
+  * **Lokaler Reiter entfernt:** Die Bestenliste konzentriert sich ohne ablenkende Tab-Leiste direkt auf die weltweiten Top 100.
+  * **Strikter 3-Spalten-Standard:** `RANG`, `PILOT`, `METER`.
+* **3. Randlose Währungs-Anzeige & optimiertes Menü-Layout (`style.css`):**
+  * **Klobige Hintergrund-Pillen entfernt:** Münzen und Kristalle werden ohne Hintergrundkasten (`background: none`, `border: none`, `padding: 0`) dargestellt.
+  * **Horizontale Anordnung:** Münzen und seltene Hyper-Kristalle stehen in einer gemeinsamen horizontalen Reihe mit 20px Abstand zwischen Titel und Aktions-Buttons.
+  * Goldener Vektor-Glow für Münzen (`#fbbf24`), violetter Amethyst-Glow für Kristalle (`#e879f9`).
+* **4. QA & Playwright-Prüfung:**
+  * 18/18 Screenshots fehlerfrei erzeugt, 0 Konsolenfehler, neutrale NTFS-Zeitstempel.
 
 ### v4.2.0 (04.09.2026) - Pure Real-Time Leaderboard, Regional Local Top 100, Authentic In-Game Tutorial & Global Top-Right 'X' Buttons
 * **1. Vollständige Bereinigung aller Dummy-Daten (`Constants.js`, `StorageService.js`, `UIManager.js`):**
