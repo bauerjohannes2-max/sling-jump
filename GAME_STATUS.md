@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC43 - v4.3.0 - Global-Only Highscore Leaderboard, Auto-Fullscreen Engine & Borderless Currency Icons)  
+> **Status:** Release Candidate (RC44 - v4.3.1 - Fullscreen API Disabled for Toast-Free Browser Gaming & Pure 100dvh Viewport)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,16 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.3.1 (04.09.2026) - Vollständige Deaktivierung der Fullscreen-API (Toast-Freies Browser-Erlebnis)
+* **1. Dauerhafte Unterdrückung des Android Chrome Sicherheits-Banners (`main.js`):**
+  * Sämtliche JavaScript-Aufrufe der HTML5 Fullscreen API (`requestFullscreen`) wurden entfernt.
+  * Dadurch wird der native, ununterdrückbare Chromium-Sicherheitshinweis (`"<domain> – zum Beenden des Vollbildmodus: von oben ziehen"`) dauerhaft und zuverlässig verhindert.
+* **2. 100dvh Viewport-Locking & PWA-Standard:**
+  * Das Spiel verlässt sich auf CSS `100dvh`, `overscroll-behavior: none` und die passive `stabilizeViewport()`-Routine.
+  * Nutzer, die ein echtes, rahmenloses Vollbild ohne jede Browser-Navigation wünschen, nutzen die PWA-Installation auf den Startbildschirm ("Zum Startbildschirm hinzufügen"), bei welcher Android WebAPK das Spiel nativ und ohne Sicherheitshinweise startet.
+* **3. QA & Playwright-Prüfung:**
+  * 18/18 Screenshots fehlerfrei erzeugt, 0 Konsolenfehler, neutrale NTFS-Zeitstempel.
 
 ### v4.3.0 (04.09.2026) - Reiner Globaler Highscore-Rang, Vollbild-Engine & Randlose Währungs-Symbole
 * **1. Automatischer Vollbildmodus beim App-Start (`main.js`):**

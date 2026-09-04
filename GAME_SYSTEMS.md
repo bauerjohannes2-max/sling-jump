@@ -315,13 +315,11 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Originalgetreue `PFEIL`-Rumpfgeometrie mit dunklem Obsidian-Körper, doppelten Triebwerks-Partikeln und leuchtender Cockpit-Kanzel.
   * Slingshot-Abwurf bei 90° Tangente mit expandierender Schockwelle und Beschleunigungs-Spur.
 
-### 10.7 Automatischer Vollbildmodus beim Betreten der App (`main.js`, `style.css`)
-* **Direktes Vollbild-Erlebnis (Arcade-Standard):**
-  * Das Spiel startet beim Betreten der Seite oder der ersten Interaktion (`load`, `pointerdown`, `touchstart`, `click`, `keydown`) unmittelbar und automatisch im nativen Vollbildmodus (`requestFullscreen`).
-  * Vendor-unabhängige Anbindung (`webkitRequestFullscreen`, `mozRequestFullScreen`, `msRequestFullscreen`) mit Promise-Rejection-Absicherung (0 Konsolenfehler).
-* **100dvh Viewport-Lock & Scroll-Stabilisierung:**
-  * `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`.
-  * Automatische Viewport-Stabilisierung richtet die Ansicht nahtlos auf `(0, 0)` aus.
+### 10.7 Deaktivierte Fullscreen-API & Reines 100dvh Viewport-Locking (`main.js`, `style.css`)
+* **Vollständige Eliminierung von Android-Sicherheitstoasts:**
+  * Durch die dauerhafte Deaktivierung des JavaScript-Aufrufs `requestFullscreen()` in Browser-Tabs wird der native Chromium-Sicherheitshinweis (`"<domain> – zum Beenden des Vollbildmodus: von oben ziehen"`) restlos unterbunden.
+  * **100dvh Viewport-Lock & Scroll-Stabilisierung:** `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`. Eine passive `stabilizeViewport()`-Routine hält die Scroll-Position bei `load`, `orientationchange` und `resize` nahtlos auf `(0, 0)`.
+  * **Echtes Vollbild ohne Toasts via PWA-Installation:** Bei Installation auf den Startbildschirm ("Zum Startbildschirm hinzufügen" / PWA) öffnet Android Chrome das Spiel als Standalone-WebAPK automatisch im nativen Vollbildmodus – vollständig ohne Browserleisten und ohne jegliche Sicherheitstoasts.
 
 ### 10.9 Minimalistische währungsfreie UI-Badges (Zero-Background Currency)
 * **Reine Vektor-Symbole & Typografie:**
