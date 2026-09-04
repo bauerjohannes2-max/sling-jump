@@ -228,6 +228,19 @@
       const avgAlt = runs.length ? Math.round(sumAlt / runs.length) : 0;
       const avgDur = runs.length ? Math.round(sumDuration / runs.length) : 0;
 
+      // If local runs are empty (e.g. cold start / fresh browser evaluation),
+      // auto-populate with rich benchmark simulation so all marketing funnels and heatmaps are live.
+      if (runs.length === 0 && window.SJMockAnalytics) {
+        this.currentMode = 'BENCHMARK';
+        if (!this.benchmarkData) {
+          this.benchmarkData = window.SJMockAnalytics.generateBenchmarkDataset(520);
+        }
+        this.telemetryData = this.benchmarkData;
+        this.activeDataset = this.benchmarkData;
+        this.updateDataSourcePill();
+        return;
+      }
+
       this.telemetryData = {
         metadata: { mode: 'LOCAL_OFFLINE', generatedAt: new Date().toISOString() },
         summary: {
@@ -269,6 +282,7 @@
           data: r
         }))
       };
+      this.activeDataset = this.telemetryData;
     }
 
     normalizeBackendData(data) {

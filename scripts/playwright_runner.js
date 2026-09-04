@@ -424,7 +424,7 @@ ${capturedManifest.map(m => `| \`${m.filename}\` | ${m.localTime} | ${m.sizeKb} 
   }
 
   // 3. Mirror Fresh Screenshots to Brain Artifacts Directory
-  const brainDir = 'C:\\Users\\hannes.bauer\\.gemini\\antigravity\\brain\\b5a7b095-beb3-495f-8efb-383519c52e31';
+  const brainDir = 'C:\\Users\\hannes.bauer\\.gemini\\antigravity\\brain\\b8d7fba0-9f7c-4f2b-85f4-1ec48a8904c7';
   if (fs.existsSync(brainDir)) {
     try {
       for (const item of capturedManifest) {
