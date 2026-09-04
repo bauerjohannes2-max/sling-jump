@@ -3,7 +3,7 @@
  * Version: 3.33.0
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'sling-jump-v3.38.0';
+const CACHE_NAME = 'sling-jump-v4.1.0';
 
 const PRECACHE_ASSETS = [
   './',
@@ -66,8 +66,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Bypass API and Telemetry calls completely
-  if (url.pathname.startsWith('/api/')) {
+  // Bypass API, Telemetry, and Dashboard calls completely (Game SW never hijacks Dashboard)
+  if (url.pathname.startsWith('/api/') || url.pathname.includes('/dashboard') || url.pathname.endsWith('dashboard.html')) {
     return;
   }
 

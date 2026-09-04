@@ -378,7 +378,21 @@
         clearTimeout(versionTapTimer);
         versionTapTimer = setTimeout(() => { versionTapCount = 0; }, 800);
         if (versionTapCount >= 3) {
-          window.open('dashboard.html', '_blank') || (window.location.href = 'dashboard.html');
+          versionTapCount = 0;
+          const isAppStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+          const targetUrl = 'dashboard/index.html';
+          if (isAppStandalone) {
+            // In standalone PWA, strictly isolate: open in system browser, never hijack game PWA
+            const a = document.createElement('a');
+            a.href = targetUrl;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          } else {
+            window.open(targetUrl, '_blank') || (window.location.href = targetUrl);
+          }
         }
       });
     });

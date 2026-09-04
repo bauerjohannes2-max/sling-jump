@@ -4,17 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Sling Jump - Game & Growth Analytics Suite</title>
-  <link rel="manifest" href="dashboard/manifest.json?v=4.0.0">
-  <link rel="shortcut icon" href="favicon.ico?v=4.0.0">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=4.0.0">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=4.0.0">
   <meta name="theme-color" content="#080b10">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SJ Analytics">
-
   <link rel="stylesheet" href="dashboard/css/dashboard.css?v=4.0.0">
+  <script>
+    // Self-Healing Guard: If launched inside the Game PWA container, restore the Game immediately!
+    (function() {
+      var isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+      var isAdminAuthed = sessionStorage.getItem('sj_admin_auth') === 'true';
+      if (isStandalone && !isAdminAuthed) {
+        window.location.replace('index.html');
+      }
+    })();
+  </script>
 </head>
 <body>
 

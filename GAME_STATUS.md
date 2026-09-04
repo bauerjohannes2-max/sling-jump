@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC40 - v4.0.1 - Suppression of Intrusive Fullscreen Exit Toast & Clean 100dvh Viewport Engine)  
+> **Status:** Release Candidate (RC41 - v4.1.0 - Robust Standalone Decoupling of Game PWA & Growth Analytics Suite)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,25 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.1.0 (04.09.2026) - Robust Standalone Decoupling of Game PWA & Growth Analytics Suite
+* **1. Vollständige Entkopplung & Scope-Trennung der PWAs (`manifest.json`, `dashboard/manifest.json`):**
+  * **Ursachen-Analyse:** Wenn das Spiel als PWA auf dem Home-Screen installiert war und der Nutzer über Entwickler-Gesten oder Links `dashboard.html` aufgerufen hatte, speicherten mobile Browser (iOS Safari WebClip & Android Chrome) den letzten URL-Zustand innerhalb des PWA-Containers. Beim nächsten Antippen des Spiel-Icons vom Startbildschirm öffnete sich daher fälschlicherweise das Dashboard statt des Spiels.
+  * **Eindeutige W3C App-Identitäten:**
+    * Spiel (`manifest.json`): `id: "sling-jump-game"`, `scope: "./"`, `start_url: "./index.html"`.
+    * Dashboard (`dashboard/manifest.json`): `id: "sling-jump-analytics-dashboard"`, `scope: "./"`, `start_url: "./index.html"`.
+    * Entfernung der alten `manifest-dashboard.json` aus dem Root-Verzeichnis zur Vermeidung jeglicher Domain-Kollisionen.
+* **2. Self-Healing Standalone-Guard (`dashboard.html`):**
+  * `<link rel="manifest">` wurde aus `dashboard.html` im Root entfernt, damit der Root-Einstiegspunkt niemals eine PWA-Installation registriert oder überschreibt.
+  * Inline-Schutzskript: `if (isStandalone && !isAdminAuthed) window.location.replace('index.html');`.
+  * Sollte ein bestehendes Spiel-PWA-Icon noch auf die Dashboard-URL zeigen, leitet die App ohne Flackern oder Ladeschleife sofort und deterministisch zurück zum Spiel (`index.html`).
+* **3. Schutz der Spiel-PWA vor Navigations-Entführung (`js/main.js`):**
+  * Die 3x-Klick-Geste auf das Versions-Tag prüft den Anzeigemodus: Im Standalone-PWA-Modus (`display-mode: standalone`) wird das Dashboard ausschließlich in einem separaten Browser-Tab (`target="_blank" rel="noopener noreferrer"`) geöffnet. `window.location.href` wird im PWA-Fenster niemals überschrieben.
+* **4. Service-Worker-Bypass (`sw.js`):**
+  * Alle Anfragen an `/dashboard/`, `/api/` oder `dashboard.html` werden vom Service Worker der Spiel-App bedingungslos ignoriert und niemals im Offline-Cache des Spiels abgelegt.
+  * Cache-Name auf `sling-jump-v4.1.0` angehoben.
+* **5. Playwright Visual Suite Verifikation:**
+  * 19/19 Screenshots fehlerfrei validiert, 0 Konsolenfehler, neutrale NTFS-Zeitstempel.
 
 ### v4.0.1 (04.09.2026) - Beseitigung des Android-Vollbild-Toasts & Reines 100dvh Viewport-Locking
 * **1. Vollständige Eliminierung des lästigen System-Overlays (`main.js`):**
