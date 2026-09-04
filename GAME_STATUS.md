@@ -54,6 +54,35 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
 
+### v3.33.0 (04.09.2026) - Cyberpunk Death Tab UI, Green Boost Bomb Immunity & Deep Space Balancing
+* **1. Cyberpunk Game-Over Screen Redesign (`index.html`, `style.css`, `UIManager.js`):**
+  * **Design-Benchmark & Synthese:** Nach visueller KI-Synthese (Nano Banana Mockup) und Analyse von Bestseller-Arcadegames (*Subway Surfers*, *Alto's Adventure*) wurde der generische Game-Over-Dialog durch einen futuristischen Cyberpunk-Rahmen (`.gameover-cyber-frame`) ersetzt.
+  * **Visuelle Highlights:**
+    * Vier filigrane Eck-Brackets (`.cyber-bracket`) in Neon-Cyan.
+    * Hero Altitude Score: Erhabene 60px-Ziffern (`#38bdf8`) mit Leuchtglow und präzisem deutschen Tausendertrennzeichen (`3.450 m`).
+    * Rekord-Kapsel: Goldener Statusbalken mit Pokal-Icon (`BESTLEISTUNG: 4.820 m`) und animiert pulsierendes goldenes Rekord-Badge (`NEUER REKORD!`).
+    * Zweifache Belohnungspillen: Glänzende Kapseln für Goldmünzen und Hyper-Kristalle.
+    * Replay-Button (`.btn-replay-emerald`): Signalstarkes Smaragdgrün (`#10b981`) mit Replay-SVG-Icon für sofortiges Wiedereinsteigen.
+    * Zero Emojis: Ausschließlich Vektor-SVGs und klare Typografie.
+* **2. Grüner Super-Boost Minen-Immunität (`GameEngine.js`, `Spaceship.js`):**
+  * Piloten, die aus einem grünen Super-Boost-Knoten (`node.type === 'BOOST'`) katapultiert werden, erhalten den Status `isSuperBoosting` (`boostTimer = 2.4s`).
+  * Kollidiert das Schiff im Boost-Flug mit einer Weltraum-Mine (`HAZARD`), stirbt der Pilot nicht mehr: Die Mine zerschellt schadlos in einer smaragdgrünen Druckwelle ("MINE ZERSTÖRT!").
+* **3. Tiefraum-Rebalancing (Mehr Zeituhr-Knoten, weniger Bomben) (`WorldManager.js`):**
+  * **Zeituhr-Knoten (`FRAGILE`):** Deutlich erhöht in Zone 5 (26%), Zone 6 (34%) und Zone 7 (42%), um temporeiche, dynamische Sprungrhythmen zu belohnen.
+  * **Weltraum-Minen (`HAZARD`):** Spawnrate von 14%-22% auf moderate 7%-10% gesenkt. Unüberwindbare Minenwände sind eliminiert.
+* **4. Hyper-Kristall Seltenheit (`WorldManager.js`):**
+  * Spawnchance von 5% auf 1.0% gedrosselt und ein Mindestabstand von 2.500px zwischen Kristallen eingeführt, um den Wert der Wiederbelebungswährung zu wahren.
+* **5. Minimalistisches Combo- & Launch-Feedback (`GameEngine.js`):**
+  * Verbose Texte wie `PERFEKT 90° (+10% TEMPO)` oder `HYPER x5 (+34% TEMPO)` wurden radikal vereinfacht:
+    * Stufe 1: `PERFEKT`
+    * Folge-Ketten: `COMBO x2`, `COMBO x3`, `COMBO x4` etc.
+  * Sekundäre schwebende Gold-Popups während Combos entfernt für ungetrübte Flugbahn-Sicht.
+* **6. Entfernung "RISSIG" Popup (`Spaceship.js`, `GameEngine.js`):**
+  * Text `'RISSIG!'` beim Berühren von Fissuren-Decoys restlos entfernt; der Knoten zerbricht rein akustisch und visuell über Partikelsplitter.
+* **7. Automatisierte Playwright-Verifikation:**
+  * 18/18 Screenshots frisch erzeugt (`CreationTime`/`LastWriteTime` auf die Sekunde genau neutralisiert).
+  * 0 Konsolenfehler, verifizierte Minen-Immunität und perfekte Viewport-Zentrierung nach Revive.
+
 ### v3.32.0 (04.09.2026) - Peak-Altitude Respawn & Quantum Safety Trampoline
 * **1. Garantierter Peak-Altitude Checkpoint (`GameEngine.js`):**
   * **Ursachen-Analyse:** Nach einem Void-Absturz aus großen Höhen (z.B. 500m) suchte die Engine bisher im Bereich der Todes-Kamera nach verbliebenen Knoten und griff über `find()` oft den tiefsten Knoten knapp über der Todeslinie auf.
