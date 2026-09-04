@@ -115,10 +115,18 @@ class UIManager {
       valMaster: document.getElementById('val-master'),
       valMusic: document.getElementById('val-music'),
       valSfx: document.getElementById('val-sfx'),
-      btnShake: document.getElementById('btn-shake')
+      btnShake: document.getElementById('btn-shake'),
+
+      // Profile & Identity Elements
+      menuProfileName: document.getElementById('menu-profile-name'),
+      profileHeroName: document.getElementById('profile-hero-name'),
+      profileUserIdBadge: document.getElementById('profile-user-id-badge'),
+      profileStatusMsg: document.getElementById('profile-status-message'),
+      btnProfileRandom: document.getElementById('btn-profile-random')
     };
 
     this.initSettingsUI();
+    this.updateUserProfileNav();
     window._uiManager = this;
   }
 
@@ -417,11 +425,22 @@ class UIManager {
   /* =========================================================================
      PILOT PROFILE & REGISTRATION
      ========================================================================= */
+  updateUserProfileNav() {
+    if (!this.storage) return;
+    const profile = this.storage.getPlayerProfile();
+    const navNameEl = this.dom.menuProfileName || document.getElementById('menu-profile-name');
+    if (navNameEl && profile) {
+      navNameEl.textContent = profile.pilotName || 'SPIELER';
+    }
+  }
+
   openProfileModal() {
     if (!this.dom.profileModal) return;
     const profile = this.storage.getPlayerProfile();
     const stats = this.storage.data.stats || {};
     
+    const heroNameEl = document.getElementById('profile-hero-name');
+    const idBadgeEl = document.getElementById('profile-user-id-badge');
     const nameEl = document.getElementById('profile-display-name');
     const idEl = document.getElementById('profile-display-id');
     const statusEl = document.getElementById('profile-status-badge');
@@ -429,11 +448,14 @@ class UIManager {
     const dateEl = document.getElementById('profile-registered-date');
     const runsEl = document.getElementById('profile-runs-count');
     const inputEl = document.getElementById('profile-name-input');
+    const msgEl = document.getElementById('profile-status-message');
 
-    if (nameEl) nameEl.textContent = profile.pilotName || 'PILOT';
-    if (idEl) idEl.textContent = profile.playerId || 'SJ-INIT';
+    if (heroNameEl) heroNameEl.textContent = profile.pilotName || 'SPIELER';
+    if (idBadgeEl) idBadgeEl.textContent = `ID: ${profile.playerId || 'usr_init'}`;
+    if (nameEl) nameEl.textContent = profile.pilotName || 'SPIELER';
+    if (idEl) idEl.textContent = profile.playerId || 'usr_init';
     if (statusEl) {
-      statusEl.textContent = profile.registered ? 'REGISTRIERT' : 'GAST-MODUS';
+      statusEl.textContent = profile.registered ? 'AKTIV' : 'GAST-MODUS';
       statusEl.style.color = profile.registered ? '#10b981' : '#f59e0b';
     }
     if (hsEl) hsEl.textContent = `${this.storage.data.highScore || 0} m`;
@@ -443,7 +465,12 @@ class UIManager {
     }
     if (runsEl) runsEl.textContent = (stats.totalRuns || 0).toString();
     if (inputEl) inputEl.value = profile.pilotName || '';
+    if (msgEl) {
+      msgEl.style.opacity = '0';
+      msgEl.textContent = '';
+    }
 
+    this.updateUserProfileNav();
     this.dom.profileModal.classList.add('visible');
   }
 
@@ -451,13 +478,54 @@ class UIManager {
     if (this.dom.profileModal) this.dom.profileModal.classList.remove('visible');
   }
 
+  rerollProfileName(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const newName = this.storage.rerollGamerTag();
+    const inputEl = document.getElementById('profile-name-input');
+    const heroNameEl = document.getElementById('profile-hero-name');
+    const msgEl = document.getElementById('profile-status-message');
+
+    if (inputEl) inputEl.value = newName;
+    if (heroNameEl) heroNameEl.textContent = newName;
+    this.updateUserProfileNav();
+
+    if (msgEl) {
+      msgEl.textContent = 'NEUER NAME GENERIERT';
+      msgEl.style.opacity = '1';
+      setTimeout(() => { if (msgEl) msgEl.style.opacity = '0'; }, 1800);
+    }
+    if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
+    if (window.AnalyticsService) {
+      window.AnalyticsService.sendEvent('profile_reroll', { newName });
+    }
+  }
+
   saveProfile(e) {
     if (e) e.preventDefault();
     const inputEl = document.getElementById('profile-name-input');
     const name = inputEl ? inputEl.value : '';
-    this.storage.registerPlayer(name);
-    this.openProfileModal();
+    const profile = this.storage.registerPlayer(name);
+    
+    const heroNameEl = document.getElementById('profile-hero-name');
+    const msgEl = document.getElementById('profile-status-message');
+
+    if (heroNameEl) heroNameEl.textContent = profile.pilotName;
+    if (inputEl) inputEl.value = profile.pilotName;
+    this.updateUserProfileNav();
+
+    if (msgEl) {
+      msgEl.textContent = 'PROFIL GESPEICHERT';
+      msgEl.style.opacity = '1';
+      setTimeout(() => { if (msgEl) msgEl.style.opacity = '0'; }, 1800);
+    }
+
     if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
+    if (window.AnalyticsService) {
+      window.AnalyticsService.sendEvent('profile_update', { pilotName: profile.pilotName });
+    }
   }
 
   /* =========================================================================
@@ -842,6 +910,7 @@ class UIManager {
     if (this.dom.shopCurrencyVal) this.dom.shopCurrencyVal.textContent = cores;
     if (this.dom.shopCrystalsVal) this.dom.shopCrystalsVal.textContent = crystals;
     if (this.dom.orbsVal) this.dom.orbsVal.textContent = cores;
+    this.updateUserProfileNav();
     this.updateUnclaimedBadges();
   }
 

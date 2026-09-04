@@ -125,6 +125,13 @@
       });
     }
 
+    const btnProfileRandom = document.getElementById('btn-profile-random');
+    if (btnProfileRandom) {
+      btnProfileRandom.addEventListener('click', (e) => {
+        ui.rerollProfileName(e);
+      });
+    }
+
     // --- HUD BUTTONS ---
     const btnHudPause = document.getElementById('btn-hud-pause');
     if (btnHudPause) {

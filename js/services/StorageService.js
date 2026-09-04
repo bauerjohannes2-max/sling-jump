@@ -9,6 +9,19 @@ class StorageService {
     this.load();
   }
 
+  static generateRandomGamerTag() {
+    const prefixes = ['Neon', 'Shadow', 'Cyber', 'Nova', 'Vortex', 'Apex', 'Turbo', 'Ghost', 'Pixel', 'Quantum', 'Blaze', 'Frost', 'Echo', 'Cosmic', 'Solar', 'Strike', 'Hyper', 'Night', 'Phantom', 'Zero'];
+    const nouns = ['Viper', 'Runner', 'Blade', 'Wolf', 'Hawk', 'Falcon', 'Fox', 'Knight', 'Hunter', 'Striker', 'Drifter', 'Spark', 'Pulse', 'Ace', 'Spectre', 'Rider'];
+    const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const n = nouns[Math.floor(Math.random() * nouns.length)];
+    const num = Math.floor(10 + Math.random() * 90);
+    return `${p}${n}${num}`;
+  }
+
+  static generateUniqueUserId() {
+    return 'usr_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+  }
+
   getDefaultState() {
     return {
       version: CONSTANTS.VERSION,
@@ -23,13 +36,13 @@ class StorageService {
       unlockedThemes: ['deep_space'],
       notifiedUpgradeIds: [], // Tracks upgrade IDs that have already been notified (one-time per item)
       
-      // Player Profile & Registration System
+      // Player Profile & Unique Gaming Identity
       playerProfile: {
-        registered: false,
-        pilotName: 'Gast-Pilot',
-        callsign: 'KOSMOS-1',
-        playerId: null,
-        registeredAt: null
+        registered: true,
+        pilotName: StorageService.generateRandomGamerTag(),
+        callsign: 'KOSMOS',
+        playerId: StorageService.generateUniqueUserId(),
+        registeredAt: new Date().toISOString()
       },
       
       // Daily & Weekly Mission System
@@ -133,6 +146,15 @@ class StorageService {
       merged.leaderboard = [];
     }
 
+    // Player profile & unique user ID migration
+    if (!merged.playerProfile.playerId || typeof merged.playerProfile.playerId !== 'string' || merged.playerProfile.playerId.startsWith('SJ-')) {
+      merged.playerProfile.playerId = StorageService.generateUniqueUserId();
+    }
+    if (!merged.playerProfile.pilotName || merged.playerProfile.pilotName === 'Gast-Pilot' || merged.playerProfile.pilotName.startsWith('Pilot') || merged.playerProfile.pilotName.trim() === '') {
+      merged.playerProfile.pilotName = StorageService.generateRandomGamerTag();
+    }
+    merged.playerProfile.registered = true;
+
     if (typeof merged.hyperCrystals !== 'number' || isNaN(merged.hyperCrystals)) {
       merged.hyperCrystals = 1;
     }
@@ -157,19 +179,30 @@ class StorageService {
     }
   }
 
-  registerPlayer(pilotName, callsign = 'PILOT') {
-    const cleanName = (pilotName || 'Pilot').trim().substring(0, 18);
+  registerPlayer(pilotName, callsign = 'ACE') {
+    const cleanName = (pilotName || StorageService.generateRandomGamerTag()).trim().substring(0, 18);
     const existing = this.getPlayerProfile();
-    const id = existing.playerId || ('SJ-' + Math.floor(10000 + Math.random() * 90000));
+    const id = existing.playerId || StorageService.generateUniqueUserId();
     this.data.playerProfile = {
       registered: true,
-      pilotName: cleanName,
-      callsign: (callsign || 'PILOT').trim().toUpperCase().substring(0, 12),
+      pilotName: cleanName || StorageService.generateRandomGamerTag(),
+      callsign: (callsign || 'ACE').trim().toUpperCase().substring(0, 12),
       playerId: id,
       registeredAt: existing.registeredAt || new Date().toISOString()
     };
     this.save();
     return this.data.playerProfile;
+  }
+
+  rerollGamerTag() {
+    const newTag = StorageService.generateRandomGamerTag();
+    if (!this.data.playerProfile) {
+      this.data.playerProfile = this.getDefaultState().playerProfile;
+    }
+    this.data.playerProfile.pilotName = newTag;
+    this.data.playerProfile.registered = true;
+    this.save();
+    return newTag;
   }
 
   getPlayerProfile() {

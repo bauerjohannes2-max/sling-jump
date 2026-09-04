@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC34 - v3.33.0 - Full Engine Hardening, Cyberpunk Death Tab UI & Deep Space Balancing)  
+> **Status:** Release Candidate (RC35 - v3.34.0 - Seamless Gaming Profiles, Active Status Pill & Telemetry Analytics)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,31 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.34.0 (04.09.2026) - Seamless Gaming Profiles, Active Status Pill & Telemetry Analytics
+* **1. Automatische & Bequeme Gamer-Profile (`StorageService.js`):**
+  * **Echte Gaming-Namen statt veralteter Bürokratie:** Keine generischen Bezeichnungen ("Gast", "Gast-Pilot", "Pilot-1") mehr. Beim ersten Spielstart generiert `StorageService.generateRandomGamerTag()` sofort einen dynamischen Gaming-Tag (z. B. `NeonViper42`, `ShadowWolf58`, `CyberFox17`, `NovaStrike99`, `VortexAce07`).
+  * **Dauerhafte Spieler-ID (`userId`):** Jeder Spieler erhält eine eindeutige, persistente Identifikations-ID (`usr_[timestamp][random]`), die lokal erhalten bleibt.
+  * **Nahtlose Migration bestehender Spielstände:** Bestehende Speicherstände mit veralteten oder leeren Pilot-Namen werden beim Laden automatisch auf stylische Gamer-Tags und eindeutige User-IDs migriert (`registered = true`).
+  * **Jederzeit wechselbar:** Gamer-Tags können jederzeit mit einem Klick neu gewürfelt oder manuell personalisiert werden.
+* **2. Visuelles Feedback für den eingeloggten Spielerstatus (`index.html`, `style.css`):**
+  * **Profil-Button als interaktive Pillen-Schaltfläche (`#btn-menu-profile`):**
+    * **Pulsierender Online-Indikator:** Ein leuchtend grüner Signalpunkt (`.profile-status-dot`, `#10b981`) mit weicher 2.2s Glow-Animation signalisiert auf den ersten Blick: "Spieler aktiv / eingeloggt".
+    * **Gamer-Tag im Header:** Der aktive Gamer-Tag (`#menu-profile-name`) wird direkt neben dem minimalistischen SVG-Icon in klarer, serifenloser Orbitron-Großbuchstaben-Typografie angezeigt.
+    * **Responsive Anpassung:** Auf mobilen Geräten passt sich die Pille kompakt an, sodass der Online-Status immer sichtbar und bedienbar bleibt.
+* **3. Modernes Profil-Modal & 1-Klick Zufalls-Generator (`index.html`, `UIManager.js`):**
+  * **Hero Gamer Tag & Status-Badge:** Großformatige Darstellung des aktiven Namens und des Status (`• AKTIV`).
+  * **Eindeutige User-ID:** Dezente ID-Badge (`ID: usr_...`) für exakte Zuordnung.
+  * **1-Klick Würfel-/Zufalls-Button (`#btn-profile-random`):** Erlaubt es Spielern, mit einer einzigen Berührung sofort neue Namen zu generieren (`ui.rerollProfileName()`).
+  * **Sofortiges Feedback:** Statusmeldung ("PROFIL GESPEICHERT" / "NEUER NAME GENERIERT") mit sanftem Fade-Out.
+  * **Strikte Zero-Emoji-Architektur:** Ausschließlich scharfe Canvas- und Vektor-SVG-Grafiken.
+* **4. Telemetrie & Analytics-Tracking (`AnalyticsService.js`):**
+  * **Vollständige Spieler-Identifikation im Telemetrie-Payload:** In alle Tracking-Ereignisse (`session_start`, `heartbeat`, `run_start`, `run_completed`, `profile_reroll`, `profile_update`) werden `userId` und `gamerTag` direkt injiziert.
+  * **Optimale Monetarisierungs- & Optimierungs-Grundlage:** Ermöglicht exakte Messung von Unique Active Users (UAU), Retention-Kohorten und Spieleraktivität für datengestützte Spieloptimierung.
+* **5. Playwright Visual Verification & Frische-Garantie:**
+  * Test-Suite `npm test` (`scripts/playwright_runner.js`) erfolgreich durchgelaufen: **0 Konsolenfehler**, **18 frische Screenshots**.
+  * Neutralisierung von NTFS-Tunneling durch explizite Zeitstempel-Stempelung.
+  * Screenshots `01_main_menu.png` und `06b_pilot_profile.png` visuell geprüft und freigegeben.
 
 ### v3.33.0 (04.09.2026) - Full Engine Hardening, Cyberpunk Death Tab UI & Deep Space Balancing
 * **1. Cyberpunk Game-Over Screen Redesign (`index.html`, `style.css`, `UIManager.js`):**

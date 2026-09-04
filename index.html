@@ -60,8 +60,10 @@
           <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
         </button>
         <div class="menu-top-right-group">
-          <button class="icon-nav-btn" id="btn-menu-profile" aria-label="Piloten-Profil" title="Piloten-Profil">
-            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <button class="icon-nav-btn profile-nav-btn" id="btn-menu-profile" aria-label="Profil" title="Spielerprofil">
+            <span class="profile-status-dot" title="Online"></span>
+            <svg class="icon-svg profile-nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span class="profile-nav-name" id="menu-profile-name">SPIELER</span>
           </button>
           <button class="icon-nav-btn" id="btn-menu-leaderboard" aria-label="Bestenliste" title="Bestenliste">
             <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -82,7 +84,7 @@
         <div class="game-title-container">
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v3.33.0</div>
+          <div class="app-version-tag">v3.34.0</div>
         </div>
 
         <div class="currency-group">
@@ -466,24 +468,39 @@
 
     <!-- 7. PROFIL MODAL (MINIMALIST & SLEEK LOGIN) -->
     <div class="modal-overlay" id="profile-modal" style="z-index: 125;">
-      <div class="modal-card profile-card" style="max-width: 360px; text-align: center; padding: 22px 20px;">
-        <div class="modal-title" style="margin-bottom: 16px; font-size: 22px; letter-spacing: 2px;">PROFIL</div>
-
-        <!-- Sleek Avatar Circle -->
-        <div style="width: 58px; height: 58px; margin: 0 auto 16px; border-radius: 50%; background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1.5px solid rgba(56, 189, 248, 0.45); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);">
-          <svg viewBox="0 0 24 24" style="width: 26px; height: 26px; fill: none; stroke: #38bdf8; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <div class="modal-card profile-card" style="max-width: 380px; text-align: center; padding: 24px 20px;">
+        <div class="profile-modal-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+          <div class="modal-title" style="margin: 0; font-size: 20px; letter-spacing: 2px;">PROFIL</div>
+          <div class="profile-badge-online" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 999px; font-size: 10px; font-weight: 800; color: #10b981; letter-spacing: 1px;">
+            <span class="profile-status-dot-inline" style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+            <span id="profile-status-badge">AKTIV</span>
+          </div>
         </div>
 
-        <!-- Inline Name Form -->
-        <form id="profile-form" onsubmit="window._uiManager && window._uiManager.saveProfile(event)" style="display: flex; gap: 8px; margin-bottom: 16px;">
-          <input type="text" id="profile-name-input" maxlength="16" placeholder="Dein Name..." style="flex: 1; min-width: 0; padding: 10px 14px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; color: #fff; font-size: 13px; font-weight: 700; outline: none; font-family: 'Orbitron', sans-serif;">
+        <!-- Sleek Avatar Circle -->
+        <div class="profile-avatar-container" style="position: relative; width: 62px; height: 62px; margin: 0 auto 12px; border-radius: 50%; background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1.5px solid rgba(56, 189, 248, 0.5); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 24px rgba(56, 189, 248, 0.25);">
+          <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: none; stroke: #38bdf8; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span style="position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; background: #10b981; border: 2px solid #0f172a; box-shadow: 0 0 8px #10b981;"></span>
+        </div>
+
+        <!-- Hero Gamer Tag & User ID Pill -->
+        <div class="profile-hero-tag" id="profile-hero-name" style="font-size: 19px; font-weight: 900; color: #f8fafc; letter-spacing: 1.5px; font-family: 'Orbitron', sans-serif; margin-bottom: 4px;">PLAYER</div>
+        <div class="profile-id-pill" id="profile-user-id-badge" style="display: inline-block; font-size: 10px; font-family: monospace; color: #94a3b8; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 3px 8px; margin-bottom: 16px; letter-spacing: 0.5px;">ID: usr_...</div>
+
+        <!-- Name Edit & Randomizer Form -->
+        <form id="profile-form" onsubmit="window._uiManager && window._uiManager.saveProfile(event)" style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <input type="text" id="profile-name-input" maxlength="16" placeholder="Gamer Tag..." style="flex: 1; min-width: 0; padding: 10px 14px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; color: #fff; font-size: 13px; font-weight: 700; outline: none; font-family: 'Orbitron', sans-serif;">
+          <button type="button" id="btn-profile-random" class="btn-secondary" title="Zufallsname würfeln" style="padding: 10px 12px; display: flex; align-items: center; justify-content: center;" onclick="window._uiManager && window._uiManager.rerollProfileName(event)">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><circle cx="12" cy="12" r="1"></circle></svg>
+          </button>
           <button type="submit" class="btn-primary" style="padding: 10px 16px; font-size: 11px; white-space: nowrap;">SPEICHERN</button>
         </form>
+
+        <div id="profile-status-message" style="min-height: 16px; font-size: 11px; font-weight: 700; color: #10b981; letter-spacing: 1px; margin-bottom: 14px; transition: opacity 0.3s; opacity: 0;">PROFIL GESPEICHERT</div>
 
         <!-- Hidden compat anchors for JS listeners -->
         <span id="profile-display-name" style="display: none;"></span>
         <span id="profile-display-id" style="display: none;"></span>
-        <span id="profile-status-badge" style="display: none;"></span>
         <span id="profile-registered-date" style="display: none;"></span>
         <span id="profile-display-highscore" style="display: none;"></span>
         <span id="profile-runs-count" style="display: none;"></span>
@@ -508,21 +525,21 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=3.33.0"></script>
-  <script src="js/services/StorageService.js?v=3.33.0"></script>
-  <script src="js/services/AnalyticsService.js?v=3.33.0"></script>
-  <script src="js/audio/AudioManager.js?v=3.33.0"></script>
-  <script src="js/engine/ParticleSystem.js?v=3.33.0"></script>
-  <script src="js/engine/InputManager.js?v=3.33.0"></script>
-  <script src="js/engine/MissionManager.js?v=3.33.0"></script>
-  <script src="js/entities/Node.js?v=3.33.0"></script>
-  <script src="js/entities/EnergyOrb.js?v=3.33.0"></script>
-  <script src="js/entities/Spaceship.js?v=3.33.0"></script>
-  <script src="js/world/WorldManager.js?v=3.33.0"></script>
-  <script src="js/engine/ShopManager.js?v=3.33.0"></script>
-  <script src="js/engine/StateManager.js?v=3.33.0"></script>
-  <script src="js/engine/UIManager.js?v=3.33.0"></script>
-  <script src="js/engine/GameEngine.js?v=3.33.0"></script>
-  <script src="js/main.js?v=3.33.0"></script>
+  <script src="js/config/Constants.js?v=3.34.0"></script>
+  <script src="js/services/StorageService.js?v=3.34.0"></script>
+  <script src="js/services/AnalyticsService.js?v=3.34.0"></script>
+  <script src="js/audio/AudioManager.js?v=3.34.0"></script>
+  <script src="js/engine/ParticleSystem.js?v=3.34.0"></script>
+  <script src="js/engine/InputManager.js?v=3.34.0"></script>
+  <script src="js/engine/MissionManager.js?v=3.34.0"></script>
+  <script src="js/entities/Node.js?v=3.34.0"></script>
+  <script src="js/entities/EnergyOrb.js?v=3.34.0"></script>
+  <script src="js/entities/Spaceship.js?v=3.34.0"></script>
+  <script src="js/world/WorldManager.js?v=3.34.0"></script>
+  <script src="js/engine/ShopManager.js?v=3.34.0"></script>
+  <script src="js/engine/StateManager.js?v=3.34.0"></script>
+  <script src="js/engine/UIManager.js?v=3.34.0"></script>
+  <script src="js/engine/GameEngine.js?v=3.34.0"></script>
+  <script src="js/main.js?v=3.34.0"></script>
 </body>
 </html>

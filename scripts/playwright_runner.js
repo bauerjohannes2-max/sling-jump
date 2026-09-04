@@ -181,15 +181,29 @@ async function runPlaywrightSuite() {
 
   // 6b. Pilot Profile & Registration
   console.log('[Playwright] Testing #btn-menu-profile...');
+  const initialNavName = await page.$eval('#menu-profile-name', el => el.textContent.trim());
+  console.log(`[Playwright] Initial gamer tag on header pill: "${initialNavName}"`);
+
   await page.click('#btn-menu-profile');
   await sleep(400);
-  await page.fill('#profile-name-input', 'Johannes');
+
+  // Test 1-click random gamer tag button
+  console.log('[Playwright] Testing #btn-profile-random...');
+  await page.click('#btn-profile-random');
+  await sleep(300);
+
+  // Test custom gamer tag input & save
+  await page.fill('#profile-name-input', 'NeonViper88');
   await page.click('#profile-form button[type="submit"]');
   await sleep(300);
+
   console.log('[Playwright] Capturing 06b_pilot_profile.png');
   await captureScreenshot(page, '06b_pilot_profile.png');
   await page.click('#btn-profile-close');
   await sleep(300);
+
+  const updatedNavName = await page.$eval('#menu-profile-name', el => el.textContent.trim());
+  console.log(`[Playwright] Updated gamer tag on header pill: "${updatedNavName}"`);
 
   // 7. Settings Modal
   console.log('[Playwright] Testing Settings and Update Checker...');

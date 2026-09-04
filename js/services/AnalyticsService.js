@@ -98,11 +98,34 @@ class AnalyticsService {
   }
 
   sendEvent(eventName, eventData = {}) {
+    let userId = 'usr_anonymous';
+    let gamerTag = 'Player';
+    try {
+      if (window.game && window.game.storage) {
+        const profile = window.game.storage.getPlayerProfile();
+        if (profile) {
+          userId = profile.playerId || userId;
+          gamerTag = profile.pilotName || gamerTag;
+        }
+      } else {
+        const raw = localStorage.getItem('sling_jump_save_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.playerProfile) {
+            userId = parsed.playerProfile.playerId || userId;
+            gamerTag = parsed.playerProfile.pilotName || gamerTag;
+          }
+        }
+      }
+    } catch (e) {}
+
     const payload = {
       event: eventName,
       version: this.version,
       deviceId: this.deviceId,
       sessionId: this.sessionId,
+      userId: userId,
+      gamerTag: gamerTag,
       data: eventData,
       clientTime: new Date().toISOString()
     };

@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.33.0  
+Dokumentationsstand: Version 3.34.0  
 Aktualisiert am: 04. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -232,4 +232,53 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * **Permanenter Live-Link Spiel (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)
 * **Permanenter Live-Link Dashboard (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/dashboard.html](https://bauerjohannes2-max.github.io/sling-jump/dashboard.html)
 * **Hosting:** GitHub Pages Edge CDN mit weltweitem Caching und HTTPS.
-* **Offline-Unterstützung:** Service Worker (`sw.js`, Cache `sling-jump-v3.33.0`) cacht alle Kern-Assets für Offline-Spielbarkeit.
+* **Offline-Unterstützung:** Service Worker (`sw.js`, Cache `sling-jump-v3.34.0`) cacht alle Kern-Assets für Offline-Spielbarkeit.
+
+---
+
+## 10. SPIELER-IDENTITÄT, PROFIL-SYSTEM & TELEMETRIE-ANALYTICS
+
+### 10.1 Automatische & Bequeme Gamer-Profile (`StorageService.js`)
+* **Keine bürokratische Pilot-Terminologie:** Veraltete Pilot- und Gast-Begriffe ("Gast-Pilot", "Pilot-1") wurden vollständig durch coole, moderne Gaming-Tags ersetzt.
+* **Algorithmische Namens-Generierung (`generateRandomGamerTag`):**
+  * Kombiniert 20 futuristische Präfixe (`Neon`, `Shadow`, `Cyber`, `Nova`, `Vortex`, `Apex`, `Turbo`, `Ghost`, `Pixel`, `Quantum`, `Blaze`, `Frost`, `Cosmic`, etc.) mit 16 markanten Substantiven (`Viper`, `Runner`, `Blade`, `Wolf`, `Hawk`, `Falcon`, `Fox`, `Knight`, `Striker`, `Drifter`, etc.) und einer 2-stelligen Zahl (`10` bis `99`).
+  * Beispiele: `NeonViper42`, `ShadowWolf58`, `CyberBlade17`, `NovaStrike99`.
+* **Persistente Spieler-ID (`generateUniqueUserId`):**
+  * Eindeutiger Identifikator im Format `usr_[timestamp36][random36]` (z. B. `usr_mtmx77qn2tz252`).
+  * Bleibt dauerhaft im lokalen Speicher verankert und überlebt Versions-Updates.
+* **Nahtlose Migration & Sofortige Registrierung:**
+  * Jeder Spieler ist ab dem allerersten Start automatisch registriert (`registered: true`).
+  * Bestehende Speicherstände mit Alt-Namen werden beim ersten Laden automatisch auf moderne Gamer-Tags und eindeutige IDs migriert.
+
+### 10.2 Visuelles Feedback für den Login-Status (`index.html`, `style.css`)
+* **Header-Profil-Pille (`#btn-menu-profile`):**
+  * **Pulsierender Online-Indikator:** Grüner Leuchtpunkt (`.profile-status-dot`, `#10b981`) mit weicher 2.2s Atmungs-Animation (`@keyframes profile-pulse-dot`) signalisiert eindeutig die aktive Session.
+  * **Aktiver Name im Header:** Gamer-Tag wird direkt auf dem Navigations-Button im Hauptmenü angezeigt (`.profile-nav-name`).
+  * **Responsive Truncation:** Passt sich auf mobilen Bildschirmen automatisch an, ohne das Layout zu sprengen.
+
+### 10.3 Profil-Modal & 1-Klick Namenswechsel (`#profile-modal`, `UIManager.js`)
+* **Hero Gamer Tag & ID-Badge:** Großformatige Orbitron-Darstellung und dezente Monospace-Badge (`ID: usr_...`).
+* **1-Klick Zufalls-Generator (`#btn-profile-random`):** Mit einem Klick auf den Würfel-Button wird blitzschnell ein neuer Gaming-Tag generiert und sofort live synchronisiert.
+* **Manuelle Personalisierung:** Eingabefeld für individuelle Wunsch-Tags mit sofortigem Save-Feedback ("PROFIL GESPEICHERT").
+* **Strikte Zero-Emoji-Garantie:** Nur scharfe SVG-Vektoricons und moderne Typografie.
+
+### 10.4 Telemetrie & Monetarisierungs-Analytics (`AnalyticsService.js`)
+* **Automatischer Identitäts-Payload:**
+  * Jedes Tracking-Ereignis (`sendEvent`) extrahiert automatisch `userId` und `gamerTag` aus dem Profil.
+  * Schema:
+  ```json
+  {
+    "event": "run_completed",
+    "version": "v3.34.0",
+    "deviceId": "dev_4k9x...",
+    "sessionId": "sess_8m2b...",
+    "userId": "usr_mtmx77qn2tz252",
+    "gamerTag": "NeonViper88",
+    "data": { "altitude": 490, "coins": 0, "durationSeconds": 14 },
+    "clientTime": "2026-09-04T12:18:49.000Z"
+  }
+  ```
+* **Relevanz für Monetarisierung & Live-Ops:**
+  * Präzise Bestimmung von Daily Active Users (DAU) und Monthly Active Users (MAU).
+  * Exakte Kohorten- und Retention-Messung pro Spieler ohne Datenschutz-Verstöße.
+  * Grundlage für zielgerichtetes Balancing und zukünftige Monetarisierungs-Optimierungen.
