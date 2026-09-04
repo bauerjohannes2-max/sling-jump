@@ -17,6 +17,7 @@
 body, html {
   width: 100%;
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
@@ -28,11 +29,23 @@ body, html {
   align-items: center;
 }
 
+:fullscreen, ::backdrop {
+  background-color: #000;
+}
+
+:-webkit-full-screen {
+  background-color: #000;
+  width: 100%;
+  height: 100%;
+}
+
 #game-container {
   position: relative; /* Changed from absolute to flow naturally in flex */
   width: 100%;
   height: 100%;
+  height: 100dvh;
   max-width: calc(100vh * (9 / 16)); /* Portrait Mode Constraint */
+  max-width: calc(100dvh * (9 / 16));
   background-color: #080b10;
   overflow: hidden;
   overscroll-behavior: none;

@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.36.0  
+Dokumentationsstand: Version 3.37.0  
 Aktualisiert am: 04. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -311,4 +311,15 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * **Phase 1 (Anflug, 2,5s):** Zeit zum Erkennen des Lock-On-Zielkreises.
   * **Phase 2 (Einhaken & Orbit, 3,7s):** Ausführliche 1,8s Lesezeit für den Hinweis `HALTEN ZUM EINHAKEN`.
   * **Phase 3 (Katapult & Steigflug, 2,8s):** Übersichtliches Nachvollziehen des idealen 90°-Abwurfs (`LOSLASSEN FÜR KATAPULT`).
+
+### 10.7 Automatische Vollbild-Engine & Mobile-App Standard (`main.js`, `style.css`)
+* **Natives App-Feeling beim Betreten:**
+  * Nach dem weltweiten Standard mobiler Bestseller (Subway Surfers, Alto's Adventure) startet die Anwendung beim ersten Antippen oder Klick automatisch im Vollbildmodus.
+  * Vendor-unabhängige Anbindung (`requestFullscreen`, `webkitRequestFullscreen`, `mozRequestFullScreen`, `msRequestFullscreen`) mit Promise-Rejection-Absicherung (0 Konsolenfehler).
+* **Dauerhaftes Vollbild ohne Deaktivierungs-Option:**
+  * Es existiert im gesamten Spiel kein Schalter zum Ausschalten des Vollbildmodus.
+  * Automatische Re-Arming-Logik: Wird das Vollbild durch System-Overlays oder Gesten kurzzeitig unterbrochen, schaltet die nächste Interaktion (`pointerdown`, `touchstart`, `click`, `keydown`) sofort wieder ins Vollbild.
+* **100dvh Viewport-Lock:**
+  * `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`, wodurch vertikale Browserleisten auf Android und iOS dauerhaft unterdrückt werden.
+
 

@@ -6,6 +6,8 @@
     "start": "node scripts/serve.js",
     "serve": "node scripts/serve.js",
     "share": "node scripts/share.js",
+    "serve:dashboard": "node dashboard/server.js",
+    "dashboard": "node dashboard/server.js",
     "test": "node scripts/playwright_runner.js",
     "test:visual": "node scripts/playwright_runner.js"
   },

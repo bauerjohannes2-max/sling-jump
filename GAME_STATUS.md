@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC37 - v3.36.0 - Minimalist Game Over Redesign & Highscore Refactoring)  
+> **Status:** Release Candidate (RC38 - v3.37.0 - Persistent Mobile-Standard Automatic Fullscreen Engine)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,18 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.37.0 (04.09.2026) - Persistent Mobile-Standard Automatic Fullscreen Engine
+* **1. Automatischer Vollbildmodus beim Betreten der App (`main.js`, `style.css`):**
+  * **Echter Mobile-App-Standard:** Wie bei nativen Mobile-Spielen aus den App Stores startet das Spiel beim ersten Antippen oder Klick auf der Seite sofort und nahtlos im vollständigen Vollbildmodus (`requestAppFullscreen`).
+  * **Dauerhaftes Vollbild ohne Deaktivierung:** Es existiert bewusst keine Schaltfläche zum Deaktivieren oder Beenden des Vollbildmodus. Das Spiel ist konsequent auf maximales Immersionserlebnis ohne störende Browserleisten ausgelegt.
+  * **Automatische Re-Aktivierung:** Sollte das System oder eine externe Benachrichtigung den Vollbildmodus unterbrechen, wird er bei der nächsten Berührung des Bildschirms (`pointerdown`, `touchstart`, `click`, `keydown`) sofort wiederhergestellt.
+* **2. Moderne Viewport-Architektur & Zero-Error-Absicherung:**
+  * **Dynamic Viewport Unit (`100dvh`):** `body, html` und `#game-container` nutzen `100dvh`, wodurch störende Adressleisten-Sprünge auf Mobilgeräten (Android & iOS) unterbunden werden.
+  * **Vendor-Präfixe & Fallbacks:** Vollständige Unterstützung von Standard-Fullscreen, Webkit, Moz und MS-APIs mit sauberem Promise-Catch (keine unhandled rejections).
+  * **iOS WebApp-Optimierung:** Nahtlose Zusammenarbeit mit Standalone-Modus (`apple-mobile-web-app-capable`, `black-translucent`).
+* **3. Playwright Visual Suite Verifikation:**
+  * 18/18 Screenshots erfolgreich aktualisiert, 0 Konsolenfehler, neutrale NTFS-Zeitstempel.
 
 ### v3.36.0 (04.09.2026) - Minimalist Game Over Redesign & Highscore Refactoring
 * **1. Minimalistisches, unaufdringliches Game-Over-Design (`#gameover-modal`, `style.css`):**

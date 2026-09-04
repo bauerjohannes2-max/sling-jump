@@ -1,0 +1,22 @@
+{
+  "name": "Sling Jump Analytics Command Center",
+  "short_name": "SJ Analytics",
+  "description": "Enterprise Game & Growth Analytics Suite for Sling Jump",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#080b10",
+  "theme_color": "#080b10",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "../assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
