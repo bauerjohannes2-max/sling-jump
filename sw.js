@@ -1,9 +1,9 @@
 /**
  * Sling Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 3.31.0
+ * Version: 3.31.1
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'sling-jump-v3.31.0';
+const CACHE_NAME = 'sling-jump-v3.31.1';
 
 const PRECACHE_ASSETS = [
   './',
@@ -62,7 +62,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. Fetch: Network-First for HTML/Navigation, Stale-While-Revalidate for static assets
+// 3. Fetch: Network-First for HTML/JS/CSS, Stale-While-Revalidate for static media
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -71,10 +71,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const isNavigation = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/';
+  // Always fetch version.json with no-store directly from network
+  if (url.pathname.endsWith('version.json')) {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
 
-  if (isNavigation) {
-    // NETWORK-FIRST: Always fetch freshest HTML when online; fallback to cache if offline
+  const isNavigation = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/';
+  const isCoreCode = isNavigation || url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+
+  if (isCoreCode) {
+    // NETWORK-FIRST: Always fetch freshest HTML/JS/CSS when online; fallback to cache if offline
     event.respondWith(
       fetch(event.request, { cache: 'no-cache' }).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
@@ -83,13 +92,13 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       }).catch(() => {
-        return caches.match(event.request).then((cached) => cached || caches.match('./index.html'));
+        return caches.match(event.request).then((cached) => cached || (isNavigation ? caches.match('./index.html') : null));
       })
     );
     return;
   }
 
-  // ASSETS: Stale-While-Revalidate with fast network update
+  // ASSETS (images, audio, icons): Stale-While-Revalidate with fast network update
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {

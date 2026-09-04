@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC31 - v3.31.0 - Void Respawn Centering & Guaranteed Player Visibility Fix)  
+> **Status:** Release Candidate (RC32 - v3.31.1 - Instant Cache-Busting, Static version.json & Robust Auto-Update System)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,17 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.31.1 (04.09.2026) - Instant Cache-Busting, Static version.json & Robust Auto-Update System
+* **1. Behebung der Service-Worker Cache-Falle & "Server nicht erreicht":**
+  * **Ursachen-Analyse:** Auf GitHub Pages (statisches Hosting) führte der Aufruf von `/api/version` zu einem HTTP 404 Fehler, woraufhin der Button "SERVER NICHT ERREICHT" anzeigte. Gleichzeitig lieferte der Service Worker über die bisherige *Stale-While-Revalidate*-Strategie weiterhin gecachte v3.29.0 Skripte aus, weshalb Smartphones die alten JavaScript-Dateien ausführten.
+  * **Network-First für Kerncode (`sw.js`):** Service Worker liefert alle `.html`, `.js` und `.css` Dateien nun per *Network-First* aus. Online-Nutzer erhalten sofort den frischesten Build; Offline-Nutzer behalten zuverlässigen Cache-Fallback.
+  * **Static `version.json` mit `no-store`:** `./version.json?t=${Date.now()}` wird immer direkt aus dem Netzwerk geladen und umgeht jegliche Cache-Ebenen.
+  * **Script-Cache-Busting (`index.html`):** Sämtliche 16 modularen Skripte sind mit Versionstags (`?v=3.31.1`) versehen, sodass Browser- und WebView-Caches bei Updates sofort invalidiert werden.
+  * **Inline Self-Healing Header-Skript:** Erkennt via `localStorage` Versionsänderungen vorab, leert veraltete Service Worker Cache-Instanzen und stößt `navigator.serviceWorker.update()` an.
+* **2. Bereinigtes Einstellungs-Menü:**
+  * Überflüssige Buttons ("ANLEITUNG & STEUERUNG", "SPIELER-DASHBOARD") restlos entfernt.
+  * "NACH UPDATES SUCHEN" prüft statische `version.json` und quittiert zuverlässig mit "VERSION AKTUELL (v3.31.1)" oder erzwingt bei Mismatch Cache-Wipe und Reload.
 
 ### v3.31.0 (04.09.2026) - Void Respawn Centering & Guaranteed Player Visibility Fix
 * **1. Behebung der Spieler-Unsichtbarkeit nach Void-Absturz (`GameEngine.js`):**
