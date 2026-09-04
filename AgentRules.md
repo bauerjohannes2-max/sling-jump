@@ -3,6 +3,7 @@
 > **Scope:** Global Antigravity Agent Engineering Standard  
 > **Target:** Autonomous Game Development, Vibecoding, Engine Hardening, and Production Polish  
 > **Compatibility:** Antigravity 2.0+, Google AI Agents, Playwright Visual Suites  
+> **Efficiency:** Integrated Caveman Protocol (Zero-Fluff, Maximum Token Optimization)  
 
 ---
 
@@ -18,7 +19,7 @@
 |  +---------------------+   +---------------------+   +-------------------------+  |
 |  |  Context & Rules    |   |  Step Execution     |   |  Automated Verification |  |
 |  |  (GEMINI.md /       |-->|  (Plan -> Brainstorm|-->|  (Playwright Tests,     |  |
-|  |   standards.md)     |   |   -> Atomic Code)   |   |   Screenshots, 0 Errors)|  |
+|  |   AgentRules.md)    |   |   -> Atomic Code)   |   |   Screenshots, 0 Errors)|  |
 |  +---------------------+   +---------------------+   +-------------------------+  |
 |             ^                                                     |               |
 |             +----------------- Feedback & Audit <-----------------+               |
@@ -42,10 +43,22 @@ To extract maximum quality, reliability, and token efficiency from coding agents
 5. **Zero GC / 60+ FPS Guardrails:** Avoid object allocations inside render/physics loops. Use pre-allocated ring buffers and debounced persistence.
 6. **Cumulative Documentation:** Preserve immutable project history in `GAME_STATUS.md` and keep `GAME_SYSTEMS.md` synchronized in real time.
 7. **Multi-Agent Hygiene:** Respect file boundaries. Never clobber or lock files while other agents are concurrently active.
+8. **Caveman Protocol (Default Communication):** Strict telegraphic brevity. Drop greetings, filler, conversational transitions, and large file regurgitation. Maximize token savings.
 
 ---
 
-## 3. The 6-Phase Vibecoding Game Development Lifecycle
+## 3. The Caveman Standard: Maximum Token & Context Optimization
+
+To preserve context window capacity and prevent token bloat during long vibecoding runs:
+
+* **Telegraphic Syntax:** Drop filler words, conversational fluff, and unnecessary articles. Write dense, compact sentences.
+* **Zero Preamble / Postamble:** Never write "Sure, I can help with that!", "Let me know if you need anything else!", or repeat the user's prompt.
+* **Atomic Precision:** Output minimal, surgical code chunks and diffs. Never dump entire 500-line files when modifying 5 lines.
+* **Information Density:** Lead with facts, commands, state changes, and verification hashes.
+
+---
+
+## 4. The 6-Phase Vibecoding Game Development Lifecycle
 
 ```
 [ Phase 1: Triage & Clarification ]
@@ -109,13 +122,13 @@ To extract maximum quality, reliability, and token efficiency from coding agents
 
 ---
 
-## 4. UI & Visual Standards: Commercial Minimalism
+## 5. UI & Visual Standards: Commercial Minimalism
 
 Top arcade games succeed through immediacy, high contrast, and visual punch. Follow these rules without exception:
 
 | Category | Strict Rule | Correct Approach | Forbidden Pattern |
 | :--- | :--- | :--- | :--- |
-| **Iconography** | Strict Zero Emoji Policy | Clean, minimalist SVG vector icons; sharp Canvas geometry | Unicode emojis (Rocket, Star, Skull, Explosion, etc.) |
+| **Iconography** | Strict Zero Emoji Policy | Clean, minimalist SVG vector icons; sharp Canvas geometry | Unicode emojis (🚀, ⭐, 💀, 💥, etc.) |
 | **Typography** | Modern & Tracked | Bold, geometric sans-serif fonts (`Inter`, `Rajdhani`, `Segoe UI`), tracked uppercase labels (`BESTLEISTUNG`, `NEUER REKORD`) | Generic serif or playful decorative fonts |
 | **Terminology** | Punchy & Direct | `PROFIL`, `HANGAR`, `REPLAY`, `PAUSE` | Bureaucratic jargon (`Piloten-Lizenz-Ausweis`) |
 | **Feedback** | Minimalist Text | `PERFEKT`, `COMBO x2`, `COMBO x3` | Verbose status banners (`PERFEKT 90° (+10% TEMPO)`) |
@@ -123,7 +136,7 @@ Top arcade games succeed through immediacy, high contrast, and visual punch. Fol
 
 ---
 
-## 5. Vibecoding Prompt Playbook (How to Prompt Agents)
+## 6. Vibecoding Prompt Playbook (How to Prompt Agents)
 
 ### Template 1: Major Feature Request
 ```markdown
@@ -134,6 +147,7 @@ Top arcade games succeed through immediacy, high contrast, and visual punch. Fol
 - Ask questions if physics parameters are ambiguous.
 - Brainstorm edge cases and write a structured step-by-step plan before editing code.
 - Run Playwright test suite after implementation to capture fresh screenshots and verify 0 console errors.
+- Use Caveman mode: telegraphic style, zero fluff.
 ```
 
 ### Template 2: UI Overhaul / Polish
@@ -144,6 +158,7 @@ Top arcade games succeed through immediacy, high contrast, and visual punch. Fol
 - Clear visual hierarchy with Hero Altitude Score as dominant element.
 - Test across desktop and mobile viewport resolutions.
 - Run Playwright verification suite once layout is complete.
+- Use Caveman mode: minimal tokens.
 ```
 
 ### Template 3: Engine Optimization / Bug Fix
@@ -154,21 +169,19 @@ Top arcade games succeed through immediacy, high contrast, and visual punch. Fol
 - Implement pre-allocated ring buffers.
 - Debounce storage saves.
 - Do not run Playwright for internal math tweaks until full engine pass is complete.
+- Use Caveman mode: concise diffs only.
 ```
 
 ---
 
-## 6. How to Make this Document Globally Available in Antigravity
+## 7. Global Antigravity Integration
 
 To ensure every agent in every workspace accesses these guidelines:
 
-1. **Option A: Global Antigravity Config (`~/.gemini/config/`)**
-   * Place this file at `~/.gemini/config/AgentRules.md` or append to `~/.gemini/config/GEMINI.md`.
-   * Antigravity automatically traverses and injects rules from `~/.gemini/config/` into every active agent session on your machine.
+1. **Global Antigravity Config (`~/.gemini/config/`):**
+   * Configured at `~/.gemini/config/AgentRules.md` and `~/.gemini/config/GEMINI.md`.
+   * Automatically loaded by Antigravity across all projects.
 
-2. **Option B: Workspace Standard (`.agents/rules/`)**
-   * Place inside `.agents/rules/AgentRules.md` within any repository.
-   * Enables automatic team sharing and version control tracking.
-
-3. **Option C: Direct Agent Instruction / Prompt Injection**
-   * Reference: `"Follow the guidelines in AgentRules.md for all game planning, testing, and UI decisions."`
+2. **Global Skill (`~/.gemini/config/skills/game-vibecoding/`):**
+   * Registered as `/game-vibecoding`.
+   * Accessible in any conversation on demand.
