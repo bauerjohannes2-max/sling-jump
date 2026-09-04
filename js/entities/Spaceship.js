@@ -21,21 +21,26 @@ class Spaceship {
     this.orbitSpeed = CONSTANTS.PHYSICS.MIN_ORBIT_SPEED;
     this.orbitDirection = 1;
 
-    // Motion Trail buffer
+    // Pre-allocated Motion Trail buffer (Zero GC allocation)
+    this.maxTrailLength = 24;
     this.trailHistory = [];
+    this.trailPool = [];
+    for (let i = 0; i < this.maxTrailLength; i++) {
+      this.trailPool.push({ x: 0, y: 0, alpha: 0 });
+    }
     this.rotationAngle = 0; // For rotating parts like Orbit Ring
     this.shieldTimer = 0; // Quantum invulnerability shield timer (active after revive)
     this.combo = 0; // Current active consecutive 90-deg launch combo
   }
 
   getComboSpeedMultiplier() {
-    const factors = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_SPEED_FACTORS) || [1.0, 1.10, 1.18, 1.26, 1.34, 1.42, 1.48, 1.54, 1.60, 1.65, 1.70];
+    const factors = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_SPEED_FACTORS) || [1.0, 1.03, 1.06, 1.09, 1.12, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30];
     const idx = Math.min(Math.max(0, this.combo), factors.length - 1);
     return factors[idx];
   }
 
   getComboLaunchBonus() {
-    const bonuses = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_LAUNCH_BONUSES) || [0, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480];
+    const bonuses = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_LAUNCH_BONUSES) || [0, 25, 45, 65, 85, 105, 125, 145, 165, 185, 200];
     const idx = Math.min(Math.max(0, this.combo), bonuses.length - 1);
     return bonuses[idx];
   }
@@ -132,6 +137,10 @@ class Spaceship {
       this.vy += 80;
     }
 
+    // Numerical sanity check against NaN / Infinity
+    if (!Number.isFinite(this.vx)) this.vx = 0;
+    if (!Number.isFinite(this.vy)) this.vy = 0;
+
     if (node) {
       node.isHooked = false;
     }
@@ -182,11 +191,17 @@ class Spaceship {
       this.shieldTimer = Math.max(0, this.shieldTimer - dt);
     }
 
-    // Trail recording
-    this.trailHistory.unshift({ x: this.x, y: this.y, alpha: 1.0 });
-    if (this.trailHistory.length > 22) this.trailHistory.pop();
-    for (let t of this.trailHistory) {
-      t.alpha -= dt * 1.8;
+    // Zero-allocation pre-allocated trail recording
+    const pt = this.trailHistory.length >= this.maxTrailLength
+      ? this.trailHistory.pop()
+      : this.trailPool[this.trailHistory.length];
+    pt.x = this.x;
+    pt.y = this.y;
+    pt.alpha = 1.0;
+    this.trailHistory.unshift(pt);
+
+    for (let i = 0; i < this.trailHistory.length; i++) {
+      this.trailHistory[i].alpha -= dt * 1.8;
     }
 
     if (this.isHooked && this.hookedNode && !this.hookedNode.isBroken) {
@@ -225,10 +240,10 @@ class Spaceship {
     // Horizontal Screen-Wrap
     if (this.x < 0) {
       this.x += screenWidth;
-      this.trailHistory = [];
+      this.trailHistory.length = 0;
     } else if (this.x > screenWidth) {
       this.x -= screenWidth;
-      this.trailHistory = [];
+      this.trailHistory.length = 0;
     }
   }
 

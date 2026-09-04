@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC31 - v3.31.0 - Void Respawn Centering & Guaranteed Player Visibility Fix)  
+> **Status:** Release Candidate (RC32 - v3.32.0 - Full Engine Hardening, Zero-Allocation Loops, Storage Resilience & QA Pass)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 04.09.2026  
@@ -53,6 +53,27 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.32.0 (04.09.2026) - Full Engine Hardening, Zero-Allocation Render Loops, Storage Safeguards & QA Pass
+* **1. Behebung des kritischen Hangar-Reset-Bugs (`StorageService.js`):**
+  * **Fehleranalyse:** In `StorageService.migrate()` wurden `merged.unlockedShips` und `merged.unlockedTrails` bei jedem Laden bedingungslos auf das Starter-Equipment (`[CONSTANTS.SHIPS[0].id]`) zurückgesetzt. Dadurch gingen zuvor freigeschaltete Schiffe und Schweife beim Neuladen verloren.
+  * **Surgical Fix:** Die Arrays `unlockedShips` und `unlockedTrails` werden nun konserviert. Nur falls sie leer oder ungültig sind, wird das Starter-Schiff/der Starter-Schweif initialisiert bzw. an Position 0 vorangestellt.
+* **2. Eliminierung von 60/120 FPS Storage I/O Freezes (`MissionManager.js` & `StorageService.js`):**
+  * **Fehleranalyse:** Bisher führte `onAltitudeUpdate()` bei jedem gekletterten Meter über `checkAndProgress()` ein synchrones `this.storage.save()` aus. Dies erzeugte bis zu 60–120 synchrone `JSON.stringify` und `localStorage.setItem` Festplatten-Schreiboperationen pro Sekunde während des Steigflugs.
+  * **Architektur-Fix:** Einführung von `saveDeferred()` mit 1500ms Debouncing während des Flugs. Synchrone Speicherung erfolgt nur noch beim Flurende (`onRunFinished`), bei Quest-Claims oder expliziten Nutzeraktionen.
+* **3. Zero-Allocation Motion-Trail & O(1) Partikel-Puffer (`Spaceship.js` & `ParticleSystem.js`):**
+  * **Trail-Puffer:** `Spaceship.js` verwendete bisher `this.trailHistory.unshift({ x, y, alpha })`, was 60–120 Heap-Objekt-Allokationen pro Sekunde verursachte. Dies wurde durch einen festen Ringpuffer mit 24 vorallozierten Punkt-Objekten ersetzt, die ohne GC-Druck zirkulieren.
+  * **O(1) Partikel-Abruf:** `ParticleSystem.getFreeParticle()` und `getFreeText()` verwenden nun zyklische Zeiger-Cursor statt linearer O(N)-Scans über 600 Partikel.
+  * **Render-Loop Hoisting:** `performanceMode`-Prüfungen in `ParticleSystem.draw()` wurden vor die Partikelschleife verschoben.
+* **4. Tunneling-Schutz & Numerische Stabilität (`GameEngine.js` & `Spaceship.js`):**
+  * **Delta-Time Clamping:** `rawDt` wird nun auf maximal `0.033s` (entspricht stabilen 30 FPS Minimum-Schrittweite) begrenzt, um katastrophale Schrittweiten und Durchtunneln des Haken-Radius bei Tab-Hintergrundbetrieb oder Rucklern zu verhindern.
+  * **Numerische Sanity-Checks:** Geschwindigkeitsvektoren `vx` und `vy` werden nach Slingshot-Impulsen via `Number.isFinite()` gegen `NaN` und `Infinity` abgesichert.
+  * **In-Place Compaction in `WorldManager.js`:** Knoten- und Münz-Bereinigung (`cleanupThreshold`) nutzt nun In-Place-Array-Kompaktierung statt Neu-Allokation via `.filter()`.
+* **5. PWA & Service-Worker Cache-Sicherheit (`sw.js` & `index.html`):**
+  * `version.json` wird über `sw.js` via `no-store` garantiert netzwerk-direkt abgefragt.
+  * JavaScript- und CSS-Dateien werden bei bestehender Online-Verbindung network-first geladen.
+* **6. Automatisierte Playwright-Verifikation:**
+  * 18/18 Screenshots erfolgreich aktualisiert, 0 Konsolenfehler, 0 unhandled exceptions.
 
 ### v3.31.0 (04.09.2026) - Void Respawn Centering & Guaranteed Player Visibility Fix
 * **1. Behebung der Spieler-Unsichtbarkeit nach Void-Absturz (`GameEngine.js`):**

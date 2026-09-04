@@ -43,9 +43,13 @@ class ParticleSystem {
         decay: 1.4
       };
     }
+    this.particleIndex = 0;
+    this.textIndex = 0;
   }
 
   reset() {
+    this.particleIndex = 0;
+    this.textIndex = 0;
     for (let i = 0; i < this.maxParticles; i++) {
       this.particles[i].active = false;
     }
@@ -55,17 +59,17 @@ class ParticleSystem {
   }
 
   getFreeParticle() {
-    for (let i = 0; i < this.maxParticles; i++) {
-      if (!this.particles[i].active) return this.particles[i];
-    }
-    return this.particles[0]; // Recycle oldest if full
+    // Fast O(1) circular ring buffer allocation
+    const p = this.particles[this.particleIndex];
+    this.particleIndex = (this.particleIndex + 1) % this.maxParticles;
+    return p;
   }
 
   getFreeText() {
-    for (let i = 0; i < this.maxTexts; i++) {
-      if (!this.texts[i].active) return this.texts[i];
-    }
-    return this.texts[0];
+    // Fast O(1) circular ring buffer allocation
+    const t = this.texts[this.textIndex];
+    this.textIndex = (this.textIndex + 1) % this.maxTexts;
+    return t;
   }
 
   spawnSparks(x, y, count = 12, color = '#00f0ff', speedMult = 1.0) {
@@ -208,6 +212,8 @@ class ParticleSystem {
   draw(context, camY, screenHeight) {
     context.save();
 
+    const isPerf = Boolean(window._gameEngine && window._gameEngine.storage && window._gameEngine.storage.data.settings.performanceMode);
+
     // 1. Draw Active Particles
     for (let i = 0; i < this.maxParticles; i++) {
       const p = this.particles[i];
@@ -217,8 +223,6 @@ class ParticleSystem {
       if (sy < -150 || sy > screenHeight + 150) continue;
 
       const alpha = Math.max(0, p.life);
-
-      const isPerf = Boolean(window._gameEngine && window._gameEngine.storage && window._gameEngine.storage.data.settings.performanceMode);
 
       if (p.type === 'shard') {
         context.save();

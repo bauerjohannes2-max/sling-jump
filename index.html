@@ -4,19 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Sling Jump - Von Stern zu Stern</title>
-  <link rel="manifest" href="manifest.json?v=3.31.0">
-  <link rel="shortcut icon" href="favicon.ico?v=3.31.0">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=3.31.0">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=3.31.0">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=3.31.0">
-  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192.png?v=3.31.0">
+  <link rel="manifest" href="manifest.json?v=3.32.0">
+  <link rel="shortcut icon" href="favicon.ico?v=3.32.0">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=3.32.0">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=3.32.0">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=3.32.0">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192.png?v=3.32.0">
   <meta name="theme-color" content="#080b10">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Sling Jump">
   <meta name="format-detection" content="telephone=no">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=3.32.0">
+  <script>
+    (function() {
+      var APP_VERSION = '3.32.0';
+      var storedVer = localStorage.getItem('sling_jump_installed_version');
+      if (storedVer && storedVer !== APP_VERSION) {
+        localStorage.setItem('sling_jump_installed_version', APP_VERSION);
+        if ('caches' in window) {
+          caches.keys().then(function(keys) {
+            keys.forEach(function(k) {
+              if (k.indexOf(APP_VERSION) === -1) caches.delete(k);
+            });
+          });
+        }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(r) { r.update(); });
+          });
+        }
+      } else if (!storedVer) {
+        localStorage.setItem('sling_jump_installed_version', APP_VERSION);
+      }
+    })();
+  </script>
 </head>
 <body tabindex="0">
 
@@ -59,7 +82,7 @@
         <div class="game-title-container">
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v3.31.0</div>
+          <div class="app-version-tag">v3.32.0</div>
         </div>
 
         <div class="currency-group">
@@ -376,7 +399,7 @@
           <button class="btn-danger" id="btn-reset-data">SPIELSTAND ZURÜCKSETZEN</button>
           <button class="btn-secondary" id="btn-settings-close">SCHLIESSEN</button>
         </div>
-        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v3.31.0</div>
+        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v3.32.0</div>
       </div>
     </div>
 
@@ -458,22 +481,22 @@
     </div>
   </div>
 
-  <!-- Modular Scripts in Dependency Order -->
-  <script src="js/config/Constants.js"></script>
-  <script src="js/services/StorageService.js"></script>
-  <script src="js/services/AnalyticsService.js"></script>
-  <script src="js/audio/AudioManager.js"></script>
-  <script src="js/engine/ParticleSystem.js"></script>
-  <script src="js/engine/InputManager.js"></script>
-  <script src="js/engine/MissionManager.js"></script>
-  <script src="js/entities/Node.js"></script>
-  <script src="js/entities/EnergyOrb.js"></script>
-  <script src="js/entities/Spaceship.js"></script>
-  <script src="js/world/WorldManager.js"></script>
-  <script src="js/engine/ShopManager.js"></script>
-  <script src="js/engine/StateManager.js"></script>
-  <script src="js/engine/UIManager.js"></script>
-  <script src="js/engine/GameEngine.js"></script>
-  <script src="js/main.js"></script>
+  <!-- Modular Scripts in Dependency Order with Version Query -->
+  <script src="js/config/Constants.js?v=3.32.0"></script>
+  <script src="js/services/StorageService.js?v=3.32.0"></script>
+  <script src="js/services/AnalyticsService.js?v=3.32.0"></script>
+  <script src="js/audio/AudioManager.js?v=3.32.0"></script>
+  <script src="js/engine/ParticleSystem.js?v=3.32.0"></script>
+  <script src="js/engine/InputManager.js?v=3.32.0"></script>
+  <script src="js/engine/MissionManager.js?v=3.32.0"></script>
+  <script src="js/entities/Node.js?v=3.32.0"></script>
+  <script src="js/entities/EnergyOrb.js?v=3.32.0"></script>
+  <script src="js/entities/Spaceship.js?v=3.32.0"></script>
+  <script src="js/world/WorldManager.js?v=3.32.0"></script>
+  <script src="js/engine/ShopManager.js?v=3.32.0"></script>
+  <script src="js/engine/StateManager.js?v=3.32.0"></script>
+  <script src="js/engine/UIManager.js?v=3.32.0"></script>
+  <script src="js/engine/GameEngine.js?v=3.32.0"></script>
+  <script src="js/main.js?v=3.32.0"></script>
 </body>
 </html>

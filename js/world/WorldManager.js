@@ -248,10 +248,25 @@ class WorldManager {
       this.lastNodeY = nextY;
     }
 
-    // Garbage Collection
+    // In-place compaction (Zero array reallocation)
     const cleanupThreshold = cameraY - 140;
-    this.nodes = this.nodes.filter(n => n.y > cleanupThreshold || n.isHooked);
-    this.energyOrbs = this.energyOrbs.filter(o => o.y > cleanupThreshold && !o.collected);
+    let keepNodeCount = 0;
+    for (let i = 0; i < this.nodes.length; i++) {
+      const n = this.nodes[i];
+      if (n.y > cleanupThreshold || n.isHooked) {
+        this.nodes[keepNodeCount++] = n;
+      }
+    }
+    this.nodes.length = keepNodeCount;
+
+    let keepOrbCount = 0;
+    for (let i = 0; i < this.energyOrbs.length; i++) {
+      const o = this.energyOrbs[i];
+      if (o.y > cleanupThreshold && !o.collected) {
+        this.energyOrbs[keepOrbCount++] = o;
+      }
+    }
+    this.energyOrbs.length = keepOrbCount;
   }
 
   /**

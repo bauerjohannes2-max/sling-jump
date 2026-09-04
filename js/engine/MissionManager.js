@@ -168,7 +168,7 @@ class MissionManager {
   /* =========================================================================
      3. REAL-TIME GAMEPLAY PROGRESS TRACKING
      ========================================================================= */
-  checkAndProgress(questId, amount, isAbsolute = false) {
+  checkAndProgress(questId, amount, isAbsolute = false, deferred = false) {
     const allPools = [...(CONSTANTS.DAILY_QUEST_POOL || []), ...(CONSTANTS.WEEKLY_QUEST_POOL || [])];
     const template = allPools.find(q => q.id === questId);
     if (!template) return;
@@ -176,7 +176,11 @@ class MissionManager {
     let current = this.storage.data.questProgress[questId] || 0;
     current = isAbsolute ? Math.max(current, amount) : current + amount;
     this.storage.data.questProgress[questId] = current;
-    this.storage.save();
+    if (deferred && typeof this.storage.saveDeferred === 'function') {
+      this.storage.saveDeferred();
+    } else {
+      this.storage.save();
+    }
   }
 
   onAltitudeUpdate(meters, usedFragile) {
@@ -184,9 +188,9 @@ class MissionManager {
 
     for (const quest of this.getAllActiveQuests()) {
       if (quest.type === 'altitude_single') {
-        this.checkAndProgress(quest.id, meters, true);
+        this.checkAndProgress(quest.id, meters, true, true);
       } else if (quest.type === 'altitude_no_fragile' && !this.usedFragileInRun) {
-        this.checkAndProgress(quest.id, meters, true);
+        this.checkAndProgress(quest.id, meters, true, true);
       }
     }
   }
@@ -232,6 +236,9 @@ class MissionManager {
       if (quest.type === 'altitude_cumulative') {
         this.checkAndProgress(quest.id, totalAltitude, false);
       }
+    }
+    if (this.storage) {
+      this.storage.save(true);
     }
   }
 }

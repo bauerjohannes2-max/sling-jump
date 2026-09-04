@@ -1,8 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-# SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
-
-Dokumentationsstand: Version 3.30.0  
+Dokumentationsstand: Version 3.32.0  
 Aktualisiert am: 04. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -191,8 +189,14 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Statische `version.json` mit automatischem Cache-Purge und Sofort-Reload bei Version-Diskrepanz.
 * **AAA App-Icon, Favicon & Cache-Architektur:**
   * Root `favicon.ico` für native Browseranfragen direkt im Rootverzeichnis hinterlegt.
-  * Versionierte Link-Parameter (`?v=3.31.0`) durchbrechen Browser-Cache-Tunneling.
+  * Versionierte Link-Parameter (`?v=3.32.0`) durchbrechen Browser-Cache-Tunneling.
   * Multi-Plattform-Icons: `assets/icon-512.png`, `assets/icon-192.png`, `assets/favicon.png` und `assets/icon.svg`.
+  * **Network-First für Kern-Code:** `sw.js` liefert HTML, JS und CSS online stets netzwerk-aktuell aus.
+* **Engine Hardening & Zero-Allocation Render-Loops:**
+  * Fester 24-Punkte-Ringpuffer für Motion-Trails eliminiert Objekt-Allokationen im 60/120 FPS Frame-Loop.
+  * O(1) zyklische Cursor-Zeiger für Partikel- und Text-Pools.
+  * Throttled/Deferred Storage-Speicherung via `saveDeferred()` verhindert E/A-Ruckler während des Steigflugs.
+  * `rawDt`-Begrenzung auf 0.033s (30 FPS Minimalrate) verhindert Durchtunneln von Knoten bei Tab-Aufwachphasen.
 * **Strict Zero Emoji Policy:**
   * Ausschließlich minimalistische SVG-Vektoricons und scharfe Canvas-Geometrie.
 
@@ -221,4 +225,4 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * **Permanenter Live-Link Spiel (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)
 * **Permanenter Live-Link Dashboard (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/dashboard.html](https://bauerjohannes2-max.github.io/sling-jump/dashboard.html)
 * **Hosting:** GitHub Pages Edge CDN mit weltweitem Caching und HTTPS.
-* **Offline-Unterstützung:** Service Worker (`sw.js`, Cache `sling-jump-v3.30.0`) cacht alle Kern-Assets für Offline-Spielbarkeit.
+* **Offline-Unterstützung:** Service Worker (`sw.js`, Cache `sling-jump-v3.32.0`) cacht alle Kern-Assets für Offline-Spielbarkeit.
