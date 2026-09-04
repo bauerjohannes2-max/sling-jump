@@ -115,8 +115,7 @@ class UIManager {
       valMaster: document.getElementById('val-master'),
       valMusic: document.getElementById('val-music'),
       valSfx: document.getElementById('val-sfx'),
-      btnShake: document.getElementById('btn-shake'),
-      btnPerf: document.getElementById('btn-perf')
+      btnShake: document.getElementById('btn-shake')
     };
 
     this.initSettingsUI();
@@ -224,7 +223,7 @@ class UIManager {
 
   openTutorialModal(slide = 1) {
     if (!this.dom.tutorialModal) return;
-    this.showTutorialSlide(slide);
+    this.activeTutorialSlide = 1;
     this.dom.tutorialModal.classList.add('visible');
     this.startTutorialAnimation();
   }
@@ -235,33 +234,18 @@ class UIManager {
     this.stopTutorialAnimation();
   }
 
-  showTutorialSlide(slideNumber) {
-    this.activeTutorialSlide = slideNumber;
-    const s1 = document.getElementById('tut-slide-1');
-    const s2 = document.getElementById('tut-slide-2');
-    if (s1 && s2) {
-      if (slideNumber === 1) {
-        s1.style.display = 'flex';
-        s2.style.display = 'none';
-      } else {
-        s1.style.display = 'none';
-        s2.style.display = 'flex';
-      }
-    }
+  showTutorialSlide(slideNumber = 1) {
+    this.activeTutorialSlide = 1;
   }
 
   startTutorialAnimation() {
     this.stopTutorialAnimation();
     const slingCanvas = document.getElementById('tut-sling-canvas');
-    const circlesCanvas = document.getElementById('tut-circles-canvas');
     const slingCtx = slingCanvas ? slingCanvas.getContext('2d') : null;
-    const circlesCtx = circlesCanvas ? circlesCanvas.getContext('2d') : null;
 
     const loop = (timestamp) => {
-      if (this.activeTutorialSlide === 1 && slingCtx && slingCanvas) {
+      if (slingCtx && slingCanvas) {
         this.renderTutorialSlide1(slingCtx, slingCanvas.width, slingCanvas.height, timestamp);
-      } else if (this.activeTutorialSlide === 2 && circlesCtx && circlesCanvas) {
-        this.renderTutorialSlide2(circlesCtx, circlesCanvas.width, circlesCanvas.height, timestamp);
       }
       this.tutAnimFrame = requestAnimationFrame(loop);
     };
@@ -294,7 +278,8 @@ class UIManager {
       ctx.fill();
     });
 
-    const cycle = 3.8;
+    // Slower, calmer cycle for clear comprehension (5.8s total)
+    const cycle = 5.8;
     const time = (t / 1000) % cycle;
     const nodeX = 180;
     const nodeY = 70;
@@ -308,15 +293,15 @@ class UIManager {
     ctx.lineWidth = 1.5;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
-    ctx.arc(0, 0, 24 + Math.sin(t * 0.005) * 2, 0, Math.PI * 2);
+    ctx.arc(0, 0, 24 + Math.sin(t * 0.003) * 2, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
     // Glow halo
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
     ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2;
     ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 14;
+    ctx.shadowBlur = 12;
     ctx.beginPath();
     ctx.arc(0, 0, 15, 0, Math.PI * 2);
     ctx.fill();
@@ -334,26 +319,26 @@ class UIManager {
     let phaseText = '';
     let phaseColor = '#38bdf8';
 
-    if (time < 0.9) {
-      // Approach Phase
-      const progress = time / 0.9;
+    if (time < 1.3) {
+      // Approach Phase (1.3s)
+      const progress = time / 1.3;
       shipX = 40 + progress * (nodeX - orbitRadius - 40);
       shipY = 135 - progress * (135 - nodeY);
       shipAngle = -Math.PI / 4;
-      phaseText = '1. GEDRÜCKT HALTEN = EINHAKEN';
+      phaseText = '1. HALTEN = EINHAKEN & KREISEN';
       phaseColor = '#38bdf8';
-    } else if (time < 2.3) {
-      // Orbit / Swing Phase (Counter-clockwise: West -> South -> East / 90°)
-      const progress = (time - 0.9) / 1.4;
+    } else if (time < 3.7) {
+      // Orbit / Swing Phase (2.4s - smooth, slow, and clear)
+      const progress = (time - 1.3) / 2.4;
       const startAngle = Math.PI; // West (180°)
-      const currentAngle = startAngle - progress * Math.PI; // counter-clockwise to 0 rad (East / 90° compass)
+      const currentAngle = startAngle - progress * Math.PI; // counter-clockwise to East (facing forward)
       shipX = nodeX + Math.cos(currentAngle) * orbitRadius;
       shipY = nodeY + Math.sin(currentAngle) * orbitRadius;
       shipAngle = currentAngle - Math.PI / 2; // tangent pointing forward
 
-      // Tetherless Orbital Halo (No tether line, clean gravitational orbit)
+      // Tetherless Orbital Orbit Arc
       ctx.save();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([3, 3]);
       ctx.beginPath();
@@ -363,32 +348,32 @@ class UIManager {
 
       phaseText = '1. HALTEN = SCHWUNG AUFBAUEN';
       phaseColor = '#38bdf8';
-    } else if (time < 3.5) {
-      // Release & Catapult Launch Phase (Release at 90° East -> Flies straight NORTH)
-      const progress = (time - 2.3) / 1.2;
-      const launchX = nodeX + orbitRadius; // Exactly at 90° (East)
+    } else if (time < 5.0) {
+      // Release & Catapult Launch in facing direction (1.3s)
+      const progress = (time - 3.7) / 1.3;
+      const launchX = nodeX + orbitRadius;
       shipX = launchX;
-      shipY = nodeY - progress * 105; // Propels straight North / Upward
-      shipAngle = -Math.PI / 2; // Facing North
+      shipY = nodeY - progress * 110;
+      shipAngle = -Math.PI / 2;
 
-      // Boost trajectory trail straight North
+      // Clean cyan launch trail (no orange)
       ctx.save();
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = '#fbbf24';
-      ctx.shadowBlur = 14;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.moveTo(launchX, nodeY);
       ctx.lineTo(shipX, shipY + 14);
       ctx.stroke();
       ctx.restore();
 
-      phaseText = '2. BEI 90° LOSLASSEN = FLUG NACH NORDEN!';
-      phaseColor = '#fbbf24';
+      phaseText = '2. LOSLASSEN = IN BLICKRICHTUNG FLIEGEN';
+      phaseColor = '#f8fafc';
     } else {
       shipX = nodeX + orbitRadius;
       shipY = -50;
-      phaseText = 'PERFEKTER KATAPULTSPRUNG';
+      phaseText = 'SCHWUNG VOLL AUSNUTZEN';
       phaseColor = '#38bdf8';
     }
 
@@ -413,7 +398,7 @@ class UIManager {
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = phaseColor;
+      ctx.fillStyle = '#38bdf8';
       ctx.beginPath();
       ctx.arc(0, 5, 2.5, 0, Math.PI * 2);
       ctx.fill();
@@ -425,47 +410,8 @@ class UIManager {
     if (badge) {
       badge.textContent = phaseText;
       badge.style.color = phaseColor;
-      badge.style.borderColor = phaseColor;
+      badge.style.borderColor = phaseColor === '#f8fafc' ? 'rgba(255,255,255,0.4)' : phaseColor;
     }
-  }
-
-  renderTutorialSlide2(ctx, w, h, t) {
-    ctx.clearRect(0, 0, w, h);
-
-    // Instantiate real game OrbitNode entities so tutorial mirrors game circles dynamically
-    if (!this.tutNodes && typeof OrbitNode !== 'undefined') {
-      this.tutNodes = [
-        { node: new OrbitNode(30, 50, 'STANDARD', w, 0), label: 'STANDARD', color: '#38bdf8' },
-        { node: new OrbitNode(90, 50, 'BOOST', w, 0), label: 'BOOST', color: '#10b981' },
-        { node: new OrbitNode(150, 50, 'MOVING', w, 0), label: 'BEWEGLICH', color: '#c084fc' },
-        { node: new OrbitNode(210, 50, 'FRAGILE', w, 0), label: 'ZEITUHR', color: '#eab308' },
-        { node: new OrbitNode(270, 50, 'DECOY', w, 0), label: 'KÖDER', color: '#f97316' },
-        { node: new OrbitNode(330, 50, 'HAZARD', w, 0), label: 'BOMBE', color: '#ef4444' }
-      ];
-      this.tutNodes[2].node.moveRange = 16;
-    }
-
-    if (!this.tutNodes) return;
-
-    const theme = { primary: '#00f0ff', accent: '#fbbf24' };
-    const dt = 0.016;
-
-    this.tutNodes.forEach(item => {
-      // Update entity pulse & rotation (without moving position so preview columns remain aligned)
-      item.node.pulse += dt * 3.2;
-      if (item.node.isHazard) item.node.rotation += dt * 1.35;
-
-      // Directly invoke the game entity draw method!
-      item.node.draw(ctx, 0, 100, theme);
-
-      // Clean typographic badge
-      ctx.save();
-      ctx.font = '800 7px Orbitron, monospace';
-      ctx.fillStyle = item.color || '#94a3b8';
-      ctx.textAlign = 'center';
-      ctx.fillText(item.label, item.node.x, 90);
-      ctx.restore();
-    });
   }
 
   /* =========================================================================
@@ -1129,20 +1075,6 @@ class UIManager {
         if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
       });
     }
-
-    if (this.dom.btnPerf) {
-      this.updatePerfButtonText();
-      this.dom.btnPerf.addEventListener('click', () => {
-        const newMode = !this.storage.data.settings.performanceMode;
-        this.storage.data.settings.performanceMode = newMode;
-        this.storage.save();
-        this.updatePerfButtonText();
-        if (window._gameEngine && window._gameEngine.particles) {
-          window._gameEngine.particles.maxParticles = newMode ? 300 : 600;
-        }
-        if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
-      });
-    }
   }
 
   updateShakeButtonText() {
@@ -1150,11 +1082,5 @@ class UIManager {
     const cur = this.storage.data.settings.screenShakeIntensity;
     const pct = Math.floor(cur * 100);
     this.dom.btnShake.textContent = `${pct}%`;
-  }
-
-  updatePerfButtonText() {
-    if (!this.dom.btnPerf) return;
-    const active = this.storage.data.settings.performanceMode;
-    this.dom.btnPerf.textContent = active ? 'AN' : 'AUS';
   }
 }

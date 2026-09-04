@@ -945,9 +945,29 @@ canvas#gameCanvas {
 }
 
 .quests-scroll-area {
-  max-height: 60vh;
+  max-height: 52vh;
   overflow-y: auto;
-  padding-right: 4px;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.4) rgba(15, 23, 42, 0.6);
+}
+
+.quests-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+.quests-scroll-area::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 4px;
+}
+.quests-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.4);
+  border-radius: 4px;
+}
+.quests-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.7);
 }
 
 .gameover-upgrade-banner {

@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '3.29.0',
+  VERSION: '3.31.0',
   STORAGE_KEY: 'sling_jump_save_v2',
 
   // Physics & Mechanics
@@ -19,12 +19,12 @@ const CONSTANTS = {
     DEATH_BUFFER_PX: 4,
     HITSTOP_DURATION_MS: 40,
     METERS_PER_PIXEL: 0.125,
-    // Balanced Progressive Combo Speed Multipliers (1x to 10x)
-    COMBO_SPEED_FACTORS: [1.0, 1.10, 1.18, 1.26, 1.34, 1.42, 1.48, 1.54, 1.60, 1.65, 1.70],
+    // Razor-sharp 90-degree launch threshold (tangentY >= 0.995 is within ~5.7 deg of pure vertical)
+    PERFECT_LAUNCH_THRESHOLD: 0.995,
+    // Moderate, balanced progressive combo speed multipliers (smooth +3% per step up to +30% at max)
+    COMBO_SPEED_FACTORS: [1.0, 1.03, 1.06, 1.09, 1.12, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30],
     // Instantaneous catapult impulse bonuses (px/s)
-    COMBO_LAUNCH_BONUSES: [0, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480],
-    // Aerodynamic upward gravity drag reduction factor per combo (down to 70% at combo 8+)
-    COMBO_GRAVITY_DRAG_REDUCTION: 0.035
+    COMBO_LAUNCH_BONUSES: [0, 25, 45, 65, 85, 105, 125, 145, 165, 185, 200]
   },
 
   // Scoring & Currency

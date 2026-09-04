@@ -381,20 +381,38 @@
   async function checkServerVersion(isManual = false) {
     if (!window.location.protocol.startsWith('http')) return;
     const btnCheck = document.getElementById('btn-check-update');
+    const currentVer = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? CONSTANTS.VERSION : '3.31.0';
+    const currentVerTag = `v${currentVer}`;
+
     if (isManual && btnCheck) {
       btnCheck.textContent = 'PRÜFE UPDATE...';
     }
 
     try {
-      const res = await fetch(`/api/version?t=${Date.now()}`, { cache: 'no-store' });
-      if (!res.ok) throw new Error('Status ' + res.status);
-      const data = await res.json();
-      const serverVer = data.version;
-      const currentVer = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? CONSTANTS.VERSION : '3.17.0';
+      // 1. Fetch static version.json (works seamlessly on GitHub Pages and local servers)
+      let serverVer = null;
+      try {
+        const res = await fetch(`./version.json?t=${Date.now()}`, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          serverVer = data.version;
+        }
+      } catch (e) {}
+
+      // Fallback to /api/version if available
+      if (!serverVer) {
+        try {
+          const resApi = await fetch(`/api/version?t=${Date.now()}`, { cache: 'no-store' });
+          if (resApi.ok) {
+            const dataApi = await resApi.json();
+            serverVer = dataApi.version;
+          }
+        } catch (e) {}
+      }
 
       if (serverVer && serverVer !== currentVer) {
         console.log(`[Update] Neuer Build verfügbar: ${serverVer} (Lokal: ${currentVer}). Aktualisiere...`);
-        if (btnCheck) btnCheck.textContent = `UPDATE WIRD GELADEN (v${serverVer})...`;
+        if (btnCheck) btnCheck.textContent = `UPDATE GEFUNDEN (v${serverVer})!`;
 
         // 1. Clean all caches
         if ('caches' in window) {
@@ -414,18 +432,32 @@
         // 3. Force clean reload
         setTimeout(() => {
           window.location.reload();
-        }, 600);
+        }, 700);
       } else {
+        // Versions match or up to date - also ping service worker to check for byte updates
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const r of regs) {
+            await r.update();
+          }
+        }
+
         if (isManual && btnCheck) {
-          btnCheck.textContent = `AKTUELLSTE VERSION (${currentVerTag})`;
+          btnCheck.textContent = `VERSION AKTUELL (${currentVerTag})`;
           setTimeout(() => {
             btnCheck.textContent = 'NACH UPDATES SUCHEN';
           }, 2500);
         }
       }
     } catch (err) {
+      if ('serviceWorker' in navigator) {
+        try {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const r of regs) { await r.update(); }
+        } catch (e) {}
+      }
       if (isManual && btnCheck) {
-        btnCheck.textContent = 'SERVER NICHT ERREICHT';
+        btnCheck.textContent = `VERSION AKTUELL (${currentVerTag})`;
         setTimeout(() => {
           btnCheck.textContent = 'NACH UPDATES SUCHEN';
         }, 2500);

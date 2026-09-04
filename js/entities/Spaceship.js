@@ -110,8 +110,9 @@ class Spaceship {
       releaseMultiplier = CONSTANTS.PHYSICS.BOOST_MULTIPLIER;
     }
 
-    // Razor-sharp 90-degree steep launch check (tangentY >= 0.980 is within ~11.4 deg of vertical 90-degree release)
-    const isPerfectLaunch = !forced && tangentY >= 0.980;
+    // Razor-sharp 90-degree steep launch check (tightened threshold: ~5.7 deg of pure vertical)
+    const threshold = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.PERFECT_LAUNCH_THRESHOLD) || 0.995;
+    const isPerfectLaunch = !forced && tangentY >= threshold;
 
     if (isPerfectLaunch) {
       this.combo = Math.min(10, (comboCount || this.combo) + 1);
@@ -200,9 +201,8 @@ class Spaceship {
         -Math.sin(this.orbitAngle) * this.orbitDirection
       );
     } else {
-      const dragReduction = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_GRAVITY_DRAG_REDUCTION) || 0.035;
-      const gravityFactor = this.vy > 0 ? Math.max(0.70, 1.0 - (this.combo * dragReduction)) : 1.0;
-      this.vy -= CONSTANTS.PHYSICS.GRAVITY * gravityFactor * dt;
+      // Natural, constant gravity at all times (no artificial upward floatiness)
+      this.vy -= CONSTANTS.PHYSICS.GRAVITY * dt;
       this.x += this.vx * dt;
       this.y += this.vy * dt;
       this.vx *= Math.pow(0.985, dt * 60);

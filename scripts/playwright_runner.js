@@ -154,6 +154,17 @@ async function runPlaywrightSuite() {
   } else {
     console.error('ERROR: .btn-claim button not found in Quests modal!');
   }
+
+  // Verify smooth scroll mechanic down to Weekly Challenges
+  console.log('[Playwright] Scrolling quests down to Weekly Challenges...');
+  await page.evaluate(() => {
+    const scrollArea = document.querySelector('.quests-scroll-area');
+    if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
+  });
+  await sleep(350);
+  console.log('[Playwright] Capturing 05c_hub_quests_scrolled.png (Weekly Challenges)');
+  await captureScreenshot(page, '05c_hub_quests_scrolled.png');
+
   await page.click('#btn-quests-close');
   await sleep(300);
 
@@ -191,21 +202,14 @@ async function runPlaywrightSuite() {
   await page.click('#btn-settings-close');
   await sleep(300);
 
-  // 7b. QA Check: Open 2-Slide Tutorial Modal
+  // 7b. QA Check: Open Minimalist Single-Slide Tutorial Modal
   console.log('[Playwright] Testing #btn-menu-tutorial...');
   await page.click('#btn-menu-tutorial');
-  await sleep(400);
-  console.log('[Playwright] Capturing 13_tutorial_modal.png (Slide 1: Controls)');
+  await sleep(500);
+  console.log('[Playwright] Capturing 13_tutorial_modal.png (Minimalist Controls Guide)');
   await captureScreenshot(page, '13_tutorial_modal.png');
 
-  // Test Slide 2: Circles Teaser
-  console.log('[Playwright] Clicking #btn-tut-next for Slide 2...');
-  await page.click('#btn-tut-next');
-  await sleep(300);
-  console.log('[Playwright] Capturing 13b_tutorial_slide2.png (Slide 2: Circles Teaser)');
-  await captureScreenshot(page, '13b_tutorial_slide2.png');
-
-  // Start game from tutorial modal
+  // Start game directly from tutorial modal
   console.log('[Playwright] Clicking #btn-tut-play to start gameplay...');
   await page.click('#btn-tut-play');
   await sleep(500);
@@ -232,32 +236,25 @@ async function runPlaywrightSuite() {
   await sleep(400);
   await captureScreenshot(page, '09_pause_modal.png');
 
-  // 10. Game Over State
-  console.log('[Playwright] Capturing 10_game_over.png');
+  // 10. Realistic Void Fall & Game Over State
+  console.log('[Playwright] Triggering Void Fall Death & Game Over...');
   await page.evaluate(() => {
     if (window._gameEngine) {
-      window._gameEngine.maxAltitudeMeters = 482;
-      window._gameEngine.cameraY = 3856;
-      window._gameEngine.reviveCheckpoint = {
-        cameraY: 3856,
-        maxAltitudeMeters: 482,
-        anchorY: 3900,
-        anchorX: 200
-      };
-      window._gameEngine.storage.data.hyperCrystals = 5;
-      window._gameEngine.hasRevivedThisRun = false;
-      window._gameEngine.state.changeState(StateManager.STATES.GAME_OVER, {
-        altitude: 482,
-        cores: 12,
-        crystals: 1,
-        nearMisses: 3,
-        totalScore: 482,
-        isNewRecord: true,
-        canRevive: true
-      });
+      const eng = window._gameEngine;
+      const targetMeters = 482;
+      const peakY = targetMeters / 0.125; // 3856px
+      eng.maxAltitudeMeters = targetMeters;
+      eng.cameraY = peakY - eng.height * 0.50; // Correct camera position at peak altitude
+      eng.storage.data.hyperCrystals = 5;
+      eng.hasRevivedThisRun = false;
+      // Trigger game over from void death position
+      eng.player.y = eng.cameraY - 10;
+      eng.player.vy = -600;
+      eng.triggerGameOver();
     }
   });
-  await sleep(400);
+  await sleep(850); // Allow 700ms death hitstop to transition to GAME_OVER
+  console.log('[Playwright] Capturing 10_game_over.png');
   await captureScreenshot(page, '10_game_over.png');
 
   // 10b. Test Revive Button and capture revived gameplay with quantum shield
@@ -265,12 +262,33 @@ async function runPlaywrightSuite() {
   const btnRevive = await page.$('#btn-gameover-revive');
   if (btnRevive) {
     await btnRevive.click({ force: true });
-    await sleep(400);
-    const revivedAltitude = await page.evaluate(() => window._gameEngine.maxAltitudeMeters);
-    console.log(`[Playwright] Revived Altitude Verified: ${revivedAltitude}m`);
-    if (revivedAltitude !== 482) {
-      throw new Error(`Revive failed to restore altitude! Expected 482m, got ${revivedAltitude}m`);
+    await sleep(450);
+    const revivedState = await page.evaluate(() => {
+      const eng = window._gameEngine;
+      const screenY = eng.height - (eng.player.y - eng.cameraY);
+      return {
+        altitude: eng.maxAltitudeMeters,
+        screenY,
+        height: eng.height,
+        isHooked: eng.player.isHooked,
+        shieldTimer: eng.player.shieldTimer,
+        cameraY: eng.cameraY,
+        playerY: eng.player.y
+      };
+    });
+    console.log(`[Playwright] Revived State: altitude=${revivedState.altitude}m, screenY=${revivedState.screenY.toFixed(1)}px (viewport height=${revivedState.height}px), hooked=${revivedState.isHooked}, shield=${revivedState.shieldTimer.toFixed(1)}s`);
+    if (revivedState.altitude < 482) {
+      throw new Error(`Revive failed to restore altitude! Expected >= 482m, got ${revivedState.altitude}m`);
     }
+    if (!revivedState.isHooked) {
+      throw new Error('Revived player is not hooked!');
+    }
+    // Check that player is squarely in the viewport center region (between 35% and 65% of viewport height)
+    const ratio = revivedState.screenY / revivedState.height;
+    if (ratio < 0.35 || ratio > 0.65) {
+      throw new Error(`Revived player screenY (${revivedState.screenY}px, ratio=${ratio.toFixed(2)}) is not centered!`);
+    }
+    console.log(`[Playwright] Revived player is perfectly centered in viewport (ratio=${ratio.toFixed(2)})!`);
     console.log('[Playwright] Capturing 10b_revived_gameplay.png');
     await captureScreenshot(page, '10b_revived_gameplay.png');
   }

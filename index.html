@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Sling Jump - Von Stern zu Stern</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
-  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="manifest" href="manifest.json?v=3.31.0">
+  <link rel="shortcut icon" href="favicon.ico?v=3.31.0">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=3.31.0">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=3.31.0">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=3.31.0">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192.png?v=3.31.0">
   <meta name="theme-color" content="#080b10">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -57,7 +59,7 @@
         <div class="game-title-container">
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v3.29.0</div>
+          <div class="app-version-tag">v3.31.0</div>
         </div>
 
         <div class="currency-group">
@@ -367,36 +369,27 @@
             <span class="setting-label">Bildschirm-Wackeln</span>
             <button class="btn-secondary" id="btn-shake" style="padding:6px 16px;">100%</button>
           </div>
-          <div class="setting-row">
-            <span class="setting-label">Performance-Modus</span>
-            <button class="btn-secondary" id="btn-perf" style="padding:6px 16px;">AUS</button>
-          </div>
         </div>
 
         <div class="modal-button-stack">
-          <button class="btn-primary" id="btn-open-tutorial">ANLEITUNG & STEUERUNG</button>
           <button class="btn-secondary" id="btn-check-update">NACH UPDATES SUCHEN</button>
-          <a href="dashboard.html" target="_blank" rel="noopener" class="btn-secondary" id="btn-open-dashboard" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;">
-            <svg class="icon-svg" viewBox="0 0 24 24" style="width:14px;height:14px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            <span>SPIELER-DASHBOARD</span>
-          </a>
           <button class="btn-danger" id="btn-reset-data">SPIELSTAND ZURÜCKSETZEN</button>
           <button class="btn-secondary" id="btn-settings-close">SCHLIESSEN</button>
         </div>
-        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v3.22.0</div>
+        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v3.31.0</div>
       </div>
     </div>
 
-    <!-- 8. TUTORIAL MODAL (Simple 2-Slide Visual Guide) -->
+    <!-- 8. TUTORIAL MODAL (Single Minimalist Guide) -->
     <div class="modal-overlay" id="tutorial-modal" style="z-index: 120;">
       <div class="modal-card tutorial-card" style="max-width: 440px; text-align: center;">
         
-        <!-- SLIDE 1: GRUNDSTEUERUNG -->
+        <!-- SINGLE SLIDE: GRUNDSTEUERUNG -->
         <div class="tutorial-slide" id="tut-slide-1">
-          <div class="tutorial-step-badge">SCHRITT 1 / 2 &bull; GRUNDSTEUERUNG</div>
+          <div class="tutorial-step-badge">STEUERUNG</div>
           <div class="modal-title" style="margin-top: 6px; font-size: 20px;">WIE MAN SPIELT</div>
 
-          <!-- Interactive Dynamic Canvas for Slide 1 -->
+          <!-- Interactive Dynamic Canvas for Tutorial -->
           <div class="tutorial-visual-box" style="margin: 12px auto; width: 100%; max-width: 360px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
             <canvas id="tut-sling-canvas" width="360" height="160" style="width: 100%; max-width: 360px; height: auto; aspect-ratio: 360 / 160; display: block; border-radius: 12px;"></canvas>
             <div id="tut-phase-badge" style="position: absolute; bottom: 8px; font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 800; letter-spacing: 1px; padding: 3px 10px; border-radius: 12px; background: rgba(15,23,42,0.85); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8;">
@@ -406,51 +399,23 @@
 
           <div class="tutorial-desc-box" style="text-align: left; background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;">
             <p style="font-size: 13px; color: #cbd5e1; line-height: 1.55; margin: 0 0 8px 0;">
-              <strong style="color: #38bdf8;">GEDRÜCKT HALTEN:</strong> Halte den Bildschirm (oder Leertaste / Klick) gedrückt, um dich an einen nahen Kreis einzuhaken und Schwung aufzubauen.
+              <strong style="color: #38bdf8;">GEDRÜCKT HALTEN:</strong> Halte den Bildschirm gedrückt, um dich am Kreis einzuhaken und Schwung aufzubauen.
             </p>
-            <p style="font-size: 13px; color: #fbbf24; line-height: 1.55; margin: 0;">
-              <strong style="color: #fbbf24;">BEI 90° LOSLASSEN:</strong> Lass im 90°-Winkel (Osten) los, um perfekt und mit maximaler Katapult-Wucht nach Norden geschleudert zu werden!
+            <p style="font-size: 13px; color: #f1f5f9; line-height: 1.55; margin: 0;">
+              <strong style="color: #38bdf8;">LOSLASSEN:</strong> Im gewünschten Moment loslassen, um in Blickrichtung nach vorne katapultiert zu werden.
             </p>
           </div>
 
           <div class="modal-button-stack">
-            <button class="btn-primary" id="btn-tut-next">WEITER</button>
+            <button class="btn-primary" id="btn-tut-play">SPIELEN</button>
             <button class="btn-secondary" id="btn-tut-close-1">SCHLIESSEN</button>
-          </div>
-        </div>
-
-        <!-- SLIDE 2: HIMMELSKÖRPER (TEASER) -->
-        <div class="tutorial-slide" id="tut-slide-2" style="display: none;">
-          <div class="tutorial-step-badge">SCHRITT 2 / 2 &bull; HIMMELSKÖRPER</div>
-          <div class="modal-title" style="margin-top: 6px; font-size: 20px;">VERSCHIEDENE KREISE</div>
-
-          <!-- Real Game Canvas for Slide 2 Circles (Dynamic Node.js rendering) -->
-          <div class="tutorial-visual-box" style="margin: 12px auto; width: 100%; max-width: 360px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; position: relative; overflow: hidden; padding: 10px 6px;">
-            <canvas id="tut-circles-canvas" width="360" height="100" style="width: 100%; max-width: 360px; height: auto; aspect-ratio: 360 / 100; display: block; border-radius: 8px;"></canvas>
-            <div style="font-size: 10px; font-family: 'Orbitron', monospace; font-weight: 700; color: #a855f7; letter-spacing: 1.5px; text-transform: uppercase;">
-              ENTDECKE DIE GEHEIMNISSE IM FLUG
-            </div>
-          </div>
-
-          <div class="tutorial-desc-box" style="text-align: left; background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;">
-            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.55; margin: 0 0 8px 0;">
-              Im Weltraum erwarten dich <strong style="color: #a855f7;">verschiedene Arten von Kreisen</strong>. Je höher du fliegst, desto mehr neue Himmelskörper wirst du entdecken!
-            </p>
-            <p style="font-size: 13px; color: #94a3b8; line-height: 1.55; margin: 0;">
-              Jeder Typ verhält sich anders: Einige verleihen ungeahnten Schub, andere fordern dein Timing heraus oder bergen Überraschungen... Finde selbst heraus, was sie tun!
-            </p>
-          </div>
-
-          <div class="modal-button-stack">
-            <button class="btn-primary" id="btn-tut-play">SPIEL STARTEN</button>
-            <button class="btn-secondary" id="btn-tut-back">ZURÜCK</button>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- 7. PROFIL MODAL (MINIMALIST & SLEEK) -->
+    <!-- 7. PROFIL MODAL (MINIMALIST & SLEEK LOGIN) -->
     <div class="modal-overlay" id="profile-modal" style="z-index: 125;">
       <div class="modal-card profile-card" style="max-width: 360px; text-align: center; padding: 22px 20px;">
         <div class="modal-title" style="margin-bottom: 16px; font-size: 22px; letter-spacing: 2px;">PROFIL</div>
@@ -466,23 +431,13 @@
           <button type="submit" class="btn-primary" style="padding: 10px 16px; font-size: 11px; white-space: nowrap;">SPEICHERN</button>
         </form>
 
-        <!-- 2 Clean Hero Stat Tiles -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px;">
-          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px 8px;">
-            <div style="font-size: 9px; font-weight: 800; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">REKORD</div>
-            <div id="profile-display-highscore" style="font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 900; color: #fbbf24; margin-top: 4px;">0 m</div>
-          </div>
-          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px 8px;">
-            <div style="font-size: 9px; font-weight: 800; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">FLÜGE</div>
-            <div id="profile-runs-count" style="font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 900; color: #38bdf8; margin-top: 4px;">0</div>
-          </div>
-        </div>
-
         <!-- Hidden compat anchors for JS listeners -->
         <span id="profile-display-name" style="display: none;"></span>
         <span id="profile-display-id" style="display: none;"></span>
         <span id="profile-status-badge" style="display: none;"></span>
         <span id="profile-registered-date" style="display: none;"></span>
+        <span id="profile-display-highscore" style="display: none;"></span>
+        <span id="profile-runs-count" style="display: none;"></span>
 
         <button class="btn-secondary" id="btn-profile-close" style="width: 100%;">SCHLIESSEN</button>
       </div>

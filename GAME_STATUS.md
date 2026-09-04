@@ -1,9 +1,9 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC29 - v3.29.0 - Rewarding 90° Slingshots & Dynamic Combo Speed Scaling)  
+> **Status:** Release Candidate (RC31 - v3.31.0 - Void Respawn Centering & Guaranteed Player Visibility Fix)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
-> **Letzte Aktualisierung:** 03.09.2026  
+> **Letzte Aktualisierung:** 04.09.2026  
 > **Lauffaehigkeit:** 24/7 Online via GitHub Pages Edge CDN, oder lokal via Direkt-Doppelklick (`file:///`) / `npm start`  
 > **Test-Runner:** Playwright Test-Suite via `npm test` (`scripts/playwright_runner.js`)  
 > **Vertriebs- & Hosting-Dokumentation:** Siehe [`DISTRIBUTION.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/DISTRIBUTION.md)
@@ -53,6 +53,57 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v3.31.0 (04.09.2026) - Void Respawn Centering & Guaranteed Player Visibility Fix
+* **1. Behebung der Spieler-Unsichtbarkeit nach Void-Absturz (`GameEngine.js`):**
+  * **Ursachen-Analyse:** Bislang selektierte `triggerGameOver()` als Checkpoint-Knoten den tiefsten verbliebenen Knoten (`safeCandidates[0]`), welcher direkt an der unteren Todeslinie (`cameraY`) lag. Beim Wiederbeleben (`revivePlayer()`) wurde `cameraY` starr auf den Checkpoint zurückgesetzt, wodurch der Anker am untersten Bildschirmrand (`screenY = height - 44`) saß und das Schiff durch seinen Orbit (65px Radius) vollständig unter den Bildschirm ins negative Leere (`screenY > height`) rotierte. Zudem führte `tryHook()` Grenzprüfungen durch (`closestNode.y < cameraY - 15`), die bei tiefen Knoten ein Einhaken verweigerten.
+  * **Zentrierte Kamera-Neupositionierung:** Nach dem Wiederbeleben wird `this.cameraY` nun exakt auf `targetAnchor.y - this.height * 0.50` ausgerichtet. Der Anker befindet sich damit mathematisch garantiert bei exakt 50% der Bildschirmhöhe (`screenY = height * 0.50`), meilenweit entfernt von der unteren Todeslinie.
+  * **Direktes, unfehlbares Einhaken:** Die Wiederbelebung verlässt sich nicht mehr auf bedingte `tryHook`-Prüfungen, sondern fixiert den Hakenzustand direkt und robust (`this.player.isHooked = true`, `this.player.hookedNode = targetAnchor`, `orbitRadius = 65`, `orbitSpeed = 520`, `vx = 0`, `vy = 0`).
+  * **Physik-Freeze während der Absturzsequenz:** In `update()` werden Raumschiff-Kinetik und Kamera-Nachführung während des 700ms Hitstop-Schadensablaufs (`this.isDying`) eingefroren. Dadurch stürzt das Schiff nach dem Platzen nicht mehr hunderte Pixel tief in den Abgrund.
+  * **Garantierter Anschluss-Pfad:** Sollte vor dem Respawn-Knoten kein erreichbarer Knoten existieren, erzeugt die Engine automatisch einen soliden `STANDARD`-Folgeknoten im optimalen Sprungabstand (`targetAnchor.y + 165px`), sodass dem Piloten ein fairer und glasklarer Absprungweg zur Verfügung steht.
+  * **Partikel- & Gefahren-Bereinigung:** Void-Schweifspuren werden bereinigt (`trailHistory = []`), Gefahren-Overlays auf 0 zurückgesetzt (`setDangerVisual(0)`) und der 4-Sekunden-Quantenschild aktiv visualisiert.
+* **3. Bereinigung der Einstellungen & Zuverlässiger Static-Update-Checker (`index.html`, `js/main.js`, `version.json`, `sw.js`):**
+  * **Buttons entfernt:** Die überflüssigen Buttons "ANLEITUNG & STEUERUNG" (im Hauptmenü als `#btn-menu-tutorial` vorhanden) und "SPIELER-DASHBOARD" wurden restlos aus dem Einstellungs-Dialog entfernt.
+  * **Statischer Update-Checker (`version.json`):** GitHub Pages unterstützt als statischer Hoster keine dynamischen Node-Routen wie `/api/version` (führte zu 404 und "SERVER NICHT ERREICHT"). Es wurde eine statische `version.json` im Root angelegt und in den Precache von `sw.js` aufgenommen.
+  * **Automatischer Reload bei neuem Build:** `checkServerVersion()` in `main.js` fragt nun relativ `./version.json?t=${Date.now()}` ab. Wird eine neuere Version erkannt, leert die App automatisch sämtliche Browser-Caches (`caches.delete`), weist den Service Worker an (`skipWaiting`) und erzwingt einen sauberen Neuladungsprozess.
+  * **Visuelle Quittierung:** Manueller Klick auf "NACH UPDATES SUCHEN" quittiert zuverlässig mit "VERSION AKTUELL (v3.31.0)" oder führt das Sofort-Update aus.
+* **4. Automatisierte Playwright-Verifikation:**
+  * Test-Schritt 10b simuliert den realistischen Void-Fall, klickt `#btn-gameover-revive` und verifiziert automatisiert:
+    * `altitude >= 482m`
+    * `isHooked === true`
+    * Zentrierter Viewport-Sitz: `screenY = 468.8px` bei 800px Höhe (`ratio = 0.59`, exakt im Sollkorridor 0.35 - 0.65).
+  * Bildnachweis `screenshots/10b_revived_gameplay.png`: Das Raumschiff ist mit rotierendem Quantenschild glasklar im Zentrum sichtbar.
+  * Bildnachweis `screenshots/07_settings.png`: Minimalistisches Einstellungsmenü ohne entfernte Buttons. 0 Konsolenfehler.
+* **1. Minimalistisches 1-Folien-Tutorial (`index.html`, `UIManager.js`, `style.css`):**
+  * **Folie 2 komplett entfernt:** Keine überladene Teaser-Folie mehr; das Tutorial ist nun ein einziger, eleganter und fokussierter Guide.
+  * **Verlangsamte, flüssige Animation:** Animationszyklus auf der Canvas-Animation von 3,8s auf ruhige **5,8s** gestreckt, sodass Einhaken, Kreisen und tangentialer Katapultflug klar und entspannt nachvollziehbar sind.
+  * **Entfernung aggressiver Farbtöne:** Sämtliche grelle orangefarbene Textauszeichnungen entfernt; modernes Farbschema aus dezentem Schieferblau (`#cbd5e1`), Reinweiß (`#f8fafc`) und Cyan-Akzenten (`#38bdf8`).
+  * **Intuitive Kernmechanik ohne Fachchinesisch:** Text erklärt die elementare Grundsteuerung klar und direkt:
+    * *GEDRÜCKT HALTEN:* Halte den Bildschirm gedrückt, um dich am Kreis einzuhaken und Schwung aufzubauen.
+    * *LOSLASSEN:* Im gewünschten Moment loslassen, um in Blickrichtung nach vorne katapultiert zu werden.
+  * **Direkter Aktions-Button:** Prominenter Button **SPIELEN** startet sofort den Flug.
+* **2. Touch- & Scroll-Mechanik im Reiter "Aufgaben" (`InputManager.js`, `style.css`):**
+  * **Input-Interception behoben:** `InputManager.js` fing bisher Touch-Events in Modal-Karten über `e.preventDefault()` ab, da `.modal-content` statt `.modal-card` abgefragt wurde. Die Methode `isInteractiveUIElement` erkennt nun ausnahmslos alle Modale, Karten und Scrollbereiche (`.modal-overlay.visible`, `.quests-scroll-area`, `.hub-card`).
+  * **Flüssiges Scrollen zu Wochen-Aufgaben:** `.quests-scroll-area` mit `-webkit-overflow-scrolling: touch`, `touch-action: pan-y`, `overscroll-behavior: contain` und eleganten zirkulären Cyan-Scrollbars ausgestattet.
+  * Desktop-Mausrad und mobile Wischgesten scrollen reibungslos bis zu den wöchentlichen Herausforderungen herunter (`05c_hub_quests_scrolled.png`).
+* **3. Performance-Modus bereinigt & Inhärente System-Effizienz (`index.html`, `UIManager.js`, `GameEngine.js`):**
+  * Überflüssiger Schalter "Performance-Modus" aus dem Einstellungsmenü entfernt (keine kognitive Last für Spieler).
+  * Das Spiel läuft nun standardmäßig und durchgehend hochperformant (Ringpuffer auf 400 Partikel optimiert, hardware-effiziente Canvas-Passes, stabile 60/120 FPS auf allen Geräten).
+* **4. Ausbalancierte Combo-Geschwindigkeit & Wiederherstellung konstanter Gravitation (`Constants.js`, `Spaceship.js`, `GameEngine.js`):**
+  * **Dämpfung der Combo-Beschleunigung:** Die bisherige extreme Tempokurve (+70% Tempo bei Combo 10) wurde auf ein kontrolliertes und balanciertes Maß moderiert (+3% pro Stufe, maximal **+30% Tempo** bei Stufe 10: `[1.0, 1.03, 1.06, ..., 1.30]`).
+  * **Gedämpfte Katapult-Impulse:** Vertikaler Zusatzschub von bis zu +480 px/s auf ausgewogene +25 bis +200 px/s skaliert. Spieler schießen nicht mehr unkontrolliert in Sekunden auf 10.000m.
+  * **100% Natürliche Gravitation:** Die künstliche Reduktion des Gravitationswiderstands (`COMBO_GRAVITY_DRAG_REDUCTION`) wurde restlos entfernt. Das Raumschiff unterliegt im Steigflug stets zu 100% der natürlichen Gravitation (`this.vy -= CONSTANTS.PHYSICS.GRAVITY * dt`), wodurch das Fluggefühl physikalisch greifbar und authentisch bleibt.
+  * **Verschärfter 90°-Präzisionswinkel:** Der Schwellenwert für den perfekten Steilsprung wurde von `tangentY >= 0.980` (ca. 11,4° Toleranz) auf **`tangentY >= 0.995`** (ca. 5,7° Toleranz) verschärft. Nur wer das Katapult mit meisterhafter Präzision auslöst, hält die Combo aufrecht.
+* **5. Schlankes Profil-Modal ohne redundanten Highscore (`index.html`, `UIManager.js`):**
+  * Die doppelten Kacheln "REKORD" und "FLÜGE" wurden aus dem Profil-Dialog entfernt.
+  * Das Profil-Modal dient nun rein als minimalistische, saubere Identitäts- und Login-Karte (Avatar, Name, Speichern-Button). Highscores verbleiben ordnungsgemäß in der Bestenliste und den Statistiken.
+* **6. Vollständige Favicon- & App-Icon-Lösung (`favicon.ico`, `index.html`, `dashboard.html`, `sw.js`):**
+  * **Root `favicon.ico` generiert:** Erzeugung eines echten Root-Icons `favicon.ico` direkt im Projektverzeichnis zur zuverlässigen Beantwortung nativer Browser-Anfragen.
+  * **Cache-Busting:** Alle Icon-Verknüpfungen in `index.html` und `dashboard.html` mit Versions-Query-Parametern versehen (`?v=3.30.0`), um hartnäckiges Browser-Cache-Tunneling zu durchbrechen.
+  * **Service Worker Update:** Aufnahme von `favicon.ico`, `assets/favicon.png` und `assets/icon.svg` in den Precaching-Katalog von `sw.js` und Erhöhung des Cache-Namens auf `sling-jump-v3.30.0`.
+* **7. Playwright-Suite & Visuelle Verifikation:**
+  * 18 Screenshots frisch erfasst mit SHA-256 Prüfsummen und neutralisiertem NTFS-Tunneling.
+  * 0 Konsolenfehler und 0 unbehandelte Ausnahmen.
 
 ### v3.29.0 (03.09.2026) - Rewarding 90° Slingshots & Dynamic Combo Speed Scaling
 * **1. Belohnendes 90°-Katapult-System (`Spaceship.js`, `GameEngine.js`, `Constants.js`):**

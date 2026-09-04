@@ -70,11 +70,24 @@ class InputManager {
 
   isInteractiveUIElement(target) {
     if (!target) return false;
+    // If any modal overlay is active/visible, treat all touches/clicks as UI
+    if (document.querySelector('.modal-overlay.visible')) return true;
     return !!(
       target.closest('button') ||
       target.closest('input') ||
-      target.closest('.modal-content') ||
-      target.closest('.interactive-ui')
+      target.closest('a') ||
+      target.closest('select') ||
+      target.closest('textarea') ||
+      target.closest('.modal-card') ||
+      target.closest('.modal-overlay') ||
+      target.closest('.quests-scroll-area') ||
+      target.closest('.hub-card') ||
+      target.closest('.hub-tab-panel') ||
+      target.closest('.leaderboard-list') ||
+      target.closest('.interactive-ui') ||
+      target.closest('.state-overlay') ||
+      target.closest('.menu-top-bar') ||
+      target.closest('.top-header')
     );
   }
 

@@ -1,7 +1,9 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.29.0  
-Aktualisiert am: 03. September 2026  
+# SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
+
+Dokumentationsstand: Version 3.30.0  
+Aktualisiert am: 04. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
 Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.com/bauerjohannes2-max/sling-jump)
@@ -28,7 +30,7 @@ Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.co
   * Das Schiff geht beim Einhaken in einen freien, ungestörten kreisförmigen Orbit um den Zielknoten über.
   * Lineare Geschwindigkeiten werden beim Einhaken sofort auf null gesetzt (`vx = 0, vy = 0`), sodass Sterne im Hintergrund punktförmig bleiben.
 * **Fadenkreuz & Zielerfassung:**
-  * Das nächste erreichbare Objekt innerhalb der Reichweite (`HOOK_RANGE = 180px`) wird mit einem zirkulären Lock-On-Fadenkreuz markiert.
+  * Das nächste erreichbare Objekt innerhalb der Reichweite (`HOOK_RANGE = 160px`) wird mit einem zirkulären Lock-On-Fadenkreuz markiert.
   * **Ausschluss:** Tödliche Weltraum-Minen (`HAZARD`) werden niemals anvisiert.
 
 ### 2.2 Loslassen & Katapult-Abschuss (Slingshot Release)
@@ -41,32 +43,31 @@ Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.co
 
 ## 3. COMBO-SYSTEM & DYNAMISCHE GESCHWINDIGKEITS-SKALIERUNG
 
-* **Steilsprung-Bedingung (90°-Präzisionswinkel):**
-  * Der Abschusswinkel muss vertikal nach oben gerichtet sein (`tangentY >= 0.980`, innerhalb von ca. 11,4° Toleranzfenster zur idealen Senkrechten).
+* **Steilsprung-Bedingung (Verschärfter 90°-Präzisionswinkel):**
+  * Der Abschusswinkel muss extrem präzise vertikal nach oben gerichtet sein (`tangentY >= 0.995`, Winkeltoleranz ca. ±5,7° zur idealen Senkrechten).
 * **Direkte ökonomische Belohnung:**
   * Jeder erfolgreiche 90°-Katapultwurf schüttet unmittelbar **Bonus-Gold** auf das Spielerkonto aus:
   * Formel: `Bonus-Gold = Combo-Level` (z.B. +1 Münze bei Stufe 1 bis +10 Münzen bei Stufe 10).
   * Sofortige Score-Gutschrift: `Bonus-Punkte = 100 * Combo-Level`.
-* **Balancierte Geschwindigkeits-Skalierung (Progressive Hyperspeed-Matrix):**
-  * Je länger eine Kette perfekter 90°-Sprünge aufrechterhalten wird, desto höher steigt die Fluggeschwindigkeit des Schiffs:
+* **Ausbalancierte Geschwindigkeits-Skalierung (Kontrollierte Tempokurve):**
+  * Moderater, kontrollierter Tempobonus von +3% pro Stufe bis maximal **+30% Tempo**:
 
-| Combo-Stufe | HUD-Kennzeichnung | Tempo-Multiplikator | Min Orbit-Speed | Max Orbit-Speed | Vertikaler Zusatz-Impuls | Aerodynamischer Auftrieb (Drag-Reduktion) | Sofort-Belohnung |
+| Combo-Stufe | HUD-Kennzeichnung | Tempo-Multiplikator | Min Orbit-Speed | Max Orbit-Speed | Vertikaler Zusatz-Impuls | Gravitationswiderstand | Sofort-Belohnung |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **0** | Basisflug | **1.00x** | 720 px/s | 1.250 px/s | +0 px/s | 100% Gravitation | 0 |
-| **1** | PERFEKT 90° (+10% TEMPO) | **1.10x** | 792 px/s | 1.375 px/s | +120 px/s | 96.5% Gravitation | +1 Gold / +100 Pkt |
-| **2** | COMBO x2 (+18% TEMPO) | **1.18x** | 850 px/s | 1.475 px/s | +160 px/s | 93.0% Gravitation | +2 Gold / +200 Pkt |
-| **3** | COMBO x3 (+26% TEMPO) | **1.26x** | 907 px/s | 1.575 px/s | +200 px/s | 89.5% Gravitation | +3 Gold / +300 Pkt |
-| **4** | COMBO x4 (+34% TEMPO) | **1.34x** | 965 px/s | 1.675 px/s | +240 px/s | 86.0% Gravitation | +4 Gold / +400 Pkt |
-| **5** | HYPER x5 (+42% TEMPO) | **1.42x** | 1.022 px/s | 1.775 px/s | +280 px/s | 82.5% Gravitation | +5 Gold / +500 Pkt |
-| **6** | HYPER x6 (+48% TEMPO) | **1.48x** | 1.065 px/s | 1.850 px/s | +320 px/s | 79.0% Gravitation | +6 Gold / +600 Pkt |
-| **7** | HYPER x7 (+54% TEMPO) | **1.54x** | 1.108 px/s | 1.925 px/s | +360 px/s | 75.5% Gravitation | +7 Gold / +700 Pkt |
-| **8** | HYPER x8 (+60% TEMPO) | **1.60x** | 1.152 px/s | 2.000 px/s | +400 px/s | 72.0% Gravitation | +8 Gold / +800 Pkt |
-| **9** | HYPER x9 (+65% TEMPO) | **1.65x** | 1.188 px/s | 2.062 px/s | +440 px/s | 70.0% Gravitation | +9 Gold / +900 Pkt |
-| **10** | MAX COMBO x10 (+70% TEMPO) | **1.70x** | 1.224 px/s | 2.125 px/s | +480 px/s | 70.0% Gravitation (Cap) | +10 Gold / +1.000 Pkt |
+| **0** | Basisflug | **1.00x** | 720 px/s | 1.250 px/s | +0 px/s | 100% Natürliche Gravitation | 0 |
+| **1** | PERFEKT 90° (+3% TEMPO) | **1.03x** | 741 px/s | 1.287 px/s | +25 px/s | 100% Natürliche Gravitation | +1 Gold / +100 Pkt |
+| **2** | COMBO x2 (+6% TEMPO) | **1.06x** | 763 px/s | 1.325 px/s | +45 px/s | 100% Natürliche Gravitation | +2 Gold / +200 Pkt |
+| **3** | COMBO x3 (+9% TEMPO) | **1.09x** | 784 px/s | 1.362 px/s | +65 px/s | 100% Natürliche Gravitation | +3 Gold / +300 Pkt |
+| **4** | COMBO x4 (+12% TEMPO) | **1.12x** | 806 px/s | 1.400 px/s | +85 px/s | 100% Natürliche Gravitation | +4 Gold / +400 Pkt |
+| **5** | HYPER x5 (+15% TEMPO) | **1.15x** | 828 px/s | 1.437 px/s | +105 px/s | 100% Natürliche Gravitation | +5 Gold / +500 Pkt |
+| **6** | HYPER x6 (+18% TEMPO) | **1.18x** | 849 px/s | 1.475 px/s | +125 px/s | 100% Natürliche Gravitation | +6 Gold / +600 Pkt |
+| **7** | HYPER x7 (+21% TEMPO) | **1.21x** | 871 px/s | 1.512 px/s | +145 px/s | 100% Natürliche Gravitation | +7 Gold / +700 Pkt |
+| **8** | HYPER x8 (+24% TEMPO) | **1.24x** | 892 px/s | 1.550 px/s | +165 px/s | 100% Natürliche Gravitation | +8 Gold / +800 Pkt |
+| **9** | HYPER x9 (+27% TEMPO) | **1.27x** | 914 px/s | 1.587 px/s | +185 px/s | 100% Natürliche Gravitation | +9 Gold / +900 Pkt |
+| **10** | MAX COMBO x10 (+30% TEMPO) | **1.30x** | 936 px/s | 1.625 px/s | +200 px/s | 100% Natürliche Gravitation | +10 Gold / +1.000 Pkt |
 
-* **Balance-Garantie:**
-  * Durch den automatischen Slow-Mo-Faktor (`SLOWMO_FACTOR = 0.40`) beim Einhaken bleibt der Orbit selbst bei 1.70x Maximal-Tempo jederzeit zu 100% kontrollierbar und reaktiv.
-  * Bei verfehltem 90°-Winkel wird die Combo auf 0 zurückgesetzt und das Tempo geht sanft in die Basisgeschwindigkeit über (kein ruckartiges Bremsen).
+* **100% Natürliche Gravitation:**
+  * Kein künstliches Aushebeln der Erdanziehung. Die Gravitation greift im Steigflug immer mit vollen 100% (`GRAVITY * dt`), sodass das Steig- und Fallverhalten physikalisch exakt vorhersehbar bleibt.
 * **Akustische Chimes:**
   * Dual-Oszillator mit chromatisch aufsteigendem Oberton (+2 Halbtöne pro Stufe von C5 bis C7).
 * **Visuelle High-Speed Effekte:**
@@ -144,23 +145,28 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 
 ---
 
-## 5. PERFORMANCE-MODUS & HARDWARE-ARCHITEKTUR
+## 5. SYSTEM-PERFORMANZ & INHÄRENTE HARDWARE-EFFIZIENZ
 
-Für schwächere Smartphones, Laptops und zur Akkuschonung implementiert:
-* **Partikel-Halbierung:** Ringpuffer auf 300 Partikel limitiert (50% CPU-Einsparung).
-* **GPU `shadowBlur` Hardware-Bypass:** `context.shadowBlur = 0` eliminiert teure Gauß-Rasterungsdurchläufe auf mobilen GPUs.
-* **Echtzeit-Schaltung:** Sofortige Wirkung ohne Neuladen via Einstellungen (`#btn-setting-perf`).
+* **Standardmäßig hochperformant ohne manuelle Schalter:**
+  * Der manuelle Schalter "Performance-Modus" wurde aus den Einstellungen entfernt, um dem Spieler unnötige Entscheidungen abzunehmen.
+  * Das Spiel läuft standardmäßig hochoptimiert:
+  * **Optimierter Ringpuffer:** Maximal 400 Partikel im Pool verhindern Memory-Spikes und Objektallokationen während des Flugs.
+  * **Hardware-effiziente GPU-Rasterung:** Reduzierter `shadowBlur`-Overhead auf Partikeln garantiert stabile 60/120 FPS auch auf mobilen Mittelklasse-Smartphones und spart Akku.
 
 ---
 
 ## 6. WIEDERBELEBUNGS-SYSTEM (QUANTUM REVIVE) & HYPER-KRISTALLE
 
-* **Verlustfreies Wiederaufsetzen auf Absturzhöhe:**
-  * Beim Absturz sichert die Engine einen genauen Checkpoint (`reviveCheckpoint`) mit der exakten erreichten Höhe (`maxAltitudeMeters`), Kamera-Position (`cameraY`) und dem nächsten sicheren Himmelsknoten.
-  * Nach Klick auf `WIEDERBELEBEN` im Game-Over-Screen startet der Spieler exakt auf seiner erreichten Höhe im Orbit neu.
+* **Zentrierte Kamera-Positionierung & Sichtbarkeits-Garantie:**
+  * **Checkpoint-Ermittlung (`triggerGameOver`):** Beim Absturz sucht die Engine im aktiven Sichtfeld gezielt nach intakten Standard-Knoten im mittleren 25%–75% Bereich (`midScreenY = this.cameraY + this.height * 0.50`).
+  * **Kamera-Neuausrichtung (`revivePlayer`):** Beim Wiederbeleben wird `this.cameraY = targetAnchor.y - this.height * 0.50` gesetzt. Dadurch befindet sich der Anker mathematisch garantiert exakt bei 50% der Bildschirmhöhe (`screenY = this.height * 0.50`), meilenweit entfernt von der unteren Todeslinie (`DEATH_BUFFER_PX = 4px`).
+  * **Direktes, unfehlbares Einhaken:** Die Wiederbelebung hängt nicht von dynamischen Fangradien oder `tryHook`-Prüfungen ab. Das Raumschiff wird sofort und verlässlich im Orbit arretiert (`isHooked = true`, `hookedNode = targetAnchor`, `orbitRadius = 65`, `orbitSpeed = 520 px/s`, `vx = 0`, `vy = 0`).
+  * **Physik-Freeze während der Absturzsequenz:** Sobald `isDying = true` gesetzt wird, sind Positionsupdates des Schiffs und der Kamera während des 700ms Hitstop-Schadensablaufs eingefroren. Dies verhindert, dass das zerstörte Schiff hunderte Pixel tief in den unsichtbaren Abgrund stürzt.
+  * **Garantierter Folge-Pfad:** Die Engine prüft, ob oberhalb des Respawn-Knotens im Bereich `[targetAnchor.y + 110, targetAnchor.y + 240]` ein sicherer Sprungknoten existiert. Ist dies nicht der Fall, wird automatisch ein solider `STANDARD`-Knoten erzeugt, um dem Piloten eine faire, klare Sprungbahn zu gewährleisten.
+  * **Schweif- & Gefahren-Reset:** Frühere Absturz-Schweife werden gelöscht (`trailHistory = []`) und Gefahren-Ränder zurückgesetzt (`setDangerVisual(0)`).
 * **4,0 Sekunden Quanten-Schutzschild:**
-  * Schützt vor sofortigen Kollisionen nach der Wiederbelebung.
-* **Kosten:** 1 Hyper-Kristall (später erweiterbar um Video-Ads).
+  * Schützt vor sofortigen Kollisionen nach der Wiederbelebung. Dargestellt durch rotierende, hexagonale Vektor-Energiefacetten in pulsierendem Magenta (`#d946ef`).
+* **Kosten:** 1 Hyper-Kristall (1x pro Run nutzbar).
 
 ---
 
@@ -168,43 +174,51 @@ Für schwächere Smartphones, Laptops und zur Akkuschonung implementiert:
 
 * **Globale Design-Regel: Kommerzieller Minimalismus ("Weniger ist mehr"):**
   * Keine überladenen Texte, keine bürokratischen Bezeichnungen, kein visueller Ballast.
-* **Schlankes Profil-Modal (`#profile-modal`):**
-  * Schlicht als **"PROFIL"** betitelt (keine umständlichen "Piloten-Lizenzen").
-  * Glowing Vektor-Avatar, direktes Namensfeld mit `SPEICHERN`, zwei markante Kern-Kacheln: **REKORD** und **FLÜGE**.
-* **Minimalistisches Aufgaben-Modal (`#quests-modal`):**
-  * Kompakte Aufgabenkarten ohne redundante Beschreibungstexte.
-  * Fortschrittszahlen (`12.450 / 150.000 m`) direkt in den Progressbar integriert.
-  * Klare, reduzierte Header: `TÄGLICH` und `WÖCHENTLICH` mit Restzeit-Badge.
+* **Fokussiertes Login- & Profil-Modal (`#profile-modal`):**
+  * Rein auf Spieleridentität und Login fokussiert: Avatar, Namenseingabefeld, `SPEICHERN` und `SCHLIESSEN`.
+  * Sämtliche redundanten Highscore- und Flugzähler wurden entfernt (diese verbleiben in der Bestenliste und den Statistiken).
+* **Aufgaben-Modal mit Touch- & Maus-Scrolling (`#quests-modal`):**
+  * Container `.quests-scroll-area` mit voller Touch-Unterstützung (`touch-action: pan-y`, `-webkit-overflow-scrolling: touch`) und zirkulären Cyan-Scrollbars.
+  * Ermöglicht unterbrechungsfreies Scrollen bis zu den wöchentlichen Herausforderungen.
 * **Eigenständige Dashboard-Begleit-App (`dashboard.html`):**
-  * Entwickelt als vollwertige PWA (`manifest-dashboard.json`) mit mobilem Standalone-Modus.
+  * Vollwertige PWA (`manifest-dashboard.json`) mit mobiler Standalone-Unterstützung.
   * Bietet die vollständige Telemetrie-Übersicht (Live-Spieler, Unique Devices, Runden heute, Rekorde, Runden-Historie).
   * Prominenter, neonblau leuchtender Button **"SPIELEN"** führt jederzeit direkt ins Spiel.
-  * Wird aus den Spieleinstellungen im separaten Fenster geöffnet (`target="_blank"`).
-* **AAA App-Icon & Branding:**
-  * Nach Mobile-Bestseller-Standards (Subway Surfers, Alto, Smash Hit) konzipiert:
-  * Fokussierter Hero-Fokus: Diagonales Neon-Raumschiff mit glühendem Ionenantrieb und goldenem Lichtschweif um einen galaktischen Gravitationsknoten.
-  * Multi-Plattform-Export: `assets/icon-512.png`, `assets/icon-192.png`, `assets/favicon.png` und `assets/icon.svg`.
+  * Eigenständige URL für Homescreen-Installation ohne redundante Menü-Buttons im Spiel.
+  * **Live-Link:** [https://bauerjohannes2-max.github.io/sling-jump/dashboard.html](https://bauerjohannes2-max.github.io/sling-jump/dashboard.html)
+* **Bereinigtes Einstellungs-Menü & Statischer Update-Checker:**
+  * Überflüssige Buttons ("ANLEITUNG & STEUERUNG", "SPIELER-DASHBOARD") entfernt.
+  * Statische `version.json` mit automatischem Cache-Purge und Sofort-Reload bei Version-Diskrepanz.
+* **AAA App-Icon, Favicon & Cache-Architektur:**
+  * Root `favicon.ico` für native Browseranfragen direkt im Rootverzeichnis hinterlegt.
+  * Versionierte Link-Parameter (`?v=3.31.0`) durchbrechen Browser-Cache-Tunneling.
+  * Multi-Plattform-Icons: `assets/icon-512.png`, `assets/icon-192.png`, `assets/favicon.png` und `assets/icon.svg`.
 * **Strict Zero Emoji Policy:**
-  * Ausschließlich minimalistische SVG-Vektoricons und Canvas-Geometrie.
+  * Ausschließlich minimalistische SVG-Vektoricons und scharfe Canvas-Geometrie.
 
 ---
 
-## 8. INTERAKTIVES TUTORIAL-SYSTEM
+## 8. MINIMALISTISCHES TUTORIAL-SYSTEM (1-FOLIEN GUIDE)
 
-* **Folie 1: Steuerung & Katapultflug (Physik-Akkurat):**
-  * Dynamische Canvas-Simulation (`#tut-sling-canvas`) mit responsivem `aspect-ratio: 360 / 160`.
-  * **Physikalische Katapult-Präzision:** Das Raumschiff schwingt im Uhrzeigersinn/Gegen-Uhrzeigersinn durch den Orbit und löst sich exakt im 90°-Winkel (Osten: `nodeX + orbitRadius, nodeY`), wo die Flugbahntangente exakt nach Norden (senkrecht nach oben) zeigt.
-  * Die Katapultbeschleunigung schießt das Schiff geradlinig nach Norden in den Kosmos.
-  * Vollständig tetherless ohne Haltestrahl-Leine; veranschaulicht das reine Gravitationsfeld.
-* **Folie 2: Himmelskörper (Vollständige Echtzeit-Vorschau):**
-  * Rendert alle 6 echten Spiel-Entitäten über deren originale `OrbitNode.draw()`-Pipeline nebeneinander auf `#tut-circles-canvas` (`aspect-ratio: 360 / 100`):
-    * `STANDARD` (Cyan), `BOOST` (Grün), `BEWEGLICH` (Violett), `ZEITUHR` (Gold), `KÖDER` (Orange), `BOMBE` (Crimson-Rot).
-  * Durch responsive CSS-`aspect-ratio`-Bindung bleiben alle Kreise auf jedem Bildschirm absolut kreisrund und verzerrungsfrei.
+* **Elegante 1-Folien-Architektur:**
+  * Die überladene zweite Folie wurde restlos gestrichen.
+  * Die Steuerung wird dem Spieler kompakt, ruhig und visuell selbsterklärend präsentiert.
+* **Ruhige, verlangsamte Canvas-Animation:**
+  * Auf 5,8 Sekunden gestreckter Animationszyklus (`#tut-sling-canvas` mit responsivem `aspect-ratio: 360 / 160`).
+  * Schiff fliegt an, kreist in aller Ruhe um den Anker und katapultiert sich in Blickrichtung nach oben.
+* **Klare, minimalistische Farbgebung & Sprache:**
+  * Keine aggressiven Orangetöne mehr; reinweißes und cyanfarbenes Design.
+  * Einfache, intuitive Formulierung ohne technische Winkelangaben:
+    * *GEDRÜCKT HALTEN:* Halte den Bildschirm gedrückt, um dich am Kreis einzuhaken und Schwung aufzubauen.
+    * *LOSLASSEN:* Im gewünschten Moment loslassen, um in Blickrichtung nach vorne katapultiert zu werden.
+* **Direktstart:**
+  * Großer Primärbutton **SPIELEN** startet ohne Umwege die Runde.
 
 ---
 
 ## 9. PERMANENTE 24/7 BEREITSTELLUNG & HOSTING
 
-* **Permanenter Live-Link (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)
+* **Permanenter Live-Link Spiel (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)
+* **Permanenter Live-Link Dashboard (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/dashboard.html](https://bauerjohannes2-max.github.io/sling-jump/dashboard.html)
 * **Hosting:** GitHub Pages Edge CDN mit weltweitem Caching und HTTPS.
-* **Offline-Unterstützung:** Service Worker (`sw.js`) cacht alle Kern-Assets für Offline-Spielbarkeit.
+* **Offline-Unterstützung:** Service Worker (`sw.js`, Cache `sling-jump-v3.30.0`) cacht alle Kern-Assets für Offline-Spielbarkeit.

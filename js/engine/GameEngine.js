@@ -17,10 +17,7 @@ class GameEngine {
     // Subsystems
     this.storage = new StorageService();
     this.audio = new AudioManager(this.storage);
-    this.particles = new ParticleSystem(
-      this.storage.data.settings.performanceMode ? 300 : 600,
-      40
-    );
+    this.particles = new ParticleSystem(400, 40);
     this.input = new InputManager();
     this.world = new WorldManager(this.storage);
     this.shop = new ShopManager(this.storage, this.audio, this.world);
@@ -394,16 +391,24 @@ class GameEngine {
 
     this.particles.spawnShards(this.player.x, this.player.y, 35, '#ef4444');
 
-    // Save accurate crash checkpoint state immediately
-    const safeCandidates = this.world.nodes.filter(n => !n.isBroken && n.type !== 'DECOY' && n.y >= this.cameraY);
-    const anchor = safeCandidates.length > 0
-      ? safeCandidates[0]
-      : (this.world.nodes[this.world.nodes.length - 1] || null);
+    // Save accurate crash checkpoint state targeting the comfortable middle region of the visible viewport
+    const midScreenY = this.cameraY + this.height * 0.50;
+    const candidates = this.world.nodes.filter(n =>
+      !n.isBroken &&
+      n.type !== 'DECOY' &&
+      n.type !== 'HAZARD' &&
+      n.y >= this.cameraY + this.height * 0.25 &&
+      n.y <= this.cameraY + this.height * 0.75
+    );
+
+    // Sort by proximity to viewport center
+    candidates.sort((a, b) => Math.abs(a.y - midScreenY) - Math.abs(b.y - midScreenY));
+    const anchor = candidates.length > 0 ? candidates[0] : null;
 
     this.reviveCheckpoint = {
       cameraY: this.cameraY,
       maxAltitudeMeters: this.maxAltitudeMeters,
-      anchorY: anchor ? anchor.y : this.cameraY + this.height * 0.45,
+      anchorY: anchor ? anchor.y : midScreenY,
       anchorX: anchor ? anchor.x : this.width / 2
     };
 
@@ -454,49 +459,81 @@ class GameEngine {
     const cp = this.reviveCheckpoint || {
       cameraY: this.cameraY,
       maxAltitudeMeters: this.maxAltitudeMeters,
-      anchorY: this.cameraY + this.height * 0.45,
+      anchorY: this.cameraY + this.height * 0.50,
       anchorX: this.width / 2
     };
 
-    this.cameraY = cp.cameraY;
     this.maxAltitudeMeters = cp.maxAltitudeMeters;
     this.gameStarted = true;
 
-    // Find or create a safe solid anchor node at the crash height
-    let targetAnchor = this.world.nodes.find(n => !n.isBroken && n.type !== 'DECOY' && Math.abs(n.y - cp.anchorY) < 250);
+    // Find or create a safe solid anchor node at the checkpoint height
+    let targetAnchor = this.world.nodes.find(n =>
+      !n.isBroken &&
+      n.type !== 'DECOY' &&
+      n.type !== 'HAZARD' &&
+      Math.abs(n.y - cp.anchorY) < 120
+    );
+
     if (!targetAnchor) {
       targetAnchor = new OrbitNode(cp.anchorX, cp.anchorY, 'STANDARD', this.width, cp.maxAltitudeMeters);
       this.world.nodes.push(targetAnchor);
     }
 
     targetAnchor.isBroken = false;
+    targetAnchor.type = 'STANDARD';
+    targetAnchor.isHooked = true;
 
-    // Hook player directly to this safe anchor with quantum invulnerability shield
+    // Recenter camera precisely so targetAnchor is centered at 50% viewport height
+    this.cameraY = targetAnchor.y - this.height * 0.50;
+
+    // Direct, guaranteed hook attachment centered in the visible viewport
     this.player.x = targetAnchor.x + 65;
     this.player.y = targetAnchor.y;
     this.player.vx = 0;
-    this.player.vy = 260;
-    this.player.orbitSpeed = 820;
+    this.player.vy = 0;
+    this.player.isHooked = true;
+    this.player.hookedNode = targetAnchor;
+    this.player.orbitRadius = 65;
     this.player.orbitAngle = 0;
     this.player.orbitDirection = 1;
-    this.player.orbitRadius = 65;
+    this.player.orbitSpeed = 520; // Smooth, manageable entry orbit speed
     this.player.shieldTimer = 4.0; // 4 seconds quantum invulnerability shield
+    this.player.trailHistory = []; // Wipe any void plunge streak
 
-    // Directly hook player to anchor
-    this.player.tryHook(targetAnchor, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY);
+    // Clear danger overlay & enable slow-mo visual
+    this.ui.setDangerVisual(0);
+    this.ui.setSlowMoVisual(true);
 
     // Shockwave & Quantum VFX
     this.triggerScreenShake(6);
     this.triggerHitstop(16);
     this.particles.spawnShards(this.player.x, this.player.y, 40, '#d946ef');
     this.particles.spawnSparks(this.player.x, this.player.y, 25, '#f43f5e', 2.0);
-    this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'WIEDERBELEBT!', '#d946ef', 34, true);
+    this.particles.spawnFloatingText(this.player.x, this.player.y + 45, 'WIEDERBELEBT!', '#d946ef', 34, true);
 
     // Audio
     this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
 
+    // Guarantee at least one valid, safe forward jump target above the respawn node
+    const forwardNodes = this.world.nodes.filter(n =>
+      !n.isBroken &&
+      n.type !== 'DECOY' &&
+      n.type !== 'HAZARD' &&
+      n.y > targetAnchor.y + 110 &&
+      n.y <= targetAnchor.y + 240
+    );
+    if (forwardNodes.length === 0) {
+      const forwardY = targetAnchor.y + 165;
+      const forwardX = Math.max(90, Math.min(this.width - 90, targetAnchor.x + (Math.random() - 0.5) * 120));
+      const nextNode = new OrbitNode(forwardX, forwardY, 'STANDARD', this.width, forwardY * CONSTANTS.PHYSICS.METERS_PER_PIXEL);
+      this.world.nodes.push(nextNode);
+    }
+
+    // Sort world nodes monotonically by altitude
+    this.world.nodes.sort((a, b) => a.y - b.y);
+
     // Generate upcoming world ahead of camera
-    this.world.generateUpTo(this.cameraY + this.height + 700, this.width, this.cameraY);
+    this.world.generateUpTo(this.cameraY + this.height + 800, this.width, this.cameraY);
 
     // Transition back to PLAYING state with isRevive flag (bypasses startNewRun)
     this.state.changeState(StateManager.STATES.PLAYING, { isRevive: true });
@@ -620,16 +657,18 @@ class GameEngine {
       }
 
       // 3. Spaceship Dynamics
-      this.player.update(dt, this.width, this.particles);
+      if (!this.isDying) {
+        this.player.update(dt, this.width, this.particles);
 
-      if (this.input.actionHeld && !this.player.isHooked) {
-        if (nearestNode && Math.hypot(this.player.x - nearestNode.x, this.player.y - nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
-          this.player.tryHook(nearestNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY);
+        if (this.input.actionHeld && !this.player.isHooked) {
+          if (nearestNode && Math.hypot(this.player.x - nearestNode.x, this.player.y - nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
+            this.player.tryHook(nearestNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY);
+          }
         }
       }
 
       // 4. Camera Follow (Upwards Only, centered at 50% screen height)
-      if (this.gameStarted) {
+      if (this.gameStarted && !this.isDying) {
         const targetCamY = this.player.y - this.height * 0.50;
         if (targetCamY > this.cameraY) {
           this.cameraY = targetCamY;
