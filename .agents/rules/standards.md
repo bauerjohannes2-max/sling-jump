@@ -35,3 +35,10 @@ description: Mandatory zero emoji policy, Playwright automated testing, and cont
 * Delegate broad searches and log discovery to `research` subagents.
 * Use telegraphic Caveman communication (zero fluff, zero filler).
 
+## 7. 60+ FPS Engine Guardrails & Automated FPS Testing
+* **Debounced Storage:** No synchronous disk/storage writes during active gameplay (minimum 1500ms debounce).
+* **Compositor Hygiene:** Never use `{ desynchronized: true }` on 2D canvas underneath DOM elements.
+* **Zero CPU `shadowBlur`:** Pre-render glowing particles or use layered vector geometry.
+* **DOM Caching:** Cache DOM values in HUD updates; never re-query or mutate unchanged `textContent`.
+* **Automated FPS Benchmark:** Run `npm run test:fps` for performance verification. Ensure warmup period (1.5s), stop telemetry before screenshots, and verify JS frame budget <= 5.0ms.
+
