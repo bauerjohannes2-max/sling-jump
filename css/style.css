@@ -13,15 +13,15 @@
   --glass-border: rgba(255, 255, 255, 0.09);
 
   /* Semantic palette — mirrors the entity colors already defined in WorldManager.js */
-  --neutral-cyan: var(--neutral-cyan);   /* Standard node */
-  --action-start: var(--action-start);
-  --action-end: var(--action-end);     /* Primary CTA gradient */
-  --success: var(--success);        /* Super-Boost node */
-  --premium: var(--premium);        /* Moving node / Crystal */
-  --premium-deep: var(--premium-deep);
-  --currency-gold: var(--currency-gold);  /* Timer node / Coins */
-  --warning: var(--warning);        /* Bait node */
-  --danger: var(--danger);         /* Mine / Game Over crash state */
+  --neutral-cyan: #00f0ff;   /* Standard node */
+  --action-start: #00f0ff;
+  --action-end: #0284c7;     /* Primary CTA gradient */
+  --success: #10b981;        /* Super-Boost node */
+  --premium: #d946ef;        /* Moving node / Crystal */
+  --premium-deep: #a855f7;
+  --currency-gold: #fbbf24;  /* Timer node / Coins */
+  --warning: #f59e0b;        /* Bait node */
+  --danger: #ef4444;         /* Mine / Game Over crash state */
 
   --text-hero: #ffffff;
   --text-body: #e2e8f0;
@@ -1234,12 +1234,8 @@ canvas#gameCanvas {
 .hero-altitude-val.new-record,
 .hero-altitude.new-record .hero-altitude-val,
 .new-record .hero-altitude-val {
-  background: linear-gradient(90deg, #fff 0%, var(--currency-gold) 50%, #fff 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 1.6s ease-in-out 1;
+  color: #fbbf24;
+  text-shadow: 0 0 32px rgba(251, 191, 36, 0.7), 0 2px 14px rgba(0, 0, 0, 0.8);
 }
 
 @keyframes shimmer {
@@ -2274,7 +2270,6 @@ canvas#gameCanvas {
   border-radius: 12px;
   padding: 10px 14px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.15);
-  backdrop-filter: blur(12px);
   animation: fadeInPwa 0.4s ease-out;
 }
 

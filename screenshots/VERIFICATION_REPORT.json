@@ -1,20 +1,28 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (08)",
-  "executedAt": "2026-09-05T10:17:24.931Z",
-  "localTimestamp": "5.9.2026, 12:17:24",
+  "mode": "Selective (10)",
+  "executedAt": "2026-09-05T16:39:20.891Z",
+  "localTimestamp": "5.9.2026, 18:39:20",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
-  "selectiveScreenshotsCount": 1,
+  "selectiveScreenshotsCount": 2,
   "totalCatalogScreenshotsCount": 18,
   "freshRunManifest": [
     {
-      "filename": "08_gameplay_hud.png",
-      "description": "Gameplay HUD & Combo",
-      "sizeKb": 215,
-      "capturedAt": "2026-09-05T10:17:23.962Z",
-      "localTime": "12:17:23",
-      "sha256": "fcb346e0aefeff4c"
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 264,
+      "capturedAt": "2026-09-05T16:39:19.502Z",
+      "localTime": "18:39:19",
+      "sha256": "61cc7fb338dc99c6"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 326,
+      "capturedAt": "2026-09-05T16:39:20.452Z",
+      "localTime": "18:39:20",
+      "sha256": "98af8a844d1a96db"
     }
   ],
   "manifest": [
@@ -107,22 +115,6 @@
       "sha256": "dd134ce10bde360e"
     },
     {
-      "filename": "10_game_over.png",
-      "description": "Game Over Screen",
-      "sizeKb": 219,
-      "capturedAt": "2026-09-05T09:08:36.943Z",
-      "localTime": "11:08:36",
-      "sha256": "272d0ef03d862e2c"
-    },
-    {
-      "filename": "10b_revived_gameplay.png",
-      "description": "Revived Gameplay",
-      "sizeKb": 338,
-      "capturedAt": "2026-09-05T09:08:38.224Z",
-      "localTime": "11:08:38",
-      "sha256": "f9afbf7c1c4e2384"
-    },
-    {
       "filename": "11_mobile_responsive.png",
       "description": "Mobile Responsive Menu",
       "sizeKb": 182,
@@ -161,6 +153,22 @@
       "capturedAt": "2026-09-05T10:17:23.962Z",
       "localTime": "12:17:23",
       "sha256": "fcb346e0aefeff4c"
+    },
+    {
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 264,
+      "capturedAt": "2026-09-05T16:39:19.502Z",
+      "localTime": "18:39:19",
+      "sha256": "61cc7fb338dc99c6"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 326,
+      "capturedAt": "2026-09-05T16:39:20.452Z",
+      "localTime": "18:39:20",
+      "sha256": "98af8a844d1a96db"
     }
   ]
 }

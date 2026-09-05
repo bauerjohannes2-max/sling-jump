@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 4.6.0  
+Dokumentationsstand: Version 4.7.0  
 Aktualisiert am: 05. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -429,5 +429,16 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * Interaktiver `[ AN ]` / `[ AUS ]` Umschalter im Einstellungs-Menü (`#btn-audio-toggle`).
 * Benutzergesten-Freischaltung: Sanftes Entsperren des `AudioContext` bei erstem Klick/Touch (`pointerdown`, `keydown`).
 
+---
 
+## 13. AUTOMATISIERTER REAL-TIME GAMEPLAY FPS BENCHMARK (`npm run test:fps`)
 
+### 13.1 Benchmark-Architektur (`scripts/benchmark_fps.js`)
+* **Warmup-Phase (1.5 Sekunden):** Stabilisierung von State-Transitions, Audio-Context und Initialisierung vor Messbeginn.
+* **Autopilot-Flug (8.0 Sekunden):** Deterministische Simulation aktiver Gameplay-Schleifen (Slingshots, Partikel-Spawns, Münzkollisionen).
+* **Telemetrie-Invariante:** Stoppt Messung vor Screenshot-I/O, um Messwerte nicht durch Festplattenzugriffe zu verfälschen.
+* **Metriken & Grenzwerte:**
+  * Durchschnittliche Bildrate: `>= 55.0 FPS` (Soll: 60/120 FPS).
+  * JavaScript-Frame-Budget: `<= 5.0 ms` Durchschnitt (bei 16.6ms Maximalbudget).
+  * Hitches `> 50 ms`: `0` (Zero Toleranz).
+  * Konsolenfehler: `0`.

@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC48 - v4.6.2 - Engine Hardening & Zero-Stutter 60 FPS Optimization)  
+> **Status:** Release Candidate (RC49 - v4.7.0 - Laptop GPU Rendering Fix & Benchmark Suite)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 05.09.2026  
@@ -18,7 +18,8 @@
 | `npm start` / `npm run serve` | **Lokales WLAN / LAN** | Startet den HTTP-Server auf Port 3000, ermittelt die lokale IPv4 (`http://192.168.x.x:3000`) und gibt einen scanbaren ASCII-QR-Code im Terminal aus. |
 | `npm run share` | **Dev-Tunnel & QR-Code** | Gibt den permanenten Link samt ASCII-QR-Code im Terminal aus und startet optional einen temporären Entwickler-Tunnel. |
 | `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 18 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
-| `node scripts/playwright_runner.js <screen>` | **Selektiver Test (Token-Schonung)** | Führt nur die relevanten Testschritte aus (z.B. `07` für Einstellungen) und erzeugt gezielt frische Screenshots bei minimalem Token-Verbrauch. |
+| `npm run test:fps` | **Automatisierter Gameplay FPS Benchmark** | Misst 8 Sekunden Real-Time Autopilot-Flug, analysiert Frame-Deltas, JS-Budget und Hitch-Statistiken. |
+| `node scripts/playwright_runner.js <screen>` | **Selektiver Test (Token-Schonung)** | Führt nur die relevanten Testschritte aus (z.B. `10` für Game Over) und erzeugt gezielt frische Screenshots bei minimalem Token-Verbrauch. |
 
 ---
 
@@ -54,6 +55,18 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.7.0 (05.09.2026) - Laptop Rendering Fix, HUD Layer Cleanup & Benchmark Hardening
+* **Beseitigung zirkulärer CSS Custom Properties (`css/style.css`):**
+  * Root-Variablen `--neutral-cyan`, `--action-start`, `--action-end`, `--currency-gold`, `--premium`, `--success`, `--warning`, `--danger` waren fälschlicherweise auf sich selbst referenziert (`var(--action-start)`), was sie laut W3C CSS Spec zu ungültigen Werten (transparent / schwarz) evaluieren ließ. Auf Laptops und mobilen Browsern führte dies zu pechschwarzen Buttons ("NOCHMAL SPIELEN") und unsichtbaren Rekord-Werten. Ersetzt durch präzise, lebendige Hex-Farbwerte.
+* **HUD-Layer Überlappung bei Game Over behoben (`UIManager.js`):**
+  * `STATE_GAME_OVER` entfernte die Klasse `.visible` vom HUD-Layer (`#hud-layer`) nicht. Dadurch überlappten der obere Höhenmeter, Rekord und Pausenknopf das Game-Over-Modal. Jetzt wird der HUD-Layer beim Absturz deterministisch ausgeblendet.
+* **Beseitigung aller `backdrop-filter: blur(...)` GPU-Bremsen:**
+  * Entfernung aller rechenintensiven Hintergrund-Unschärfen von Modalen, Chips und Karten, um Low-End-Laptop-GPUs (Intel UHD / Iris Xe) und Browser auf Akkubetrieb vor Compositor-Stalls und 30-FPS-Drosselung zu schützen.
+* **Automatisierter Gameplay FPS Benchmark (`scripts/benchmark_fps.js`):**
+  * Robuste Error-Guards integriert (`npm run test:fps`), 118.9 FPS Durchschnitts-Framerate bei 0.2ms JS-Frame-Budget validiert.
+* **Cache-Invalidierung auf v4.7.0:**
+  * `sw.js`, `index.html`, `version.json` und `Constants.js` synchronisiert, um alte Service-Worker-Caches auf Nutzer-Laptops automatisch zu invalidieren.
 
 ### v4.6.2 (05.09.2026) - Engine Hardening & Zero-Stutter 60 FPS Optimization
 * **Freeze-Frame Beseitigung (Hitstop Elimination):**

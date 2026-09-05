@@ -187,7 +187,7 @@ class UIManager {
         break;
 
       case StateManager.STATES.GAME_OVER:
-        if (this.dom.hudLayer) this.dom.hudLayer.classList.add('visible');
+        if (this.dom.hudLayer) this.dom.hudLayer.classList.remove('visible');
         if (this.dom.gameoverModal) this.dom.gameoverModal.classList.add('visible');
         this.populateGameOver(contextData);
         if (this.audio) this.audio.playMusic('bgm_gameover', false);

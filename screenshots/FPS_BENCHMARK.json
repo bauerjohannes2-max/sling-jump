@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-05T16:42:48.267Z",
+  "benchmarkMode": "Active Gameplay Simulation",
+  "durationSeconds": 8,
+  "metrics": {
+    "totalFrames": 957,
+    "avgFps": 120.1,
+    "avgDeltaMs": 8.32,
+    "p95DeltaMs": 16.8,
+    "p99DeltaMs": 16.8,
+    "maxDeltaMs": 16.9,
+    "low1PctFps": 59.5,
+    "minFps": 59.2,
+    "avgJsTimeMs": 0.2,
+    "p95JsTimeMs": 0.5,
+    "maxJsTimeMs": 0.9,
+    "hitchesAbove25ms": 0,
+    "hitchesAbove33ms": 0,
+    "hitchesAbove50ms": 0,
+    "liveTelemetry": {
+      "fps": 120,
+      "frameTimeMs": 8.3,
+      "minFps": 59
+    }
+  },
+  "consoleErrors": [],
+  "passed": true
+}
