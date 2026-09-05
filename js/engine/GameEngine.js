@@ -313,6 +313,9 @@ class GameEngine {
     if (this.player && this.player.isHooked) {
       this.runSlingshots++;
       this.missions.onSlingshotPerformed();
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(8); } catch (e) {}
+      }
 
       this.player.releaseHook(
         false,
@@ -340,7 +343,8 @@ class GameEngine {
             const speedFactors = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_SPEED_FACTORS) || [1.0, 1.03, 1.06, 1.09, 1.12, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30];
             const speedPct = Math.round((speedFactors[Math.min(this.slingshotCombo, speedFactors.length - 1)] - 1.0) * 100);
 
-            const comboColors = ['#fbbf24', '#f59e0b', '#a855f7', '#c084fc', '#ec4899', '#f43f5e', '#ef4444', '#06b6d4', '#38bdf8', '#10b981'];
+            // Combo color escalation: from --neutral-cyan (x1-x2) toward --premium (x8-x10)
+            const comboColors = ['#00f0ff', '#00f0ff', '#38bdf8', '#38bdf8', '#818cf8', '#a855f7', '#a855f7', '#c084fc', '#c084fc', '#d946ef'];
             const color = comboColors[Math.min(this.slingshotCombo - 1, comboColors.length - 1)];
 
             // Minimalist Arcade Combo Label: "PERFEKT" on x1, and "COMBO xN" on chains (Clean & Punchy)
@@ -651,6 +655,9 @@ class GameEngine {
             if (orb.type === 'CRYSTAL') {
               this.runCrystals++;
               this.storage.addHyperCrystals(1);
+              if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                try { navigator.vibrate(16); } catch (e) {}
+              }
               this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
               this.triggerHitstop(24);
               this.triggerScreenShake(3);
@@ -825,12 +832,14 @@ class GameEngine {
 
     const theme = this.world.currentTheme;
 
-    // 2. Nodes & Orbs
-    for (const orb of this.world.energyOrbs) {
-      orb.draw(this.ctx, this.cameraY, this.height, theme);
-    }
-    for (const node of this.world.nodes) {
-      node.draw(this.ctx, this.cameraY, this.height, theme);
+    // 2. Nodes & Orbs (Suppressed in Main Menu to prevent loose rings overlapping buttons)
+    if (!this.state.is(StateManager.STATES.MENU)) {
+      for (const orb of this.world.energyOrbs) {
+        orb.draw(this.ctx, this.cameraY, this.height, theme);
+      }
+      for (const node of this.world.nodes) {
+        node.draw(this.ctx, this.cameraY, this.height, theme);
+      }
     }
 
     // 3. Particles

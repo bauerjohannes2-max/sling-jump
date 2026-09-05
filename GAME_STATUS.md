@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC46 - v4.5.0 - Selective Token-Optimized Playwright Verification Suite & Integrated Google Lyria Audio Pipeline)  
+> **Status:** Release Candidate (RC47 - v4.6.0 - AAA UI/UX Rework: Minimalist Vector Aesthetics, Unified Modal Shell, Tabular Counters & Juice Polish)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 05.09.2026  
@@ -54,6 +54,27 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.6.0 (05.09.2026) - AAA UI/UX Rework (Minimalist Vector Architecture, Unified Modal Shell & Juice Polish)
+* **Phase A: Foundation & Semantic Design System (`css/style.css`):**
+  * **Design Tokens:** Vollständige semantische Farbtokens auf `:root` verankert (`--void-950` bis `--void-800`, `--glass-fill`, `--glass-border`, `--neutral-cyan`, `--action-start/end`, `--success`, `--premium`, `--currency-gold`, `--warning`, `--danger`, `--font-display`, `--font-body`).
+  * **Tabular Numbers:** Globale `font-variant-numeric: tabular-nums;` für alle dynamischen Zähler und Höhenanzeigen (kein horizontales Zittern bei Ziffernwechseln).
+  * **Unified Modal Shell:** Einheitliche `.modal-card`, `.modal-backdrop`, `.modal-overlay` und `.modal-close-x` Architektur über alle Dialoge (Game Over, Hangar, Stats, Quests, Rangliste, Pause, Einstellungen, Tutorial).
+  * **Button Press Physics:** Haptische Druck-Animationen (`active` Transform-Scale 0.96 & Brightness-Filter).
+* **Phase B: Menü- & HUD-Layouts (`index.html`, `css/style.css`, `UIManager.js`, `GameEngine.js`):**
+  * **Wordmark Orbit-Ring Motif:** Subtiler, pulsierender cyan-blauer Vektor-Orbitring hinter dem SLING JUMP Titelschriftzug.
+  * **Starfield Clean Drift:** Canvas-Orbits und zufällige Knoten im Menü-Zustand ausgeblendet, wodurch der Start-Stack sauber und fokussiert bleibt.
+  * **3-Spalten Navigations-Kacheln:** `TUTORIAL`, `SKINS` und `STATISTIKEN` als kompaktes Vektor-Icon-Grid (`.tile-row`, `.tile`) mit SVG-Icons; alle bestehenden Button-IDs uneingeschränkt erhalten.
+  * **Unified Currency Capsule:** Hochwertige Glas-Kapsel (`#menu-currency-pill`) mit Gold- und Kristall-Chips direkt im Menü, bei Klick Direktzugriff auf Hangar & Skins.
+  * **Primary CTA High-Impact Gradient:** `SPIEL STARTEN` und `NOCHMAL SPIELEN` mit leuchtendem Cyan-Blau-Verlauf, 18px Eckenradius und subtiler Idle-Breathing-Animation (`cta-breathe`).
+  * **HUD In-Game Capsule:** Kompakte obere Score-Kapsel (`.score-container`) mit integriertem Höhenmeter und persönlicher Bestleistung.
+  * **44px Touch-Pause-Button:** Runder, ergonomischer Glas-Button (`#btn-hud-pause`) mit Mindest-Touch-Fläche nach Mobile-Standards.
+  * **Game Over 'NEUER REKORD':** Prägnante, serifenlose Typografie mit Gold-Shimmer-Effekt (`hero-altitude-val.new-record`) und transparenter Inaktiv-Dämpfung (`.zero-reward`) bei Nullwerten.
+* **Phase C: Micro-Interactions & Juice Polish (`UIManager.js`, `GameEngine.js`, `main.js`):**
+  * **Modal Entrance Choreography:** Gestaffelte Einblendungen (`backdrop-in`, `card-in`, `content-fade`) bei Modalen für professionelles App-Gefühl.
+  * **Count-Up Tween:** Sanfte `requestAnimationFrame`-Interpolation (~600ms) für gesammelte Coins und Kristalle im Game-Over-Screen.
+  * **Dynamische Combo-Farbpalette:** 6-stufige Farbskalierung von Cyan (`#00f0ff`) über Indigo bis Violett/Magenta (`#d946ef`) für ansteigende Sprung-Serien.
+  * **Haptisches Feedback:** Taktiles Vibrations-Feedback bei Katapult-Abschüssen (8ms), Primär-Button-Klicks (12ms) und Kristall-Aufsammlung (16ms).
 
 ### v4.5.0 (05.09.2026) - Selektive Playwright-Testsuite (Token-Optimierung) & Google Lyria Audio-Pipeline
 * **1. Selektive Playwright-Screenshot-Harness (`scripts/playwright_runner.js`):**

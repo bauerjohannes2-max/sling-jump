@@ -860,11 +860,48 @@ class UIManager {
     const canRevive = data.canRevive !== false;
 
     if (this.dom.finalAltitude) {
-      this.dom.finalAltitude.innerHTML = `<span class="hero-altitude-val">${Number(altitude).toLocaleString('de-DE')}</span><span class="hero-altitude-unit">m</span>`;
+      const heroValClass = isNewRecord ? 'hero-altitude-val new-record' : 'hero-altitude-val';
+      this.dom.finalAltitude.innerHTML = `<span class="${heroValClass}">${Number(altitude).toLocaleString('de-DE')}</span><span class="hero-altitude-unit">m</span>`;
     }
-    if (this.dom.finalOrbs) this.dom.finalOrbs.textContent = `+${Number(cores).toLocaleString('de-DE')}`;
-    if (this.dom.finalCrystals) this.dom.finalCrystals.textContent = `+${Number(crystals).toLocaleString('de-DE')}`;
+
+    // Currency Count-up (Tween from 0 to final over ~600ms eased)
+    const animateCountUp = (element, targetValue, duration = 600, prefix = '+') => {
+      if (!element) return;
+      if (targetValue <= 0) {
+        element.textContent = `${prefix}0`;
+        return;
+      }
+      const startTime = performance.now();
+      const step = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(easeOut * targetValue);
+        element.textContent = `${prefix}${current.toLocaleString('de-DE')}`;
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          element.textContent = `${prefix}${targetValue.toLocaleString('de-DE')}`;
+        }
+      };
+      requestAnimationFrame(step);
+    };
+
+    if (this.dom.finalOrbs) animateCountUp(this.dom.finalOrbs, cores);
+    if (this.dom.finalCrystals) animateCountUp(this.dom.finalCrystals, crystals);
     if (this.dom.finalBest) this.dom.finalBest.textContent = `${Number(this.storage.data.highScore).toLocaleString('de-DE')} m`;
+
+    // Recede +0 reward chips visually relative to non-zero rewards
+    const orbsStat = document.getElementById('reward-stat-orbs') || (this.dom.finalOrbs ? this.dom.finalOrbs.closest('.reward-stat') : null);
+    if (orbsStat) {
+      if (cores > 0) orbsStat.classList.remove('zero-reward');
+      else orbsStat.classList.add('zero-reward');
+    }
+    const crystalsStat = document.getElementById('reward-stat-crystals') || (this.dom.finalCrystals ? this.dom.finalCrystals.closest('.reward-stat') : null);
+    if (crystalsStat) {
+      if (crystals > 0) crystalsStat.classList.remove('zero-reward');
+      else crystalsStat.classList.add('zero-reward');
+    }
 
     if (this.dom.newRecordBadge) {
       this.dom.newRecordBadge.style.display = isNewRecord ? 'inline-flex' : 'none';

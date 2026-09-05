@@ -31,11 +31,18 @@
       if (audio) audio.playProceduralSfx('sfx_ui_click');
     };
 
+    const hapticTick = (ms = 12) => {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(ms); } catch (e) {}
+      }
+    };
+
     // --- MAIN MENU BUTTONS ---
     const btnMenuPlay = document.getElementById('btn-menu-play');
     if (btnMenuPlay) {
       btnMenuPlay.addEventListener('click', () => {
         clickSfx();
+        hapticTick(12);
         state.changeState(StateManager.STATES.PLAYING);
       });
     }
@@ -84,6 +91,14 @@
     const btnMenuShop = document.getElementById('btn-menu-shop');
     if (btnMenuShop) {
       btnMenuShop.addEventListener('click', () => {
+        clickSfx();
+        state.changeState(StateManager.STATES.SHOP);
+      });
+    }
+
+    const menuCurrencyPill = document.getElementById('menu-currency-pill');
+    if (menuCurrencyPill) {
+      menuCurrencyPill.addEventListener('click', () => {
         clickSfx();
         state.changeState(StateManager.STATES.SHOP);
       });
@@ -192,6 +207,7 @@
     if (btnGameOverRestart) {
       btnGameOverRestart.addEventListener('click', () => {
         clickSfx();
+        hapticTick(12);
         engine.startNewRun();
       });
     }
@@ -399,7 +415,7 @@
     document.body.focus();
 
     // Dynamically inject single source of truth version into all DOM elements
-    const currentVerTag = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? `v${CONSTANTS.VERSION}` : 'v3.33.0';
+    const currentVerTag = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? `v${CONSTANTS.VERSION}` : 'v4.6.0';
     document.querySelectorAll('.app-version-tag').forEach(el => { el.textContent = currentVerTag; });
     document.querySelectorAll('.settings-version-tag').forEach(el => { el.textContent = `SLING JUMP ${currentVerTag}`; });
   }

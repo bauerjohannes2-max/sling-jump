@@ -20,7 +20,7 @@ for (const arg of args) {
     targetedFilters.push(...arg.replace('--screens=', '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
   } else if (!arg.startsWith('--')) {
     isSelective = true;
-    targetedFilters.push(arg.toLowerCase().trim());
+    targetedFilters.push(...arg.toLowerCase().split(',').map(s => s.trim()).filter(Boolean));
   }
 }
 
