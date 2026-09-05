@@ -430,91 +430,122 @@ class WorldManager {
     const padX = width * 0.5;
     const padY = height * 0.5;
 
-    // Background Fill
+    // 1. Background Void Fill
     context.fillStyle = theme.background;
     context.fillRect(-padX, -padY, width + padX * 2, height + padY * 2);
 
-    // Parallax Starfield & Hyperspace Warp Streaks
-    context.save();
+    // 2. High-Performance Batched Parallax Starfield
     const isWarpSpeed = playerVy > 320;
     const warpFactor = isWarpSpeed ? Math.min(1.0, (playerVy - 320) / 750) : 0;
 
-    for (const star of this.stars) {
-      // Physical parallax direction fix: as cameraY ascends, background stars move DOWN past ship
-      const starY = (star.y + cameraY * star.layer) % height;
-      const finalY = starY < 0 ? starY + height : starY;
+    if (warpFactor > 0.05) {
+      // Hyperspace Warp Streaks: Batched single-pass stroke
+      context.save();
+      context.strokeStyle = theme.primary || '#00f0ff';
+      context.lineWidth = 1.6;
+      context.lineCap = 'round';
+      context.globalAlpha = Math.min(0.9, 0.4 + warpFactor * 0.5);
+      context.beginPath();
 
-      const driftX = (now * 0.005 * star.layer);
-      const starX = (star.x + driftX) % width;
-      const finalX = starX < 0 ? starX + width : starX;
+      for (let i = 0; i < this.stars.length; i++) {
+        const star = this.stars[i];
+        const starY = (star.y + cameraY * star.layer) % height;
+        const finalY = starY < 0 ? starY + height : starY;
+        const driftX = (now * 0.005 * star.layer);
+        const starX = (star.x + driftX) % width;
+        const finalX = starX < 0 ? starX + width : starX;
+        const streakLength = warpFactor * 45 * star.layer;
 
-      const twinkle = Math.sin((now * 0.001) * star.twinkleSpeed + star.x) * 0.2;
-      context.globalAlpha = Math.max(0.15, Math.min(0.95, star.baseAlpha + twinkle + warpFactor * 0.3));
-      const starColor = star.layer > 0.3 ? theme.primary : '#ffffff';
-      context.fillStyle = starColor;
-      context.strokeStyle = starColor;
-
-      const streakLength = warpFactor * 42 * star.layer;
-
-      if (streakLength > 2.5) {
-        // Hyperspace / Warp Speed Laser Streaks streaming downwards
-        context.lineWidth = Math.max(1, star.size * 0.85);
-        context.lineCap = 'round';
-        context.beginPath();
-        context.moveTo(finalX, finalY);
-        context.lineTo(finalX, finalY - streakLength);
-        context.stroke();
-      } else {
-        // Classic Star Point
-        context.beginPath();
-        context.arc(finalX, finalY, star.size, 0, Math.PI * 2);
-        context.fill();
+        context.moveTo(finalX | 0, finalY | 0);
+        context.lineTo(finalX | 0, (finalY - streakLength) | 0);
       }
+      context.stroke();
+      context.restore();
+    } else {
+      // Classic Starfield: Dual-Pass Batched Rendering (Zero per-star state thrashing)
+      // Pass A: Distant background stars (white/dim)
+      context.fillStyle = '#ffffff';
+      context.globalAlpha = 0.5;
+      for (let i = 0; i < this.stars.length; i++) {
+        const star = this.stars[i];
+        if (star.layer > 0.3) continue;
+        const starY = (star.y + cameraY * star.layer) % height;
+        const finalY = starY < 0 ? starY + height : starY;
+        const driftX = (now * 0.005 * star.layer);
+        const starX = (star.x + driftX) % width;
+        const finalX = starX < 0 ? starX + width : starX;
+        const s = star.size < 1.2 ? 1 : 2;
+        context.fillRect(finalX | 0, finalY | 0, s, s);
+      }
+
+      // Pass B: Near celestial stars (theme neon tint, brighter)
+      context.fillStyle = theme.primary || '#00f0ff';
+      context.globalAlpha = 0.85;
+      for (let i = 0; i < this.stars.length; i++) {
+        const star = this.stars[i];
+        if (star.layer <= 0.3) continue;
+        const starY = (star.y + cameraY * star.layer) % height;
+        const finalY = starY < 0 ? starY + height : starY;
+        const driftX = (now * 0.005 * star.layer);
+        const starX = (star.x + driftX) % width;
+        const finalX = starX < 0 ? starX + width : starX;
+        const s = star.size < 1.5 ? 2 : 3;
+        context.fillRect(finalX | 0, finalY | 0, s, s);
+      }
+      context.globalAlpha = 1.0;
     }
-    context.restore();
   }
 
   drawBottomDeathBoundary(context, timestamp, width, height) {
     const theme = this.currentTheme;
-    context.save();
-
     const time = timestamp * 0.005;
     const glowHeight = 42 + Math.sin(time) * 8;
 
-    // Extend wide on X (-width to 2*width) to eliminate any gaps during camera zoom-out
     const padX = width * 1.5;
     const drawWidth = width + padX * 2;
 
+    // 1. Bottom Glow Fill (Pre-calculated gradient)
     const gradient = context.createLinearGradient(0, height - glowHeight, 0, height + 50);
     gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    gradient.addColorStop(0.4, theme.voidGlow);
-    gradient.addColorStop(1, theme.voidColor);
+    gradient.addColorStop(0.4, theme.voidGlow || 'rgba(239, 68, 68, 0.45)');
+    gradient.addColorStop(1, theme.voidColor || '#ef4444');
 
     context.fillStyle = gradient;
     context.fillRect(-padX, height - glowHeight, drawWidth, glowHeight + 100);
 
-    // Primary Laser Horizon
-    context.strokeStyle = theme.danger;
-    context.shadowColor = theme.danger;
-    context.shadowBlur = 18;
-    context.lineWidth = 3.5;
-
+    // 2. High-Performance Multi-Layer Laser Beam (Zero shadowBlur overhead)
+    // Wide Outer Aura Line
+    context.strokeStyle = 'rgba(239, 68, 68, 0.28)';
+    context.lineWidth = 12;
     context.beginPath();
     context.moveTo(-padX, height - 2);
     context.lineTo(width + padX, height - 2);
     context.stroke();
 
-    // Secondary Electro-Wave
-    context.strokeStyle = theme.primary;
-    context.shadowColor = theme.primary;
-    context.shadowBlur = 10;
-    context.lineWidth = 1.5;
-
+    // Medium Glow Line
+    context.strokeStyle = 'rgba(239, 68, 68, 0.65)';
+    context.lineWidth = 5;
     context.beginPath();
-    context.moveTo(-padX, height - 5);
-    context.lineTo(width + padX, height - 5);
+    context.moveTo(-padX, height - 2);
+    context.lineTo(width + padX, height - 2);
     context.stroke();
 
-    context.restore();
+    // Sharp Razor Laser Core Line
+    context.strokeStyle = '#ffffff';
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(-padX, height - 2);
+    context.lineTo(width + padX, height - 2);
+    context.stroke();
+
+    // Secondary Electro Horizon
+    context.strokeStyle = theme.primary || '#00f0ff';
+    context.lineWidth = 1.5;
+    context.globalAlpha = 0.7;
+    context.beginPath();
+    context.moveTo(-padX, height - 6);
+    context.lineTo(width + padX, height - 6);
+    context.stroke();
+    context.globalAlpha = 1.0;
   }
 }

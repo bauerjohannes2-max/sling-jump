@@ -130,21 +130,12 @@ class EnergyOrb {
       const pulseScale = 1 + Math.sin(this.pulse) * 0.08;
       const coinR = 10 * pulseScale;
 
-      // 2. Outer Golden Coin Ring
+      // 2. Outer Golden Coin Ring (Native arc)
       context.fillStyle = 'rgba(251, 191, 36, 0.22)';
       context.strokeStyle = coreColor;
       context.lineWidth = 1.8;
-      
-      // Removed arc - replaced with highly optimized octagon for ring
       context.beginPath();
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2;
-        const rx = Math.cos(a) * coinR;
-        const ry = Math.sin(a) * coinR;
-        if (i === 0) context.moveTo(rx, ry);
-        else context.lineTo(rx, ry);
-      }
-      context.closePath();
+      context.arc(0, 0, coinR, 0, Math.PI * 2);
       context.fill();
       context.stroke();
 

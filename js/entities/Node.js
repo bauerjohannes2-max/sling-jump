@@ -81,6 +81,48 @@ class OrbitNode {
     if (onBreak) onBreak(this);
   }
 
+  static getCachedGlow(gColor) {
+    if (!OrbitNode.cache) OrbitNode.cache = {};
+    if (!OrbitNode.cache[gColor]) {
+      const c = document.createElement('canvas');
+      c.width = 72; c.height = 72;
+      const ctx = c.getContext('2d');
+      const grad = ctx.createRadialGradient(36, 36, 2, 36, 36, 34);
+      grad.addColorStop(0, gColor);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(36, 36, 34, 0, Math.PI * 2);
+      ctx.fill();
+      OrbitNode.cache[gColor] = c;
+    }
+    return OrbitNode.cache[gColor];
+  }
+
+  static getCachedCore(cColor, isDecoy) {
+    if (!OrbitNode.cache) OrbitNode.cache = {};
+    const key = `${cColor}_${isDecoy}`;
+    if (!OrbitNode.cache[key]) {
+      const c = document.createElement('canvas');
+      c.width = 44; c.height = 44;
+      const ctx = c.getContext('2d');
+      ctx.shadowColor = cColor;
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = isDecoy ? '#7c2d12' : '#ffffff';
+      ctx.beginPath();
+      ctx.arc(22, 22, 9.35, 0, Math.PI * 2); // 17 * 0.55
+      ctx.fill();
+      
+      ctx.strokeStyle = cColor;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(22, 22, 17, 0, Math.PI * 2); // radius 17
+      ctx.stroke();
+      OrbitNode.cache[key] = c;
+    }
+    return OrbitNode.cache[key];
+  }
+
   draw(context, camY, height, theme = null) {
     if (this.isBroken) return;
 
@@ -88,51 +130,6 @@ class OrbitNode {
     const screenY = (height - (this.y - camY)) | 0;
     if (screenY < -200 || screenY > height + 200) return;
 
-    if (!OrbitNode.cache) {
-      OrbitNode.cache = {};
-    }
-
-    const getCachedGlow = (gColor) => {
-      if (!OrbitNode.cache[gColor]) {
-        const c = document.createElement('canvas');
-        c.width = 72; c.height = 72;
-        const ctx = c.getContext('2d');
-        const grad = ctx.createRadialGradient(36, 36, 2, 36, 36, 34);
-        grad.addColorStop(0, gColor);
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(36, 36, 34, 0, Math.PI * 2);
-        ctx.fill();
-        OrbitNode.cache[gColor] = c;
-      }
-      return OrbitNode.cache[gColor];
-    };
-
-    const getCachedCore = (cColor, isDecoy) => {
-      const key = `${cColor}_${isDecoy}`;
-      if (!OrbitNode.cache[key]) {
-        const c = document.createElement('canvas');
-        c.width = 44; c.height = 44;
-        const ctx = c.getContext('2d');
-        ctx.shadowColor = cColor;
-        ctx.shadowBlur = 14;
-        ctx.fillStyle = isDecoy ? '#7c2d12' : '#ffffff';
-        ctx.beginPath();
-        ctx.arc(22, 22, 9.35, 0, Math.PI * 2); // 17 * 0.55
-        ctx.fill();
-        
-        ctx.strokeStyle = cColor;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(22, 22, 17, 0, Math.PI * 2); // radius 17
-        ctx.stroke();
-        OrbitNode.cache[key] = c;
-      }
-      return OrbitNode.cache[key];
-    };
-
-    // OPTIMIZATION: Removed save/restore where possible. Manual transform reversal.
     const px = this.x | 0;
     context.translate(px, screenY);
 
@@ -154,7 +151,7 @@ class OrbitNode {
       context.restore();
 
       // OPTIMIZATION: Pre-rendered Red Danger Aura
-      context.drawImage(getCachedGlow('rgba(239, 68, 68, 0.7)'), -36, -36);
+      context.drawImage(OrbitNode.getCachedGlow('rgba(239, 68, 68, 0.7)'), -36, -36);
 
       context.rotate(this.rotation || 0);
 
@@ -260,7 +257,7 @@ class OrbitNode {
 
     // OPTIMIZATION: 2. Outer Soft Aura (Pre-rendered drawn dynamically scaled)
     const dSize = outerRadius + 14;
-    context.drawImage(getCachedGlow(glowColor), -dSize, -dSize, dSize * 2, dSize * 2);
+    context.drawImage(OrbitNode.getCachedGlow(glowColor), -dSize, -dSize, dSize * 2, dSize * 2);
 
     // 3. Orbit Target Ring
     context.save();
@@ -298,19 +295,19 @@ class OrbitNode {
     // 5. FRAGILE: Prominent Stopwatch / Clock Visuals
     if (this.type === 'FRAGILE') {
       context.save();
-      // 12 Clock-Tick Hash Marks around perimeter (communicates TIMER immediately)
+      // 12 Clock-Tick Hash Marks around perimeter (single batched path)
       const tickRingR = outerRadius + 7;
       context.strokeStyle = coreColor;
       context.lineWidth = 1.6;
       context.globalAlpha = 0.8;
+      context.beginPath();
       for (let i = 0; i < 12; i++) {
         const angle = (i / 12) * Math.PI * 2;
         const innerR = (i % 3 === 0) ? tickRingR - 5 : tickRingR - 3;
-        context.beginPath();
         context.moveTo(Math.cos(angle) * innerR, Math.sin(angle) * innerR);
         context.lineTo(Math.cos(angle) * (tickRingR + 1), Math.sin(angle) * (tickRingR + 1));
-        context.stroke();
       }
+      context.stroke();
 
       if (this.isHooked) {
         // Active Countdown Sweep Gauge
@@ -398,7 +395,7 @@ class OrbitNode {
 
     // 7 & 8. Inner Solid Core and Rim (Pre-rendered)
     context.globalAlpha = 1.0;
-    context.drawImage(getCachedCore(coreColor, this.type === 'DECOY'), -22, -22);
+    context.drawImage(OrbitNode.getCachedCore(coreColor, this.type === 'DECOY'), -22, -22);
 
     context.translate(-px, -screenY);
   }

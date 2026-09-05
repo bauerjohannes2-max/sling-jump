@@ -1,5 +1,5 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 5.9.2026, 11:57:58  
+> **Laufzeit:** 5.9.2026, 12:17:24  
 > **Modus:** Selektiv (`08`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
 > **Frisch erfasste Screenshots in diesem Lauf:** 1  
@@ -8,7 +8,7 @@
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `08_gameplay_hud.png` | Gameplay HUD & Combo | 11:57:58 | 201 KB | `58a00d0d2c81487e` |
+| `08_gameplay_hud.png` | Gameplay HUD & Combo | 12:17:23 | 215 KB | `fcb346e0aefeff4c` |
 
 
 ### Gesamter Screenshot-Bestand (18 Dateien)
@@ -31,4 +31,4 @@
 | `12_mobile_skins.png` | 11:08:40 | 279 KB |
 | `14_dashboard_locked.png` | 11:08:48 | 48 KB |
 | `14b_dashboard_unlocked.png` | 11:08:50 | 240 KB |
-| `08_gameplay_hud.png` | 11:57:58 | 201 KB |
+| `08_gameplay_hud.png` | 12:17:23 | 215 KB |

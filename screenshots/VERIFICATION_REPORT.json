@@ -1,8 +1,8 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
   "mode": "Selective (08)",
-  "executedAt": "2026-09-05T09:57:58.974Z",
-  "localTimestamp": "5.9.2026, 11:57:58",
+  "executedAt": "2026-09-05T10:17:24.931Z",
+  "localTimestamp": "5.9.2026, 12:17:24",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
   "selectiveScreenshotsCount": 1,
@@ -11,10 +11,10 @@
     {
       "filename": "08_gameplay_hud.png",
       "description": "Gameplay HUD & Combo",
-      "sizeKb": 201,
-      "capturedAt": "2026-09-05T09:57:58.039Z",
-      "localTime": "11:57:58",
-      "sha256": "58a00d0d2c81487e"
+      "sizeKb": 215,
+      "capturedAt": "2026-09-05T10:17:23.962Z",
+      "localTime": "12:17:23",
+      "sha256": "fcb346e0aefeff4c"
     }
   ],
   "manifest": [
@@ -157,10 +157,10 @@
     {
       "filename": "08_gameplay_hud.png",
       "description": "Gameplay HUD & Combo",
-      "sizeKb": 201,
-      "capturedAt": "2026-09-05T09:57:58.039Z",
-      "localTime": "11:57:58",
-      "sha256": "58a00d0d2c81487e"
+      "sizeKb": 215,
+      "capturedAt": "2026-09-05T10:17:23.962Z",
+      "localTime": "12:17:23",
+      "sha256": "fcb346e0aefeff4c"
     }
   ]
 }

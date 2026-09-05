@@ -272,7 +272,7 @@ class StorageService {
   addCores(amount) {
     this.data.cores = Math.max(0, this.data.cores + amount);
     this.data.stats.totalCoresCollected += Math.max(0, amount);
-    this.save();
+    this.saveDeferred();
     return this.data.cores;
   }
 
@@ -288,7 +288,7 @@ class StorageService {
   addHyperCrystals(amount = 1) {
     this.data.hyperCrystals = Math.max(0, (this.data.hyperCrystals || 0) + amount);
     this.data.stats.totalCrystalsCollected = (this.data.stats.totalCrystalsCollected || 0) + amount;
-    this.save();
+    this.saveDeferred();
     return this.data.hyperCrystals;
   }
 

@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC47 - v4.6.0 - AAA UI/UX Rework: Minimalist Vector Aesthetics, Unified Modal Shell, Tabular Counters & Juice Polish)  
+> **Status:** Release Candidate (RC48 - v4.6.2 - Engine Hardening & Zero-Stutter 60 FPS Optimization)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 05.09.2026  
@@ -54,6 +54,25 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.6.2 (05.09.2026) - Engine Hardening & Zero-Stutter 60 FPS Optimization
+* **Freeze-Frame Beseitigung (Hitstop Elimination):**
+  * `GameEngine.js`: Die `hitstopTimer`-Pausierung blockierte bisher bei jedem Coin-Pickup, Slingshot-Start, Boost und Rekord für 35–100ms die Physik-Updates (`early return`), was vom Spieler als schwerer Ruckler wahrgenommen wurde. Hitstop für Routine-Ereignisse vollständig entfernt; einziger verbleibender Hitstop ist der Game-Over-Crash (auf maximal 16ms / 1 Frame gedämpft).
+* **Entlastung der Disk-I/O (Debounced Storage Saves):**
+  * `StorageService.js`: `addCores()` und `addHyperCrystals()` verwenden nun die debouncte `saveDeferred(1500ms)` Methode anstelle synchroner `localStorage.setItem()` Schreibzugriffe im laufenden Frame. Synchrone Sicherung erfolgt ausschließlich bei Game Over oder expliziten Shop-Transaktionen.
+* **GPU-Compositor Entlastung (Backdrop-Filter Beseitigung):**
+  * `css/style.css`: Teure `backdrop-filter: blur(14px)` und `blur(10px)` Effekte auf In-Game HUD Elementen (`.score-container`, `#btn-hud-pause`, `.hud-tutorial-tip`) über dem aktiven 60 FPS Canvas entfernt und durch blickdichte Glas-Farbwerte ersetzt. Verhindert GPU Texture-Readbacks und Frame-Drops.
+* **Canvas Batching & Render-Optimierung:**
+  * `WorldManager.js`: 200–500 Hintergrund-Sterne werden nun ebenenweise in zwei gebatchten `fillRect()` Durchläufen gezeichnet (`context.fill()`), anstelle hunderter einzelner `beginPath()`, `arc()` und `globalAlpha` State-Wechsel.
+  * Hyperspace Warp-Streifen auf einen einzigen gebatchten Pfad konsolidiert.
+  * `shadowBlur: 18` an der unteren Todesgrenze (`drawBottomDeathBoundary`) durch mehrstufige kontraststarke Linien ersetzt.
+* **Partikel- & Glow-Cache Härtung:**
+  * `ParticleSystem.js`: HSL-Farbquantisierung in `getGlow()` verhindert unbegrenztes Erzeugen neuer Off-Screen-Canvases; `shadowBlur` aus der 45-Partikel Schiffsexplosion entfernt; `streak` Renderpfad wiederhergestellt.
+* **Knoten- & Orb-Optimierungen:**
+  * `Node.js` & `EnergyOrb.js`: Closure-Getter durch statische `OrbitNode.getCachedGlow()` und `OrbitNode.getCachedCore()` Methoden ersetzt. 12 Zeituhr-Ticks auf fragilen Knoten in einen einzigen Pfad gebatcht. Trigonometrisches 8-Eck in `EnergyOrb` durch native `arc()` Geometrie ersetzt.
+* **Performance-Metriken & Verifikation:**
+  * Frame-Profilierung: Stabile 58.74 FPS (vorher Einbrüche auf 11–15 FPS), durchschnittliche JS-Framezeit unter 1.0 ms.
+  * Selektiver Playwright-Lauf (`node scripts/playwright_runner.js 08`): 0 Konsolenfehler, Screenshot `screenshots/08_gameplay_hud.png` (SHA: `fcb346e0aefeff4c`) fehlerfrei verifiziert.
 
 ### v4.6.1 (05.09.2026) - Zero-GC Engine Optimization & Canvas Performance
 * **Zero-Allocation Hot Loops (GC Elimination):** Replaced `.filter()` array operations in `GameEngine.js` during gameplay respawns with direct zero-allocation `for`-loops and reverse-array lookups. Confirmed `WorldManager.js` uses in-place array compaction.

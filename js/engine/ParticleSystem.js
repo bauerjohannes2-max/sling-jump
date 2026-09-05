@@ -245,9 +245,18 @@ class ParticleSystem {
 
   getGlow(color, type, isPerf) {
     if (!this.cachedGlows) this.initCache();
-    const key = `${color}_${type}_${isPerf}`;
+    // Quantize dynamic HSL colors to prevent unbounded offscreen canvas growth
+    let normalizedColor = color;
+    if (color && typeof color === 'string' && color.startsWith('hsl')) {
+      const match = color.match(/hsl\((\d+(\.\d+)?)/);
+      if (match) {
+        const h = Math.round(parseFloat(match[1]) / 15) * 15 % 360;
+        normalizedColor = `hsl(${h},100%,60%)`;
+      }
+    }
+    const key = `${normalizedColor}_${type}_${isPerf}`;
     if (!this.cachedGlows[key]) {
-      this.cachedGlows[key] = this.createGlow(color, type, isPerf);
+      this.cachedGlows[key] = this.createGlow(normalizedColor, type, isPerf);
     }
     return this.cachedGlows[key];
   }
@@ -267,41 +276,38 @@ class ParticleSystem {
       const alpha = Math.max(0, p.life);
 
       if (p.type === 'shard') {
-        // OPTIMIZATION: Removed save/restore. Manual transform reversal.
+        // High-performance crisp fractured shard (zero shadowBlur in loop)
         const px = p.x | 0;
         context.translate(px, sy);
         context.rotate(p.angle);
         context.globalAlpha = alpha;
         context.fillStyle = p.color;
-        if (!isPerf) {
-          context.shadowColor = p.color;
-          context.shadowBlur = 8;
-        }
         const halfSize = (p.size / 2) | 0;
         context.fillRect(-halfSize, -halfSize, p.size | 0, p.size | 0);
         context.rotate(-p.angle);
         context.translate(-px, -sy);
-        if (!isPerf) context.shadowBlur = 0; // Reset state manually
       } else if (p.type === 'shockwave') {
         const curRadius = p.size * (1.0 - alpha);
         context.globalAlpha = alpha * 0.85;
         context.strokeStyle = p.color;
         context.lineWidth = 2.5 * alpha;
-        if (!isPerf) {
-          context.shadowColor = p.color;
-          context.shadowBlur = 12;
-        }
         context.beginPath();
         context.arc(p.x | 0, sy, curRadius, 0, Math.PI * 2);
         context.stroke();
-        if (!isPerf) context.shadowBlur = 0;
+      } else if (p.type === 'streak') {
+        context.globalAlpha = alpha * 0.75;
+        context.strokeStyle = p.color;
+        context.lineWidth = 2;
+        context.beginPath();
+        const px = p.x | 0;
+        context.moveTo(px, sy);
+        context.lineTo(px, sy + (p.size | 0));
+        context.stroke();
       } else {
-        // OPTIMIZATION: Off-Screen Pre-Rendering (Avoid arc & shadowBlur per particle)
+        // High-Performance Off-Screen Glow Texture Stamp
         context.globalAlpha = p.type === 'thrust' ? alpha * 0.75 : alpha;
         const glowImg = this.getGlow(p.color, p.type, isPerf);
         const drawSize = p.type === 'spark' ? p.size * alpha : p.size;
-        const half = glowImg.width / 2;
-        // Draw pre-rendered glow image scaled
         context.drawImage(glowImg, (p.x - drawSize) | 0, (sy - drawSize) | 0, (drawSize * 2) | 0, (drawSize * 2) | 0);
       }
     }

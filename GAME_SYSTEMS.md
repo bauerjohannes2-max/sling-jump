@@ -104,7 +104,8 @@ Die prozedurale Generierung (`WorldManager.js`) skaliert die Schwierigkeit dynam
 
 ---
 
-## 5. PERFORMANCE-MODUS & HARDWARE-OPTIMIERUNG (VOLLSTÄNDIGE TECHNISCHE DOKUMENTATION)
+## 2b. ORBIT- & KATAPULT-DYNAMIK
+* **Gravitations-Bindung:**
   * Das Raumschiff bindet sich rein visuell über eine transparente Gravitationskraft an Himmelsknoten. Es gibt keine sichtbare Hakenleine mehr, was ein aufgeräumtes, elegantes Gesamtbild erzeugt.
 * **Präziser Katapultwinkel (90° Steilsprung):**
   * Ein perfekter senkrechter Katapultsprung (`PERFEKTER 90° SPRUNG!`) wird nur ausgelöst, wenn die Tangente der Flugbahn exakt nach oben zeigt (`tangentY >= 0.985`, Winkeltoleranz unter ±10°).
@@ -145,13 +146,32 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 
 ---
 
-## 5. SYSTEM-PERFORMANZ & INHÄRENTE HARDWARE-EFFIZIENZ
+## 5. SYSTEM-PERFORMANZ & INHÄRENTE HARDWARE-EFFIZIENZ (ZERO-STUTTER 60 FPS ARCHITEKTUR)
 
 * **Standardmäßig hochperformant ohne manuelle Schalter:**
-  * Der manuelle Schalter "Performance-Modus" wurde aus den Einstellungen entfernt, um dem Spieler unnötige Entscheidungen abzunehmen.
-  * Das Spiel läuft standardmäßig hochoptimiert:
-  * **Optimierter Ringpuffer:** Maximal 400 Partikel im Pool verhindern Memory-Spikes und Objektallokationen während des Flugs.
-  * **Hardware-effiziente GPU-Rasterung:** Reduzierter `shadowBlur`-Overhead auf Partikeln garantiert stabile 60/120 FPS auch auf mobilen Mittelklasse-Smartphones und spart Akku.
+  * Das Spiel läuft standardmäßig volloptimiert mit einer Zielbildrate von 60/120 FPS auf allen Desktop- und Mobilplattformen.
+* **1. Hitstop-Elimination (Beseitigung künstlicher Frame-Freezes):**
+  * Frühere Versionen nutzten `hitstopTimer > 0` im `GameEngine.update()`, um bei jedem Münzensammeln, Slingshot-Start, Boost und Höhenrekord die Physik für 35–100ms anzuhalten. Dies erzeugte wahrnehmbares Ruckeln und Eingabeverzögerungen.
+  * In v4.6.2 ist Hitstop für sämtliche Routine-Ereignisse restlos entfernt.
+  * Einziger verbleibender Hitstop ist der Game-Over-Crash, gedeckelt auf maximal 16ms (1 Frame) für einen knackigen Aufprall ohne wahrnehmbare Stockung.
+* **2. Debounced Storage I/O (`StorageService.js`):**
+  * `addCores()` und `addHyperCrystals()` nutzen `this.saveDeferred(1500)` statt synchroner `localStorage.setItem()` Schreibzugriffe im laufenden Frame.
+  * Synchrones Speichern (`this.save()`) erfolgt ausschließlich bei echten Zustandsgrenzen: Game Over, Wiederbelebung, Quest-Belohnungsanspruch oder Skin-Kauf im Hangar.
+* **3. GPU-Compositor Entlastung (`css/style.css`):**
+  * Beseitigung aller `backdrop-filter: blur(14px)` und `blur(10px)` Anweisungen von permanent über dem 60 FPS Canvas eingeblendeten HUD-Elementen (`.score-container`, `#btn-hud-pause`, `.hud-tutorial-tip`).
+  * Ersatz durch opake Glasfarben (`rgba(15, 23, 42, 0.88)`), wodurch teure GPU Texture-Readbacks und Gaussian-Blur Passes pro Frame entfallen.
+* **4. Gebatchte Canvas-Renderläufe (`WorldManager.js`):**
+  * **Dual-Pass Starfield:** 200–500 Sterne werden ebenenweise in zwei Durchläufen per gebatchtem `fillRect()` gezeichnet (`context.fill()`), statt hunderter einzelner `beginPath()`, `arc()` und `globalAlpha` State-Wechsel.
+  * **Gebatchte Warp-Streifen:** Alle Hyperspace-Partikel werden in einem einzigen zusammengesetzten Pfad gezeichnet.
+  * **Entfernung von `shadowBlur: 18`:** An der unteren Todesgrenze (`drawBottomDeathBoundary`) durch mehrstufige kontraststarke Linienzüge ersetzt.
+* **5. Quantisierter Partikel- & Glow-Cache (`ParticleSystem.js`, `Node.js`, `EnergyOrb.js`):**
+  * `ParticleSystem.getGlow()` quantisiert HSL-Farbstrings, um unbegrenzte Off-Screen Canvas-Allokationen zu verhindern.
+  * `OrbitNode.getCachedGlow()` und `OrbitNode.getCachedCore()` nutzen statische Lookup-Caches.
+  * Die 12 Zeituhr-Ticks auf fragilen Knoten werden in einen einzigen Pfadstroke gebatcht.
+  * `EnergyOrb` ersetzt trigonometrische 8-Eck Berechnungen durch native `context.arc()` Aufrufe.
+* **6. Zero-Allocation Hot Loops & Ringpuffer:**
+  * Vorallozierter 400-Partikel Ringpuffer verhindert GC-Spikes während des Flugs.
+  * Reverse-Array Iteration und In-Place Array Compaction (`WorldManager.js`, `GameEngine.js`) statt rechenintensiver `.filter()` oder Garbage Collector Belastungen.
 
 ---
 

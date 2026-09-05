@@ -264,8 +264,9 @@ class GameEngine {
     this.screenShake = Math.max(this.screenShake, amount * intensity);
   }
 
-  triggerHitstop(ms = CONSTANTS.PHYSICS.HITSTOP_DURATION_MS) {
-    this.hitstopTimer = ms;
+  triggerHitstop(ms = 16) {
+    // Strictly cap hitstop to 1 single frame (~16ms) to prevent perceived simulation lag
+    this.hitstopTimer = Math.min(ms, 16);
   }
 
   setSlowMo(active) {
@@ -325,7 +326,6 @@ class GameEngine {
         (isBoost, forced, isPerfectLaunch, tangentY, newCombo) => {
           if (isBoost) {
             this.triggerScreenShake(4);
-            this.triggerHitstop(20);
             this.missions.onSuperBoostUsed();
           } else if (isPerfectLaunch) {
             // Consecutive perfect 90-degree steep launch: chain combo up to x10!
@@ -358,7 +358,6 @@ class GameEngine {
             if (this.slingshotCombo >= 4) {
               this.triggerScreenShake(Math.min(4, this.slingshotCombo - 2));
             }
-            this.triggerHitstop(Math.min(18, 6 + this.slingshotCombo));
             this.storage.updateBestCombo(this.slingshotCombo);
           } else {
             // Normal release resets combo - smooth flight with zero shake
@@ -384,7 +383,7 @@ class GameEngine {
 
   triggerGameOver() {
     this.triggerScreenShake(8);
-    this.triggerHitstop(60);
+    this.triggerHitstop(16);
     this.audio.playSfx('sfx_crash');
 
     this.particles.spawnShards(this.player.x, this.player.y, 35, '#ef4444');
@@ -623,7 +622,6 @@ class GameEngine {
           if (dist < lethalDist) {
             node.isBroken = true;
             this.triggerScreenShake(12);
-            this.triggerHitstop(40);
             this.particles.spawnShards(node.x, node.y, 45, '#ef4444');
             this.particles.spawnSparks(node.x, node.y, 35, '#f97316', 2.5);
             if (this.audio) this.audio.playSfx('sfx_node_shatter');
@@ -662,7 +660,6 @@ class GameEngine {
                 try { navigator.vibrate(16); } catch (e) {}
               }
               this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
-              this.triggerHitstop(24);
               this.triggerScreenShake(3);
 
               this.particles.spawnFloatingText(orb.x, orb.y + 25, '+1 KRISTALL!', '#d946ef', 28, true);
@@ -674,7 +671,6 @@ class GameEngine {
               this.audio.playCorePickup();
               this.missions.onCoreCollected();
 
-              this.triggerHitstop(10);
               this.particles.spawnFloatingText(orb.x, orb.y + 15, `+${CONSTANTS.SCORE.PARTICLE_VALUE}`, '#fbbf24');
               this.particles.spawnSparks(orb.x, orb.y, 14, '#fbbf24', 1.2);
             }
@@ -712,7 +708,6 @@ class GameEngine {
 
           if (!this.isTutorial && this.storage.data.highScore > 0 && this.maxAltitudeMeters > this.storage.data.highScore && !this.recordBrokenThisRun) {
             this.recordBrokenThisRun = true;
-            this.triggerHitstop(40);
             this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
             this.ui.showRecordFlash();
           }
@@ -730,7 +725,6 @@ class GameEngine {
             this.missions.onNearMiss();
             this.particles.spawnFloatingText(this.player.x, this.player.y + 25, 'NEAR MISS!', '#ef4444');
             this.audio.playSfx('sfx_near_miss');
-            this.triggerHitstop(25);
           }
         } else {
           this.ui.setDangerVisual(0);
@@ -781,7 +775,6 @@ class GameEngine {
           this.player.vy = Math.max(540, Math.abs(this.player.vy) + 220);
           this.player.y = this.cameraY + 65;
           this.triggerScreenShake(5);
-          this.triggerHitstop(12);
           this.particles.spawnShockwave(this.player.x, this.player.y, '#d946ef', 60);
           this.particles.spawnSparks(this.player.x, this.player.y, 25, '#d946ef', 2.0);
           this.particles.spawnFloatingText(this.player.x, this.player.y + 35, 'QUANTEN-RÜCKSTOSS!', '#d946ef', 22, true);

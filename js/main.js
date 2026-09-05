@@ -415,7 +415,7 @@
     document.body.focus();
 
     // Dynamically inject single source of truth version into all DOM elements
-    const currentVerTag = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? `v${CONSTANTS.VERSION}` : 'v4.6.1';
+    const currentVerTag = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? `v${CONSTANTS.VERSION}` : 'v4.6.2';
     document.querySelectorAll('.app-version-tag').forEach(el => { el.textContent = currentVerTag; });
     document.querySelectorAll('.settings-version-tag').forEach(el => { el.textContent = `SLING JUMP ${currentVerTag}`; });
   }
