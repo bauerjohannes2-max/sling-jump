@@ -10,16 +10,18 @@ These guidelines are automatically enforced for all agent tasks and pairs.
   * High-precision Canvas geometry
   * Clean, modern typography and typographic accents (e.g. geometric badges, uppercase tracked labels).
 
-## 2. Mandatory Playwright Automated Visual Testing & Screenshot Verification
+## 2. Selective & Fresh Playwright Automated Visual Testing (Token-Optimiert)
 For any web application, UI, Canvas, or frontend project:
-* **Always execute the Playwright test suite (`npm test` or `node scripts/playwright_runner.js`)** as the mandatory final verification step.
+* **Selective Test Execution (Token-Schonung):**
+  * Execute Playwright selectively: `node scripts/playwright_runner.js <screen>` (e.g. `node scripts/playwright_runner.js 07`).
+  * **Only capture the specific screenshots affected by the current change.** Under no circumstances dump all 18 screenshots during routine tweaks.
+  * The full 18-screen suite (`node scripts/playwright_runner.js --all`) is reserved strictly for major milestone releases or explicit user requests.
 * **Strict Freshness & Timestamp Guarantee:**
-  * Under no circumstances use old or cached screenshots. Every screenshot must be freshly generated during the current test run.
-  * Neutralize Windows NTFS File System Tunneling: Guarantee that `CreationTime` and `LastWriteTime` are explicitly stamped to the current execution second.
+  * Under no circumstances use old or cached screenshots for the tested screen. Every targeted screenshot must be freshly generated during the current test run.
+  * Neutralize Windows NTFS File System Tunneling: Guarantee that `CreationTime` and `LastWriteTime` are explicitly stamped to the current execution second via `scripts/touch_timestamps.ps1`.
   * Every test run must generate `screenshots/VERIFICATION_REPORT.json` and `screenshots/LATEST_RUN.md` with execution timestamps and SHA-256 hashes.
-* Capture full-resolution screenshots of all relevant screens, dialogs, and states into the `screenshots/` directory.
 * Assert 0 console errors and 0 uncaught exceptions across all test runs.
-* Visually inspect each screenshot using the file viewer to detect and fix any layout overlaps, contrast defects, or clipping before concluding the turn.
+* Visually inspect each targeted screenshot using the file viewer to detect and fix any layout overlaps, contrast defects, or clipping before concluding the turn.
 
 ## 3. Mandatory Continuous Historical Documentation (`GAME_STATUS.md` & `GAME_SYSTEMS.md`)
 * Always maintain both dedicated documentation markdown files in the workspace root:
@@ -30,14 +32,21 @@ For any web application, UI, Canvas, or frontend project:
 * Ensure zero console errors, graceful asset fallbacks, and modular decoupled architectures.
 * Keep responses concise and focused on high-level decisions while maintaining detailed records in the markdown files.
 
-## 5. Mandatory Structured Planning & Step-by-Step Execution (Absolute Regel)
-* **Whenever the user provides any instructions, tasks, or feature requests:**
-  * Always create a comprehensive, structured plan with a detailed step-by-step to-do checklist in `implementation_plan.md` before or during execution.
-  * Execute each item systematically and methodically.
-  * Verify each deliverable with fresh visual tests and document the complete lifecycle in `GAME_STATUS.md`.
+## 5. Adaptive Planning & Step-by-Step Execution (Token-Optimiert)
+* **Major Architectural Overhauls & New Complex Systems:**
+  * Formulate a structured plan with a detailed step-by-step to-do checklist in `implementation_plan.md` before execution.
+* **Routine Tweaks, UI Fixes, Balance Adjustments & Minor Bugfixes:**
+  * **Skip `implementation_plan.md` completely** to save tokens and context window capacity. Implement atomically and verify directly.
 
 ## 6. Strict Commercial Minimalism & Industry Best-Practice UI (Absolute Regel: Weniger ist mehr / Keep it Simple)
 * **Always follow the proven UX/UI standards of mobile bestsellers and top-grossing arcade games** (e.g. Subway Surfers, Crossy Road, Alto's Adventure, Brawl Stars):
   * **Keep it simple, punchy, and minimalistic:** Eliminate visual clutter, excessive subtitles, micro-metadata, redundant counters, and wall-of-text explanations.
   * **No bureaucratic terminology:** Never use overcomplicated or bureaucratic naming (e.g. use clean 'PROFIL' instead of 'Piloten-Lizenz').
   * **Generous whitespace & clear visual hierarchy:** Bold tracked typography, clean cards, high contrast, and direct action buttons.
+
+## 7. Automated Token & Context Window Optimization (Absolute Regel: Maximale Token-Effizienz)
+* **Surgical File Slices:** Never read entire 500+ line files unconditionally. Always restrict `view_file` to relevant line ranges (`StartLine`, `EndLine`).
+* **Atomic Edits Only:** Use `replace_file_content` with minimal contiguous diff blocks. Never rewrite entire files for small changes.
+* **Research Isolation:** Delegate extensive log searches, file scans, or discovery to the `research` subagent to keep the main conversation transcript clean and token-lean.
+* **Caveman Protocol by Default:** Strict telegraphic brevity. Zero greetings, zero conversational pleasantries, zero filler words. Lead with facts, state changes, diffs, and verification hashes.
+* **Session Lifecycle:** When a major milestone is pushed to git, proactively advise the user to start a fresh chat session so subsequent tasks run with maximum token efficiency and zero historical bloat.
