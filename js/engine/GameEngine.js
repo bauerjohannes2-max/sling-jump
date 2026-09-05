@@ -58,6 +58,20 @@ class GameEngine {
     this.screenShake = 0;
     this.lastFrameTime = performance.now();
 
+    // High-Precision Real-Time Telemetry & Live FPS Ring Buffer (Zero GC)
+    this.fpsCounter = {
+      fps: 60.0,
+      frameTimeMs: 16.7,
+      minFps: 60,
+      lastTelemetryTime: performance.now(),
+      framesInInterval: 0,
+      intervalDtSum: 0,
+      intervalMaxDt: 0,
+      recentDeltas: new Float32Array(30),
+      deltaHead: 0,
+      totalSamples: 0
+    };
+
     // Wire Input Callbacks
     this.initInputWiring();
     this.initResizeListener();
@@ -566,8 +580,54 @@ class GameEngine {
      MASTER LOOP & UPDATE CYCLE
      ========================================================================= */
   update(now) {
-    const rawDt = Math.min((now - this.lastFrameTime) / 1000, 0.033);
+    const deltaMs = now - this.lastFrameTime;
+    const rawDt = Math.min(deltaMs / 1000, 0.033);
     this.lastFrameTime = now;
+
+    // High-Precision Real-Time Live FPS & Telemetry (Zero GC)
+    if (deltaMs > 0 && deltaMs < 500) {
+      this.fpsCounter.recentDeltas[this.fpsCounter.deltaHead] = deltaMs;
+      this.fpsCounter.deltaHead = (this.fpsCounter.deltaHead + 1) % 30;
+      this.fpsCounter.totalSamples++;
+
+      this.fpsCounter.framesInInterval++;
+      this.fpsCounter.intervalDtSum += deltaMs;
+      if (deltaMs > this.fpsCounter.intervalMaxDt) {
+        this.fpsCounter.intervalMaxDt = deltaMs;
+      }
+
+      const elapsed = now - this.fpsCounter.lastTelemetryTime;
+      // Refresh telemetry every 160ms: ideal human perception rate & zero DOM overhead
+      if (elapsed >= 160 && this.fpsCounter.totalSamples >= 3) {
+        // Sample latest 4 frame deltas from ring buffer for instantaneous responsiveness
+        const sampleCount = Math.min(this.fpsCounter.totalSamples, 4);
+        let sum = 0;
+        let maxDt = 0;
+        for (let k = 1; k <= sampleCount; k++) {
+          const d = this.fpsCounter.recentDeltas[(this.fpsCounter.deltaHead - k + 30) % 30];
+          sum += d;
+          if (d > maxDt) maxDt = d;
+        }
+        const avgDt = sum / sampleCount;
+        const liveFps = avgDt > 0 ? 1000 / avgDt : 60;
+        const worstDt = maxDt > 0 ? maxDt : avgDt;
+        const minFps = Math.max(1, Math.round(1000 / worstDt));
+
+        // Precision metrics: live clamp 1..360 FPS (supports 60Hz, 90Hz, 120Hz, 144Hz, 240Hz)
+        this.fpsCounter.fps = Math.max(1, Math.min(360, liveFps));
+        this.fpsCounter.frameTimeMs = avgDt;
+        this.fpsCounter.minFps = minFps;
+
+        this.fpsCounter.lastTelemetryTime = now;
+        this.fpsCounter.framesInInterval = 0;
+        this.fpsCounter.intervalDtSum = 0;
+        this.fpsCounter.intervalMaxDt = 0;
+
+        if (this.ui) {
+          this.ui.updateFpsDisplay(this.fpsCounter.fps, this.fpsCounter.frameTimeMs, this.fpsCounter.minFps);
+        }
+      }
+    }
 
     // Poll Gamepad
     this.input.update();
@@ -676,7 +736,7 @@ class GameEngine {
             }
 
             this.ui.updateHUD(this.maxAltitudeMeters, this.storage.data.highScore, this.storage.data.cores);
-            this.ui.updateCurrency();
+            this.ui.updateCurrency(false);
           }
         }
       }

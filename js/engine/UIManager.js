@@ -61,6 +61,7 @@ class UIManager {
       finalCrystals: document.getElementById('final-crystals'),
       finalBest: document.getElementById('final-best'),
       newRecordBadge: document.getElementById('new-record-badge'),
+      flightEndedBadge: document.getElementById('flight-ended-badge'),
       reviveBox: document.getElementById('revive-box'),
       btnGameOverRevive: document.getElementById('btn-gameover-revive'),
       reviveBtnText: document.getElementById('revive-btn-text'),
@@ -114,6 +115,14 @@ class UIManager {
 
       // Settings Inputs
       btnAudioToggle: document.getElementById('btn-audio-toggle'),
+      btnFpsToggle: document.getElementById('btn-fps-toggle'),
+      btnPerfToggle: document.getElementById('btn-perf-toggle'),
+      hudFpsBadge: document.getElementById('hud-fps-badge'),
+      hudFpsVal: document.getElementById('hud-fps-val'),
+      hudFpsDt: document.getElementById('hud-fps-dt'),
+      menuFpsBadge: document.getElementById('menu-fps-badge'),
+      menuFpsVal: document.getElementById('menu-fps-val'),
+      menuFpsDt: document.getElementById('menu-fps-dt'),
       sliderMaster: document.getElementById('slider-master'),
       sliderMusic: document.getElementById('slider-music'),
       sliderSfx: document.getElementById('slider-sfx'),
@@ -780,9 +789,18 @@ class UIManager {
      HUD UPDATES
      ========================================================================= */
   updateHUD(altitude, best, cores, multiplier = 1.0) {
-    if (this.dom.altitudeVal) this.dom.altitudeVal.textContent = altitude.toString();
-    if (this.dom.bestVal) this.dom.bestVal.textContent = `${best}m`;
-    if (this.dom.orbsVal) this.dom.orbsVal.textContent = cores.toString();
+    if (this._cachedAlt !== altitude) {
+      this._cachedAlt = altitude;
+      if (this.dom.altitudeVal) this.dom.altitudeVal.textContent = altitude.toString();
+    }
+    if (this._cachedBest !== best) {
+      this._cachedBest = best;
+      if (this.dom.bestVal) this.dom.bestVal.textContent = `${best}m`;
+    }
+    if (this._cachedCores !== cores) {
+      this._cachedCores = cores;
+      if (this.dom.orbsVal) this.dom.orbsVal.textContent = cores.toString();
+    }
   }
 
   showComboBadge(text, color = '#fbbf24') {
@@ -809,7 +827,11 @@ class UIManager {
 
   setDangerVisual(ratio) {
     if (this.dom.dangerOverlay) {
-      this.dom.dangerOverlay.style.opacity = Math.max(0, Math.min(0.9, ratio)).toString();
+      const clamped = Math.round(Math.max(0, Math.min(0.9, ratio)) * 50) / 50;
+      if (this._cachedDanger !== clamped) {
+        this._cachedDanger = clamped;
+        this.dom.dangerOverlay.style.opacity = clamped.toString();
+      }
     }
   }
 
@@ -905,6 +927,9 @@ class UIManager {
 
     if (this.dom.newRecordBadge) {
       this.dom.newRecordBadge.style.display = isNewRecord ? 'inline-flex' : 'none';
+    }
+    if (this.dom.flightEndedBadge) {
+      this.dom.flightEndedBadge.style.display = isNewRecord ? 'none' : 'inline-flex';
     }
 
     // Configure Interactive Revive Section (Second Chance)
@@ -1179,10 +1204,19 @@ class UIManager {
     this.renderStats();
   }
 
-  updateCurrency() {
+  updateCurrency(fullUpdate = true) {
     const cores = (this.storage && this.storage.data && this.storage.data.cores != null)
       ? this.storage.data.cores.toString()
       : '0';
+
+    if (this._cachedHudCores !== cores) {
+      this._cachedHudCores = cores;
+      if (this.dom.orbsVal) this.dom.orbsVal.textContent = cores;
+      if (this.dom.hudCoresVal) this.dom.hudCoresVal.textContent = cores;
+    }
+
+    if (!fullUpdate) return;
+
     const crystals = (this.storage && this.storage.data && this.storage.data.hyperCrystals != null)
       ? this.storage.data.hyperCrystals.toString()
       : '0';
@@ -1191,7 +1225,6 @@ class UIManager {
     if (this.dom.menuCrystalsVal) this.dom.menuCrystalsVal.textContent = crystals;
     if (this.dom.shopCurrencyVal) this.dom.shopCurrencyVal.textContent = cores;
     if (this.dom.shopCrystalsVal) this.dom.shopCrystalsVal.textContent = crystals;
-    if (this.dom.orbsVal) this.dom.orbsVal.textContent = cores;
     this.updateUserProfileNav();
     this.updateUnclaimedBadges();
   }
@@ -1463,6 +1496,31 @@ class UIManager {
         if (this.audio) this.audio.updateVolumes();
       });
     }
+
+    if (this.dom.btnFpsToggle) {
+      this.updateFpsToggleBtn();
+      this.dom.btnFpsToggle.addEventListener('click', () => {
+        this.toggleFps();
+      });
+    }
+
+    if (this.dom.btnPerfToggle) {
+      this.updatePerfToggleBtn();
+      this.dom.btnPerfToggle.addEventListener('click', () => {
+        this.togglePerfMode();
+      });
+    }
+
+    // URL parameter auto-enable for profiling (?fps=1 or ?fps)
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.search) {
+        const p = new URLSearchParams(window.location.search);
+        if (p.has('fps')) {
+          this.storage.data.settings.showFps = true;
+          this.updateFpsToggleBtn();
+        }
+      }
+    } catch (e) {}
   }
 
   toggleAudio() {
@@ -1499,6 +1557,137 @@ class UIManager {
       this.dom.btnAudioToggle.style.color = '#94a3b8';
       this.dom.btnAudioToggle.style.background = 'rgba(30, 41, 59, 0.5)';
       this.dom.btnAudioToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+    }
+  }
+
+  toggleFps() {
+    const current = Boolean(this.storage.data.settings.showFps);
+    const next = !current;
+    this.storage.data.settings.showFps = next;
+    this.storage.saveDeferred();
+    this.updateFpsToggleBtn();
+    if (this.dom.hudFpsBadge) {
+      this.dom.hudFpsBadge.style.display = next ? 'flex' : 'none';
+    }
+    if (this.dom.menuFpsBadge) {
+      this.dom.menuFpsBadge.style.display = next ? 'flex' : 'none';
+    }
+  }
+
+  updateFpsToggleBtn() {
+    if (!this.dom.btnFpsToggle) return;
+    const isEnabled = Boolean(this.storage.data.settings.showFps);
+    this.dom.btnFpsToggle.textContent = isEnabled ? 'AN' : 'AUS';
+    if (isEnabled) {
+      this.dom.btnFpsToggle.style.color = '#10b981';
+      this.dom.btnFpsToggle.style.background = 'rgba(16, 185, 129, 0.15)';
+      this.dom.btnFpsToggle.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+    } else {
+      this.dom.btnFpsToggle.style.color = '#94a3b8';
+      this.dom.btnFpsToggle.style.background = 'rgba(30, 41, 59, 0.5)';
+      this.dom.btnFpsToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+    }
+  }
+
+  togglePerfMode() {
+    const current = Boolean(this.storage.data.settings.performanceMode);
+    const next = !current;
+    this.storage.data.settings.performanceMode = next;
+    this.storage.saveDeferred();
+    this.updatePerfToggleBtn();
+  }
+
+  updatePerfToggleBtn() {
+    if (!this.dom.btnPerfToggle) return;
+    const isEnabled = Boolean(this.storage.data.settings.performanceMode);
+    this.dom.btnPerfToggle.textContent = isEnabled ? 'AN' : 'AUS';
+    if (isEnabled) {
+      this.dom.btnPerfToggle.style.color = '#10b981';
+      this.dom.btnPerfToggle.style.background = 'rgba(16, 185, 129, 0.15)';
+      this.dom.btnPerfToggle.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+    } else {
+      this.dom.btnPerfToggle.style.color = '#94a3b8';
+      this.dom.btnPerfToggle.style.background = 'rgba(30, 41, 59, 0.5)';
+      this.dom.btnPerfToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+    }
+  }
+
+  updateFpsDisplay(fps, dtMs, minFps) {
+    const show = Boolean(this.storage && this.storage.data && this.storage.data.settings && this.storage.data.settings.showFps);
+
+    // Update HUD Badge visibility
+    if (this.dom.hudFpsBadge) {
+      if (!show) {
+        if (this.dom.hudFpsBadge.style.display !== 'none') this.dom.hudFpsBadge.style.display = 'none';
+      } else {
+        if (this.dom.hudFpsBadge.style.display !== 'flex') this.dom.hudFpsBadge.style.display = 'flex';
+      }
+    }
+
+    // Update Menu Badge visibility
+    if (this.dom.menuFpsBadge) {
+      if (!show) {
+        if (this.dom.menuFpsBadge.style.display !== 'none') this.dom.menuFpsBadge.style.display = 'none';
+      } else {
+        if (this.dom.menuFpsBadge.style.display !== 'flex') this.dom.menuFpsBadge.style.display = 'flex';
+      }
+    }
+
+    if (!show) return;
+
+    // High-Precision Real-Time Format: 1 decimal place reveals authentic sub-frame jitter
+    const fpsStr = `${fps.toFixed(1)} FPS`;
+    const dtStr = `${dtMs.toFixed(1)}ms`;
+
+    // Tiered color & styling based on performance:
+    // >= 90: Cyan (#38bdf8) ProMotion / High Refresh
+    // >= 55: Emerald (#10b981) Solid target
+    // >= 42: Amber (#fbbf24) Hitch warning
+    // < 42: Crimson (#ef4444) Stutter danger
+    let badgeClass = 'stat-badge fps';
+    let valColor = '#10b981';
+
+    if (fps >= 90) {
+      badgeClass = 'stat-badge fps high-refresh';
+      valColor = '#38bdf8';
+    } else if (fps >= 55) {
+      badgeClass = 'stat-badge fps';
+      valColor = '#10b981';
+    } else if (fps >= 42) {
+      badgeClass = 'stat-badge fps warning';
+      valColor = '#fbbf24';
+    } else {
+      badgeClass = 'stat-badge fps danger';
+      valColor = '#ef4444';
+    }
+
+    // Debounced DOM updates with property caching to minimize browser layout churn
+    if (this.dom.hudFpsVal && this._lastHudFpsText !== fpsStr) {
+      this.dom.hudFpsVal.textContent = fpsStr;
+      this.dom.hudFpsVal.style.color = valColor;
+      this._lastHudFpsText = fpsStr;
+    }
+    if (this.dom.hudFpsDt && this._lastHudDtText !== dtStr) {
+      this.dom.hudFpsDt.textContent = dtStr;
+      this._lastHudDtText = dtStr;
+    }
+    if (this.dom.hudFpsBadge && this._lastHudBadgeClass !== badgeClass) {
+      this.dom.hudFpsBadge.className = badgeClass;
+      this._lastHudBadgeClass = badgeClass;
+    }
+
+    if (this.dom.menuFpsVal && this._lastMenuFpsText !== fpsStr) {
+      this.dom.menuFpsVal.textContent = fpsStr;
+      this.dom.menuFpsVal.style.color = valColor;
+      this._lastMenuFpsText = fpsStr;
+    }
+    if (this.dom.menuFpsDt && this._lastMenuDtText !== dtStr) {
+      this.dom.menuFpsDt.textContent = dtStr;
+      this._lastMenuDtText = dtStr;
+    }
+    if (this.dom.menuFpsBadge && this._lastMenuBadgeClass !== badgeClass) {
+      this.dom.menuFpsBadge.className = `stat-badge fps menu-fps-pill ${badgeClass.includes('high-refresh') ? 'high-refresh' : badgeClass.includes('warning') ? 'warning' : badgeClass.includes('danger') ? 'danger' : ''}`.trim();
+      this._lastMenuBadgeClass = badgeClass;
     }
   }
 }

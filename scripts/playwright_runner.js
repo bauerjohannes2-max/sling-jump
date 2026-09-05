@@ -275,8 +275,8 @@ async function runPlaywrightSuite() {
     await sleep(300);
   }
 
-  // Gameplay Flow: 08, 09, 10, 10b
-  const needsGameplay = shouldCapture('08_gameplay_hud.png') || shouldCapture('09_pause_modal.png') || shouldCapture('10_game_over.png') || shouldCapture('10b_revived_gameplay.png');
+  // Gameplay Flow: 08, 08b, 09, 10, 10b
+  const needsGameplay = shouldCapture('08_gameplay_hud.png') || shouldCapture('08b_gameplay_fps_hud.png') || shouldCapture('09_pause_modal.png') || shouldCapture('10_game_over.png') || shouldCapture('10b_revived_gameplay.png');
   if (needsGameplay) {
     console.log('[Playwright] Starting gameplay session...');
     await page.evaluate(() => {
@@ -286,7 +286,7 @@ async function runPlaywrightSuite() {
     });
     await sleep(500);
 
-    // 8. Gameplay HUD
+    // 8. Gameplay HUD & 8b. FPS Telemetry
     if (shouldCapture('08_gameplay_hud.png')) {
       console.log('[Playwright] Triggering Minimalist Combo x3 visual & Hazard Mine...');
       await page.evaluate(() => {
@@ -301,6 +301,14 @@ async function runPlaywrightSuite() {
       await sleep(200);
       console.log('[Playwright] Capturing 08_gameplay_hud.png');
       await captureScreenshot(page, '08_gameplay_hud.png', 'Gameplay HUD & Combo');
+    }
+
+    if (shouldCapture('08b_gameplay_fps_hud.png')) {
+      console.log('[Playwright] Capturing 08b_gameplay_fps_hud.png (Live Real-Time Telemetry HUD)');
+      await captureScreenshot(page, '08b_gameplay_fps_hud.png', 'Live FPS Telemetry HUD');
+    }
+
+    if (shouldCapture('08_gameplay_hud.png') || shouldCapture('08b_gameplay_fps_hud.png')) {
 
       // Boost immunity check
       const boostImmunityResult = await page.evaluate(() => {

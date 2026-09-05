@@ -50,3 +50,17 @@ For any web application, UI, Canvas, or frontend project:
 * **Research Isolation:** Delegate extensive log searches, file scans, or discovery to the `research` subagent to keep the main conversation transcript clean and token-lean.
 * **Caveman Protocol by Default:** Strict telegraphic brevity. Zero greetings, zero conversational pleasantries, zero filler words. Lead with facts, state changes, diffs, and verification hashes.
 * **Session Lifecycle:** When a major milestone is pushed to git, proactively advise the user to start a fresh chat session so subsequent tasks run with maximum token efficiency and zero historical bloat.
+
+## 8. Zero-Lag & 60+ FPS Engine Invariants (Absolute Performance-Regeln)
+* **Debounced Persistence Only:** Never execute synchronous `localStorage.setItem()` inside the game loop or event callbacks (coin pickups, combos, boosts). Always debounce with >= 1500ms delay (`saveDeferred`). Synchronous writes are strictly restricted to Game Over, revive, or explicit shop transactions.
+* **Forbidden Canvas Context Flag:** Never pass `{ desynchronized: true }` to 2D canvas contexts when HTML/CSS DOM overlays (HUD, modals) are layered above it.
+* **Zero Runtime CPU Gaussian Blur:** Never set `context.shadowBlur` in high-frequency render loops (particles, floating texts, shields). Use pre-rendered offscreen canvases, multi-pass vector strokes, or CSS drop-shadows.
+* **Instant Slingshot/Input Transition:** Never use sluggish recovery lerps (e.g. 300ms) on action release when returning from slow-mo; snap `timeScale = 1.0` immediately for crisp arcade responsiveness.
+* **Decoupled In-Flight DOM Updates:** In-flight gameplay events (e.g. coin collection) must only touch the active HUD (`fullUpdate = false`) and must cache previous values (`_cachedAlt`, `_cachedCores`) to avoid touching `textContent` when values have not changed.
+
+## 9. Automated Real-Time Gameplay FPS Benchmark (`npm run test:fps`)
+* Before submitting game performance reviews, physics tweaks, or releases, run the automated gameplay benchmark: `npm run test:fps` (`node scripts/benchmark_fps.js`).
+* **Harness Invariants:**
+  1. Always include a 1.0s–1.5s warmup period before recording so state transitions and audio context startup do not skew results.
+  2. Never take `page.screenshot()` while the telemetry observer is active (halts compositor for ~200ms); always stop recording before taking screenshots.
+  3. Validate both Average FPS (>= 55.0 FPS) and JavaScript execution budget (<= 5.0ms avg, <= 14.0ms max out of 16.6ms) with 0 hitches > 50ms and 0 console errors.

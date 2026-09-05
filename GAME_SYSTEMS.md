@@ -2,7 +2,7 @@
 
 Dokumentationsstand: Version 4.7.0  
 Aktualisiert am: 05. September 2026  
-Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
+Status: Produktion & QA-verifiziert (100% Playwright Freshness, 60+ FPS Benchmark & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
 Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.com/bauerjohannes2-max/sling-jump)
 
@@ -359,7 +359,22 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * **Frühe Pendelknoten:** Bereits ab 250m Höhe (Zone 2) treten bewegliche Pendelknoten (15%) auf.
 * **Frühe Zeituhr-Knoten:** Bereits ab 750m Höhe (Zone 3) erscheinen Countdown-Knoten (14%).
 * **Frühe Weltraum-Minen:** Tödliche Minen spawnen bereits ab 5.000m (vorher erst ab 10.000m).
-* **Ultra-seltene Kristalle:** Hyper-Kristalle spawnen erst ab 8.000m Höhe mit stark reduzierter Chance (0.25% statt 1.0%) und 6.000px Mindestabstand.
+### 10.12 Death Screen & Main Menu Vector Polish (v4.7.0)
+* **Death Screen (Game Over Modal):**
+  * **Radiante Hero-Score Typografie:** `.hero-altitude-val` nutzt ultra-hohes Kontrast-Weiß (`#ffffff !important`) mit radialem Neonglow (`text-shadow: 0 0 24px rgba(56, 189, 248, 0.4)` bzw. Gold-Glow bei Bestleistungen). Der Chromium/Blink-Clipping-Bug (schwarze Ziffern durch `-webkit-background-clip: text` mit `text-shadow`) ist restlos beseitigt.
+  * **Status-Header-Hierarchie:** Dynamischer Status-Header mit `.flight-ended-indicator` (`FLUG BEENDET`) für Standard-Flüge und leuchtendem `.new-record-indicator` (`★ NEUER REKORD`) bei neuen Bestleistungen.
+  * **High-Impact Action Buttons:** Replay-Button (`.btn-replay`) mit lebendigem Cyan-Verlauf und Drop-Shadow. Wiederbeleben-CTA mit dezentem Kristall-Magenta-Gradienten und Status-Subline.
+  * **Modernisierte Belohnungs-Chips:** Münzen und Hyper-Kristalle in abgerundeten Glassmorphism-Pills mit themenspezifischen Vektor-Icons.
+* **Main Menu Hintergrund (Atmosphärischer Raum & Parallax-Gitter):**
+  * **Zero-GC Tiefen-Gradient:** Gecachter vertikaler Farbverlauf vom kosmischen Indigo-Schimmer zum tiefen Void-Schwarz.
+  * **Parallax Cyber-Grid:** Zartes architektonisches Vektorgitter (`theme.gridColor`), das synchron mit der Kamera scrollt.
+  * **Atmosphärische Nebulae:** Zwei großflächige, sanft atmende Radial-Nebel-Auren (Cyan & Magenta) für tiefe Dreidimensionalität.
+  * **Radiante Vektor-Sterne:** Dezent strahlende 4-Punkt-Glanzlichter auf helleren Sternen.
+  * **CSS-Radial-Vignette:** `#menu-overlay` fokussiert das Auge cinematisch auf Spieltitel und Aktions-Buttons.
+* **Main Menu Buttons (Tutorial, Skins, Statistiken):**
+  * **Fehlerfreie Farb-Variablen:** `:root`-Definitionen von `--action-start` und Semantik-Farben von zirkulären Referenzen befreit.
+  * **Illuminierte Icon-Bubbles:** Jeder Button besitzt eine zentrierte runde Vektor-Icon-Bubble mit akzentuierter Farbgebung (Tutorial: Sky-Cyan `#38bdf8`, Skins: Kristall-Magenta `#d946ef`, Statistiken: Gold-Bernstein `#fbbf24`).
+  * **Mobile-Responsive:** Automatisch optimierte Paddings und Skalierung auf 390px-Displays für perfekten Textfluss ohne Überlappungen.
 
 ---
 
@@ -430,15 +445,44 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * Benutzergesten-Freischaltung: Sanftes Entsperren des `AudioContext` bei erstem Klick/Touch (`pointerdown`, `keydown`).
 
 ---
+## 13. ECHTZEIT-TELEMETRIE, ZERO-GC FPS-RINGPUFFER & BENCHMARK-HARNESS
 
-## 13. AUTOMATISIERTER REAL-TIME GAMEPLAY FPS BENCHMARK (`npm run test:fps`)
+### 13.1 Allokationsfreier Ringpuffer & Reaktive Live-Telemetrie (`GameEngine.js`)
+* **Struktur:** `this.fpsCounter` nutzt ein typisiertes `Float32Array(30)` als Ringpuffer (`deltaHead = (deltaHead + 1) % 30`).
+* **Zero-Allocation Invariante:** Weder beim Einfügen noch bei der Mittelwertbildung werden neue Objekte oder Arrays im Render-Loop alloziiert. Garbage Collection-Pausen während des Fluges sind ausgeschlossen.
+* **Reaktive 4-Frame Rolling Telemetry (160ms Intervall):**
+  * Alle 160ms berechnet die Engine den Durchschnitt der jüngsten 4 Frame-Deltas (`avgDt`), die Echtzeit-Momentan-FPS (`1000 / avgDt`) und den Min-FPS-Wert des Intervalls.
+  * Durch das 160ms-Fenster und die 1-Dezimalstellen-Präzision (`59.9 FPS`, `60.0 FPS`, `60.1 FPS` / `16.6ms`, `16.7ms`) bildet die Anzeige die authentische Taktung des Browsers und Hardware-Frame-Pacings in Echtzeit dynamisch ab.
+* **Dynamische Performance-Farbabstufung:**
+  * $\ge 90\text{ FPS}$: Elektrisches Cyan (`#38bdf8`) für ProMotion / 90Hz, 120Hz & 144Hz Displays.
+  * $\ge 55\text{ FPS}$: Smaragdgrün (`#10b981`) für das stabile 60 FPS Ziel.
+  * $\ge 42\text{ FPS}$: Bernstein (`#fbbf24`) bei temporären Mikrorucklern.
+  * $< 42\text{ FPS}$: Rubinrot (`#ef4444`) bei kritischem Frame-Drop.
+* **Multi-Screen Telemetrie-Architektur:**
+  * **In-Game HUD-Badge (`#hud-fps-badge`):** Gestochen scharf im Score-Header neben dem Höhenrekord.
+  * **Hauptmenü-Badge (`#menu-fps-badge`):** Vertikal unter dem Aufgaben-Icon (`.menu-top-left-col`) mit `white-space: nowrap`.
+  * **Herzschlag-Puls:** Ein sanfter CSS-Puls (`fps-pulse 1.3s`) auf dem Indikator-Punkt visualisiert die aktive Messung.
+  * Gesteuert über den Schalter **FPS-ANZEIGE** (`#btn-fps-toggle`) in den Einstellungen (standardmäßig auf `AN`).
 
-### 13.1 Benchmark-Architektur (`scripts/benchmark_fps.js`)
+### 13.2 Asynchrone Persistenz & Entkopplung (`MissionManager.js` & `StorageService.js`)
+* **Debounced Storage (1500ms Delay):**
+  * Routine-Ereignisse während des Flugs (Münzen einsammeln, Boost auslösen, 90°-Steilsprünge, Near-Miss) schreiben niemals synchron in `localStorage.setItem()`.
+  * Stattdessen wird `saveDeferred(1500)` getriggert, was Festplatten-I/O bündelt und Frame-Drops restlos eliminiert.
+* **Synchrone Persistenz:**
+  * Erfolgt ausschließlich bei definitiven Spielzustands-Wechseln: Game-Over-Absturz, Quanten-Wiederbelebung oder Käufe im Hangar.
+
+### 13.3 Katapult-Ansprechverhalten (Zero-Latency Launch)
+* Beim Lösen der Klinke (`triggerActionUp`) wird `timeScale` sofort auf `1.0` gesetzt.
+* Beseitigt die frühere 300ms träge Interpolation und verleiht dem Raumschiff einen unmittelbaren, direkten Arcade-Katapult-Impuls.
+
+### 13.4 Automatisierte Real-Time Gameplay FPS Benchmark-Suite (`scripts/benchmark_fps.js` & `npm run test:fps`)
 * **Warmup-Phase (1.5 Sekunden):** Stabilisierung von State-Transitions, Audio-Context und Initialisierung vor Messbeginn.
 * **Autopilot-Flug (8.0 Sekunden):** Deterministische Simulation aktiver Gameplay-Schleifen (Slingshots, Partikel-Spawns, Münzkollisionen).
 * **Telemetrie-Invariante:** Stoppt Messung vor Screenshot-I/O, um Messwerte nicht durch Festplattenzugriffe zu verfälschen.
-* **Metriken & Grenzwerte:**
-  * Durchschnittliche Bildrate: `>= 55.0 FPS` (Soll: 60/120 FPS).
-  * JavaScript-Frame-Budget: `<= 5.0 ms` Durchschnitt (bei 16.6ms Maximalbudget).
-  * Hitches `> 50 ms`: `0` (Zero Toleranz).
-  * Konsolenfehler: `0`.
+* **Prüft strikte Gütekriterien:**
+  1. Durchschnittliche FPS $\ge 55.0$ (60+ FPS Ziel).
+  2. Mittlere JS-Rechenzeit pro Frame $\le 5.0\text{ ms}$ (Budget: $16.6\text{ ms}$).
+  3. Maximale JS-Rechenzeit pro Frame $\le 14.0\text{ ms}$.
+  4. Hitches $> 50\text{ ms} = 0$.
+  5. 0 Konsolenfehler und 0 unbehandelte Exceptions.
+* Speichert detaillierten Audit-Report in `screenshots/FPS_BENCHMARK.json` und erfasst Live-Screenshot `screenshots/08b_gameplay_fps_hud.png`.
