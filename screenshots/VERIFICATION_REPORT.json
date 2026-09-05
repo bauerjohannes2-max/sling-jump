@@ -1,20 +1,76 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (08)",
-  "executedAt": "2026-09-05T10:17:24.931Z",
-  "localTimestamp": "5.9.2026, 12:17:24",
+  "mode": "Selective (1, 10, 11)",
+  "executedAt": "2026-09-05T16:15:07.869Z",
+  "localTimestamp": "5.9.2026, 18:15:07",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
-  "selectiveScreenshotsCount": 1,
+  "selectiveScreenshotsCount": 8,
   "totalCatalogScreenshotsCount": 18,
   "freshRunManifest": [
     {
-      "filename": "08_gameplay_hud.png",
-      "description": "Gameplay HUD & Combo",
-      "sizeKb": 215,
-      "capturedAt": "2026-09-05T10:17:23.962Z",
-      "localTime": "12:17:23",
-      "sha256": "fcb346e0aefeff4c"
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 717,
+      "capturedAt": "2026-09-05T16:14:55.277Z",
+      "localTime": "18:14:55",
+      "sha256": "a8b45ff7f4c8ce73"
+    },
+    {
+      "filename": "13_tutorial_modal.png",
+      "description": "Tutorial Controls Guide",
+      "sizeKb": 297,
+      "capturedAt": "2026-09-05T16:14:56.509Z",
+      "localTime": "18:14:56",
+      "sha256": "53d126eb862a2338"
+    },
+    {
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 376,
+      "capturedAt": "2026-09-05T16:14:59.189Z",
+      "localTime": "18:14:59",
+      "sha256": "6557a431d0183fda"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 712,
+      "capturedAt": "2026-09-05T16:15:00.770Z",
+      "localTime": "18:15:00",
+      "sha256": "3cbca071f1f5b5d0"
+    },
+    {
+      "filename": "11_mobile_responsive.png",
+      "description": "Mobile Responsive Menu",
+      "sizeKb": 691,
+      "capturedAt": "2026-09-05T16:15:02.697Z",
+      "localTime": "18:15:02",
+      "sha256": "7b2c5464483f44e6"
+    },
+    {
+      "filename": "12_mobile_skins.png",
+      "description": "Mobile Skins Shop",
+      "sizeKb": 290,
+      "capturedAt": "2026-09-05T16:15:03.918Z",
+      "localTime": "18:15:03",
+      "sha256": "d3835ac23dcde71c"
+    },
+    {
+      "filename": "14_dashboard_locked.png",
+      "description": "Dashboard Gate Locked",
+      "sizeKb": 48,
+      "capturedAt": "2026-09-05T16:15:05.594Z",
+      "localTime": "18:15:05",
+      "sha256": "5fcb8212e510c1ff"
+    },
+    {
+      "filename": "14b_dashboard_unlocked.png",
+      "description": "Dashboard Unlocked",
+      "sizeKb": 240,
+      "capturedAt": "2026-09-05T16:15:06.938Z",
+      "localTime": "18:15:06",
+      "sha256": "c2fec7f75550361e"
     }
   ],
   "manifest": [
@@ -83,14 +139,6 @@
       "sha256": "a63a5e43a35066ca"
     },
     {
-      "filename": "01_main_menu.png",
-      "description": "Main Menu",
-      "sizeKb": 126,
-      "capturedAt": "2026-09-05T09:08:30.500Z",
-      "localTime": "11:08:30",
-      "sha256": "232340e52827f7bf"
-    },
-    {
       "filename": "07_settings.png",
       "description": "Settings Modal",
       "sizeKb": 115,
@@ -99,68 +147,76 @@
       "sha256": "4e8dd1f93af7ebc2"
     },
     {
+      "filename": "08_gameplay_hud.png",
+      "description": "Gameplay HUD & Combo",
+      "sizeKb": 201,
+      "capturedAt": "2026-09-05T16:10:23.647Z",
+      "localTime": "18:10:23",
+      "sha256": "5f019ca84594886d"
+    },
+    {
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 717,
+      "capturedAt": "2026-09-05T16:14:55.277Z",
+      "localTime": "18:14:55",
+      "sha256": "a8b45ff7f4c8ce73"
+    },
+    {
       "filename": "13_tutorial_modal.png",
       "description": "Tutorial Controls Guide",
-      "sizeKb": 280,
-      "capturedAt": "2026-09-05T09:08:33.560Z",
-      "localTime": "11:08:33",
-      "sha256": "dd134ce10bde360e"
+      "sizeKb": 297,
+      "capturedAt": "2026-09-05T16:14:56.509Z",
+      "localTime": "18:14:56",
+      "sha256": "53d126eb862a2338"
     },
     {
       "filename": "10_game_over.png",
       "description": "Game Over Screen",
-      "sizeKb": 219,
-      "capturedAt": "2026-09-05T09:08:36.943Z",
-      "localTime": "11:08:36",
-      "sha256": "272d0ef03d862e2c"
+      "sizeKb": 376,
+      "capturedAt": "2026-09-05T16:14:59.189Z",
+      "localTime": "18:14:59",
+      "sha256": "6557a431d0183fda"
     },
     {
       "filename": "10b_revived_gameplay.png",
       "description": "Revived Gameplay",
-      "sizeKb": 338,
-      "capturedAt": "2026-09-05T09:08:38.224Z",
-      "localTime": "11:08:38",
-      "sha256": "f9afbf7c1c4e2384"
+      "sizeKb": 712,
+      "capturedAt": "2026-09-05T16:15:00.770Z",
+      "localTime": "18:15:00",
+      "sha256": "3cbca071f1f5b5d0"
     },
     {
       "filename": "11_mobile_responsive.png",
       "description": "Mobile Responsive Menu",
-      "sizeKb": 182,
-      "capturedAt": "2026-09-05T09:08:39.758Z",
-      "localTime": "11:08:39",
-      "sha256": "7120049f4dce79b1"
+      "sizeKb": 691,
+      "capturedAt": "2026-09-05T16:15:02.697Z",
+      "localTime": "18:15:02",
+      "sha256": "7b2c5464483f44e6"
     },
     {
       "filename": "12_mobile_skins.png",
       "description": "Mobile Skins Shop",
-      "sizeKb": 279,
-      "capturedAt": "2026-09-05T09:08:40.816Z",
-      "localTime": "11:08:40",
-      "sha256": "21caac0e158c8c1f"
+      "sizeKb": 290,
+      "capturedAt": "2026-09-05T16:15:03.918Z",
+      "localTime": "18:15:03",
+      "sha256": "d3835ac23dcde71c"
     },
     {
       "filename": "14_dashboard_locked.png",
       "description": "Dashboard Gate Locked",
       "sizeKb": 48,
-      "capturedAt": "2026-09-05T09:08:48.624Z",
-      "localTime": "11:08:48",
-      "sha256": "fd363de8e3dbe0b5"
+      "capturedAt": "2026-09-05T16:15:05.594Z",
+      "localTime": "18:15:05",
+      "sha256": "5fcb8212e510c1ff"
     },
     {
       "filename": "14b_dashboard_unlocked.png",
       "description": "Dashboard Unlocked",
       "sizeKb": 240,
-      "capturedAt": "2026-09-05T09:08:50.158Z",
-      "localTime": "11:08:50",
-      "sha256": "8284d749aeed71c9"
-    },
-    {
-      "filename": "08_gameplay_hud.png",
-      "description": "Gameplay HUD & Combo",
-      "sizeKb": 215,
-      "capturedAt": "2026-09-05T10:17:23.962Z",
-      "localTime": "12:17:23",
-      "sha256": "fcb346e0aefeff4c"
+      "capturedAt": "2026-09-05T16:15:06.938Z",
+      "localTime": "18:15:06",
+      "sha256": "c2fec7f75550361e"
     }
   ]
 }

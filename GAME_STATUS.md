@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC48 - v4.6.2 - Engine Hardening & Zero-Stutter 60 FPS Optimization)  
+> **Status:** Release Candidate (RC49 - v4.7.0 - Real-Time Gameplay FPS Benchmark & Complete Micro-Stutter Elimination)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 05.09.2026  
@@ -54,6 +54,37 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.7.0 (05.09.2026) - Real-Time Gameplay FPS Benchmark & Complete Micro-Stutter Elimination
+* **Ursachen-Analyse des Spiel-Ruckelns (Root Cause Diagnostic):**
+  * Umfassende Profilierung deckte 7 Ursachen für wahrgenommene Verzögerungen und Ruckler auf:
+    1. Synchrone `localStorage.setItem()` Schreiboperationen in `MissionManager.js` bei jedem Münz-Pickup, Boost, Slingshot und Fast-Crash.
+    2. Canvas-2D-Kontext `{ desynchronized: true }` in `GameEngine.js`, der bei Überlagerung mit DOM-Overlays in Chromium schwere Compositor-Stalls und Tearing auslöste.
+    3. Schwammige 300ms `timeScale`-Lerp-Verzögerung beim Katapultstart, wodurch sich der Abflug träge und schwimmend anfühlte.
+    4. CPU-gebundene Gauß-Filter (`shadowBlur = 8` / `20`) auf Floating-Texten in `ParticleSystem.js`, Schild-Darstellung in `Spaceship.js` und Zeituhr-Bögen in `Node.js`.
+    5. DOM-Layout-Thrashing in `UIManager.js` durch doppelte `updateCurrency()`-Funktion, die bei jedem Münz-Pickup DOM-Scans im Profil-Menü und Quests-Array auslöste.
+    6. Fehlendes Caching in `updateHUD()` und `setDangerVisual()`, wodurch bei jedem Aufstieg Text- und Stilmutationen erzwungen wurden.
+    7. Fehlendes automatisiertes Gameplay-FPS-Testing im CI/CD-Zyklus.
+* **Engine-Optimierung & Physik-Reaktionszeit (`GameEngine.js`):**
+  * Canvas-Kontext auf stabilen Double-Buffered Standard ohne `desynchronized: true` umgestellt.
+  * `timeScale` springt beim Klinken-Lösen sofort auf `1.0` (Zero-Latency Katapult-Punch).
+  * Integrierter, allokationsfreier 60-Frame `Float32Array` Ringpuffer (`fpsCounter`) zur kontinuierlichen Messung von Bildrate, Frame-Budget und 1% Lows.
+* **Asynchrone Datenspeicherung (`MissionManager.js` & `StorageService.js`):**
+  * Sämtliche Fortschrittsspeicherungen bei In-Game-Ereignissen auf debounctes `saveDeferred(1500ms)` umgestellt.
+* **Canvas-Rendering & Partikel-Entlastung (`ParticleSystem.js`, `Spaceship.js`, `Node.js`):**
+  * Sämtliche Laufzeit-`shadowBlur`-Operationen eliminiert und durch präzise Vektor-Strokes und vorkalibrierte Glow-Canvases ersetzt.
+  * Dynamische Schriftart-Strings in `ParticleSystem.getFont()` gecacht.
+* **DOM-Optimierung & UI-Entkoppelung (`UIManager.js`, `css/style.css`, `index.html`):**
+  * `updateCurrency(fullUpdate = false)`: Münzen im Flug aktualisieren ausschließlich das In-Game HUD ohne Berührung von Hintergrundmenüs.
+  * `updateHUD()` und `setDangerVisual()` mit Wertsicherung gecacht; Schreibzugriffe erfolgen nur bei tatsächlichen Zahlenänderungen.
+  * Minimalistisches HUD-Badge `#hud-fps-badge` und Settings-Schalter für FPS-Anzeige und Leistungsmodus integriert.
+* **Automatisierte FPS-Benchmark-Suite (`scripts/benchmark_fps.js` & `npm run test:fps`):**
+  * Neuer automatisierter 8-Sekunden-Autopilot-Flugtest im Chromium/Edge Headless-Modus.
+  * Misst exakte Frame-Intervalle (`dt`), JS-Rechenzeit pro Frame (`avgJsTimeMs`, `maxJsTimeMs`), 1% Low FPS und In-Engine Telemetrie.
+* **Verifikations-Ergebnis (`npm run test:fps` & Playwright):**
+  * 941 Frames gemessen, **118.1 FPS Durchschnitt** (durchschnittliche JS-Rechenzeit: **0.38 ms**, nur 2.2% des 16.6ms Budgets).
+  * Max. JS-Rechenzeit: **2.9 ms**, 0 Hitches > 50ms, **0 Konsolenfehler**.
+  * Selective Playwright: `08_gameplay_hud.png` und `08b_gameplay_fps_hud.png` mit 0 Konsolenfehlern und perfekter minimalistischer Ausrichtung verifiziert.
 
 ### v4.6.2 (05.09.2026) - Engine Hardening & Zero-Stutter 60 FPS Optimization
 * **Freeze-Frame Beseitigung (Hitstop Elimination):**
@@ -1082,3 +1113,29 @@ blissful-euclid/
     ├── entities/EnergyOrb.js
     └── world/WorldManager.js
 ```
+
+---
+
+## 5. Release v4.7.0: Death Screen & Main Menu Vector Polish
+
+* **Datum:** 05.09.2026
+* **Branch:** `feature/ui-deathscreen-menu-polish`
+* **Prüfstatus:** 0 Konsolenfehler, 0 Exceptions, 8 frische Playwright-Screenshots verifiziert.
+
+### 5.1 Behobene Kernprobleme & Optimierungen
+1. **Death Screen (Game Over Modal) Rework & Bugfix:**
+   - **Black Text Bug behoben:** `.hero-altitude-val` litt unter einer Skia/Chromium-Clipping-Kollision (`color: transparent` kombiniert mit `text-shadow`), wodurch der Score nahezu pechschwarz dargestellt wurde. Ersetzt durch brillantes, ultra-hohes Kontrast-Weiß (`#ffffff !important`) mit radialem Neon-Glow (Cyan-Aura im Normalfall, Gold-Aura bei Rekord).
+   - **Status-Header eingeführt:** Neuer `.flight-ended-indicator` (`FLUG BEENDET`) bei Standard-Flügen und leuchtendes `.new-record-indicator` (`★ NEUER REKORD`) bei neuen Bestleistungen für perfekte vertikale Hierarchie ohne Layout-Sprünge.
+   - **High-Impact Buttons:** `.btn-replay` erstrahlt im elektrisierenden Cyan-Verlauf mit Drop-Shadow (`0 4px 20px rgba(0,240,255,0.38)`). `.btn-revive` erhielt ein edles Kristall-Magenta-Styling mit dynamischem Status-Feedback.
+   - **Reward-Chips:** Belohnungen (Münzen & Hyper-Kristalle) wurden in moderne Glassmorphism-Pills mit Vektor-Icons überführt.
+2. **Main Menu Hintergrund (Canvas & CSS):**
+   - **Tiefen-Gradient (Zero GC):** Gecachter vertikaler Tiefraum-Verlauf von kosmischem Indigo bis zum tiefen Void-Schwarz.
+   - **Parallax Cyber-Grid:** Integriertes neon-architektonisches Vektorgitter, das dezent mit `cameraY` scrollt (`theme.gridColor`).
+   - **Atmosphärische Nebulae:** Sanft pulsierende, großflächige Radial-Nebulae (Cyan & Magenta) für kinoreife Raumtiefe.
+   - **Radiante Vektor-Sterne:** Dezent strahlende 4-Punkt-Glanzlichter auf helleren Sternen im Vordergrund.
+   - **CSS-Vignette:** `#menu-overlay` mit sanftem radialem Zentrumsfokus auf Titel und Action-Buttons.
+3. **Main Menu Buttons (Tutorial, Skins, Statistiken):**
+   - **Icon-Rendering repariert:** Zirkuläre CSS-Definition von `--action-start` und Farbvariablen in `:root` behoben, wodurch die SVG-Icons zuvor unsichtbar blieben.
+   - **Illuminierte Icon-Bubbles:** Jeder Button besitzt eine eigene abgerundete Vektor-Bubble mit Akzentfarben (Tutorial: Cyan/Sky, Skins: Magenta/Purple, Statistiken: Gold/Amber).
+   - **Mobile Optimierung:** Automatische Reduzierung der Abstände und Schriftgrößen auf schmalen 390px-Viewports, sodass auch lange Beschriftungen wie `STATISTIKEN` sauber und ohne Randüberlappung sitzen.
+

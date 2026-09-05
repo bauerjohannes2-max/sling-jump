@@ -429,12 +429,80 @@ class WorldManager {
     // Expand drawing boundaries by 50% to prevent camera zoom-out pop-in glitches
     const padX = width * 0.5;
     const padY = height * 0.5;
+    const totalW = width + padX * 2;
+    const totalH = height + padY * 2;
 
-    // 1. Background Void Fill
-    context.fillStyle = theme.background;
-    context.fillRect(-padX, -padY, width + padX * 2, height + padY * 2);
+    // 1. Cached Atmospheric Deep-Space Gradient Fill (Zero GC)
+    if (!this._bgGrad || this._bgGradTheme !== theme.id || this._bgGradH !== totalH) {
+      this._bgGrad = context.createLinearGradient(0, -padY, 0, height + padY);
+      this._bgGrad.addColorStop(0, theme.cardBg ? theme.cardBg.replace(/[\d\.]+\)$/, '0.95)') : '#0f172a');
+      this._bgGrad.addColorStop(0.42, theme.background);
+      this._bgGrad.addColorStop(1, '#030509');
+      this._bgGradTheme = theme.id;
+      this._bgGradH = totalH;
+    }
+    context.fillStyle = this._bgGrad;
+    context.fillRect(-padX, -padY, totalW, totalH);
 
-    // 2. High-Performance Batched Parallax Starfield
+    // 2. Parallax Vector Cyber-Grid (Subtle neon architectural grid)
+    if (theme.gridColor) {
+      const gridSize = 72;
+      const offsetY = (cameraY * 0.22) % gridSize;
+      const startY = -padY;
+      const endY = height + padY;
+      const startX = -padX;
+      const endX = width + padX;
+
+      context.save();
+      context.strokeStyle = theme.gridColor;
+      context.lineWidth = 1.0;
+      context.beginPath();
+
+      // Horizontal lines with smooth parallax scroll
+      for (let y = startY - offsetY; y <= endY; y += gridSize) {
+        context.moveTo(startX, y | 0);
+        context.lineTo(endX, y | 0);
+      }
+      // Vertical lines
+      for (let x = startX; x <= endX; x += gridSize) {
+        context.moveTo(x | 0, startY);
+        context.lineTo(x | 0, endY);
+      }
+      context.stroke();
+      context.restore();
+    }
+
+    // 3. Ambient Celestial Nebulae (Atmospheric floating neon blooms)
+    if (playerVy < 300) {
+      context.save();
+      const pulse1 = Math.sin(now * 0.0008) * 0.015 + 0.035;
+      const pulse2 = Math.cos(now * 0.0006) * 0.012 + 0.030;
+      
+      // Upper Right Nebula (Primary neon hue)
+      const gradNebula1 = context.createRadialGradient(
+        width * 0.75, height * 0.25, 10,
+        width * 0.75, height * 0.25, width * 0.65
+      );
+      gradNebula1.addColorStop(0, theme.primary || '#00f0ff');
+      gradNebula1.addColorStop(1, 'rgba(0,0,0,0)');
+      context.globalAlpha = pulse1;
+      context.fillStyle = gradNebula1;
+      context.fillRect(-padX, -padY, totalW, totalH);
+
+      // Lower Left Nebula (Secondary / Purple hue)
+      const gradNebula2 = context.createRadialGradient(
+        width * 0.2, height * 0.7, 10,
+        width * 0.2, height * 0.7, width * 0.6
+      );
+      gradNebula2.addColorStop(0, theme.secondary || '#d946ef');
+      gradNebula2.addColorStop(1, 'rgba(0,0,0,0)');
+      context.globalAlpha = pulse2;
+      context.fillStyle = gradNebula2;
+      context.fillRect(-padX, -padY, totalW, totalH);
+      context.restore();
+    }
+
+    // 4. High-Performance Batched Parallax Starfield
     const isWarpSpeed = playerVy > 320;
     const warpFactor = isWarpSpeed ? Math.min(1.0, (playerVy - 320) / 750) : 0;
 
@@ -491,6 +559,11 @@ class WorldManager {
         const finalX = starX < 0 ? starX + width : starX;
         const s = star.size < 1.5 ? 2 : 3;
         context.fillRect(finalX | 0, finalY | 0, s, s);
+        // Subtle cross-glint on radiant stars (zero allocations)
+        if (s >= 3 && (i & 3) === 0) {
+          context.fillRect((finalX - 2) | 0, (finalY + 1) | 0, 5, 1);
+          context.fillRect((finalX + 1) | 0, (finalY - 2) | 0, 1, 5);
+        }
       }
       context.globalAlpha = 1.0;
     }

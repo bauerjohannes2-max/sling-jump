@@ -58,6 +58,17 @@ class GameEngine {
     this.screenShake = 0;
     this.lastFrameTime = performance.now();
 
+    // High-Precision Real-Time Telemetry & FPS Ring Buffer (Zero GC)
+    this.fpsCounter = {
+      fps: 60,
+      frameTimeMs: 16.6,
+      minFps: 60,
+      frameCount: 0,
+      lastTelemetryTime: performance.now(),
+      recentDeltas: new Float32Array(60),
+      deltaHead: 0
+    };
+
     // Wire Input Callbacks
     this.initInputWiring();
     this.initResizeListener();
@@ -566,8 +577,36 @@ class GameEngine {
      MASTER LOOP & UPDATE CYCLE
      ========================================================================= */
   update(now) {
-    const rawDt = Math.min((now - this.lastFrameTime) / 1000, 0.033);
+    const deltaMs = now - this.lastFrameTime;
+    const rawDt = Math.min(deltaMs / 1000, 0.033);
     this.lastFrameTime = now;
+
+    // Real-Time Telemetry & Zero-GC FPS Sample
+    if (deltaMs > 0 && deltaMs < 250) {
+      this.fpsCounter.recentDeltas[this.fpsCounter.deltaHead] = deltaMs;
+      this.fpsCounter.deltaHead = (this.fpsCounter.deltaHead + 1) % 60;
+      this.fpsCounter.frameCount++;
+
+      if (now - this.fpsCounter.lastTelemetryTime >= 350) {
+        let sum = 0;
+        let maxDt = 0;
+        const count = Math.min(this.fpsCounter.frameCount, 60);
+        for (let i = 0; i < count; i++) {
+          const d = this.fpsCounter.recentDeltas[i];
+          sum += d;
+          if (d > maxDt) maxDt = d;
+        }
+        const avgDt = sum / count;
+        this.fpsCounter.fps = avgDt > 0 ? Math.round(1000 / avgDt) : 60;
+        this.fpsCounter.frameTimeMs = Math.round(avgDt * 10) / 10;
+        this.fpsCounter.minFps = maxDt > 0 ? Math.round(1000 / maxDt) : 60;
+        this.fpsCounter.lastTelemetryTime = now;
+
+        if (this.ui) {
+          this.ui.updateFpsDisplay(this.fpsCounter.fps, this.fpsCounter.frameTimeMs, this.fpsCounter.minFps);
+        }
+      }
+    }
 
     // Poll Gamepad
     this.input.update();
@@ -676,7 +715,7 @@ class GameEngine {
             }
 
             this.ui.updateHUD(this.maxAltitudeMeters, this.storage.data.highScore, this.storage.data.cores);
-            this.ui.updateCurrency();
+            this.ui.updateCurrency(false);
           }
         }
       }

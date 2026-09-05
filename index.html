@@ -85,7 +85,7 @@
           <div class="wordmark-ring-motif"></div>
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v4.6.2</div>
+          <div class="app-version-tag">v4.7.0</div>
         </div>
 
         <div class="currency-group currency-capsule" id="menu-currency-pill" role="button" tabindex="0" title="Skins & Hangar">
@@ -105,17 +105,23 @@
             <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
           </button>
           <div class="tile-row">
-            <button class="tile" id="btn-menu-tutorial">
-              <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-              <span>TUTORIAL</span>
+            <button class="tile tile-tutorial" id="btn-menu-tutorial">
+              <div class="tile-icon-bubble">
+                <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+              </div>
+              <span class="tile-label">TUTORIAL</span>
             </button>
-            <button class="tile" id="btn-menu-shop">
-              <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-              <span>SKINS</span>
+            <button class="tile tile-skins" id="btn-menu-shop">
+              <div class="tile-icon-bubble">
+                <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              </div>
+              <span class="tile-label">SKINS</span>
             </button>
-            <button class="tile" id="btn-menu-stats">
-              <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-              <span>STATISTIKEN</span>
+            <button class="tile tile-stats" id="btn-menu-stats">
+              <div class="tile-icon-bubble">
+                <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><line x1="3" y1="20" x2="21" y2="20"></line></svg>
+              </div>
+              <span class="tile-label">STATISTIKEN</span>
             </button>
           </div>
         </div>
@@ -158,6 +164,11 @@
               <span>REKORD:</span>
               <span id="best-val">0m</span>
             </div>
+            <div class="stat-badge fps" id="hud-fps-badge" style="display: none;">
+              <span class="fps-indicator-dot"></span>
+              <span id="hud-fps-val">60 FPS</span>
+              <span id="hud-fps-dt">16.6ms</span>
+            </div>
           </div>
         </div>
 
@@ -197,10 +208,15 @@
     <!-- 4. GAME OVER MODAL -->
     <div class="modal-overlay" id="gameover-modal">
       <div class="modal-card gameover-card">
-        <!-- New Record Indicator -->
-        <div class="new-record-indicator" id="new-record-badge" style="display:none;">
-          <svg class="icon-svg record-star-icon" viewBox="0 0 24 24" style="width:13px;height:13px;vertical-align:middle;fill:#fbbf24;"><polygon points="12,2 15,8.5 22,9.5 17,14.5 18.5,21.5 12,18 5.5,21.5 7,14.5 2,9.5 9,8.5"></polygon></svg>
-          <span>NEUER REKORD</span>
+        <!-- Status Header (Flight Over or New Record) -->
+        <div class="gameover-header-row">
+          <div class="new-record-indicator" id="new-record-badge" style="display:none;">
+            <svg class="icon-svg record-star-icon" viewBox="0 0 24 24" style="width:13px;height:13px;vertical-align:middle;fill:#fbbf24;"><polygon points="12,2 15,8.5 22,9.5 17,14.5 18.5,21.5 12,18 5.5,21.5 7,14.5 2,9.5 9,8.5"></polygon></svg>
+            <span>NEUER REKORD</span>
+          </div>
+          <div class="flight-ended-indicator" id="flight-ended-badge">
+            <span>FLUG BEENDET</span>
+          </div>
         </div>
         
         <!-- Hero Altitude / Score Display -->
@@ -397,6 +413,14 @@
           <div class="setting-row">
             <span class="setting-label">Audio & Musik</span>
             <button class="btn-toggle" id="btn-audio-toggle" style="padding: 6px 14px; font-size: 11px; font-weight: 800; letter-spacing: 1px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15); color: #38bdf8; transition: all 0.2s ease;">AN</button>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">FPS-Anzeige</span>
+            <button class="btn-toggle" id="btn-fps-toggle" style="padding: 6px 14px; font-size: 11px; font-weight: 800; letter-spacing: 1px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15); color: #38bdf8; transition: all 0.2s ease;">AUS</button>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Performance-Modus</span>
+            <button class="btn-toggle" id="btn-perf-toggle" style="padding: 6px 14px; font-size: 11px; font-weight: 800; letter-spacing: 1px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15); color: #38bdf8; transition: all 0.2s ease;">AUS</button>
           </div>
         </div>
 
