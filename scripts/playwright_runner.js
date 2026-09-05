@@ -437,7 +437,8 @@ ${capturedManifest.map(m => `| \`${m.filename}\` | ${m.localTime} | ${m.sizeKb} 
   // Forces Windows CreationTime and LastWriteTime to match the exact execution second
   if (process.platform === 'win32') {
     try {
-      execSync(`powershell -NoProfile -Command "Get-ChildItem -Path '${SCREENSHOTS_DIR}\\*' | ForEach-Object { \\$_.CreationTime = (Get-Date); \\$_.LastWriteTime = (Get-Date) }"`, { stdio: 'ignore' });
+      const touchScript = path.join(__dirname, 'touch_timestamps.ps1');
+      execSync(`powershell -NoProfile -ExecutionPolicy Bypass -File "${touchScript}" "${SCREENSHOTS_DIR}"`, { stdio: 'ignore' });
       console.log('[Playwright] NTFS Tunneling neutralized: CreationTime and LastWriteTime stamped to current second.');
     } catch (e) {
       console.warn('[Playwright] Warning: Failed to touch Windows CreationTime:', e.message);
@@ -445,20 +446,26 @@ ${capturedManifest.map(m => `| \`${m.filename}\` | ${m.localTime} | ${m.sizeKb} 
   }
 
   // 3. Mirror Fresh Screenshots to Brain Artifacts Directory
-  const brainDir = 'C:\\Users\\hannes.bauer\\.gemini\\antigravity\\brain\\b8d7fba0-9f7c-4f2b-85f4-1ec48a8904c7';
-  if (fs.existsSync(brainDir)) {
-    try {
-      for (const item of capturedManifest) {
-        const src = path.join(SCREENSHOTS_DIR, item.filename);
-        const dest = path.join(brainDir, item.filename);
-        fs.copyFileSync(src, dest);
+  const activeBrainDirs = [
+    'C:\\Users\\hannes.bauer\\.gemini\\antigravity\\brain\\e8f6557e-b795-4d81-88cc-f699d00b9eb9',
+    'C:\\Users\\hannes.bauer\\.gemini\\antigravity\\brain\\b8d7fba0-9f7c-4f2b-85f4-1ec48a8904c7'
+  ];
+  for (const brainDir of activeBrainDirs) {
+    if (fs.existsSync(brainDir)) {
+      try {
+        for (const item of capturedManifest) {
+          const src = path.join(SCREENSHOTS_DIR, item.filename);
+          const dest = path.join(brainDir, item.filename);
+          fs.copyFileSync(src, dest);
+        }
+        if (process.platform === 'win32') {
+          const touchScript = path.join(__dirname, 'touch_timestamps.ps1');
+          execSync(`powershell -NoProfile -ExecutionPolicy Bypass -File "${touchScript}" "${brainDir}"`, { stdio: 'ignore' });
+        }
+        console.log(`[Playwright] Mirrored fresh screenshots to ${brainDir}`);
+      } catch (mirrorErr) {
+        console.warn('[Playwright] Brain artifact mirror note:', mirrorErr.message);
       }
-      if (process.platform === 'win32') {
-        execSync(`powershell -NoProfile -Command "Get-ChildItem -Path '${brainDir}\\*.png' | ForEach-Object { \\$_.CreationTime = (Get-Date); \\$_.LastWriteTime = (Get-Date) }"`, { stdio: 'ignore' });
-      }
-      console.log('[Playwright] Mirrored fresh screenshots and touched timestamps in brain artifacts folder.');
-    } catch (mirrorErr) {
-      console.warn('[Playwright] Brain artifact mirror note:', mirrorErr.message);
     }
   }
 

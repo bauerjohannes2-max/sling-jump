@@ -1,7 +1,7 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "executedAt": "2026-09-05T07:16:45.301Z",
-  "localTimestamp": "5.9.2026, 09:16:45",
+  "executedAt": "2026-09-05T07:21:12.364Z",
+  "localTimestamp": "5.9.2026, 09:21:12",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
   "totalScreenshots": 18,
@@ -9,146 +9,146 @@
     {
       "filename": "01_main_menu.png",
       "description": "",
-      "sizeKb": 156,
-      "capturedAt": "2026-09-05T07:16:26.050Z",
-      "localTime": "09:16:26",
-      "sha256": "c6c0690b4e41cfdb"
+      "sizeKb": 172,
+      "capturedAt": "2026-09-05T07:20:51.805Z",
+      "localTime": "09:20:51",
+      "sha256": "9f68924e571c5441"
     },
     {
       "filename": "02_hangar_skins.png",
       "description": "",
       "sizeKb": 234,
-      "capturedAt": "2026-09-05T07:16:27.003Z",
-      "localTime": "09:16:27",
-      "sha256": "ad4694b723938f2a"
+      "capturedAt": "2026-09-05T07:20:52.753Z",
+      "localTime": "09:20:52",
+      "sha256": "6dc66b0f425e887f"
     },
     {
       "filename": "04_hub_leaderboard.png",
       "description": "",
-      "sizeKb": 112,
-      "capturedAt": "2026-09-05T07:16:28.366Z",
-      "localTime": "09:16:28",
-      "sha256": "3c2772a666edc080"
+      "sizeKb": 108,
+      "capturedAt": "2026-09-05T07:20:54.153Z",
+      "localTime": "09:20:54",
+      "sha256": "a70aacfb5e2b3dde"
     },
     {
       "filename": "05_hub_quests.png",
       "description": "",
-      "sizeKb": 173,
-      "capturedAt": "2026-09-05T07:16:29.733Z",
-      "localTime": "09:16:29",
-      "sha256": "187bf9f305c23084"
+      "sizeKb": 169,
+      "capturedAt": "2026-09-05T07:20:55.578Z",
+      "localTime": "09:20:55",
+      "sha256": "2c0354481aef80ea"
     },
     {
       "filename": "05b_hub_quests_claimed.png",
       "description": "",
-      "sizeKb": 163,
-      "capturedAt": "2026-09-05T07:16:30.445Z",
-      "localTime": "09:16:30",
-      "sha256": "c4f8713910ea20aa"
+      "sizeKb": 167,
+      "capturedAt": "2026-09-05T07:20:56.377Z",
+      "localTime": "09:20:56",
+      "sha256": "305a1a973eeea096"
     },
     {
       "filename": "05c_hub_quests_scrolled.png",
       "description": "",
-      "sizeKb": 162,
-      "capturedAt": "2026-09-05T07:16:31.059Z",
-      "localTime": "09:16:31",
-      "sha256": "0e179f06f43aa9d4"
+      "sizeKb": 166,
+      "capturedAt": "2026-09-05T07:20:57.062Z",
+      "localTime": "09:20:57",
+      "sha256": "3bbf85b3e2dab472"
     },
     {
       "filename": "06_hub_stats.png",
       "description": "",
-      "sizeKb": 129,
-      "capturedAt": "2026-09-05T07:16:32.130Z",
-      "localTime": "09:16:32",
-      "sha256": "85850a6ffca2d8dc"
+      "sizeKb": 135,
+      "capturedAt": "2026-09-05T07:20:58.205Z",
+      "localTime": "09:20:58",
+      "sha256": "a021155c00e56ef0"
     },
     {
       "filename": "06b_pilot_profile.png",
       "description": "",
-      "sizeKb": 127,
-      "capturedAt": "2026-09-05T07:16:33.631Z",
-      "localTime": "09:16:33",
-      "sha256": "7ba8ff3c22ff4f26"
+      "sizeKb": 123,
+      "capturedAt": "2026-09-05T07:20:59.822Z",
+      "localTime": "09:20:59",
+      "sha256": "685b72a8354919c1"
     },
     {
       "filename": "07_settings.png",
       "description": "",
-      "sizeKb": 79,
-      "capturedAt": "2026-09-05T07:16:35.028Z",
-      "localTime": "09:16:35",
-      "sha256": "d651db3d70a97870"
+      "sizeKb": 85,
+      "capturedAt": "2026-09-05T07:21:01.322Z",
+      "localTime": "09:21:01",
+      "sha256": "35a1050262e95e44"
     },
     {
       "filename": "13_tutorial_modal.png",
       "description": "",
-      "sizeKb": 207,
-      "capturedAt": "2026-09-05T07:16:36.230Z",
-      "localTime": "09:16:36",
-      "sha256": "e3ddeb955dd87906"
+      "sizeKb": 198,
+      "capturedAt": "2026-09-05T07:21:02.640Z",
+      "localTime": "09:21:02",
+      "sha256": "01a8c85f43e238aa"
     },
     {
       "filename": "08_gameplay_hud.png",
       "description": "",
-      "sizeKb": 226,
-      "capturedAt": "2026-09-05T07:16:37.299Z",
-      "localTime": "09:16:37",
-      "sha256": "b49a1cedb61cd344"
+      "sizeKb": 215,
+      "capturedAt": "2026-09-05T07:21:03.764Z",
+      "localTime": "09:21:03",
+      "sha256": "a343043cbd2bd831"
     },
     {
       "filename": "09_pause_modal.png",
       "description": "",
-      "sizeKb": 81,
-      "capturedAt": "2026-09-05T07:16:38.160Z",
-      "localTime": "09:16:38",
-      "sha256": "4ae9f6a34eb959b2"
+      "sizeKb": 80,
+      "capturedAt": "2026-09-05T07:21:04.753Z",
+      "localTime": "09:21:04",
+      "sha256": "57d98cbbe4dc1efb"
     },
     {
       "filename": "10_game_over.png",
       "description": "",
-      "sizeKb": 118,
-      "capturedAt": "2026-09-05T07:16:39.277Z",
-      "localTime": "09:16:39",
-      "sha256": "145b1e1371051cb8"
+      "sizeKb": 95,
+      "capturedAt": "2026-09-05T07:21:05.951Z",
+      "localTime": "09:21:05",
+      "sha256": "5a33eeabbdb98a78"
     },
     {
       "filename": "10b_revived_gameplay.png",
       "description": "",
-      "sizeKb": 331,
-      "capturedAt": "2026-09-05T07:16:40.157Z",
-      "localTime": "09:16:40",
-      "sha256": "35d664c93f4cd770"
+      "sizeKb": 314,
+      "capturedAt": "2026-09-05T07:21:06.973Z",
+      "localTime": "09:21:06",
+      "sha256": "b3c98df0d0cddf68"
     },
     {
       "filename": "11_mobile_responsive.png",
       "description": "",
-      "sizeKb": 270,
-      "capturedAt": "2026-09-05T07:16:40.727Z",
-      "localTime": "09:16:40",
-      "sha256": "a99391931884baf3"
+      "sizeKb": 255,
+      "capturedAt": "2026-09-05T07:21:07.649Z",
+      "localTime": "09:21:07",
+      "sha256": "749f5a49344aa2da"
     },
     {
       "filename": "12_mobile_skins.png",
       "description": "",
-      "sizeKb": 218,
-      "capturedAt": "2026-09-05T07:16:41.384Z",
-      "localTime": "09:16:41",
-      "sha256": "7a11384ea2b704db"
+      "sizeKb": 213,
+      "capturedAt": "2026-09-05T07:21:08.308Z",
+      "localTime": "09:21:08",
+      "sha256": "c00ab2a750d7f549"
     },
     {
       "filename": "14_dashboard_locked.png",
       "description": "",
       "sizeKb": 48,
-      "capturedAt": "2026-09-05T07:16:43.553Z",
-      "localTime": "09:16:43",
-      "sha256": "3edec8cf928771ea"
+      "capturedAt": "2026-09-05T07:21:10.604Z",
+      "localTime": "09:21:10",
+      "sha256": "a1217268eaf7a375"
     },
     {
       "filename": "14b_dashboard_unlocked.png",
       "description": "",
-      "sizeKb": 239,
-      "capturedAt": "2026-09-05T07:16:44.684Z",
-      "localTime": "09:16:44",
-      "sha256": "f9ec3d2a991aa6d3"
+      "sizeKb": 240,
+      "capturedAt": "2026-09-05T07:21:11.721Z",
+      "localTime": "09:21:11",
+      "sha256": "723a8daa4e06f822"
     }
   ]
 }
