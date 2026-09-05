@@ -71,9 +71,13 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
   * `white-space: nowrap` und `flex-shrink: 0` verhindern Zeilenumbrüche auf schmalen 390px-Mobilgeräten.
   * DOM-Update-Entprellung mit Text- und Klassen-Caching verhindert Layout-Thrashing.
   * `showFps: true` standardmäßig in `StorageService.js` aktiviert.
+* **Service Worker Cache-Busting & Server-Alignment (Port 3000 & 3030):**
+  * Cache-Name in `sw.js` deterministisch auf `sling-jump-v4.7.1` aktualisiert mit `self.skipWaiting()` und `clients.claim()`.
+  * `index.html` Header-Cache-Buster, Asset-Tags und In-Memory-Version auf `v4.7.1` synchronisiert (`CONSTANTS.VERSION = '4.7.1'`, `package.json = '4.7.1'`).
+  * Port 3030 Server auf das Haupt-Workspace-Verzeichnis (`main`) umgestellt (vorheriger Daemon auf veraltetem Worktree-Zweig beendet).
 * **Playwright-Verifikation:**
   * 0 Konsolenfehler.
-  * Visuell verifiziert: `01_main_menu.png`, `08_gameplay_hud.png`, `08b_gameplay_fps_hud.png`, `11_mobile_responsive.png`.
+  * Visuell verifiziert: `01_main_menu.png` (SHA: `05803f4750c8bcff`), `08_gameplay_hud.png`, `08b_gameplay_fps_hud.png`, `11_mobile_responsive.png`.
 
 ### v4.7.0 (05.09.2026) - Real-Time Gameplay FPS Benchmark, Laptop Rendering Fix & Complete Micro-Stutter Elimination
 * **Beseitigung zirkulärer CSS Custom Properties (`css/style.css`):**

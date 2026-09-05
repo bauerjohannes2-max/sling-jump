@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 4.7.0  
+Dokumentationsstand: Version 4.7.1  
 Aktualisiert am: 05. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness, 60+ FPS Benchmark & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -375,6 +375,15 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * **Fehlerfreie Farb-Variablen:** `:root`-Definitionen von `--action-start` und Semantik-Farben von zirkulären Referenzen befreit.
   * **Illuminierte Icon-Bubbles:** Jeder Button besitzt eine zentrierte runde Vektor-Icon-Bubble mit akzentuierter Farbgebung (Tutorial: Sky-Cyan `#38bdf8`, Skins: Kristall-Magenta `#d946ef`, Statistiken: Gold-Bernstein `#fbbf24`).
   * **Mobile-Responsive:** Automatisch optimierte Paddings und Skalierung auf 390px-Displays für perfekten Textfluss ohne Überlappungen.
+
+### 10.13 Live Dynamic High-Precision FPS Telemetry & Cache Invalidation (v4.7.1)
+* **Dynamische Echtzeit-Framerate-Messung:**
+  * Rolling-Window Delta-Time Telemetrie (4-Frame Gleitkomma-Puffer) mit Mikrosekunden-Präzision (`59.9 FPS`, `60.0 FPS`, `60.1 FPS`, Frametimes `16.6ms`, `16.7ms`).
+  * Nahtlose Umschaltung zwischen statischem 60-FPS-Fallback und kontinuierlicher Live-Telemetrie bei laufendem Game Loop.
+  * Main Menu FPS Pill (`#menu-fps-badge`) mit `white-space: nowrap` und fester Positionierung unterhalb des Quest-Icons.
+* **Aggressives Service Worker Cache-Busting:**
+  * Aktualisierung auf Cache-Tag `sling-jump-v4.7.1` mit automatischem `self.skipWaiting()` und `clients.claim()`.
+  * Lokales Versions-Audit im Browser (`localStorage.sling_jump_installed_version`) invalidiert alte PWA-Caches bei Versionssprüngen sofort.
 
 ---
 
