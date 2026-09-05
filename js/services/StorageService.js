@@ -70,6 +70,7 @@ class StorageService {
         totalTimePlayedSec: 0
       },
       settings: {
+        audioEnabled: true,
         masterVolume: 0.85,
         musicVolume: 0.70,
         sfxVolume: 0.90,

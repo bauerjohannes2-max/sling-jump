@@ -48,8 +48,9 @@ class AudioManager {
     // SFX Pool (active buffer sources)
     this.activeSfxPool = [];
 
-    // Global Audio Master Switch (Disabled per user request for future sound overhaul)
-    this.enabled = false;
+    // Global Audio Master Switch (Active by default, synchronized with storage)
+    this.enabled = this.storage ? (this.storage.data.settings.audioEnabled !== false) : true;
+    this.proceduralNodes = [];
   }
 
   init() {
@@ -194,6 +195,15 @@ class AudioManager {
         this.proceduralAmbientOsc.stop();
       } catch (e) {}
       this.proceduralAmbientOsc = null;
+    }
+    if (Array.isArray(this.proceduralNodes)) {
+      for (const node of this.proceduralNodes) {
+        try {
+          if (node.stop) node.stop();
+          if (node.disconnect) node.disconnect();
+        } catch (e) {}
+      }
+      this.proceduralNodes = [];
     }
   }
 
@@ -400,19 +410,53 @@ class AudioManager {
     this.stopMusic();
 
     try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = key === 'bgm_gameplay' ? 'sawtooth' : 'sine';
-      osc.frequency.setValueAtTime(key === 'bgm_gameplay' ? 110 : 73.42, this.ctx.currentTime);
+      const now = this.ctx.currentTime;
+      this.proceduralNodes = [];
 
-      gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.08, this.ctx.currentTime + 1.5);
+      // Warm low-pass filter for analog synthwave warmth
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(key === 'bgm_gameplay' ? 650 : 480, now);
+      filter.Q.setValueAtTime(2.0, now);
 
-      osc.connect(gain);
-      gain.connect(this.musicGain);
+      // Sub-bass & Harmony Oscillators for celestial space vibe
+      const freqs = key === 'bgm_gameplay'
+        ? [73.42, 110.0, 146.83] // D2 (root), A2 (fifth), D3 (octave)
+        : key === 'bgm_gameover'
+          ? [65.41, 77.78, 116.54] // C2, Eb2, Bb2 (poignant minor decay)
+          : [110.0, 164.81, 220.0]; // A2, E3, A3 (ethereal space menu)
 
-      osc.start(0);
-      this.proceduralAmbientOsc = osc;
-    } catch (e) {}
+      const subGain = this.ctx.createGain();
+      subGain.gain.setValueAtTime(0.001, now);
+      subGain.gain.exponentialRampToValueAtTime(key === 'bgm_gameplay' ? 0.09 : 0.06, now + 1.2);
+
+      freqs.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        osc.type = (idx === 0 && key === 'bgm_gameplay') ? 'sawtooth' : 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        // Subtle detune for analog chorus warmth
+        osc.detune.setValueAtTime((idx - 1) * 7, now);
+        osc.connect(filter);
+        osc.start(now);
+        this.proceduralNodes.push(osc);
+      });
+
+      // Gentle LFO filter sweep (space breathing effect)
+      const lfo = this.ctx.createOscillator();
+      const lfoGain = this.ctx.createGain();
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(key === 'bgm_gameplay' ? 0.4 : 0.12, now);
+      lfoGain.gain.setValueAtTime(140, now);
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+      lfo.start(now);
+      this.proceduralNodes.push(lfo, lfoGain);
+
+      filter.connect(subGain);
+      subGain.connect(this.musicGain);
+      this.proceduralNodes.push(filter, subGain);
+    } catch (e) {
+      console.warn('AudioManager: Procedural synth initialization note:', e.message);
+    }
   }
 }

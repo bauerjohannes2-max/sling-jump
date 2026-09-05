@@ -113,6 +113,7 @@ class UIManager {
       btnStatsClose: document.getElementById('btn-stats-close'),
 
       // Settings Inputs
+      btnAudioToggle: document.getElementById('btn-audio-toggle'),
       sliderMaster: document.getElementById('slider-master'),
       sliderMusic: document.getElementById('slider-music'),
       sliderSfx: document.getElementById('slider-sfx'),
@@ -214,6 +215,7 @@ class UIManager {
 
       case StateManager.STATES.SETTINGS:
         if (this.dom.settingsModal) this.dom.settingsModal.classList.add('visible');
+        this.updateAudioToggleBtn();
         break;
     }
   }
@@ -1385,6 +1387,13 @@ class UIManager {
   initSettingsUI() {
     const s = this.storage.data.settings;
 
+    if (this.dom.btnAudioToggle) {
+      this.updateAudioToggleBtn();
+      this.dom.btnAudioToggle.addEventListener('click', () => {
+        this.toggleAudio();
+      });
+    }
+
     if (this.dom.sliderMaster) {
       this.dom.sliderMaster.value = Math.floor(s.masterVolume * 100);
       if (this.dom.valMaster) this.dom.valMaster.textContent = `${this.dom.sliderMaster.value}%`;
@@ -1416,6 +1425,43 @@ class UIManager {
         this.storage.save();
         if (this.audio) this.audio.updateVolumes();
       });
+    }
+  }
+
+  toggleAudio() {
+    const current = this.storage.data.settings.audioEnabled !== false;
+    const next = !current;
+    this.storage.data.settings.audioEnabled = next;
+    this.storage.save();
+    if (this.audio) {
+      this.audio.enabled = next;
+      if (next) {
+        this.audio.init();
+        this.audio.updateVolumes();
+        if (this.state && (this.state.currentState === StateManager.STATES.MENU || this.state.currentState === StateManager.STATES.SHOP)) {
+          this.audio.playMusic('bgm_menu');
+        } else if (this.state && this.state.currentState === StateManager.STATES.PLAYING) {
+          this.audio.playMusic('bgm_gameplay');
+        }
+      } else {
+        this.audio.stopMusic();
+      }
+    }
+    this.updateAudioToggleBtn();
+  }
+
+  updateAudioToggleBtn() {
+    if (!this.dom.btnAudioToggle) return;
+    const isEnabled = this.storage.data.settings.audioEnabled !== false;
+    this.dom.btnAudioToggle.textContent = isEnabled ? 'AN' : 'AUS';
+    if (isEnabled) {
+      this.dom.btnAudioToggle.style.color = '#38bdf8';
+      this.dom.btnAudioToggle.style.background = 'rgba(56, 189, 248, 0.15)';
+      this.dom.btnAudioToggle.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+    } else {
+      this.dom.btnAudioToggle.style.color = '#94a3b8';
+      this.dom.btnAudioToggle.style.background = 'rgba(30, 41, 59, 0.5)';
+      this.dom.btnAudioToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
     }
   }
 }

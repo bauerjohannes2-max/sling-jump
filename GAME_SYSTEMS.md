@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 4.4.0  
+Dokumentationsstand: Version 4.5.0  
 Aktualisiert am: 05. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -383,6 +383,31 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Umschaltbar über die Schaltfläche `[ WECHSELN ]` in der Kopfleiste.
 * **Reine SVG-Visualisierungs-Engine (`charts.js`):**
   * Null externe Abhängigkeiten (Zero-Dependency), keine schweren Drittanbieter-Bibliotheken, gestochen scharfe Vektoren, barrierefreie Skalierbarkeit.
+
+---
+
+## 12. AUDIO-ENGINE & PROZEDURALES SOUNDSYSTEM (GOOGLE LYRIA INTEGRATION)
+
+### 12.1 Zweistufige Audio-Architektur (`AudioManager.js`)
+* **Stufe 1 – Hochauflösende Asset-Puffer (`assets/audio/`):**
+  * Asynchrones Preloading via `fetch` & `decodeAudioData`.
+  * Dynamisches 1.5s Exponential-Crossfading zwischen Musiktiteln (`bgm_menu`, `bgm_gameplay`, `bgm_gameover`).
+  * **Bullet-Time Dynamic Low-Pass Ducking:** Biquad-Tiefpassfilter senkt die Grenzfrequenz bei Zeitlupe auf 650 Hz ab und öffnet sie beim Katapultstart blitzartig auf 20.000 Hz.
+  * **Core Combo Pitch Ramp:** Aufeinanderfolgende Energiekerne innerhalb von 1.4s steigern die Tonhöhe um `+1 Halbton` pro Kern (bis zu 8x Multiplikator).
+* **Stufe 2 – Prozeduraler Web Audio Synthesizer (Zero-Asset Failsafe):**
+  * Fällt bei fehlenden Dateien, langsamen Verbindungen oder Offline-Nutzung nahtlos auf reine Oszillatoren zurück (`playProceduralAmbient` / `playProceduralSfx`).
+  * Mehrstimmige warme analoge Akkorde (Grundton, Quinte, Oktave) mit subtilem LFO-Filter-Sweep für cineastischen Synthwave-Klang ohne Ladezeiten.
+
+### 12.2 Google Lyria 3.5 & MusicFX Integrations-Pipeline
+* Vollständiges Prompt-Handbuch in [`AUDIO_GUIDE.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/AUDIO_GUIDE.md).
+* Menü-Theme: 95 BPM Ambient Synthwave (A-Moll).
+* Gameplay-Theme: 128 BPM Energetischer Driving Synthwave mit druckvollem Basslauf (D-Moll).
+* Game-Over: 80 BPM Tragischer cineastischer Ausklang mit tiefem Raum-Hall.
+* 7 Soundeffekte für Grapple-Lock, Slingshot-Boost, Kern-Pickup, Sternen-Shatter, Near-Miss, Crash und UI-Click.
+
+### 12.3 Benutzeroberfläche & Autoplay-Schutz
+* Interaktiver `[ AN ]` / `[ AUS ]` Umschalter im Einstellungs-Menü (`#btn-audio-toggle`).
+* Benutzergesten-Freischaltung: Sanftes Entsperren des `AudioContext` bei erstem Klick/Touch (`pointerdown`, `keydown`).
 
 
 

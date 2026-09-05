@@ -1,19 +1,23 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "executedAt": "2026-09-05T07:21:12.364Z",
-  "localTimestamp": "5.9.2026, 09:21:12",
+  "mode": "Selective (01)",
+  "executedAt": "2026-09-05T07:33:58.481Z",
+  "localTimestamp": "5.9.2026, 09:33:58",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
-  "totalScreenshots": 18,
-  "manifest": [
+  "selectiveScreenshotsCount": 1,
+  "totalCatalogScreenshotsCount": 18,
+  "freshRunManifest": [
     {
       "filename": "01_main_menu.png",
-      "description": "",
-      "sizeKb": 172,
-      "capturedAt": "2026-09-05T07:20:51.805Z",
-      "localTime": "09:20:51",
-      "sha256": "9f68924e571c5441"
-    },
+      "description": "Main Menu",
+      "sizeKb": 153,
+      "capturedAt": "2026-09-05T07:33:57.990Z",
+      "localTime": "09:33:57",
+      "sha256": "1d048ec882c6b4da"
+    }
+  ],
+  "manifest": [
     {
       "filename": "02_hangar_skins.png",
       "description": "",
@@ -69,14 +73,6 @@
       "capturedAt": "2026-09-05T07:20:59.822Z",
       "localTime": "09:20:59",
       "sha256": "685b72a8354919c1"
-    },
-    {
-      "filename": "07_settings.png",
-      "description": "",
-      "sizeKb": 85,
-      "capturedAt": "2026-09-05T07:21:01.322Z",
-      "localTime": "09:21:01",
-      "sha256": "35a1050262e95e44"
     },
     {
       "filename": "13_tutorial_modal.png",
@@ -149,6 +145,22 @@
       "capturedAt": "2026-09-05T07:21:11.721Z",
       "localTime": "09:21:11",
       "sha256": "723a8daa4e06f822"
+    },
+    {
+      "filename": "07_settings.png",
+      "description": "Settings Modal",
+      "sizeKb": 71,
+      "capturedAt": "2026-09-05T07:33:43.462Z",
+      "localTime": "09:33:43",
+      "sha256": "726932027a3dbe81"
+    },
+    {
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 153,
+      "capturedAt": "2026-09-05T07:33:57.990Z",
+      "localTime": "09:33:57",
+      "sha256": "1d048ec882c6b4da"
     }
   ]
 }

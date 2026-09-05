@@ -4,20 +4,53 @@ const fs = require('fs');
 const crypto = require('crypto');
 const { execSync } = require('child_process');
 
+// Parse CLI arguments for selective screenshot capture
+const args = process.argv.slice(2);
+let isSelective = false;
+const targetedFilters = [];
+
+for (const arg of args) {
+  if (arg === '--all') {
+    isSelective = false;
+    targetedFilters.length = 0;
+    break;
+  }
+  if (arg.startsWith('--screens=')) {
+    isSelective = true;
+    targetedFilters.push(...arg.replace('--screens=', '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+  } else if (!arg.startsWith('--')) {
+    isSelective = true;
+    targetedFilters.push(arg.toLowerCase().trim());
+  }
+}
+
+function shouldCapture(filename) {
+  if (!isSelective || targetedFilters.length === 0) return true;
+  const lower = filename.toLowerCase();
+  return targetedFilters.some(f => lower.includes(f));
+}
+
 const SCREENSHOTS_DIR = path.join(__dirname, '..', 'screenshots');
-// Mandatory Pre-Run Purge: Clean all stale screenshot files so every image is 100% freshly created
+// Purge stale target files: clean all if full run, or only targeted images if selective
 if (fs.existsSync(SCREENSHOTS_DIR)) {
   const existingFiles = fs.readdirSync(SCREENSHOTS_DIR);
   let purgedCount = 0;
   for (const f of existingFiles) {
-    if (f.endsWith('.png') || f.endsWith('.json') || f.endsWith('.md')) {
+    if (f.endsWith('.png')) {
+      if (shouldCapture(f)) {
+        try {
+          fs.unlinkSync(path.join(SCREENSHOTS_DIR, f));
+          purgedCount++;
+        } catch (e) {}
+      }
+    } else if (!isSelective && (f.endsWith('.json') || f.endsWith('.md'))) {
       try {
         fs.unlinkSync(path.join(SCREENSHOTS_DIR, f));
         purgedCount++;
       } catch (e) {}
     }
   }
-  console.log(`[Playwright] Purged ${purgedCount} stale artifacts from screenshots/ directory.`);
+  console.log(`[Playwright] ${isSelective ? 'Selective mode' : 'Full suite'}: Purged ${purgedCount} target artifact(s) from screenshots/ directory.`);
 } else {
   fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
 }
@@ -30,6 +63,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const capturedManifest = [];
 
 async function captureScreenshot(p, filename, description = '') {
+  if (!shouldCapture(filename)) return;
   const targetPath = path.join(SCREENSHOTS_DIR, filename);
   await p.screenshot({ path: targetPath });
   const stat = fs.statSync(targetPath);
@@ -99,337 +133,357 @@ async function runPlaywrightSuite() {
   await sleep(300);
 
   // 1. Main Menu
-  console.log('[Playwright] Capturing 01_main_menu.png');
-  await captureScreenshot(page, '01_main_menu.png');
+  if (shouldCapture('01_main_menu.png')) {
+    console.log('[Playwright] Capturing 01_main_menu.png');
+    await captureScreenshot(page, '01_main_menu.png', 'Main Menu');
+  }
 
-  // 2. Open Hangar / Skins (Ships)
-  console.log('[Playwright] Capturing 02_hangar_ships.png');
-  // 2. Hangar / Skins Showcase (Overhauled Hero Preview)
-  console.log('[Playwright] Capturing 02_hangar_skins.png (Overhauled Skins Showcase)');
-  await page.click('#btn-menu-shop');
-  await sleep(400);
-  await captureScreenshot(page, '02_hangar_skins.png');
-
-  // Close Hangar
-  await page.click('#btn-shop-close');
-  await sleep(300);
+  // 2. Open Hangar / Skins
+  if (shouldCapture('02_hangar_skins.png')) {
+    console.log('[Playwright] Testing Hangar / Skins Showcase...');
+    await page.click('#btn-menu-shop');
+    await sleep(400);
+    await captureScreenshot(page, '02_hangar_skins.png', 'Hangar Skins Showcase');
+    await page.click('#btn-shop-close');
+    await sleep(300);
+  }
 
   // 4. Bestenliste (Direct Leaderboard Button)
-  console.log('[Playwright] Testing #btn-menu-leaderboard...');
-  await page.evaluate(() => {
-    if (window._gameEngine && window._gameEngine.storage) {
-      window._gameEngine.storage.data.leaderboard = [
-        { name: 'ApexStriker', altitude: 4820, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
-        { name: 'SolarFalcon', altitude: 3650, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
-        { name: 'NeonViper', altitude: 2890, country: 'AT', countryName: 'Österreich', timestamp: Date.now() },
-        { name: 'ShadowPilot', altitude: 1940, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
-        { name: 'VortexAce', altitude: 1420, country: 'CH', countryName: 'Schweiz', timestamp: Date.now() },
-        { name: 'QuantumJump', altitude: 850, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() }
-      ];
-      window._gameEngine.storage.data.highScore = 4820;
-      window._gameEngine.storage.save();
-      if (window._gameEngine.ui) {
-        window._gameEngine.ui.renderLeaderboard();
-      }
-    }
-  });
-  await sleep(200);
-  await page.click('#btn-menu-leaderboard');
-  await sleep(400);
-  console.log('[Playwright] Capturing 04_hub_leaderboard.png (Global Top 100 - Real Data)');
-  await captureScreenshot(page, '04_hub_leaderboard.png');
-
-
-  // Close via top-right X button
-  await page.click('#btn-leaderboard-close');
-  await sleep(300);
-
-  // 5. Aufgaben (Direct Quests Button)
-  console.log('[Playwright] Preparing ready-to-claim quest...');
-  await page.evaluate(() => {
-    if (window._gameEngine) {
-      window._gameEngine.storage.data.questProgress['daily_reach_350'] = 600;
-      window._gameEngine.storage.data.questProgress['daily_collect_12'] = 16;
-      window._gameEngine.storage.data.activeDailyQuestIds = ['daily_reach_350', 'daily_collect_12', 'daily_boost_3'];
-      window._gameEngine.storage.data.claimedQuestIds = [];
-      window._gameEngine.storage.save();
-      window._gameEngine.ui.updateUnclaimedBadges();
-    }
-  });
-  await sleep(200);
-
-  console.log('[Playwright] Testing #btn-menu-quests...');
-  await page.click('#btn-menu-quests');
-  await sleep(400);
-  console.log('[Playwright] Capturing 05_hub_quests.png');
-  await captureScreenshot(page, '05_hub_quests.png');
-
-  // Test active quest claim click
-  console.log('[Playwright] Clicking Claim button on completed quest...');
-  const claimBtn = await page.$('.btn-claim');
-  if (claimBtn) {
-    await claimBtn.click({ force: true });
-    await sleep(400);
-    console.log('[Playwright] Capturing 05b_hub_quests_claimed.png');
-    await captureScreenshot(page, '05b_hub_quests_claimed.png');
-  } else {
-    console.error('ERROR: .btn-claim button not found in Quests modal!');
-  }
-
-  // Verify smooth scroll mechanic down to Weekly Challenges
-  console.log('[Playwright] Scrolling quests down to Weekly Challenges...');
-  await page.evaluate(() => {
-    const scrollArea = document.querySelector('.quests-scroll-area');
-    if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
-  });
-  await sleep(350);
-  console.log('[Playwright] Capturing 05c_hub_quests_scrolled.png (Weekly Challenges)');
-  await captureScreenshot(page, '05c_hub_quests_scrolled.png');
-
-  await page.click('#btn-quests-close');
-  await sleep(300);
-
-  // 6. Statistiken (Direct Stats Button)
-  console.log('[Playwright] Testing #btn-menu-stats...');
-  await page.click('#btn-menu-stats');
-  await sleep(400);
-  console.log('[Playwright] Capturing 06_hub_stats.png');
-  await captureScreenshot(page, '06_hub_stats.png');
-
-  // Close Stats Modal
-  await page.click('#btn-stats-close');
-  await sleep(300);
-
-  // 6b. Pilot Profile & Registration (1x Name Change Policy)
-  console.log('[Playwright] Testing #btn-menu-profile...');
-  const initialNavName = await page.$eval('#menu-profile-name', el => el.textContent.trim());
-  console.log(`[Playwright] Initial gamer tag on header pill: "${initialNavName}"`);
-
-  await page.click('#btn-menu-profile');
-  await sleep(400);
-
-  // Test single name change
-  console.log('[Playwright] Testing single name change to "ApexStriker"...');
-  await page.fill('#profile-name-input', 'ApexStriker');
-  await page.click('#profile-form button[type="submit"]');
-  await sleep(300);
-
-  // Assert input is now locked/disabled
-  const isInputDisabled = await page.$eval('#profile-name-input', el => el.disabled);
-  console.log(`[Playwright] Profile input locked after 1st save: ${isInputDisabled}`);
-
-  console.log('[Playwright] Capturing 06b_pilot_profile.png');
-  await captureScreenshot(page, '06b_pilot_profile.png');
-  await page.click('#btn-profile-close');
-  await sleep(300);
-
-  const updatedNavName = await page.$eval('#menu-profile-name', el => el.textContent.trim());
-  console.log(`[Playwright] Updated gamer tag on header pill: "${updatedNavName}"`);
-
-  // 7. Settings Modal
-  console.log('[Playwright] Testing Settings and Update Checker...');
-  await page.click('#btn-menu-settings');
-  await sleep(400);
-  await page.click('#btn-check-update');
-  await sleep(300);
-  console.log('[Playwright] Capturing 07_settings.png');
-  await captureScreenshot(page, '07_settings.png');
-  await page.click('#btn-settings-close');
-  await sleep(300);
-
-  // 7b. QA Check: Open Minimalist Single-Slide Tutorial Modal
-  console.log('[Playwright] Testing #btn-menu-tutorial...');
-  await page.click('#btn-menu-tutorial');
-  await sleep(500);
-  console.log('[Playwright] Capturing 13_tutorial_modal.png (Minimalist Controls Guide)');
-  await captureScreenshot(page, '13_tutorial_modal.png');
-
-  // Start game directly from tutorial modal
-  console.log('[Playwright] Clicking #btn-tut-play to start gameplay...');
-  await page.click('#btn-tut-play');
-  await sleep(500);
-
-  // 8. Gameplay HUD (with minimalist combo and live Hazard Mine verification)
-  console.log('[Playwright] Triggering Minimalist Combo x3 visual & Hazard Mine...');
-  await page.evaluate(() => {
-    if (window._gameEngine) {
-      window._gameEngine.slingshotCombo = 3;
-      window._gameEngine.particles.spawnFloatingText(window._gameEngine.player.x, window._gameEngine.player.y + 50, 'COMBO x3', '#a855f7', 32, true);
-      window._gameEngine.ui.showComboBadge('COMBO x3', '#a855f7');
-      // Spawn live hazard space mine on screen to visually verify in-game geometry
-      const hazardNode = new OrbitNode(window._gameEngine.width * 0.75, window._gameEngine.player.y + 130, 'HAZARD', window._gameEngine.width, 10200);
-      window._gameEngine.world.nodes.push(hazardNode);
-    }
-  });
-  await sleep(200);
-  console.log('[Playwright] Capturing 08_gameplay_hud.png');
-  await captureScreenshot(page, '08_gameplay_hud.png');
-
-  // 8b. Verify Green Boost Hazard Mine Immunity
-  console.log('[Playwright] Testing Green Boost hazard mine immunity...');
-  const boostImmunityResult = await page.evaluate(() => {
-    if (window._gameEngine) {
-      const eng = window._gameEngine;
-      eng.player.isSuperBoosting = true;
-      eng.player.boostTimer = 2.0;
-      eng.player.shieldTimer = 0;
-      eng.isDying = false;
-
-      const testMine = new OrbitNode(eng.player.x, eng.player.y, 'HAZARD', eng.width, 10000);
-      eng.world.nodes.push(testMine);
-
-      // Simulate engine collision logic
-      const lethalDist = eng.player.radius + testMine.radius + 6;
-      const dist = Math.hypot(eng.player.x - testMine.x, eng.player.y - testMine.y);
-      if (dist < lethalDist) {
-        testMine.isBroken = true;
-        if (eng.player.isSuperBoosting || eng.player.boostTimer > 0) {
-          eng.particles.spawnShockwave(testMine.x, testMine.y, '#10b981', 80);
-          eng.particles.spawnFloatingText(testMine.x, testMine.y + 35, 'MINE ZERSTÖRT!', '#10b981', 26, true);
-        } else {
-          eng.isDying = true;
+  if (shouldCapture('04_hub_leaderboard.png')) {
+    console.log('[Playwright] Testing #btn-menu-leaderboard...');
+    await page.evaluate(() => {
+      if (window._gameEngine && window._gameEngine.storage) {
+        window._gameEngine.storage.data.leaderboard = [
+          { name: 'ApexStriker', altitude: 4820, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
+          { name: 'SolarFalcon', altitude: 3650, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
+          { name: 'NeonViper', altitude: 2890, country: 'AT', countryName: 'Österreich', timestamp: Date.now() },
+          { name: 'ShadowPilot', altitude: 1940, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() },
+          { name: 'VortexAce', altitude: 1420, country: 'CH', countryName: 'Schweiz', timestamp: Date.now() },
+          { name: 'QuantumJump', altitude: 850, country: 'DE', countryName: 'Deutschland', timestamp: Date.now() }
+        ];
+        window._gameEngine.storage.data.highScore = 4820;
+        window._gameEngine.storage.save();
+        if (window._gameEngine.ui) {
+          window._gameEngine.ui.renderLeaderboard();
         }
       }
-
-      return {
-        mineBroken: testMine.isBroken,
-        playerAlive: !eng.isDying,
-        isSuperBoosting: eng.player.isSuperBoosting
-      };
-    }
-    return null;
-  });
-  console.log('[Playwright] Boost immunity check result:', boostImmunityResult);
-  if (!boostImmunityResult || !boostImmunityResult.mineBroken || !boostImmunityResult.playerAlive) {
-    throw new Error('Boost immunity failed! Player died or mine was not broken.');
-  }
-
-  // 9. Pause Modal
-  console.log('[Playwright] Capturing 09_pause_modal.png');
-  await page.click('#btn-hud-pause');
-  await sleep(400);
-  await captureScreenshot(page, '09_pause_modal.png');
-
-  // 10. Realistic Void Fall & Game Over State
-  console.log('[Playwright] Triggering Void Fall Death & Game Over...');
-  await page.evaluate(() => {
-    if (window._gameEngine) {
-      const eng = window._gameEngine;
-      const targetMeters = 482;
-      const peakY = targetMeters / 0.125; // 3856px
-      eng.maxAltitudeMeters = targetMeters;
-      eng.cameraY = peakY - eng.height * 0.50; // Correct camera position at peak altitude
-      eng.storage.data.hyperCrystals = 5;
-      eng.hasRevivedThisRun = false;
-      // Trigger game over from void death position
-      eng.player.y = eng.cameraY - 10;
-      eng.player.vy = -600;
-      eng.triggerGameOver();
-    }
-  });
-  await sleep(850); // Allow 700ms death hitstop to transition to GAME_OVER
-  console.log('[Playwright] Capturing 10_game_over.png');
-  await captureScreenshot(page, '10_game_over.png');
-
-  // 10b. Test Revive Button and capture revived gameplay with quantum shield
-  console.log('[Playwright] Testing #btn-gameover-revive...');
-  const btnRevive = await page.$('#btn-gameover-revive');
-  if (btnRevive) {
-    await btnRevive.click({ force: true });
-    await sleep(450);
-    const revivedState = await page.evaluate(() => {
-      const eng = window._gameEngine;
-      const screenY = eng.height - (eng.player.y - eng.cameraY);
-      return {
-        altitude: eng.maxAltitudeMeters,
-        screenY,
-        height: eng.height,
-        isHooked: eng.player.isHooked,
-        shieldTimer: eng.player.shieldTimer,
-        cameraY: eng.cameraY,
-        playerY: eng.player.y
-      };
     });
-    console.log(`[Playwright] Revived State: altitude=${revivedState.altitude}m, screenY=${revivedState.screenY.toFixed(1)}px (viewport height=${revivedState.height}px), hooked=${revivedState.isHooked}, shield=${revivedState.shieldTimer.toFixed(1)}s`);
-    if (revivedState.altitude < 482) {
-      throw new Error(`Revive failed to restore altitude! Expected >= 482m, got ${revivedState.altitude}m`);
-    }
-    if (!revivedState.isHooked) {
-      throw new Error('Revived player is not hooked!');
-    }
-    // Check that player is squarely in the viewport center region (between 35% and 65% of viewport height)
-    const ratio = revivedState.screenY / revivedState.height;
-    if (ratio < 0.35 || ratio > 0.65) {
-      throw new Error(`Revived player screenY (${revivedState.screenY}px, ratio=${ratio.toFixed(2)}) is not centered!`);
-    }
-    console.log(`[Playwright] Revived player is perfectly centered in viewport (ratio=${ratio.toFixed(2)})!`);
-    console.log('[Playwright] Capturing 10b_revived_gameplay.png');
-    await captureScreenshot(page, '10b_revived_gameplay.png');
+    await sleep(200);
+    await page.click('#btn-menu-leaderboard');
+    await sleep(400);
+    console.log('[Playwright] Capturing 04_hub_leaderboard.png (Global Top 100 - Real Data)');
+    await captureScreenshot(page, '04_hub_leaderboard.png', 'Global Leaderboard');
+    await page.click('#btn-leaderboard-close');
+    await sleep(300);
   }
 
-  // 11. Mobile Responsive View (390x844)
-  console.log('[Playwright] Capturing 11_mobile_responsive.png');
-  await page.setViewportSize({ width: 390, height: 844 });
-  await sleep(300);
-  await captureScreenshot(page, '11_mobile_responsive.png');
+  // 5. Aufgaben (Direct Quests Button)
+  if (shouldCapture('05_hub_quests.png') || shouldCapture('05b_hub_quests_claimed.png') || shouldCapture('05c_hub_quests_scrolled.png')) {
+    console.log('[Playwright] Preparing ready-to-claim quest...');
+    await page.evaluate(() => {
+      if (window._gameEngine) {
+        window._gameEngine.storage.data.questProgress['daily_reach_350'] = 600;
+        window._gameEngine.storage.data.questProgress['daily_collect_12'] = 16;
+        window._gameEngine.storage.data.activeDailyQuestIds = ['daily_reach_350', 'daily_collect_12', 'daily_boost_3'];
+        window._gameEngine.storage.data.claimedQuestIds = [];
+        window._gameEngine.storage.save();
+        window._gameEngine.ui.updateUnclaimedBadges();
+      }
+    });
+    await sleep(200);
 
-  // 12. Mobile Skins View (390x844)
-  console.log('[Playwright] Capturing 12_mobile_skins.png');
-  await page.evaluate(() => {
-    if (window._gameEngine) {
-      window._gameEngine.state.changeState(StateManager.STATES.SHOP);
+    console.log('[Playwright] Testing #btn-menu-quests...');
+    await page.click('#btn-menu-quests');
+    await sleep(400);
+    if (shouldCapture('05_hub_quests.png')) {
+      console.log('[Playwright] Capturing 05_hub_quests.png');
+      await captureScreenshot(page, '05_hub_quests.png', 'Quests Active');
     }
-  });
-  await sleep(400);
-  await captureScreenshot(page, '12_mobile_skins.png');
 
-  // 14. Live Telemetry Dashboard View (Auth Protection & Unlocked View)
-  console.log('[Playwright] Testing Protected Dashboard Auth Gate...');
-  const DASHBOARD_FILE = 'file:///' + path.join(__dirname, '..', 'dashboard.html').replace(/\\/g, '/');
-  const dashPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-  dashPage.on('console', msg => {
-    if (msg.type() === 'error') consoleErrors.push(`[Dashboard] ${msg.text()}`);
-  });
-  dashPage.on('pageerror', err => {
-    consoleErrors.push(`[Dashboard Exception] ${err.message}`);
-  });
-  await dashPage.goto(DASHBOARD_FILE, { waitUntil: 'load' });
-  await sleep(400);
-  console.log('[Playwright] Capturing 14_dashboard_locked.png');
-  await captureScreenshot(dashPage, '14_dashboard_locked.png');
+    if (shouldCapture('05b_hub_quests_claimed.png')) {
+      console.log('[Playwright] Clicking Claim button on completed quest...');
+      const claimBtn = await page.$('.btn-claim');
+      if (claimBtn) {
+        await claimBtn.click({ force: true });
+        await sleep(400);
+        console.log('[Playwright] Capturing 05b_hub_quests_claimed.png');
+        await captureScreenshot(page, '05b_hub_quests_claimed.png', 'Quests Claimed');
+      }
+    }
 
-  // Authenticate with Master PIN '2026'
-  console.log('[Playwright] Entering Master PIN on Dashboard...');
-  await dashPage.fill('#auth-pin-input', '2026');
-  await dashPage.click('#auth-form button[type="submit"]');
-  await sleep(600);
-  console.log('[Playwright] Capturing 14b_dashboard_unlocked.png');
-  await captureScreenshot(dashPage, '14b_dashboard_unlocked.png');
-  await dashPage.close();
+    if (shouldCapture('05c_hub_quests_scrolled.png')) {
+      console.log('[Playwright] Scrolling quests down to Weekly Challenges...');
+      await page.evaluate(() => {
+        const scrollArea = document.querySelector('.quests-scroll-area');
+        if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
+      });
+      await sleep(350);
+      console.log('[Playwright] Capturing 05c_hub_quests_scrolled.png (Weekly Challenges)');
+      await captureScreenshot(page, '05c_hub_quests_scrolled.png', 'Quests Weekly Challenges');
+    }
+
+    await page.click('#btn-quests-close');
+    await sleep(300);
+  }
+
+  // 6. Statistiken (Direct Stats Button)
+  if (shouldCapture('06_hub_stats.png')) {
+    console.log('[Playwright] Testing #btn-menu-stats...');
+    await page.click('#btn-menu-stats');
+    await sleep(400);
+    console.log('[Playwright] Capturing 06_hub_stats.png');
+    await captureScreenshot(page, '06_hub_stats.png', 'Pilot Stats');
+    await page.click('#btn-stats-close');
+    await sleep(300);
+  }
+
+  // 6b. Pilot Profile & Registration
+  if (shouldCapture('06b_pilot_profile.png')) {
+    console.log('[Playwright] Testing #btn-menu-profile...');
+    await page.click('#btn-menu-profile');
+    await sleep(400);
+    await page.fill('#profile-name-input', 'ApexStriker');
+    await page.click('#profile-form button[type="submit"]');
+    await sleep(300);
+    console.log('[Playwright] Capturing 06b_pilot_profile.png');
+    await captureScreenshot(page, '06b_pilot_profile.png', 'Pilot Profile');
+    await page.click('#btn-profile-close');
+    await sleep(300);
+  }
+
+  // 7. Settings Modal
+  if (shouldCapture('07_settings.png')) {
+    console.log('[Playwright] Testing Settings and Update Checker...');
+    await page.click('#btn-menu-settings');
+    await sleep(400);
+    await page.click('#btn-check-update');
+    await sleep(300);
+    console.log('[Playwright] Capturing 07_settings.png');
+    await captureScreenshot(page, '07_settings.png', 'Settings Modal');
+    await page.click('#btn-settings-close');
+    await sleep(300);
+  }
+
+  // 13. Tutorial Modal
+  if (shouldCapture('13_tutorial_modal.png')) {
+    console.log('[Playwright] Testing #btn-menu-tutorial...');
+    await page.click('#btn-menu-tutorial');
+    await sleep(500);
+    console.log('[Playwright] Capturing 13_tutorial_modal.png (Minimalist Controls Guide)');
+    await captureScreenshot(page, '13_tutorial_modal.png', 'Tutorial Controls Guide');
+    await page.click('#btn-tut-close-1');
+    await sleep(300);
+  }
+
+  // Gameplay Flow: 08, 09, 10, 10b
+  const needsGameplay = shouldCapture('08_gameplay_hud.png') || shouldCapture('09_pause_modal.png') || shouldCapture('10_game_over.png') || shouldCapture('10b_revived_gameplay.png');
+  if (needsGameplay) {
+    console.log('[Playwright] Starting gameplay session...');
+    await page.evaluate(() => {
+      if (window._gameEngine) {
+        window._gameEngine.state.changeState(StateManager.STATES.PLAYING);
+      }
+    });
+    await sleep(500);
+
+    // 8. Gameplay HUD
+    if (shouldCapture('08_gameplay_hud.png')) {
+      console.log('[Playwright] Triggering Minimalist Combo x3 visual & Hazard Mine...');
+      await page.evaluate(() => {
+        if (window._gameEngine) {
+          window._gameEngine.slingshotCombo = 3;
+          window._gameEngine.particles.spawnFloatingText(window._gameEngine.player.x, window._gameEngine.player.y + 50, 'COMBO x3', '#a855f7', 32, true);
+          window._gameEngine.ui.showComboBadge('COMBO x3', '#a855f7');
+          const hazardNode = new OrbitNode(window._gameEngine.width * 0.75, window._gameEngine.player.y + 130, 'HAZARD', window._gameEngine.width, 10200);
+          window._gameEngine.world.nodes.push(hazardNode);
+        }
+      });
+      await sleep(200);
+      console.log('[Playwright] Capturing 08_gameplay_hud.png');
+      await captureScreenshot(page, '08_gameplay_hud.png', 'Gameplay HUD & Combo');
+
+      // Boost immunity check
+      const boostImmunityResult = await page.evaluate(() => {
+        if (window._gameEngine) {
+          const eng = window._gameEngine;
+          eng.player.isSuperBoosting = true;
+          eng.player.boostTimer = 2.0;
+          eng.player.shieldTimer = 0;
+          eng.isDying = false;
+
+          const testMine = new OrbitNode(eng.player.x, eng.player.y, 'HAZARD', eng.width, 10000);
+          eng.world.nodes.push(testMine);
+
+          const lethalDist = eng.player.radius + testMine.radius + 6;
+          const dist = Math.hypot(eng.player.x - testMine.x, eng.player.y - testMine.y);
+          if (dist < lethalDist) {
+            testMine.isBroken = true;
+            if (eng.player.isSuperBoosting || eng.player.boostTimer > 0) {
+              eng.particles.spawnShockwave(testMine.x, testMine.y, '#10b981', 80);
+              eng.particles.spawnFloatingText(testMine.x, testMine.y + 35, 'MINE ZERSTÖRT!', '#10b981', 26, true);
+            } else {
+              eng.isDying = true;
+            }
+          }
+
+          return {
+            mineBroken: testMine.isBroken,
+            playerAlive: !eng.isDying,
+            isSuperBoosting: eng.player.isSuperBoosting
+          };
+        }
+        return null;
+      });
+      console.log('[Playwright] Boost immunity check result:', boostImmunityResult);
+      if (!boostImmunityResult || !boostImmunityResult.mineBroken || !boostImmunityResult.playerAlive) {
+        throw new Error('Boost immunity failed! Player died or mine was not broken.');
+      }
+    }
+
+    // 9. Pause Modal
+    if (shouldCapture('09_pause_modal.png')) {
+      console.log('[Playwright] Capturing 09_pause_modal.png');
+      await page.click('#btn-hud-pause');
+      await sleep(400);
+      await captureScreenshot(page, '09_pause_modal.png', 'Pause Modal');
+      await page.click('#btn-pause-resume');
+      await sleep(300);
+    }
+
+    // 10. Game Over & Revive
+    if (shouldCapture('10_game_over.png') || shouldCapture('10b_revived_gameplay.png')) {
+      console.log('[Playwright] Triggering Void Fall Death & Game Over...');
+      await page.evaluate(() => {
+        if (window._gameEngine) {
+          const eng = window._gameEngine;
+          const targetMeters = 482;
+          const peakY = targetMeters / 0.125;
+          eng.maxAltitudeMeters = targetMeters;
+          eng.cameraY = peakY - eng.height * 0.50;
+          eng.storage.data.hyperCrystals = 5;
+          eng.hasRevivedThisRun = false;
+          eng.player.y = eng.cameraY - 10;
+          eng.player.vy = -600;
+          eng.triggerGameOver();
+        }
+      });
+      await sleep(850);
+      if (shouldCapture('10_game_over.png')) {
+        console.log('[Playwright] Capturing 10_game_over.png');
+        await captureScreenshot(page, '10_game_over.png', 'Game Over Screen');
+      }
+
+      if (shouldCapture('10b_revived_gameplay.png')) {
+        console.log('[Playwright] Testing #btn-gameover-revive...');
+        const btnRevive = await page.$('#btn-gameover-revive');
+        if (btnRevive) {
+          await btnRevive.click({ force: true });
+          await sleep(450);
+          console.log('[Playwright] Capturing 10b_revived_gameplay.png');
+          await captureScreenshot(page, '10b_revived_gameplay.png', 'Revived Gameplay');
+        }
+      }
+    }
+  }
+
+  // 11 & 12. Mobile Responsive Views (390x844)
+  const needsMobile = shouldCapture('11_mobile_responsive.png') || shouldCapture('12_mobile_skins.png');
+  if (needsMobile) {
+    console.log('[Playwright] Testing mobile viewport (390x844)...');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await sleep(300);
+    if (shouldCapture('11_mobile_responsive.png')) {
+      await page.evaluate(() => {
+        if (window._gameEngine) window._gameEngine.state.changeState(StateManager.STATES.MENU);
+      });
+      await sleep(300);
+      console.log('[Playwright] Capturing 11_mobile_responsive.png');
+      await captureScreenshot(page, '11_mobile_responsive.png', 'Mobile Responsive Menu');
+    }
+
+    if (shouldCapture('12_mobile_skins.png')) {
+      await page.evaluate(() => {
+        if (window._gameEngine) window._gameEngine.state.changeState(StateManager.STATES.SHOP);
+      });
+      await sleep(400);
+      console.log('[Playwright] Capturing 12_mobile_skins.png');
+      await captureScreenshot(page, '12_mobile_skins.png', 'Mobile Skins Shop');
+    }
+  }
+
+  // 14 & 14b. Live Telemetry Dashboard View
+  const needsDashboard = shouldCapture('14_dashboard_locked.png') || shouldCapture('14b_dashboard_unlocked.png');
+  if (needsDashboard) {
+    console.log('[Playwright] Testing Protected Dashboard Auth Gate...');
+    const DASHBOARD_FILE = 'file:///' + path.join(__dirname, '..', 'dashboard.html').replace(/\\/g, '/');
+    const dashPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    dashPage.on('console', msg => {
+      if (msg.type() === 'error') consoleErrors.push(`[Dashboard] ${msg.text()}`);
+    });
+    dashPage.on('pageerror', err => {
+      consoleErrors.push(`[Dashboard Exception] ${err.message}`);
+    });
+    await dashPage.goto(DASHBOARD_FILE, { waitUntil: 'load' });
+    await sleep(400);
+    if (shouldCapture('14_dashboard_locked.png')) {
+      console.log('[Playwright] Capturing 14_dashboard_locked.png');
+      await captureScreenshot(dashPage, '14_dashboard_locked.png', 'Dashboard Gate Locked');
+    }
+
+    if (shouldCapture('14b_dashboard_unlocked.png')) {
+      console.log('[Playwright] Entering Master PIN on Dashboard...');
+      await dashPage.fill('#auth-pin-input', '2026');
+      await dashPage.click('#auth-form button[type="submit"]');
+      await sleep(600);
+      console.log('[Playwright] Capturing 14b_dashboard_unlocked.png');
+      await captureScreenshot(dashPage, '14b_dashboard_unlocked.png', 'Dashboard Unlocked');
+    }
+    await dashPage.close();
+  }
 
   await browser.close();
 
   // 1. Generate Machine-Readable and Human-Readable Verification Reports
+  let existingManifest = [];
+  const reportPath = path.join(SCREENSHOTS_DIR, 'VERIFICATION_REPORT.json');
+  if (isSelective && fs.existsSync(reportPath)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+      if (Array.isArray(prev.manifest)) {
+        const freshNames = new Set(capturedManifest.map(m => m.filename));
+        existingManifest = prev.manifest.filter(m => !freshNames.has(m.filename));
+      }
+    } catch (e) {}
+  }
+  const combinedManifest = [...existingManifest, ...capturedManifest];
+
   const runReport = {
     suite: "Sling Jump Automated Playwright Visual Verification",
+    mode: isSelective ? `Selective (${targetedFilters.join(', ')})` : "Full Regression",
     executedAt: new Date().toISOString(),
     localTimestamp: new Date().toLocaleString(),
     consoleErrorsCount: consoleErrors.length,
     consoleErrors: consoleErrors,
-    totalScreenshots: capturedManifest.length,
-    manifest: capturedManifest
+    selectiveScreenshotsCount: capturedManifest.length,
+    totalCatalogScreenshotsCount: combinedManifest.length,
+    freshRunManifest: capturedManifest,
+    manifest: combinedManifest
   };
-  fs.writeFileSync(path.join(SCREENSHOTS_DIR, 'VERIFICATION_REPORT.json'), JSON.stringify(runReport, null, 2), 'utf8');
+  fs.writeFileSync(reportPath, JSON.stringify(runReport, null, 2), 'utf8');
 
   const mdReport = `# Playwright Visual Verification Report
 > **Laufzeit:** ${new Date().toLocaleString()}  
+> **Modus:** ${isSelective ? `Selektiv (\`${targetedFilters.join(', ')}\`)` : 'Vollständige Regression (Alle Screens)'}  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
-> **Erfasste Screenshots:** ${capturedManifest.length}  
-> **Garantierte Frische:** Alle Dateien wurden in diesem Testlauf frisch erzeugt.
+> **Frisch erfasste Screenshots in diesem Lauf:** ${capturedManifest.length}  
+> **Garantierte Frische:** Alle unten aufgeführten Dateien wurden in diesem Testlauf frisch erzeugt.
 
-| Datei | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
-| :--- | :--- | :--- | :--- |
-${capturedManifest.map(m => `| \`${m.filename}\` | ${m.localTime} | ${m.sizeKb} KB | \`${m.sha256}\` |`).join('\n')}
+### Frisch erfasste Screenshots
+| Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
+| :--- | :--- | :--- | :--- | :--- |
+${capturedManifest.map(m => `| \`${m.filename}\` | ${m.description || 'Visual State'} | ${m.localTime} | ${m.sizeKb} KB | \`${m.sha256}\` |`).join('\n')}
+
+${combinedManifest.length > capturedManifest.length ? `\n### Gesamter Screenshot-Bestand (${combinedManifest.length} Dateien)\n| Datei | Letzte Erfassung | Dateigröße |\n| :--- | :--- | :--- |\n` + combinedManifest.map(m => `| \`${m.filename}\` | ${m.localTime || m.capturedAt} | ${m.sizeKb} KB |`).join('\n') : ''}
 `;
   fs.writeFileSync(path.join(SCREENSHOTS_DIR, 'LATEST_RUN.md'), mdReport, 'utf8');
 

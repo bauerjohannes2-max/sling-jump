@@ -1,11 +1,11 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC45 - v4.4.0 - Earlier Difficulty Progression, Ultra-Rare Crystals, SVG Revive Button, Headerless Leaderboard, Clean Settings, Authentic Dynamic Tutorial & Curated Hero Stats)  
+> **Status:** Release Candidate (RC46 - v4.5.0 - Selective Token-Optimized Playwright Verification Suite & Integrated Google Lyria Audio Pipeline)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 05.09.2026  
 > **Lauffaehigkeit:** 24/7 Online via GitHub Pages Edge CDN, oder lokal via Direkt-Doppelklick (`file:///`) / `npm start`  
-> **Test-Runner:** Playwright Test-Suite via `npm test` (`scripts/playwright_runner.js`)  
+> **Test-Runner:** Playwright Test-Suite via `npm test` (`scripts/playwright_runner.js`), selective tests via `node scripts/playwright_runner.js <screen>`  
 > **Vertriebs- & Hosting-Dokumentation:** Siehe [`DISTRIBUTION.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/DISTRIBUTION.md)
 
 ---
@@ -18,6 +18,7 @@
 | `npm start` / `npm run serve` | **Lokales WLAN / LAN** | Startet den HTTP-Server auf Port 3000, ermittelt die lokale IPv4 (`http://192.168.x.x:3000`) und gibt einen scanbaren ASCII-QR-Code im Terminal aus. |
 | `npm run share` | **Dev-Tunnel & QR-Code** | Gibt den permanenten Link samt ASCII-QR-Code im Terminal aus und startet optional einen temporären Entwickler-Tunnel. |
 | `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 18 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
+| `node scripts/playwright_runner.js <screen>` | **Selektiver Test (Token-Schonung)** | Führt nur die relevanten Testschritte aus (z.B. `07` für Einstellungen) und erzeugt gezielt frische Screenshots bei minimalem Token-Verbrauch. |
 
 ---
 
@@ -53,6 +54,21 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.5.0 (05.09.2026) - Selektive Playwright-Testsuite (Token-Optimierung) & Google Lyria Audio-Pipeline
+* **1. Selektive Playwright-Screenshot-Harness (`scripts/playwright_runner.js`):**
+  * Entwickler und Agenten können gezielt einzelne Screens oder Gruppen ansteuern (z.B. `node scripts/playwright_runner.js 07` oder `node scripts/playwright_runner.js 01,07`).
+  * **Massive Token-Einsparung:** Es werden nur noch jene Screens aufgenommen und im Report aufgeführt, an denen Änderungen vorgenommen wurden. Die übrigen Screenshots bleiben unverändert im Bestand erhalten.
+  * Selektives Purging: Nur die Ziel-Screenshots werden vor dem Lauf bereinigt, um absolute Frische und SHA-256 Integrität zu garantieren.
+  * Windows NTFS-Tunneling Fix: `scripts/touch_timestamps.ps1` garantiert aktuelle Sekunden-Zeitstempel.
+  * Report-Architektur: `VERIFICATION_REPORT.json` und `LATEST_RUN.md` listen frisch erzeugte Screenshots detailliert auf.
+* **2. Aktivierung der Audio-Engine & Google Lyria Pipeline (`AudioManager.js`, `UIManager.js`, `index.html`):**
+  * Audio-Engine standardmäßig aktiv (`audioEnabled: true`) mit interaktivem `[ AN ]` / `[ AUS ]` Umschalter im Einstellungs-Modal (`#btn-audio-toggle`).
+  * Prozeduraler Web Audio Synthesizer Overhaul: Vieldimensionaler warmer Synthwave-Pad- und Basspuls-Generator (`playProceduralAmbient`) mit dynamischem Tiefpassfilter-Sweep (LFO) für absolut latenzfreie Zero-Asset Wiedergabe.
+  * Google Lyria 3.5 Handbuch: Neues Dokument [`AUDIO_GUIDE.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/AUDIO_GUIDE.md) mit praxiserprobten Prompts für Menü-, Gameplay- und Game-Over-Musik sowie 7 dedizierte SFX-Prompts.
+  * User-Gesture Audio Unlock: Sanfte Aktivierung des `AudioContext` bei `pointerdown` / `keydown`.
+* **3. Verifikation:**
+  * Selektive Playwright-Läufe (`07_settings.png` und `01_main_menu.png`) mit 0 Konsolenfehlern in unter 6 Sekunden verifiziert.
 
 ### v4.4.0 (05.09.2026) - Frühere Schwierigkeitskurve, Seltene Kristalle, SVG-Revive, Headerlose Bestenliste, Authentisches Tutorial & Kuratierte Top-5 Statistiken
 * **1. Frühere und dynamischere Schwierigkeits-Progression (`WorldManager.js`):**

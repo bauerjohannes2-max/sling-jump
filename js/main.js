@@ -9,6 +9,18 @@
   const engine = new GameEngine();
   window._gameEngine = engine;
 
+  // Unlock WebAudio on user gesture
+  const unlockAudio = () => {
+    if (engine.audio && engine.audio.enabled) {
+      engine.audio.init();
+      if (engine.audio.ctx && engine.audio.ctx.state === 'suspended') {
+        engine.audio.ctx.resume();
+      }
+    }
+  };
+  window.addEventListener('pointerdown', unlockAudio, { passive: true });
+  window.addEventListener('keydown', unlockAudio, { passive: true });
+
   // Wire DOM UI Button Events
   function bindUIButtons() {
     const ui = engine.ui;
