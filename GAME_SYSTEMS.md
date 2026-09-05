@@ -1,7 +1,7 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 3.37.0  
-Aktualisiert am: 04. September 2026  
+Dokumentationsstand: Version 4.4.0  
+Aktualisiert am: 05. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
 Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.com/bauerjohannes2-max/sling-jump)
@@ -15,7 +15,7 @@ Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.co
 * **Score-Philosophie:** Die erreichte Höhe in Metern (`m`) ist der alleinige Hauptwert (Hero Score).
 * **Zwei-Währungs-Ökonomie:**
   1. **Münzen (`cores` / Orbs):** Reguläre In-Game Währung, sammelbar in Formationen im All oder als Quest-Belohnungen. Dient zum Freischalten von Raumschiffen und Schweifen im Hangar.
-  2. **Hyper-Kristalle (`CRYSTAL`):** Extrem seltene violett-pinke Währung (~1.0% Spawn-Chance ab 5.000m Höhe mit 2.500px Mindestabstand). Dient zur sofortigen **Quanten-Wiederbelebung** nach einem Absturz.
+  2. **Hyper-Kristalle (`CRYSTAL`):** Extrem seltene violett-pinke Währung (ultra-seltene 0.25% Spawn-Chance ab 8.000m Tiefe mit 6.000px Mindestabstand). Dient zur sofortigen **Quanten-Wiederbelebung** nach einem Absturz.
 
 ---
 
@@ -299,7 +299,7 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * **Reines globales Leaderboard (Global Top 100):**
   * Das Leaderboard konzentriert sich zu 100% auf die weltweite Rangliste ohne ablenkende Reiter oder lokale Tabs.
   * **Genau ein Eintrag pro Spieler (Highscore-Prinzip):** Jeder Spieler erscheint mit maximal einem einzigen Eintrag in der Bestenliste – exakt seiner persönlichen Bestleistung. Mehrfache Flüge desselben Spielers werden automatisch aggregiert, sodass ausschließlich der höchste Rekord gewertet wird.
-  * **Strikter 3-Spalten-Standard:** Ausschließlich `RANG`, `PILOT` und `METER`.
+  * **Minimalistische, kopfzeilenfreie Rangliste:** Keine störenden Spaltenüberschriften (`RANG`, `PILOT`, `METER` entfernt). Die visuelle Anordnung ist durch Kartendesign und Typografie selbsterklärend.
   * **GLOBAL (TOP 100):**
     * Präsentiert die weltweite Rangliste aller einzigartigen Piloten mit bis zu 100 Einträgen.
     * Der eigene Rekord (`highScore`) wird mit dem Spieler-Namen und `(DU)`-Badge dynamisch in die weltweite Liste einsortiert.
@@ -307,13 +307,12 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 
 ### 10.6 Authentisches Steuerungs-Tutorial (`index.html`, `UIManager.js`)
 * **Minimalistischer Header:** Redundante Subtitel entfernt; die Modal-Kopfzeile trägt einzig den klaren Titel `STEUERUNG`.
-* **Zero In-Video Text:** Vollständige Entfernung jeglicher Text-Badges oder Overlays innerhalb des Video-Canvas. Sämtliche Erklärungen befinden sich klar strukturiert im Textbereich unter dem Video.
-* **Authentische Physik- und Grafik-Simulation:**
-  * Multi-Layer Sternenfeld mit funkelnden Sternen im Hintergrund.
-  * Sekundärer Ziel-Node im oberen Bereich visualisiert den Höhengewinn beim Katapult.
-  * Echte `OrbitNode`-Shader mit weicher Aura, Orbit-Ring, pulsierendem Kern und taktischen Eckmarkern während des Anflugs.
-  * Originalgetreue `PFEIL`-Rumpfgeometrie mit dunklem Obsidian-Körper, doppelten Triebwerks-Partikeln und leuchtender Cockpit-Kanzel.
-  * Slingshot-Abwurf bei 90° Tangente mit expandierender Schockwelle und Beschleunigungs-Spur.
+* **Einheitliche Typografie:** Alle Erklärungstexte unter dem Canvas sind farblich konsistent im klaren Slate-Weiß (`#e2e8f0`) formatiert.
+* **Authentische Live-Gameplay-Simulation (60 FPS Canvas):**
+  * Echter leuchtender Haltestrahl (cyanfarbener Laser-Tether `#00f0ff`) verbindet Schiff und Knoten während des Orbits.
+  * Vertikales Kamera-Tracking: Beim 90°-Katapultstart scrollt die Welt flüssig nach unten, während das Schiff nach oben beschleunigt.
+  * Schwebende Münzen (`+1 COIN`) mit Sammeleffekt und Funkenpartikeln im Flugkorridor.
+  * Dynamisches In-Game Mini-HUD mit Live-Höhenanzeige (`ALT: 28M -> 114M`) und `PERFEKT`-Feedback-Badge.
 
 ### 10.7 Deaktivierte Fullscreen-API & Reines 100dvh Viewport-Locking (`main.js`, `style.css`)
 * **Vollständige Eliminierung von Android-Sicherheitstoasts:**
@@ -321,22 +320,26 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * **100dvh Viewport-Lock & Scroll-Stabilisierung:** `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`. Eine passive `stabilizeViewport()`-Routine hält die Scroll-Position bei `load`, `orientationchange` und `resize` nahtlos auf `(0, 0)`.
   * **Echtes Vollbild ohne Toasts via PWA-Installation:** Bei Installation auf den Startbildschirm ("Zum Startbildschirm hinzufügen" / PWA) öffnet Android Chrome das Spiel als Standalone-WebAPK automatisch im nativen Vollbildmodus – vollständig ohne Browserleisten und ohne jegliche Sicherheitstoasts.
 
+### 10.8 Globaler Top-Right 'X' Modal Close Standard (`index.html`, `style.css`)
+* **Beseitigung aller unteren Schließen-Buttons:** Alle redundanten "SCHLIESSEN"-Buttons am unteren Rand von Modals wurden vollständig durch minimalistische Vektor-Icons (`.modal-close-x`) in der oberen rechten Ecke ersetzt.
+
 ### 10.9 Minimalistische währungsfreie UI-Badges (Zero-Background Currency)
 * **Reine Vektor-Symbole & Typografie:**
   * Entfernung aller klobigen Pillen-Hintergründe (`background: none`, `border: none`, `padding: 0`).
   * Nur das scharfe Vektor-Icon und die leuchtende Zahl sind sichtbar.
-  * Horizontale Anordnung nebeneinander in einer Reihe mit angenehmem Abstand (20px).
 
-### 10.8 Globaler Top-Right 'X' Modal Close Standard (`index.html`, `style.css`)
-* **Beseitigung aller unteren Schließen-Buttons:** Alle redundanten "SCHLIESSEN"-Buttons am unteren Rand von Modals wurden vollständig durch minimalistische Vektor-Icons (`.modal-close-x`) in der oberen rechten Ecke ersetzt.
-* **Einheitliches Verhalten in allen 7 Modals:**
-  * Hangar / Skins (`#btn-shop-close`)
-  * Aufgaben / Quests (`#btn-quests-close`)
-  * Bestenliste / Leaderboard (`#btn-leaderboard-close`)
-  * Statistiken / Stats (`#btn-stats-close`)
-  * Einstellungen / Settings (`#btn-settings-close`)
-  * Tutorial (`#btn-tut-close-1`)
-  * Pilot-Profil (`#btn-profile-close`)
+### 10.10 Kristall-Icon im Wiederbeleben-Button & Kuratierte Top-5 Statistiken
+* **Game Over Revive-Button:**
+  * Das Textwort `"KRISTALL"` wurde komplett durch das minimalistische SVG-Vektor-Icon (`1 <svg class="crystal-icon">`) ersetzt.
+  * Kein Überschreiben des Button-Texts mit `"0 KRISTALLE (WERBUNG BALD)"` – der Button bleibt stets bei `"WIEDERBELEBEN"` mit klarem Inaktiv-Zustand und informativer Status-Subline.
+* **Kuratierte Top-5 Statistiken:**
+  * Überfrachtete 10-Karten-Statistik auf 5 Kern-Metriken reduziert: Persönlicher Rekord (Hero-Karte), Geflogene Distanz, Gespielte Runden, Beste Combo, Gesammelte Coins.
+
+### 10.11 Frühere Schwierigkeits-Progression & Tiefraum-Gefahren
+* **Frühe Pendelknoten:** Bereits ab 250m Höhe (Zone 2) treten bewegliche Pendelknoten (15%) auf.
+* **Frühe Zeituhr-Knoten:** Bereits ab 750m Höhe (Zone 3) erscheinen Countdown-Knoten (14%).
+* **Frühe Weltraum-Minen:** Tödliche Minen spawnen bereits ab 5.000m (vorher erst ab 10.000m).
+* **Ultra-seltene Kristalle:** Hyper-Kristalle spawnen erst ab 8.000m Höhe mit stark reduzierter Chance (0.25% statt 1.0%) und 6.000px Mindestabstand.
 
 ---
 

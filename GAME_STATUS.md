@@ -1,9 +1,9 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC44 - v4.3.1 - Fullscreen API Disabled for Toast-Free Browser Gaming & Pure 100dvh Viewport)  
+> **Status:** Release Candidate (RC45 - v4.4.0 - Earlier Difficulty Progression, Ultra-Rare Crystals, SVG Revive Button, Headerless Leaderboard, Clean Settings, Authentic Dynamic Tutorial & Curated Hero Stats)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
-> **Letzte Aktualisierung:** 04.09.2026  
+> **Letzte Aktualisierung:** 05.09.2026  
 > **Lauffaehigkeit:** 24/7 Online via GitHub Pages Edge CDN, oder lokal via Direkt-Doppelklick (`file:///`) / `npm start`  
 > **Test-Runner:** Playwright Test-Suite via `npm test` (`scripts/playwright_runner.js`)  
 > **Vertriebs- & Hosting-Dokumentation:** Siehe [`DISTRIBUTION.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/DISTRIBUTION.md)
@@ -23,17 +23,17 @@
 
 ## 1b. Detaillierte Schwierigkeits- & Progressions-Matrix (Höhenzonen & Kreis-Verteilung)
 
-Die prozedurale Weltengenerierung (`WorldManager.js`) skaliert die Herausforderung kontinuierlich entlang von 7 klar definierten Zonen. Je höher der Pilot aufsteigt, desto mehr verdrängen dynamische Kreisarten (`MOVING`, `FRAGILE`) die statischen Kreise, und ab 10.000 m treten tödliche Weltraum-Minen auf:
+Die prozedurale Weltengenerierung (`WorldManager.js`) skaliert die Herausforderung kontinuierlich entlang von 7 klar definierten Zonen. Bereits ab 250m Höhe treten bewegliche Pendelknoten auf, ab 750m Zeituhr-Knoten und ab 5.000m tödliche Weltraum-Minen:
 
 | Zone | Höhenbereich (Meter) | Standard (%) | Super-Boost (%) | Beweglich (%) | Zeituhr / Fragil (%) | Köder / Fissur (%) | Weltraum-Mine / Bombe (Lethal) | Min/Max Lücke (px) | Mechanische Herausforderung & Gameplay-Verhalten |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Zone 1: Kalibrierung** | 0 m – 500 m | 100% | 0% | 0% | 0% | 0% | 0% | 140 – 180 px | Reine statische Basis-Knoten zum sicheren Eingewöhnen und Schwungaufbau. |
-| **Zone 2: Stratosphäre** | 500 m – 1.500 m | 95% | 5% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste grüne Katapult-Knoten; Cooldown-Sperre (mind. 8 Knoten zwischen Boosts). |
-| **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 76% | 4% | 20% | 0% | 0% | 0% | 165 – 215 px | Einführung violetter horizontal pendelnder Knoten; Boosts gedrosselt auf 4%. |
-| **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 59% | 3% | 24% | 14% | 0% | 0% | 180 – 235 px | Erste goldene Zeituhr-Knoten mit Countdown-Tick; Boosts selten (3%). |
-| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 40% | 2% | 26% | 26% | 6% | 0% | 190 – 245 px | Deutlich mehr Zeituhr-Knoten (26%) fordern zügigen Rhythmus; Boost extrem dosiert (2%). |
-| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 31% | **1.0%** | 28% | 34% | 6% | **~7% Korridor-Spawn** | 195 – 250 px | **Dominante Zeituhr-Knoten (34%), 87.5% weniger Boosts (1.0%) & 8-Knoten Cooldown.** |
-| **Zone 7: Meister-Kosmos** | 15.000 m+ | 23.2% | **0.8%** | 28% | 42% | 6% | **~10% Korridor-Spawn** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Beweglich); Boosts auf 0.8% minimiert (90% Drop). |
+| **Zone 1: Kalibrierung** | 0 m – 250 m | 100% | 0% | 0% | 0% | 0% | 0% | 135 – 175 px | Reine statische Basis-Knoten zum sicheren Eingewöhnen und Schwungaufbau. |
+| **Zone 2: Erdorbit & Dynamik** | 250 m – 750 m | 80% | 5% | 15% | 0% | 0% | 0% | 145 – 185 px | Frühe Einführung horizontal pendelnder Knoten (15%) & seltene Super-Boosts (5%). |
+| **Zone 3: Stratosphäre** | 750 m – 2.000 m | 58% | 4% | 24% | 14% | 0% | 0% | 165 – 210 px | Frühe Zeituhr-Knoten (14%) mit Countdown-Tick; Pendel (24%) und Boost (4%). |
+| **Zone 4: Mesosphäre** | 2.000 m – 5.000 m | 44% | 3% | 26% | 24% | 3% | 0% | 180 – 230 px | Taktische Zeituhr- (24%) und Pendelknoten (26%), erste Köder (3%). |
+| **Zone 5: Thermosphäre** | 5.000 m – 9.000 m | 34% | 2% | 28% | 30% | 6% | **~6% Korridor-Spawn** | 190 – 245 px | Erste tödliche Weltraum-Minen ab 5.000m; 30% Fragile Knoten fordern Tempo. |
+| **Zone 6: Tiefraum-Gefahren** | 9.000 m – 14.000 m | 28% | **1.0%** | 28% | 36% | 7% | **~10% Korridor-Spawn** | 195 – 250 px | **Dominante Zeituhr-Knoten (36%), Minen-Dichte (~10%), ultra-seltene Kristalle ab 8.000m.** |
+| **Zone 7: Meister-Kosmos** | 14.000 m+ | 23.2% | **0.8%** | 28% | 42% | 6% | **~10% Korridor-Spawn** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Beweglich); Boosts auf 0.8% minimiert (90% Drop). |
 
 ---
 
@@ -53,6 +53,28 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.4.0 (05.09.2026) - Frühere Schwierigkeitskurve, Seltene Kristalle, SVG-Revive, Headerlose Bestenliste, Authentisches Tutorial & Kuratierte Top-5 Statistiken
+* **1. Frühere und dynamischere Schwierigkeits-Progression (`WorldManager.js`):**
+  * **Zone 2 (250m - 750m):** Erste horizontal pendelnde Knoten (15% Moving) treten bereits ab 250m Höhe auf (vorher erst ab 1.500m).
+  * **Zone 3 (750m - 2.000m):** Frühe Zeituhr-Knoten (14% Fragile) mit Countdown-Tick fordern zügigen Rhythmus (vorher erst ab 3.500m).
+  * **Tödliche Weltraum-Minen ab 5.000m:** Hazard-Minen spawnen bereits ab 5.000m Höhe im Flugkorridor (vorher erst ab 10.000m).
+* **2. Ultra-seltene Hyper-Kristalle (`WorldManager.js`):**
+  * Spawnen erst ab 8.000m Tiefe (vorher ab 5.000m).
+  * Spawn-Wahrscheinlichkeit um den Faktor 4 reduziert (0.25% statt 1.0%).
+  * Mindestabstand zwischen Kristallen auf 6.000px (~750m) erhöht.
+* **3. Kristall-Icon im Wiederbeleben-Button (`index.html`, `UIManager.js`, `style.css`):**
+  * Das Wort `"KRISTALL"` im Game-Over Kosten-Tag wurde durch das elegante Vektor-Icon (`1 <svg class="crystal-icon">`) ersetzt.
+  * Der Button-Text bleibt stets auf `"WIEDERBELEBEN"` stehen und wird bei fehlenden Kristallen nicht mehr mit `"0 KRISTALLE (WERBUNG BALD)"` überschrieben.
+* **4. Headerlose, selbsterklärende Bestenliste (`index.html`):**
+  * Spalten-Kopfzeile (`RANG`, `PILOT`, `METER`) vollständig entfernt – maximale visuelle Klarheit nach modernstem Arcade-Standard.
+* **5. Bereinigte Einstellungen (`index.html`, `UIManager.js`):**
+  * Schalter `"Bildschirm-Wackeln"` aus dem Einstellungsmenü entfernt; saftiger Bildschirm-Shake bleibt engine-intern auf idealem Wert (1.0) aktiv.
+* **6. Authentisches Gameplay-Tutorial & Typografie-Angleichung (`index.html`, `UIManager.js`):**
+  * Alle Erklärungstexte im Tutorial-Modal auf einheitliches Slate-Weiß (`#e2e8f0`) harmonisiert.
+  * Dynamische 60-FPS Live-Gameplay-Simulation: Leuchtender cyanfarbener Laser-Tether (`#00f0ff`), vertikales Kamera-Tracking beim 90°-Start, schwebende Münzen mit `+1 COIN`-Sammelanimation und In-Game Mini-HUD mit Live-Höhenanzeige.
+* **7. Kuratierte Top-5 Statistiken (`index.html`, `UIManager.js`):**
+  * Von 10 überfrachteten Boxen auf 5 hochinteressante Kernmetriken reduziert: Persönlicher Rekord (Hero-Karte), Geflogene Distanz, Gespielte Runden, Beste Combo, Gesammelte Coins.
 
 ### v4.3.1 (04.09.2026) - Vollständige Deaktivierung der Fullscreen-API (Toast-Freies Browser-Erlebnis)
 * **1. Dauerhafte Unterdrückung des Android Chrome Sicherheits-Banners (`main.js`):**

@@ -81,44 +81,44 @@ class WorldManager {
       let typeProbabilities = { standard: 1.0, boost: 0.0, moving: 0.0, fragile: 0.0, decoy: 0.0 };
       let forkProbability = 0.0;
 
-      if (altitude < 500) {
-        // ZONE 1: START & KALIBRIERUNG (0m - 500m) -> 100% Solide Basis-Anker
-        minGap = 140;
-        maxGap = 180;
+      if (altitude < 250) {
+        // ZONE 1: START & KALIBRIERUNG (0m - 250m) -> 100% Solide Basis-Anker
+        minGap = 135;
+        maxGap = 175;
         typeProbabilities = { standard: 1.0, boost: 0.0, moving: 0.0, fragile: 0.0, decoy: 0.0 };
         forkProbability = 0.15;
-      } else if (altitude < 1500) {
-        // ZONE 2: STRATOSPHÄRE (500m - 1500m) -> Grüne Super-Boost Katapulte (~5%)
-        minGap = 150;
-        maxGap = 195;
-        typeProbabilities = { standard: 0.95, boost: 0.05, moving: 0.0, fragile: 0.0, decoy: 0.0 };
+      } else if (altitude < 750) {
+        // ZONE 2: ERDORBIT & ERSTE BEWEGUNG (250m - 750m) -> Frühe Pendelknoten (15%) + Boost (5%)
+        minGap = 145;
+        maxGap = 185;
+        typeProbabilities = { standard: 0.80, moving: 0.15, boost: 0.05, fragile: 0.0, decoy: 0.0 };
         forkProbability = 0.15;
-      } else if (altitude < 3500) {
-        // ZONE 3: MESOSPHÄRE (1500m - 3500m) -> Erste horizontale Pendelknoten (20%) + seltenerer Boost (4%)
+      } else if (altitude < 2000) {
+        // ZONE 3: STRATOSPHÄRE (750m - 2000m) -> Frühe Zeituhr-Knoten (14%) + Pendel (24%) + Boost (4%)
         minGap = 165;
-        maxGap = 215;
-        typeProbabilities = { standard: 0.76, moving: 0.20, boost: 0.04, fragile: 0.0, decoy: 0.0 };
+        maxGap = 210;
+        typeProbabilities = { standard: 0.58, moving: 0.24, fragile: 0.14, boost: 0.04, decoy: 0.0 };
         forkProbability = 0.14;
-      } else if (altitude < 6500) {
-        // ZONE 4: THERMOSPHÄRE (3500m - 6500m) -> Zeituhr-Knoten (14%) + Bewegliche (24%) + seltener Boost (3%)
+      } else if (altitude < 5000) {
+        // ZONE 4: MESOSPHÄRE (2000m - 5000m) -> Taktische Zeituhr- (24%) + Pendel- (26%) + Decoy-Knoten (3%)
         minGap = 180;
-        maxGap = 235;
-        typeProbabilities = { standard: 0.59, moving: 0.24, fragile: 0.14, boost: 0.03, decoy: 0.0 };
+        maxGap = 230;
+        typeProbabilities = { standard: 0.44, moving: 0.26, fragile: 0.24, decoy: 0.03, boost: 0.03 };
         forkProbability = 0.12;
-      } else if (altitude < 10000) {
-        // ZONE 5: EXOSPHÄRE (6500m - 10000m) -> Zeituhr-Knoten (26%) + Bewegliche (26%) + rarer Boost (2%)
+      } else if (altitude < 9000) {
+        // ZONE 5: THERMOSPHÄRE (5000m - 9000m) -> Erhöhte Instabilität (30% Fragile, 28% Moving, 6% Decoy)
         minGap = 190;
         maxGap = 245;
-        typeProbabilities = { standard: 0.40, moving: 0.26, fragile: 0.26, decoy: 0.06, boost: 0.02 };
+        typeProbabilities = { standard: 0.34, moving: 0.28, fragile: 0.30, decoy: 0.06, boost: 0.02 };
         forkProbability = 0.10;
-      } else if (altitude < 15000) {
-        // ZONE 6: TIEFRAUM-GEFAHRENZONE (10000m - 15000m) -> Stark reduzierter Boost (1.0%), hoher Skill-Anspruch
+      } else if (altitude < 14000) {
+        // ZONE 6: TIEFRAUM-GEFAHRENZONE (9000m - 14000m) -> Extreme Dynamik, 36% Fragile, 1% Boost
         minGap = 195;
         maxGap = 250;
-        typeProbabilities = { standard: 0.31, moving: 0.28, fragile: 0.34, decoy: 0.06, boost: 0.01 };
+        typeProbabilities = { standard: 0.28, moving: 0.28, fragile: 0.36, decoy: 0.07, boost: 0.01 };
         forkProbability = 0.10;
       } else {
-        // ZONE 7: MEISTER-KOSMOS (15000m+) -> Ultra-seltener Boost (0.8%), dominante Zeituhr-Knoten (42%)
+        // ZONE 7: MEISTER-KOSMOS (14000m+) -> Dominante Zeituhr-Knoten (42%), ultra-seltener Boost (0.8%)
         minGap = 200;
         maxGap = 260;
         typeProbabilities = { standard: 0.232, moving: 0.28, fragile: 0.42, decoy: 0.06, boost: 0.008 };
@@ -247,9 +247,9 @@ class WorldManager {
         this.spawnStarFormation(prevNode, newNode, width);
       }
 
-      // 5. LETHAL HAZARD SPACE MINE SPAWN (Altitude >= 10,000m - rebalanced: fewer mines, more time circles)
-      const mineChance = altitude >= 15000 ? 0.10 : 0.07;
-      if (altitude >= 10000 && Math.random() < mineChance) {
+      // 5. LETHAL HAZARD SPACE MINE SPAWN (Starts at 5,000m - earlier tactical danger)
+      const mineChance = altitude >= 12000 ? 0.10 : 0.06;
+      if (altitude >= 5000 && Math.random() < mineChance) {
         const prevNode = this.nodes[this.nodes.length - 2] || this.nodes[this.nodes.length - 1];
         if (prevNode && prevNode.type !== 'HAZARD') {
           const midY = (prevNode.y + nextY) / 2;
@@ -321,10 +321,10 @@ class WorldManager {
     const dx = newNode.x - prevNode.x;
     const dy = newNode.y - prevNode.y;
 
-    // 1. Ultra-Rare Hyper-Kristall Spawn (Rebalanced: strictly 1.0% chance above 5,000m deep space altitude)
+    // 1. Ultra-Rare Hyper-Kristall Spawn (Ultra-rare: 0.25% chance above 8,000m deep space altitude)
     const currentAltitudeMeters = this.lastNodeY * (CONSTANTS.PHYSICS.METERS_PER_PIXEL || 0.125);
-    const hasNearbyCrystal = this.energyOrbs.some(o => o.type === 'CRYSTAL' && Math.abs(o.y - this.lastNodeY) < 2500);
-    if (currentAltitudeMeters >= 5000 && !hasNearbyCrystal && Math.random() < 0.01) {
+    const hasNearbyCrystal = this.energyOrbs.some(o => o.type === 'CRYSTAL' && Math.abs(o.y - this.lastNodeY) < 6000);
+    if (currentAltitudeMeters >= 8000 && !hasNearbyCrystal && Math.random() < 0.0025) {
       const crystalX = Math.random() * (width - 140) + 70;
       const crystalY = (prevNode.y + newNode.y) / 2 + (Math.random() * 20 - 10);
       this.addSafeStar(crystalX, crystalY, width, 'CRYSTAL');

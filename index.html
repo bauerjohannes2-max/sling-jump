@@ -16,10 +16,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Sling Jump">
   <meta name="format-detection" content="telephone=no">
-  <link rel="stylesheet" href="css/style.css?v=4.3.1">
+  <link rel="stylesheet" href="css/style.css?v=4.4.0">
   <script>
     (function() {
-      var APP_VERSION = '4.3.1';
+      var APP_VERSION = '4.4.0';
       var storedVer = localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('sling_jump_installed_version', APP_VERSION);
@@ -84,7 +84,7 @@
         <div class="game-title-container">
           <h1 class="game-title">SLING JUMP</h1>
           <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v4.3.1</div>
+          <div class="app-version-tag">v4.4.0</div>
         </div>
 
         <div class="currency-group">
@@ -229,7 +229,7 @@
           <button class="btn-revive" id="btn-gameover-revive">
             <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:15px;height:15px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="currentColor"></polygon></svg>
             <span id="revive-btn-text">WIEDERBELEBEN</span>
-            <span class="revive-cost-tag">1 KRISTALL</span>
+            <span class="revive-cost-tag" id="revive-cost-tag">1 <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:11px;height:11px;vertical-align:middle;margin-left:2px;display:inline-block;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.3)" stroke="#d946ef" stroke-width="1.8" stroke-linejoin="round"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#d946ef"></polygon></svg></span>
           </button>
           <div class="revive-subtext" id="revive-status-text">1x pro Flug</div>
         </div>
@@ -335,12 +335,6 @@
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
         <div class="modal-title" style="margin-bottom:14px;">BESTENLISTE (TOP 100)</div>
-        <!-- 3-Column Header Bar -->
-        <div class="leaderboard-header-row">
-          <span class="lb-col-rank">RANG</span>
-          <span class="lb-col-name">PILOT</span>
-          <span class="lb-col-alt">METER</span>
-        </div>
         <div class="leaderboard-list" id="global-leaderboard-list"></div>
 
         <!-- Sticky Player Rank Banner -->
@@ -364,6 +358,10 @@
         </button>
         <div class="modal-title" style="margin-bottom:14px;">STATISTIKEN</div>
         <div class="stats-grid">
+          <div class="stat-box stat-box-hero" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border-color: rgba(56, 189, 248, 0.3); padding: 12px 14px;">
+            <div class="stat-box-label" style="color: #38bdf8;">Persönlicher Rekord</div>
+            <div class="stat-box-val" id="stat-high-score" style="font-size: 22px; color: #f8fafc;">0 m</div>
+          </div>
           <div class="stat-box">
             <div class="stat-box-label">Geflogene Distanz</div>
             <div class="stat-box-val" id="stat-lifetime-meters">0 m</div>
@@ -373,36 +371,12 @@
             <div class="stat-box-val" id="stat-total-runs">0</div>
           </div>
           <div class="stat-box">
-            <div class="stat-box-label">Durchschnitts-Höhe</div>
-            <div class="stat-box-val" id="stat-avg-altitude">0 m</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-box-label">Gesammelt</div>
-            <div class="stat-box-val" id="stat-total-cores">0</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-box-label">Slingshot-Sprünge</div>
-            <div class="stat-box-val" id="stat-total-slingshots">0</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-box-label">Knappe Rettungen</div>
-            <div class="stat-box-val" id="stat-total-nearmisses">0</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-box-label">Eingelöste Aufgaben</div>
-            <div class="stat-box-val" id="stat-completed-quests">0</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-box-label">Beste Slingshot-Combo</div>
+            <div class="stat-box-label">Beste Combo</div>
             <div class="stat-box-val" id="stat-best-combo">0x</div>
           </div>
           <div class="stat-box">
-            <div class="stat-box-label">Hyper-Kristalle</div>
-            <div class="stat-box-val" id="stat-total-crystals">0</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-box-label">Wiederbelebungen</div>
-            <div class="stat-box-val" id="stat-total-revives">0</div>
+            <div class="stat-box-label">Gesammelte Coins</div>
+            <div class="stat-box-val" id="stat-total-cores">0</div>
           </div>
         </div>
       </div>
@@ -421,17 +395,13 @@
             <span class="setting-label">Audio & Musik</span>
             <span style="font-size:11px; font-weight:800; color:#64748b; letter-spacing:1px;">DEAKTIVIERT</span>
           </div>
-          <div class="setting-row">
-            <span class="setting-label">Bildschirm-Wackeln</span>
-            <button class="btn-secondary" id="btn-shake" style="padding:6px 16px;">100%</button>
-          </div>
         </div>
 
         <div class="modal-button-stack">
           <button class="btn-secondary" id="btn-check-update">NACH UPDATES SUCHEN</button>
           <button class="btn-danger" id="btn-reset-data">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v4.3.1</div>
+        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v4.4.0</div>
       </div>
     </div>
 
@@ -452,10 +422,10 @@
           </div>
 
           <div class="tutorial-desc-box" style="text-align: left; background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;">
-            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.55; margin: 0 0 8px 0;">
+            <p style="font-size: 13px; color: #e2e8f0; line-height: 1.55; margin: 0 0 8px 0;">
               <strong style="color: #38bdf8;">GEDRÜCKT HALTEN:</strong> Halte den Bildschirm gedrückt, um dich am Kreis einzuhaken und Schwung aufzubauen.
             </p>
-            <p style="font-size: 13px; color: #f1f5f9; line-height: 1.55; margin: 0;">
+            <p style="font-size: 13px; color: #e2e8f0; line-height: 1.55; margin: 0;">
               <strong style="color: #38bdf8;">LOSLASSEN:</strong> Im gewünschten Moment loslassen, um in Blickrichtung nach vorne katapultiert zu werden.
             </p>
           </div>
@@ -527,21 +497,21 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=4.3.1"></script>
-  <script src="js/services/StorageService.js?v=4.3.1"></script>
-  <script src="js/services/AnalyticsService.js?v=4.3.1"></script>
-  <script src="js/audio/AudioManager.js?v=4.3.1"></script>
-  <script src="js/engine/ParticleSystem.js?v=4.3.1"></script>
-  <script src="js/engine/InputManager.js?v=4.3.1"></script>
-  <script src="js/engine/MissionManager.js?v=4.3.1"></script>
-  <script src="js/entities/Node.js?v=4.3.1"></script>
-  <script src="js/entities/EnergyOrb.js?v=4.3.1"></script>
-  <script src="js/entities/Spaceship.js?v=4.3.1"></script>
-  <script src="js/world/WorldManager.js?v=4.3.1"></script>
-  <script src="js/engine/ShopManager.js?v=4.3.1"></script>
-  <script src="js/engine/StateManager.js?v=4.3.1"></script>
-  <script src="js/engine/UIManager.js?v=4.3.1"></script>
-  <script src="js/engine/GameEngine.js?v=4.3.1"></script>
-  <script src="js/main.js?v=4.3.1"></script>
+  <script src="js/config/Constants.js?v=4.4.0"></script>
+  <script src="js/services/StorageService.js?v=4.4.0"></script>
+  <script src="js/services/AnalyticsService.js?v=4.4.0"></script>
+  <script src="js/audio/AudioManager.js?v=4.4.0"></script>
+  <script src="js/engine/ParticleSystem.js?v=4.4.0"></script>
+  <script src="js/engine/InputManager.js?v=4.4.0"></script>
+  <script src="js/engine/MissionManager.js?v=4.4.0"></script>
+  <script src="js/entities/Node.js?v=4.4.0"></script>
+  <script src="js/entities/EnergyOrb.js?v=4.4.0"></script>
+  <script src="js/entities/Spaceship.js?v=4.4.0"></script>
+  <script src="js/world/WorldManager.js?v=4.4.0"></script>
+  <script src="js/engine/ShopManager.js?v=4.4.0"></script>
+  <script src="js/engine/StateManager.js?v=4.4.0"></script>
+  <script src="js/engine/UIManager.js?v=4.4.0"></script>
+  <script src="js/engine/GameEngine.js?v=4.4.0"></script>
+  <script src="js/main.js?v=4.4.0"></script>
 </body>
 </html>
