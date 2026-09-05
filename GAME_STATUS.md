@@ -55,6 +55,14 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
 
+### v4.6.1 (05.09.2026) - Zero-GC Engine Optimization & Canvas Performance
+* **Zero-Allocation Hot Loops (GC Elimination):** Replaced `.filter()` array operations in `GameEngine.js` during gameplay respawns with direct zero-allocation `for`-loops and reverse-array lookups. Confirmed `WorldManager.js` uses in-place array compaction.
+* **Off-Screen Pre-Rendering (Canvas Render CPU Drops):**
+  * `ParticleSystem.js`: Implemented static `initCache()` for Sparks, Thrusts, and Streaks. Replaced highly expensive `ctx.arc()` and `ctx.shadowBlur` operations with dynamically pre-rendered glow canvases drawn via `ctx.drawImage()`.
+  * `EnergyOrb.js`: Replaced every-frame `createRadialGradient()` and `arc()` geometry with a static `EnergyOrb.cache`. Glowing auras and coin cores are generated once and stamped.
+  * `Node.js`: Extracted inner core gradients and glowing visual rings into static `OrbitNode.cache` canvases. Eliminated CPU-bound Gaussian blurs (`shadowBlur`) on hazard spike hulls.
+* **State Thrashing & Sub-pixel Bypass:** Implemented `| 0` bitwise truncation across `draw()` methods for all dynamic coordinates to bypass expensive CPU sub-pixel interpolation. Stripped excessive `ctx.save()` and `ctx.restore()` calls, replacing them with manual inverse transformations.
+
 ### v4.6.0 (05.09.2026) - AAA UI/UX Rework (Minimalist Vector Architecture, Unified Modal Shell & Juice Polish)
 * **Phase A: Foundation & Semantic Design System (`css/style.css`):**
   * **Design Tokens:** Vollständige semantische Farbtokens auf `:root` verankert (`--void-950` bis `--void-800`, `--glass-fill`, `--glass-border`, `--neutral-cyan`, `--action-start/end`, `--success`, `--premium`, `--currency-gold`, `--warning`, `--danger`, `--font-display`, `--font-body`).

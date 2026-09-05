@@ -487,12 +487,15 @@ class GameEngine {
     targetAnchor.isDecoy = false;
     targetAnchor.isHooked = true;
 
-    // Vaporize all hazards and broken debris in a wide 350px safe perimeter around respawn anchor
-    this.world.nodes = this.world.nodes.filter(n =>
-      n === targetAnchor ||
-      n.type !== 'HAZARD' ||
-      Math.hypot(n.x - targetAnchor.x, n.y - targetAnchor.y) > 320
-    );
+    // OPTIMIZATION: Replaced .filter() with in-place compaction to prevent GC spikes
+    let keepNodesCount = 0;
+    for (let i = 0; i < this.world.nodes.length; i++) {
+      const n = this.world.nodes[i];
+      if (n === targetAnchor || n.type !== 'HAZARD' || Math.hypot(n.x - targetAnchor.x, n.y - targetAnchor.y) > 320) {
+        this.world.nodes[keepNodesCount++] = n;
+      }
+    }
+    this.world.nodes.length = keepNodesCount;
 
     // Recenter camera with generous 58% lower buffer (Anchor sits in upper-middle at 42% from top)
     this.cameraY = targetAnchor.y - this.height * 0.58;
@@ -755,8 +758,15 @@ class GameEngine {
 
           // Frustration-free tutorial respawn
           if (this.player.y < this.cameraY - 20) {
-            const safeNodes = this.world.nodes.filter(n => n.type === 'STANDARD' && !n.isBroken && n.y <= this.player.y + 200);
-            const anchor = safeNodes.length > 0 ? safeNodes[safeNodes.length - 1] : this.world.nodes[0];
+            // OPTIMIZATION: Replaced .filter() with reverse array lookup to prevent GC spikes
+            let anchor = this.world.nodes[0];
+            for (let i = this.world.nodes.length - 1; i >= 0; i--) {
+              const n = this.world.nodes[i];
+              if (n.type === 'STANDARD' && !n.isBroken && n.y <= this.player.y + 200) {
+                anchor = n;
+                break;
+              }
+            }
             this.player.x = anchor.x;
             this.player.y = anchor.y - 50;
             this.player.vx = 0;

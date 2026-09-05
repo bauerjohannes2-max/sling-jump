@@ -209,9 +209,50 @@ class ParticleSystem {
     }
   }
 
-  draw(context, camY, screenHeight) {
-    context.save();
+  initCache() {
+    if (this.cachedGlows) return;
+    this.cachedGlows = {};
+    const createGlow = (color, type, isPerf) => {
+      const cvs = document.createElement('canvas');
+      const size = type === 'thrust' ? 40 : (type === 'streak' ? 30 : 32);
+      cvs.width = size * 2;
+      cvs.height = size * 2;
+      const ctx = cvs.getContext('2d');
+      const center = size;
+      
+      ctx.fillStyle = color;
+      if (!isPerf) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = type === 'thrust' ? 10 : 8;
+      }
+      
+      if (type === 'streak') {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(center, center - 10);
+        ctx.lineTo(center, center + 10);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.arc(center, center, type === 'thrust' ? 6 : 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return cvs;
+    };
+    this.createGlow = createGlow;
+  }
 
+  getGlow(color, type, isPerf) {
+    if (!this.cachedGlows) this.initCache();
+    const key = `${color}_${type}_${isPerf}`;
+    if (!this.cachedGlows[key]) {
+      this.cachedGlows[key] = this.createGlow(color, type, isPerf);
+    }
+    return this.cachedGlows[key];
+  }
+
+  draw(context, camY, screenHeight) {
     const isPerf = Boolean(window._gameEngine && window._gameEngine.storage && window._gameEngine.storage.data.settings.performanceMode);
 
     // 1. Draw Active Particles
@@ -219,14 +260,16 @@ class ParticleSystem {
       const p = this.particles[i];
       if (!p.active) continue;
 
-      const sy = screenHeight - (p.y - camY);
+      // OPTIMIZATION: Sub-pixel Interpolation Bypass (| 0)
+      const sy = (screenHeight - (p.y - camY)) | 0;
       if (sy < -150 || sy > screenHeight + 150) continue;
 
       const alpha = Math.max(0, p.life);
 
       if (p.type === 'shard') {
-        context.save();
-        context.translate(p.x, sy);
+        // OPTIMIZATION: Removed save/restore. Manual transform reversal.
+        const px = p.x | 0;
+        context.translate(px, sy);
         context.rotate(p.angle);
         context.globalAlpha = alpha;
         context.fillStyle = p.color;
@@ -234,11 +277,13 @@ class ParticleSystem {
           context.shadowColor = p.color;
           context.shadowBlur = 8;
         }
-        context.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-        context.restore();
+        const halfSize = (p.size / 2) | 0;
+        context.fillRect(-halfSize, -halfSize, p.size | 0, p.size | 0);
+        context.rotate(-p.angle);
+        context.translate(-px, -sy);
+        if (!isPerf) context.shadowBlur = 0; // Reset state manually
       } else if (p.type === 'shockwave') {
         const curRadius = p.size * (1.0 - alpha);
-        context.save();
         context.globalAlpha = alpha * 0.85;
         context.strokeStyle = p.color;
         context.lineWidth = 2.5 * alpha;
@@ -247,92 +292,77 @@ class ParticleSystem {
           context.shadowBlur = 12;
         }
         context.beginPath();
-        context.arc(p.x, sy, curRadius, 0, Math.PI * 2);
+        context.arc(p.x | 0, sy, curRadius, 0, Math.PI * 2);
         context.stroke();
-        context.restore();
-      } else if (p.type === 'streak') {
-        context.save();
-        context.globalAlpha = alpha * 0.7;
-        context.strokeStyle = p.color;
-        context.lineWidth = 2;
-        if (!isPerf) {
-          context.shadowColor = p.color;
-          context.shadowBlur = 8;
-        }
-        context.beginPath();
-        context.moveTo(p.x, sy);
-        context.lineTo(p.x, sy + p.size);
-        context.stroke();
-        context.restore();
+        if (!isPerf) context.shadowBlur = 0;
       } else {
+        // OPTIMIZATION: Off-Screen Pre-Rendering (Avoid arc & shadowBlur per particle)
         context.globalAlpha = p.type === 'thrust' ? alpha * 0.75 : alpha;
-        context.fillStyle = p.color;
-        if (!isPerf) {
-          context.shadowColor = p.color;
-          context.shadowBlur = p.type === 'thrust' ? 10 : 8;
-        }
-        context.beginPath();
-        context.arc(p.x, sy, p.size * (p.type === 'spark' ? alpha : 1), 0, Math.PI * 2);
-        context.fill();
+        const glowImg = this.getGlow(p.color, p.type, isPerf);
+        const drawSize = p.type === 'spark' ? p.size * alpha : p.size;
+        const half = glowImg.width / 2;
+        // Draw pre-rendered glow image scaled
+        context.drawImage(glowImg, (p.x - drawSize) | 0, (sy - drawSize) | 0, (drawSize * 2) | 0, (drawSize * 2) | 0);
       }
     }
 
-    // 2. Draw Floating Texts with high-contrast outline and punchy combo scaling
+    // 2. Draw Floating Texts
     for (let i = 0; i < this.maxTexts; i++) {
       const t = this.texts[i];
       if (!t.active) continue;
 
-      const sy = screenHeight - (t.y - camY);
+      const sy = (screenHeight - (t.y - camY)) | 0;
       if (sy < -60 || sy > screenHeight + 60) continue;
 
       const alpha = Math.max(0, t.life);
       const isPerf = Boolean(window._gameEngine && window._gameEngine.storage && window._gameEngine.storage.data.settings.performanceMode);
 
-      context.save();
       context.globalAlpha = alpha;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
 
       if (t.isCombo) {
-        // Punchy scale pop on combo spawn
         const popScale = 1.0 + Math.sin(alpha * Math.PI) * 0.35;
-        context.translate(t.x, sy);
+        const px = t.x | 0;
+        context.translate(px, sy);
         context.scale(popScale, popScale);
 
         const fontSize = t.size || 28;
         context.font = `900 ${fontSize}px 'Orbitron', 'Inter', sans-serif`;
 
-        // Heavy dark backdrop outline for crystal-clear readability
         context.strokeStyle = 'rgba(4, 7, 13, 0.95)';
         context.lineWidth = 6;
         context.lineJoin = 'round';
         context.strokeText(t.text, 0, 0);
 
-        // Radiant Neon Glow & Fill
         context.fillStyle = t.color;
         if (!isPerf) {
           context.shadowColor = t.color;
           context.shadowBlur = 20;
         }
         context.fillText(t.text, 0, 0);
+
+        // Reverse scale/translate
+        context.scale(1 / popScale, 1 / popScale);
+        context.translate(-px, -sy);
+        if (!isPerf) context.shadowBlur = 0;
       } else {
         const fontSize = t.size || 16;
         context.font = `800 ${fontSize}px 'Orbitron', 'Inter', sans-serif`;
         context.strokeStyle = 'rgba(4, 7, 13, 0.9)';
         context.lineWidth = 3.5;
-        context.strokeText(t.text, t.x, sy);
+        const px = t.x | 0;
+        context.strokeText(t.text, px, sy);
 
         context.fillStyle = t.color;
         if (!isPerf) {
           context.shadowColor = t.color;
           context.shadowBlur = 10;
         }
-        context.fillText(t.text, t.x, sy);
+        context.fillText(t.text, px, sy);
+        if (!isPerf) context.shadowBlur = 0;
       }
-
-      context.restore();
     }
-
-    context.restore();
+    context.globalAlpha = 1.0;
   }
 }

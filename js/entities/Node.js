@@ -84,11 +84,57 @@ class OrbitNode {
   draw(context, camY, height, theme = null) {
     if (this.isBroken) return;
 
-    const screenY = height - (this.y - camY);
+    // OPTIMIZATION: Sub-pixel Interpolation Bypass (| 0)
+    const screenY = (height - (this.y - camY)) | 0;
     if (screenY < -200 || screenY > height + 200) return;
 
-    context.save();
-    context.translate(this.x, screenY);
+    if (!OrbitNode.cache) {
+      OrbitNode.cache = {};
+    }
+
+    const getCachedGlow = (gColor) => {
+      if (!OrbitNode.cache[gColor]) {
+        const c = document.createElement('canvas');
+        c.width = 72; c.height = 72;
+        const ctx = c.getContext('2d');
+        const grad = ctx.createRadialGradient(36, 36, 2, 36, 36, 34);
+        grad.addColorStop(0, gColor);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(36, 36, 34, 0, Math.PI * 2);
+        ctx.fill();
+        OrbitNode.cache[gColor] = c;
+      }
+      return OrbitNode.cache[gColor];
+    };
+
+    const getCachedCore = (cColor, isDecoy) => {
+      const key = `${cColor}_${isDecoy}`;
+      if (!OrbitNode.cache[key]) {
+        const c = document.createElement('canvas');
+        c.width = 44; c.height = 44;
+        const ctx = c.getContext('2d');
+        ctx.shadowColor = cColor;
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = isDecoy ? '#7c2d12' : '#ffffff';
+        ctx.beginPath();
+        ctx.arc(22, 22, 9.35, 0, Math.PI * 2); // 17 * 0.55
+        ctx.fill();
+        
+        ctx.strokeStyle = cColor;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(22, 22, 17, 0, Math.PI * 2); // radius 17
+        ctx.stroke();
+        OrbitNode.cache[key] = c;
+      }
+      return OrbitNode.cache[key];
+    };
+
+    // OPTIMIZATION: Removed save/restore where possible. Manual transform reversal.
+    const px = this.x | 0;
+    context.translate(px, screenY);
 
     let coreColor = theme ? theme.primary : '#00f0ff';
     let glowColor = 'rgba(0, 240, 255, 0.45)';
@@ -96,7 +142,6 @@ class OrbitNode {
 
     if (this.type === 'HAZARD') {
       // --- LETHAL SPACE MINE / BOMB ENTITY ---
-      // 1. Pulsating lethal danger perimeter ring (dashed red warning boundary)
       const warningRadius = this.radius + 18 + Math.sin(this.pulse) * 3;
       context.save();
       context.strokeStyle = '#ef4444';
@@ -108,30 +153,20 @@ class OrbitNode {
       context.stroke();
       context.restore();
 
-      // 2. Glowing Red Danger Aura
-      const aura = context.createRadialGradient(0, 0, 3, 0, 0, this.radius + 16);
-      aura.addColorStop(0, 'rgba(239, 68, 68, 0.7)');
-      aura.addColorStop(0.6, 'rgba(239, 68, 68, 0.2)');
-      aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      context.fillStyle = aura;
-      context.beginPath();
-      context.arc(0, 0, this.radius + 16, 0, Math.PI * 2);
-      context.fill();
+      // OPTIMIZATION: Pre-rendered Red Danger Aura
+      context.drawImage(getCachedGlow('rgba(239, 68, 68, 0.7)'), -36, -36);
 
-      // 3. Spiked Mine Hull (8 sharp geometric triangular spikes rotating menacingly)
-      context.save();
       context.rotate(this.rotation || 0);
 
       const numSpikes = 8;
       const baseR = this.radius;
       const spikeR = this.radius + 9;
 
-      context.fillStyle = '#991b1b'; // Deep Crimson Hull
-      context.strokeStyle = '#f87171'; // Neon Red Spikes Rim
+      context.fillStyle = '#991b1b';
+      context.strokeStyle = '#f87171';
       context.lineWidth = 1.8;
-      context.shadowColor = '#ef4444';
-      context.shadowBlur = 12;
-
+      
+      // OPTIMIZATION: Eliminate shadowBlur in Hazard hull drawing
       context.beginPath();
       for (let i = 0; i < numSpikes; i++) {
         const a1 = (i / numSpikes) * Math.PI * 2;
@@ -148,16 +183,12 @@ class OrbitNode {
       context.fill();
       context.stroke();
 
-      // 4. Inner Dark Core
       context.fillStyle = '#1e0505';
       context.beginPath();
       context.arc(0, 0, baseR * 0.65, 0, Math.PI * 2);
       context.fill();
 
-      // 5. Pulsating Hazard Warning Tri-Blade Pattern in Center
       context.fillStyle = '#fca5a5';
-      context.shadowColor = '#ef4444';
-      context.shadowBlur = 6;
       for (let b = 0; b < 3; b++) {
         const bAngle = (b / 3) * Math.PI * 2 + (this.rotation * -0.5);
         context.beginPath();
@@ -167,19 +198,15 @@ class OrbitNode {
         context.fill();
       }
 
-      // Center glowing detonator pin
       context.fillStyle = '#ffffff';
-      context.beginPath();
-      context.arc(0, 0, 3, 0, Math.PI * 2);
-      context.fill();
+      context.fillRect(-3, -3, 6, 6); // Replaced arc with fillRect
 
-      context.restore();
-      context.restore();
+      context.rotate(-(this.rotation || 0));
+      context.translate(-px, -screenY);
       return;
     }
 
     if (this.type === 'DECOY') {
-      // Fake brittle node: distinct cracked orange/amber warning appearance
       coreColor = '#f97316';
       glowColor = 'rgba(249, 115, 22, 0.45)';
     } else if (this.type === 'FRAGILE') {
@@ -188,7 +215,6 @@ class OrbitNode {
         coreColor = ratio > 0.65 ? '#ef4444' : (ratio > 0.35 ? '#f97316' : '#eab308');
         glowColor = ratio > 0.65 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(234, 179, 8, 0.55)';
       } else {
-        // Idle timer state: distinctive warm gold/amber with pulsing clock indicator
         coreColor = '#eab308';
         glowColor = 'rgba(234, 179, 8, 0.45)';
       }
@@ -200,15 +226,12 @@ class OrbitNode {
       glowColor = 'rgba(192, 132, 252, 0.5)';
     }
 
-    // 1. VISUELLES GRAPPLE-FEEDBACK (LOCK-ON READY HIGHLIGHT)
     if (this.isTargeted && !this.isHooked) {
       const lockPulse = (Math.sin(performance.now() * 0.008) + 1) * 0.5;
       const targetRingRadius = outerRadius + 18 + lockPulse * 8;
       
       context.save();
       context.strokeStyle = theme ? theme.primary : '#00f0ff';
-      context.shadowColor = theme ? theme.primary : '#00f0ff';
-      context.shadowBlur = 18;
       context.lineWidth = 2.5;
       context.globalAlpha = 0.85 + lockPulse * 0.15;
 
@@ -216,7 +239,6 @@ class OrbitNode {
       context.arc(0, 0, targetRingRadius, 0, Math.PI * 2);
       context.stroke();
 
-      // 4 Tactical Brackets
       const bracketLen = 7;
       context.lineWidth = 3;
       context.save();
@@ -236,18 +258,14 @@ class OrbitNode {
       context.restore();
     }
 
-    // 2. Outer Soft Aura
-    const aura = context.createRadialGradient(0, 0, 2, 0, 0, outerRadius + 14);
-    aura.addColorStop(0, glowColor);
-    aura.addColorStop(1, 'rgba(0,0,0,0)');
-    context.fillStyle = aura;
-    context.beginPath();
-    context.arc(0, 0, outerRadius + 14, 0, Math.PI * 2);
-    context.fill();
+    // OPTIMIZATION: 2. Outer Soft Aura (Pre-rendered drawn dynamically scaled)
+    const dSize = outerRadius + 14;
+    context.drawImage(getCachedGlow(glowColor), -dSize, -dSize, dSize * 2, dSize * 2);
 
-    // 3. Orbit Target Ring (with distinct styling per type)
+    // 3. Orbit Target Ring
     context.save();
     context.strokeStyle = coreColor;
+
     context.lineWidth = 2.0;
     context.globalAlpha = 0.7 + Math.sin(this.pulse * 1.5) * 0.25;
 
@@ -378,22 +396,10 @@ class OrbitNode {
       context.restore();
     }
 
-    // 7. Inner Solid Core
+    // 7 & 8. Inner Solid Core and Rim (Pre-rendered)
     context.globalAlpha = 1.0;
-    context.shadowColor = coreColor;
-    context.shadowBlur = 14;
-    context.fillStyle = this.type === 'DECOY' ? '#7c2d12' : '#ffffff';
-    context.beginPath();
-    context.arc(0, 0, this.radius * 0.55, 0, Math.PI * 2);
-    context.fill();
+    context.drawImage(getCachedCore(coreColor, this.type === 'DECOY'), -22, -22);
 
-    // 8. Core Rim
-    context.strokeStyle = coreColor;
-    context.lineWidth = 2.5;
-    context.beginPath();
-    context.arc(0, 0, this.radius, 0, Math.PI * 2);
-    context.stroke();
-
-    context.restore();
+    context.translate(-px, -screenY);
   }
 }
