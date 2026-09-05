@@ -144,8 +144,9 @@ class StorageService {
     if (!Array.isArray(merged.claimedQuestIds)) {
       merged.claimedQuestIds = [];
     }
-    if (!Array.isArray(merged.leaderboard)) {
+    if (!Array.isArray(merged.leaderboard) || merged.leaderboardResetVersion !== '4.6.0') {
       merged.leaderboard = [];
+      merged.leaderboardResetVersion = '4.6.0';
     }
 
     // Player profile & unique user ID migration
