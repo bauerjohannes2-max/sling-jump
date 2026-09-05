@@ -75,7 +75,8 @@ class StorageService {
         musicVolume: 0.70,
         sfxVolume: 0.90,
         screenShakeIntensity: 1.0, // 0.0, 0.5, 1.0
-        performanceMode: false
+        performanceMode: false,
+        showFps: true
       }
     };
   }

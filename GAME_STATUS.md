@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC49 - v4.7.0 - Real-Time Gameplay FPS Benchmark & Complete Micro-Stutter Elimination)  
+> **Status:** Release Candidate (RC50 - v4.7.1 - Live Dynamic High-Precision FPS Telemetry Engine)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 05.09.2026  
@@ -54,6 +54,25 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v4.7.1 (05.09.2026) - Live Dynamic High-Precision FPS Telemetry Engine & Multi-Screen Support
+* **Diagnose statischer Anzeige (Root Cause):**
+  * Auf 60Hz-Standardmonitoren erzwingt `requestAnimationFrame` eine VSync-Taktung von ~16.66ms pro Frame.
+  * Durch den vorherigen 60-Frame gleitenden Durchschnitt (1.000ms Historie) und `Math.round(1000 / avgDt)` ergab die Berechnung immer exakt 60, wodurch die Anzeige wie eine statische Dummy-Zahl (`60 FPS 16.6ms`) eingefroren wirkte.
+* **Neuer High-Precision Telemetrie-Algorithmus (`GameEngine.js`):**
+  * Reaktiver 4-Frame Ringpuffer-Mittelwert über 160ms Aktualisierungsintervalle (optimal für menschliche Wahrnehmung ohne DOM-Churn).
+  * Unabgerundete Micro-Delta-Messung mit 1 Dezimalstelle (`59.9 FPS`, `60.0 FPS`, `60.1 FPS` / `16.6ms`, `16.7ms`) bildet das echte Hardware-Frame-Pacing dynamisch ab.
+  * Automatische High-Refresh-Rate Erkennung (&ge; 90 FPS) mit elektrischer Cyan-Hervorhebung (`#38bdf8`) für 90Hz, 120Hz (ProMotion) und 144Hz Bildschirme.
+  * Sofortige 1%-Low / Min-FPS Erkennung bei Rucklern mit Farbwechsel auf Bernstein (`#fbbf24`) bzw. Rubinrot (`#ef4444`).
+* **Multi-Screen Telemetrie & UI-Modernisierung (`index.html`, `UIManager.js`, `style.css`):**
+  * Neues Menü-Telemetrie-Badge (`#menu-fps-badge`) vertikal gestapelt unter dem Aufgaben-Icon (`.menu-top-left-col`) für sofortiges Echtzeit-Feedback bereits im Hauptmenü.
+  * Pulsierende Herzschlag-Animation (`fps-pulse 1.3s`) auf `.fps-indicator-dot` für visuelle Lebendigkeit.
+  * `white-space: nowrap` und `flex-shrink: 0` verhindern Zeilenumbrüche auf schmalen 390px-Mobilgeräten.
+  * DOM-Update-Entprellung mit Text- und Klassen-Caching verhindert Layout-Thrashing.
+  * `showFps: true` standardmäßig in `StorageService.js` aktiviert.
+* **Playwright-Verifikation:**
+  * 0 Konsolenfehler.
+  * Visuell verifiziert: `01_main_menu.png`, `08_gameplay_hud.png`, `08b_gameplay_fps_hud.png`, `11_mobile_responsive.png`.
 
 ### v4.7.0 (05.09.2026) - Real-Time Gameplay FPS Benchmark & Complete Micro-Stutter Elimination
 * **Ursachen-Analyse des Spiel-Ruckelns (Root Cause Diagnostic):**

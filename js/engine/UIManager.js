@@ -120,6 +120,9 @@ class UIManager {
       hudFpsBadge: document.getElementById('hud-fps-badge'),
       hudFpsVal: document.getElementById('hud-fps-val'),
       hudFpsDt: document.getElementById('hud-fps-dt'),
+      menuFpsBadge: document.getElementById('menu-fps-badge'),
+      menuFpsVal: document.getElementById('menu-fps-val'),
+      menuFpsDt: document.getElementById('menu-fps-dt'),
       sliderMaster: document.getElementById('slider-master'),
       sliderMusic: document.getElementById('slider-music'),
       sliderSfx: document.getElementById('slider-sfx'),
@@ -1566,6 +1569,9 @@ class UIManager {
     if (this.dom.hudFpsBadge) {
       this.dom.hudFpsBadge.style.display = next ? 'flex' : 'none';
     }
+    if (this.dom.menuFpsBadge) {
+      this.dom.menuFpsBadge.style.display = next ? 'flex' : 'none';
+    }
   }
 
   updateFpsToggleBtn() {
@@ -1607,35 +1613,81 @@ class UIManager {
   }
 
   updateFpsDisplay(fps, dtMs, minFps) {
-    if (!this.dom.hudFpsBadge) return;
     const show = Boolean(this.storage && this.storage.data && this.storage.data.settings && this.storage.data.settings.showFps);
-    if (!show) {
-      if (this.dom.hudFpsBadge.style.display !== 'none') {
-        this.dom.hudFpsBadge.style.display = 'none';
-      }
-      return;
-    }
 
-    if (this.dom.hudFpsBadge.style.display !== 'flex') {
-      this.dom.hudFpsBadge.style.display = 'flex';
-    }
-
-    if (this.dom.hudFpsVal) {
-      this.dom.hudFpsVal.textContent = `${fps} FPS`;
-      if (fps >= 55) {
-        this.dom.hudFpsBadge.className = 'stat-badge fps';
-        this.dom.hudFpsVal.style.color = '#10b981';
-      } else if (fps >= 42) {
-        this.dom.hudFpsBadge.className = 'stat-badge fps warning';
-        this.dom.hudFpsVal.style.color = '#fbbf24';
+    // Update HUD Badge visibility
+    if (this.dom.hudFpsBadge) {
+      if (!show) {
+        if (this.dom.hudFpsBadge.style.display !== 'none') this.dom.hudFpsBadge.style.display = 'none';
       } else {
-        this.dom.hudFpsBadge.className = 'stat-badge fps danger';
-        this.dom.hudFpsVal.style.color = '#ef4444';
+        if (this.dom.hudFpsBadge.style.display !== 'flex') this.dom.hudFpsBadge.style.display = 'flex';
       }
     }
 
-    if (this.dom.hudFpsDt) {
-      this.dom.hudFpsDt.textContent = `${dtMs.toFixed(1)}ms`;
+    // Update Menu Badge visibility
+    if (this.dom.menuFpsBadge) {
+      if (!show) {
+        if (this.dom.menuFpsBadge.style.display !== 'none') this.dom.menuFpsBadge.style.display = 'none';
+      } else {
+        if (this.dom.menuFpsBadge.style.display !== 'flex') this.dom.menuFpsBadge.style.display = 'flex';
+      }
+    }
+
+    if (!show) return;
+
+    // High-Precision Real-Time Format: 1 decimal place reveals authentic sub-frame jitter
+    const fpsStr = `${fps.toFixed(1)} FPS`;
+    const dtStr = `${dtMs.toFixed(1)}ms`;
+
+    // Tiered color & styling based on performance:
+    // >= 90: Cyan (#38bdf8) ProMotion / High Refresh
+    // >= 55: Emerald (#10b981) Solid target
+    // >= 42: Amber (#fbbf24) Hitch warning
+    // < 42: Crimson (#ef4444) Stutter danger
+    let badgeClass = 'stat-badge fps';
+    let valColor = '#10b981';
+
+    if (fps >= 90) {
+      badgeClass = 'stat-badge fps high-refresh';
+      valColor = '#38bdf8';
+    } else if (fps >= 55) {
+      badgeClass = 'stat-badge fps';
+      valColor = '#10b981';
+    } else if (fps >= 42) {
+      badgeClass = 'stat-badge fps warning';
+      valColor = '#fbbf24';
+    } else {
+      badgeClass = 'stat-badge fps danger';
+      valColor = '#ef4444';
+    }
+
+    // Debounced DOM updates with property caching to minimize browser layout churn
+    if (this.dom.hudFpsVal && this._lastHudFpsText !== fpsStr) {
+      this.dom.hudFpsVal.textContent = fpsStr;
+      this.dom.hudFpsVal.style.color = valColor;
+      this._lastHudFpsText = fpsStr;
+    }
+    if (this.dom.hudFpsDt && this._lastHudDtText !== dtStr) {
+      this.dom.hudFpsDt.textContent = dtStr;
+      this._lastHudDtText = dtStr;
+    }
+    if (this.dom.hudFpsBadge && this._lastHudBadgeClass !== badgeClass) {
+      this.dom.hudFpsBadge.className = badgeClass;
+      this._lastHudBadgeClass = badgeClass;
+    }
+
+    if (this.dom.menuFpsVal && this._lastMenuFpsText !== fpsStr) {
+      this.dom.menuFpsVal.textContent = fpsStr;
+      this.dom.menuFpsVal.style.color = valColor;
+      this._lastMenuFpsText = fpsStr;
+    }
+    if (this.dom.menuFpsDt && this._lastMenuDtText !== dtStr) {
+      this.dom.menuFpsDt.textContent = dtStr;
+      this._lastMenuDtText = dtStr;
+    }
+    if (this.dom.menuFpsBadge && this._lastMenuBadgeClass !== badgeClass) {
+      this.dom.menuFpsBadge.className = `stat-badge fps menu-fps-pill ${badgeClass.includes('high-refresh') ? 'high-refresh' : badgeClass.includes('warning') ? 'warning' : badgeClass.includes('danger') ? 'danger' : ''}`.trim();
+      this._lastMenuBadgeClass = badgeClass;
     }
   }
 }

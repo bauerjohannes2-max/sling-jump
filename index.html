@@ -55,10 +55,17 @@
     <!-- 1. MAIN MENU OVERLAY -->
     <div class="state-overlay visible" id="menu-overlay">
       <div class="menu-top-bar">
-        <button class="icon-nav-btn" id="btn-menu-quests" aria-label="Aufgaben">
-          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
-        </button>
+        <div class="menu-top-left-col">
+          <button class="icon-nav-btn" id="btn-menu-quests" aria-label="Aufgaben">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
+          </button>
+          <div class="stat-badge fps menu-fps-pill" id="menu-fps-badge" style="display: none;">
+            <span class="fps-indicator-dot"></span>
+            <span id="menu-fps-val">60.0 FPS</span>
+            <span id="menu-fps-dt">16.6ms</span>
+          </div>
+        </div>
         <div class="menu-top-right-group">
           <button class="icon-nav-btn profile-nav-btn" id="btn-menu-profile" aria-label="Profil" title="Spielerprofil">
             <span class="profile-status-dot" title="Online"></span>
@@ -166,7 +173,7 @@
             </div>
             <div class="stat-badge fps" id="hud-fps-badge" style="display: none;">
               <span class="fps-indicator-dot"></span>
-              <span id="hud-fps-val">60 FPS</span>
+              <span id="hud-fps-val">60.0 FPS</span>
               <span id="hud-fps-dt">16.6ms</span>
             </div>
           </div>

@@ -448,11 +448,22 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 
 ## 13. ECHTZEIT-TELEMETRIE, ZERO-GC FPS-RINGPUFFER & BENCHMARK-HARNESS
 
-### 13.1 Allokationsfreier Ringpuffer (`GameEngine.js`)
-* **Struktur:** `this.fpsCounter` nutzt ein typisiertes `Float32Array(60)` als Ringpuffer (`deltaHead = (deltaHead + 1) % 60`).
-* **Zero-Allocation Invariante:** Weder beim Einfügen noch bei der Mittelwertbildung werden neue Objekte, Arrays oder Strings alloziiert. Garbage Collection-Pausen während des Fluges sind ausgeschlossen.
-* **Rolling Telemetry:** Alle 350ms berechnet die Engine den gleitenden Durchschnitt der Frame-Intervalle (`avgDt`), die Momentan-FPS (`1000 / avgDt`), die Framezeit in Millisekunden und den Min-FPS-Wert des 60-Frame-Fensters.
-* **HUD-Badge (`#hud-fps-badge`):** Kann in den Einstellungen über den Schalter **FPS-ANZEIGE** (`#btn-setting-fps`) aktiviert werden. Zeigt gestochen scharf und kontrastreich z.B. `• 60 FPS 16.7ms` im In-Game-HUD.
+### 13.1 Allokationsfreier Ringpuffer & Reaktive Live-Telemetrie (`GameEngine.js`)
+* **Struktur:** `this.fpsCounter` nutzt ein typisiertes `Float32Array(30)` als Ringpuffer (`deltaHead = (deltaHead + 1) % 30`).
+* **Zero-Allocation Invariante:** Weder beim Einfügen noch bei der Mittelwertbildung werden neue Objekte oder Arrays im Render-Loop alloziiert. Garbage Collection-Pausen während des Fluges sind ausgeschlossen.
+* **Reaktive 4-Frame Rolling Telemetry (160ms Intervall):**
+  * Alle 160ms berechnet die Engine den Durchschnitt der jüngsten 4 Frame-Deltas (`avgDt`), die Echtzeit-Momentan-FPS (`1000 / avgDt`) und den Min-FPS-Wert des Intervalls.
+  * Durch das 160ms-Fenster und die 1-Dezimalstellen-Präzision (`59.9 FPS`, `60.0 FPS`, `60.1 FPS` / `16.6ms`, `16.7ms`) bildet die Anzeige die authentische Taktung des Browsers und Hardware-Frame-Pacings in Echtzeit dynamisch ab.
+* **Dynamische Performance-Farbabstufung:**
+  * $\ge 90\text{ FPS}$: Elektrisches Cyan (`#38bdf8`) für ProMotion / 90Hz, 120Hz & 144Hz Displays.
+  * $\ge 55\text{ FPS}$: Smaragdgrün (`#10b981`) für das stabile 60 FPS Ziel.
+  * $\ge 42\text{ FPS}$: Bernstein (`#fbbf24`) bei temporären Mikrorucklern.
+  * $< 42\text{ FPS}$: Rubinrot (`#ef4444`) bei kritischem Frame-Drop.
+* **Multi-Screen Telemetrie-Architektur:**
+  * **In-Game HUD-Badge (`#hud-fps-badge`):** Gestochen scharf im Score-Header neben dem Höhenrekord.
+  * **Hauptmenü-Badge (`#menu-fps-badge`):** Vertikal unter dem Aufgaben-Icon (`.menu-top-left-col`) mit `white-space: nowrap`.
+  * **Herzschlag-Puls:** Ein sanfter CSS-Puls (`fps-pulse 1.3s`) auf dem Indikator-Punkt visualisiert die aktive Messung.
+  * Gesteuert über den Schalter **FPS-ANZEIGE** (`#btn-fps-toggle`) in den Einstellungen (standardmäßig auf `AN`).
 
 ### 13.2 Asynchrone Persistenz & Entkopplung (`MissionManager.js` & `StorageService.js`)
 * **Debounced Storage (1500ms Delay):**

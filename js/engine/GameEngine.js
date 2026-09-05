@@ -58,15 +58,18 @@ class GameEngine {
     this.screenShake = 0;
     this.lastFrameTime = performance.now();
 
-    // High-Precision Real-Time Telemetry & FPS Ring Buffer (Zero GC)
+    // High-Precision Real-Time Telemetry & Live FPS Ring Buffer (Zero GC)
     this.fpsCounter = {
-      fps: 60,
-      frameTimeMs: 16.6,
+      fps: 60.0,
+      frameTimeMs: 16.7,
       minFps: 60,
-      frameCount: 0,
       lastTelemetryTime: performance.now(),
-      recentDeltas: new Float32Array(60),
-      deltaHead: 0
+      framesInInterval: 0,
+      intervalDtSum: 0,
+      intervalMaxDt: 0,
+      recentDeltas: new Float32Array(30),
+      deltaHead: 0,
+      totalSamples: 0
     };
 
     // Wire Input Callbacks
@@ -581,26 +584,44 @@ class GameEngine {
     const rawDt = Math.min(deltaMs / 1000, 0.033);
     this.lastFrameTime = now;
 
-    // Real-Time Telemetry & Zero-GC FPS Sample
-    if (deltaMs > 0 && deltaMs < 250) {
+    // High-Precision Real-Time Live FPS & Telemetry (Zero GC)
+    if (deltaMs > 0 && deltaMs < 500) {
       this.fpsCounter.recentDeltas[this.fpsCounter.deltaHead] = deltaMs;
-      this.fpsCounter.deltaHead = (this.fpsCounter.deltaHead + 1) % 60;
-      this.fpsCounter.frameCount++;
+      this.fpsCounter.deltaHead = (this.fpsCounter.deltaHead + 1) % 30;
+      this.fpsCounter.totalSamples++;
 
-      if (now - this.fpsCounter.lastTelemetryTime >= 350) {
+      this.fpsCounter.framesInInterval++;
+      this.fpsCounter.intervalDtSum += deltaMs;
+      if (deltaMs > this.fpsCounter.intervalMaxDt) {
+        this.fpsCounter.intervalMaxDt = deltaMs;
+      }
+
+      const elapsed = now - this.fpsCounter.lastTelemetryTime;
+      // Refresh telemetry every 160ms: ideal human perception rate & zero DOM overhead
+      if (elapsed >= 160 && this.fpsCounter.totalSamples >= 3) {
+        // Sample latest 4 frame deltas from ring buffer for instantaneous responsiveness
+        const sampleCount = Math.min(this.fpsCounter.totalSamples, 4);
         let sum = 0;
         let maxDt = 0;
-        const count = Math.min(this.fpsCounter.frameCount, 60);
-        for (let i = 0; i < count; i++) {
-          const d = this.fpsCounter.recentDeltas[i];
+        for (let k = 1; k <= sampleCount; k++) {
+          const d = this.fpsCounter.recentDeltas[(this.fpsCounter.deltaHead - k + 30) % 30];
           sum += d;
           if (d > maxDt) maxDt = d;
         }
-        const avgDt = sum / count;
-        this.fpsCounter.fps = avgDt > 0 ? Math.round(1000 / avgDt) : 60;
-        this.fpsCounter.frameTimeMs = Math.round(avgDt * 10) / 10;
-        this.fpsCounter.minFps = maxDt > 0 ? Math.round(1000 / maxDt) : 60;
+        const avgDt = sum / sampleCount;
+        const liveFps = avgDt > 0 ? 1000 / avgDt : 60;
+        const worstDt = maxDt > 0 ? maxDt : avgDt;
+        const minFps = Math.max(1, Math.round(1000 / worstDt));
+
+        // Precision metrics: live clamp 1..360 FPS (supports 60Hz, 90Hz, 120Hz, 144Hz, 240Hz)
+        this.fpsCounter.fps = Math.max(1, Math.min(360, liveFps));
+        this.fpsCounter.frameTimeMs = avgDt;
+        this.fpsCounter.minFps = minFps;
+
         this.fpsCounter.lastTelemetryTime = now;
+        this.fpsCounter.framesInInterval = 0;
+        this.fpsCounter.intervalDtSum = 0;
+        this.fpsCounter.intervalMaxDt = 0;
 
         if (this.ui) {
           this.ui.updateFpsDisplay(this.fpsCounter.fps, this.fpsCounter.frameTimeMs, this.fpsCounter.minFps);
