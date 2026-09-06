@@ -300,390 +300,16 @@ class UIManager {
     if (!this.dom.tutorialModal) return;
     this.activeTutorialSlide = 1;
     this.dom.tutorialModal.classList.add('visible');
-    this.startTutorialAnimation();
   }
 
   closeTutorialModal() {
     if (!this.dom.tutorialModal) return;
     this.dom.tutorialModal.classList.remove('visible');
-    this.stopTutorialAnimation();
   }
 
-  startTutorialAnimation() {
-    this.stopTutorialAnimation();
-    const slingCanvas = document.getElementById('tut-sling-canvas');
-    const slingCtx = slingCanvas ? slingCanvas.getContext('2d') : null;
+  startTutorialAnimation() {}
+  stopTutorialAnimation() {}
 
-    const loop = (timestamp) => {
-      if (slingCtx && slingCanvas) {
-        this.renderTutorialSlide1(slingCtx, slingCanvas.width, slingCanvas.height, timestamp);
-      }
-      this.tutAnimFrame = requestAnimationFrame(loop);
-    };
-    this.tutAnimFrame = requestAnimationFrame(loop);
-  }
-
-  stopTutorialAnimation() {
-    if (this.tutAnimFrame) {
-      cancelAnimationFrame(this.tutAnimFrame);
-      this.tutAnimFrame = null;
-    }
-  }
-
-  renderTutorialSlide1(ctx, w, h, t) {
-    ctx.clearRect(0, 0, w, h);
-
-    const cycle = 5.4;
-    const time = (t / 1000) % cycle;
-
-    // Camera vertical scroll offset during launch ascent
-    let camY = 0;
-    if (time >= 2.8 && time < 4.4) {
-      const p = (time - 2.8) / 1.6;
-      // Smooth cubic ease out
-      camY = (p * p * (3 - 2 * p)) * 115;
-    } else if (time >= 4.4) {
-      camY = 115;
-    }
-
-    // 1. Deep Space Cosmic Background
-    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 1.3);
-    bgGrad.addColorStop(0, '#0a1022');
-    bgGrad.addColorStop(1, '#030712');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // 2. Parallax Starfield with downward drift when ascending
-    const starField = [
-      [30, 25, 1.2, 0.4], [75, 40, 1.0, 0.6], [120, 18, 1.4, 0.8], [240, 22, 1.0, 0.5],
-      [310, 35, 1.5, 0.7], [340, 70, 0.8, 0.4], [45, 115, 1.1, 0.5], [85, 160, 1.3, 0.7],
-      [140, 190, 0.9, 0.4], [225, 175, 1.4, 0.6], [295, 130, 1.2, 0.8], [330, 180, 1.0, 0.5],
-      [180, 60, 0.8, 0.3], [20, 195, 1.0, 0.4], [320, 205, 1.2, 0.6]
-    ];
-    starField.forEach(([sx, sy, sr, sAlpha], i) => {
-      const driftedY = (sy + camY * 0.35) % h;
-      const pulseAlpha = Math.max(0.15, Math.min(1.0, sAlpha + Math.sin(t * 0.003 + i) * 0.25));
-      ctx.fillStyle = `rgba(255, 255, 255, ${pulseAlpha})`;
-      ctx.beginPath();
-      ctx.arc(sx, driftedY, sr, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // 3. Node Coordinates in Screen Space
-    const node1BaseX = 180;
-    const node1BaseY = 135;
-    const node1X = node1BaseX;
-    const node1Y = node1BaseY + camY * 0.95; // Drifts downward as camera ascends
-    const orbitRadius = 46;
-
-    const node2BaseX = 180;
-    const node2BaseY = 20;
-    const node2X = node2BaseX;
-    const node2Y = node2BaseY + (camY * 0.95); // Scrolls down to ~129px
-
-    // Render helper for authentic OrbitNode
-    const drawOrbitNode = (nx, ny, isActive, isDistant) => {
-      if (ny < -30 || ny > h + 30) return;
-      ctx.save();
-      ctx.translate(nx, ny);
-
-      if (isDistant) {
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.arc(0, 0, 14, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
-        ctx.fill();
-        ctx.fillStyle = '#38bdf8';
-        ctx.beginPath();
-        ctx.arc(0, 0, 4, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Soft Radial Energy Aura
-        const aura = ctx.createRadialGradient(0, 0, 2, 0, 0, 36);
-        aura.addColorStop(0, 'rgba(0, 240, 255, 0.45)');
-        aura.addColorStop(0.6, 'rgba(0, 240, 255, 0.12)');
-        aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = aura;
-        ctx.beginPath();
-        ctx.arc(0, 0, 36, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Rotating Tactical Lock-On Brackets
-        if (isActive) {
-          const bracketPulse = (Math.sin(t * 0.008) + 1) * 0.5;
-          const ringRadius = 25 + bracketPulse * 3;
-          ctx.save();
-          ctx.rotate(t * 0.0012);
-          ctx.strokeStyle = '#00f0ff';
-          ctx.lineWidth = 2.0;
-          ctx.shadowColor = '#00f0ff';
-          ctx.shadowBlur = 9;
-          const bLen = 6;
-          ctx.beginPath();
-          ctx.moveTo(0, -ringRadius - 3); ctx.lineTo(0, -ringRadius + bLen);
-          ctx.moveTo(0, ringRadius + 3); ctx.lineTo(0, ringRadius - bLen);
-          ctx.moveTo(-ringRadius - 3, 0); ctx.lineTo(-ringRadius + bLen, 0);
-          ctx.moveTo(ringRadius + 3, 0); ctx.lineTo(ringRadius - bLen, 0);
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        // Outer Ring
-        ctx.strokeStyle = '#00f0ff';
-        ctx.lineWidth = 2.0;
-        ctx.shadowColor = '#00f0ff';
-        ctx.shadowBlur = 10;
-        ctx.beginPath();
-        ctx.arc(0, 0, 16 + Math.sin(t * 0.004) * 1.5, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Core
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        ctx.arc(0, 0, 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-    };
-
-    // Render Nodes
-    drawOrbitNode(node1X, node1Y, time < 2.8, false);
-    drawOrbitNode(node2X, node2Y, time >= 4.4, time < 2.8);
-
-    // 4. In-flight Collectible Coin
-    const coinY = 48 + camY * 0.95;
-    const isCoinCollected = time >= 3.4;
-    if (!isCoinCollected && coinY > -15 && coinY < h + 15) {
-      ctx.save();
-      ctx.translate(node1X + orbitRadius, coinY);
-      if (typeof EnergyOrb !== 'undefined' && EnergyOrb.cache && EnergyOrb.cache['CREDIT_SPRITE']) {
-        if (EnergyOrb.cache['COIN_GLOW']) {
-          ctx.drawImage(EnergyOrb.cache['COIN_GLOW'], -18, -18, 36, 36);
-        }
-        ctx.drawImage(EnergyOrb.cache['CREDIT_SPRITE'], -14, -14, 28, 28);
-      } else {
-        ctx.shadowColor = '#fbbf24';
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = '#fbbf24';
-        ctx.beginPath();
-        ctx.arc(0, 0, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-      }
-      ctx.restore();
-    } else if (time >= 3.4 && time < 4.0) {
-      // Coin collection sparkle flash
-      const pFlash = (time - 3.4) / 0.6;
-      ctx.save();
-      ctx.translate(node1X + orbitRadius, coinY - pFlash * 12);
-      ctx.fillStyle = `rgba(251, 191, 36, ${1.0 - pFlash})`;
-      ctx.font = '700 12px "Orbitron", monospace, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('+1 COIN', 0, 0);
-      ctx.restore();
-    }
-
-    // 5. Slingshot Shockwave Plume at Launch
-    if (time >= 2.8 && time < 3.8) {
-      const sw = (time - 2.8) / 1.0;
-      ctx.save();
-      ctx.translate(node1X, node1Y);
-      ctx.strokeStyle = `rgba(0, 240, 255, ${Math.max(0, 1.0 - sw)})`;
-      ctx.lineWidth = 3.0 * (1.0 - sw * 0.5);
-      ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 14;
-      ctx.beginPath();
-      ctx.arc(0, 0, orbitRadius * sw * 1.8, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // 6. Spaceship Trajectory & Physics
-    let shipX = 0;
-    let shipY = 0;
-    let shipAngle = 0;
-    let isLaunching = false;
-    let isHooked = false;
-    let hookedNodeX = node1X;
-    let hookedNodeY = node1Y;
-
-    if (time < 1.0) {
-      // Phase 1: Free flight approach
-      const p = time / 1.0;
-      shipX = 60 + p * (node1X - orbitRadius - 60);
-      shipY = 195 - p * (195 - node1Y);
-      shipAngle = Math.atan2(node1Y - 195, (node1X - orbitRadius) - 60);
-
-      // Aim assist dashed line
-      ctx.save();
-      ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
-      ctx.lineWidth = 1.6;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.moveTo(shipX, shipY);
-      ctx.lineTo(node1X, node1Y);
-      ctx.stroke();
-      ctx.restore();
-    } else if (time < 2.8) {
-      // Phase 2: Gravitational Slingshot Orbit
-      isHooked = true;
-      const p = (time - 1.0) / 1.8;
-      const startAngle = Math.PI; // 180° West
-      const currentAngle = startAngle - p * Math.PI; // Sweeps to 0° East
-      shipX = node1X + Math.cos(currentAngle) * orbitRadius;
-      shipY = node1Y + Math.sin(currentAngle) * orbitRadius;
-      shipAngle = currentAngle - Math.PI / 2; // Forward tangent
-      hookedNodeX = node1X;
-      hookedNodeY = node1Y;
-
-      // In-game Slingshot Prediction Arc
-      ctx.save();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-      ctx.lineWidth = 1.6;
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath();
-      ctx.arc(node1X, node1Y, orbitRadius, startAngle, currentAngle, true);
-      ctx.stroke();
-      ctx.restore();
-    } else if (time < 4.4) {
-      // Phase 3: Vertical Slingshot Launch & Rocket Ascent
-      isLaunching = true;
-      const p = (time - 2.8) / 1.6;
-      shipX = node1X + orbitRadius;
-      // In camera-tracked space, ship rises smoothly from node1 toward center
-      shipY = (node1BaseY) - (p * 75);
-      shipAngle = -Math.PI / 2; // North
-
-      // Propulsion Trail
-      ctx.save();
-      const trailGrad = ctx.createLinearGradient(shipX, node1Y, shipX, shipY);
-      trailGrad.addColorStop(0, 'rgba(0, 240, 255, 0.05)');
-      trailGrad.addColorStop(1, 'rgba(56, 189, 248, 0.9)');
-      ctx.strokeStyle = trailGrad;
-      ctx.lineWidth = 3.2;
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 12;
-      ctx.beginPath();
-      ctx.moveTo(shipX, node1Y);
-      ctx.lineTo(shipX, shipY + 14);
-      ctx.stroke();
-      ctx.restore();
-    } else {
-      // Phase 4: Latch onto Node 2
-      isHooked = true;
-      hookedNodeX = node2X;
-      hookedNodeY = node2Y;
-      const p = (time - 4.4) / 1.0;
-      const currentAngle = -Math.PI / 2 - p * (Math.PI * 0.6);
-      shipX = node2X + Math.cos(currentAngle) * orbitRadius;
-      shipY = node2Y + Math.sin(currentAngle) * orbitRadius;
-      shipAngle = currentAngle - Math.PI / 2;
-    }
-
-    // 7. Authentic Glowing Cyan Tether Beam (When Hooked)
-    if (isHooked) {
-      ctx.save();
-      ctx.strokeStyle = '#00f0ff';
-      ctx.lineWidth = 2.2;
-      ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.moveTo(hookedNodeX, hookedNodeY);
-      ctx.lineTo(shipX, shipY);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // 8. Slingshot Feedback Badge (PERFEKT)
-    if (time >= 2.8 && time < 3.7) {
-      const fbProgress = (time - 2.8) / 0.9;
-      ctx.save();
-      ctx.translate(node1X + orbitRadius + 18, (node1BaseY - 10) - fbProgress * 18);
-      ctx.fillStyle = `rgba(0, 240, 255, ${Math.max(0, 1.0 - fbProgress)})`;
-      ctx.font = '700 13px "Rajdhani", sans-serif';
-      ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 8;
-      ctx.fillText('PERFEKT', 0, 0);
-      ctx.restore();
-    }
-
-    // 9. Render Authentic PFEIL Spaceship
-    if (shipY > -25 && shipY < h + 25) {
-      ctx.save();
-      ctx.translate(shipX, shipY);
-      ctx.rotate(shipAngle + Math.PI / 2);
-      ctx.scale(1.2, 1.2);
-
-      // Thruster Flame Particle Effects
-      const flameLen = isLaunching ? (14 + Math.random() * 6) : (6 + Math.random() * 3);
-      ctx.fillStyle = isLaunching ? '#fbbf24' : '#38bdf8';
-      ctx.shadowColor = isLaunching ? '#fbbf24' : '#00f0ff';
-      ctx.shadowBlur = 10;
-      [-4, 4].forEach(tx => {
-        ctx.beginPath();
-        ctx.moveTo(tx - 2, 7);
-        ctx.lineTo(tx + 2, 7);
-        ctx.lineTo(tx, 7 + flameLen);
-        ctx.closePath();
-        ctx.fill();
-      });
-
-      // PFEIL Hull Geometry
-      ctx.beginPath();
-      ctx.moveTo(0, -15);
-      ctx.lineTo(11, 10);
-      ctx.lineTo(4, 7);
-      ctx.lineTo(0, 9);
-      ctx.lineTo(-4, 7);
-      ctx.lineTo(-11, 10);
-      ctx.closePath();
-      ctx.fillStyle = '#0f172a';
-      ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.6;
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 8;
-      ctx.stroke();
-
-      // Neon Cockpit
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.moveTo(0, -10);
-      ctx.lineTo(0, 4);
-      ctx.stroke();
-
-      ctx.fillStyle = '#38bdf8';
-      ctx.beginPath();
-      ctx.arc(0, -3, 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // 10. Authentic In-Game HUD Mini-Overlay (Meters & Status)
-    const altitudeDisplay = Math.floor(28 + (time / cycle) * 86);
-    ctx.save();
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect(10, 10, 76, 22, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#38bdf8';
-    ctx.font = '700 11px "Orbitron", monospace, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.letterSpacing = '1px';
-    ctx.fillText(`${altitudeDisplay} M`, 18, 25);
-    ctx.restore();
-  }
 
   /* =========================================================================
      PILOT PROFILE & REGISTRATION
@@ -748,17 +374,17 @@ class UIManager {
 
     if (noticeEl) {
       if (remaining === 2) {
-        noticeEl.textContent = '2 KOSTENLOSE ÄNDERUNGEN VERFÜGBAR';
+        noticeEl.textContent = 'NOCH 2 NAMENSÄNDERUNGEN VERFÜGBAR';
         noticeEl.style.color = '#10b981';
         noticeEl.style.background = 'rgba(16, 185, 129, 0.08)';
         noticeEl.style.borderColor = 'rgba(16, 185, 129, 0.25)';
       } else if (remaining === 1) {
-        noticeEl.textContent = '1 KOSTENLOSE ÄNDERUNG VERFÜGBAR';
+        noticeEl.textContent = 'NOCH 1 NAMENSÄNDERUNG VERFÜGBAR';
         noticeEl.style.color = '#38bdf8';
         noticeEl.style.background = 'rgba(56, 189, 248, 0.08)';
         noticeEl.style.borderColor = 'rgba(56, 189, 248, 0.25)';
       } else {
-        noticeEl.textContent = 'NAME FESTGELEGT (0 ÄNDERUNGEN ÜBRIG)';
+        noticeEl.textContent = 'KEINE NAMENSÄNDERUNGEN MEHR VERFÜGBAR';
         noticeEl.style.color = '#64748b';
         noticeEl.style.background = 'rgba(255, 255, 255, 0.04)';
         noticeEl.style.borderColor = 'rgba(255, 255, 255, 0.08)';
@@ -821,12 +447,12 @@ class UIManager {
       }
       if (noticeEl) {
         if (remaining === 1) {
-          noticeEl.textContent = '1 KOSTENLOSE ÄNDERUNG VERFÜGBAR';
+          noticeEl.textContent = 'NOCH 1 NAMENSÄNDERUNG VERFÜGBAR';
           noticeEl.style.color = '#38bdf8';
           noticeEl.style.background = 'rgba(56, 189, 248, 0.08)';
           noticeEl.style.borderColor = 'rgba(56, 189, 248, 0.25)';
         } else {
-          noticeEl.textContent = 'NAME FESTGELEGT (0 ÄNDERUNGEN ÜBRIG)';
+          noticeEl.textContent = 'KEINE NAMENSÄNDERUNGEN MEHR VERFÜGBAR';
           noticeEl.style.color = '#64748b';
           noticeEl.style.background = 'rgba(255, 255, 255, 0.04)';
           noticeEl.style.borderColor = 'rgba(255, 255, 255, 0.08)';

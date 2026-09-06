@@ -74,6 +74,29 @@ function saveAnalytics() {
   } catch (e) {}
 }
 
+// Cross-Device Player Cloud Store
+const PLAYERS_FILE = path.join(DATA_DIR, 'players.json');
+
+function loadPlayers() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (fs.existsSync(PLAYERS_FILE)) {
+      return JSON.parse(fs.readFileSync(PLAYERS_FILE, 'utf8'));
+    }
+  } catch (e) {}
+  return {};
+}
+
+let playersStore = loadPlayers();
+
+function savePlayers() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(PLAYERS_FILE, JSON.stringify(playersStore, null, 2), 'utf8');
+  } catch (e) {}
+}
+
+
 function getActivePlayersCount() {
   const now = Date.now();
   for (const [sid, lastSeen] of activeSessions.entries()) {
@@ -87,6 +110,75 @@ function getActivePlayersCount() {
 function createServer() {
   return http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
+
+    // CORS Preflight
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
+      res.end();
+      return;
+    }
+
+    // API: Player Cloud Sync (POST)
+    if (req.method === 'POST' && reqUrl === '/api/player/sync') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const payload = JSON.parse(body);
+          let rawId = (payload.playerId || '').trim().toUpperCase();
+          if (!rawId) {
+            res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+            res.end(JSON.stringify({ error: 'Missing playerId' }));
+            return;
+          }
+          if (!rawId.startsWith('#')) rawId = '#' + rawId;
+
+          playersStore[rawId] = {
+            playerId: rawId,
+            updatedAt: new Date().toISOString(),
+            state: payload.state || {}
+          };
+          savePlayers();
+
+          res.writeHead(200, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          });
+          res.end(JSON.stringify({ ok: true, playerId: rawId, updatedAt: playersStore[rawId].updatedAt }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ error: 'Invalid JSON' }));
+        }
+      });
+      return;
+    }
+
+    // API: Player Cloud Restore (GET /api/player/:id)
+    if (req.method === 'GET' && reqUrl.startsWith('/api/player/')) {
+      let rawId = decodeURIComponent(reqUrl.replace('/api/player/', '')).trim().toUpperCase();
+      if (!rawId.startsWith('#')) rawId = '#' + rawId;
+
+      const record = playersStore[rawId];
+      if (record) {
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache'
+        });
+        res.end(JSON.stringify({ ok: true, player: record }));
+      } else {
+        res.writeHead(404, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
+      }
+      return;
+    }
 
     // API: Telemetry Ingest (POST)
     if (req.method === 'POST' && reqUrl === '/api/telemetry') {

@@ -3668,7 +3668,8 @@ canvas#gameCanvas {
     padding: 18px 14px;
   }
   .settings-modal-card,
-  .profile-modal-card {
+  .profile-modal-card,
+  .tutorial-modal-card {
     padding: 20px 14px;
     width: 95%;
   }
@@ -3981,13 +3982,19 @@ canvas#gameCanvas {
 
 .profile-change-notice {
   font-family: var(--font-ui);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.8px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  line-height: 1.2;
+  min-height: 32px;
+  box-sizing: border-box;
   text-transform: uppercase;
   transition: all 0.2s ease;
 }
@@ -4058,55 +4065,126 @@ canvas#gameCanvas {
   opacity: 0;
 }
 
-/* 3. Pilot Telemetry Career Card */
-.profile-telemetry-card {
+/* 3. Cross-Device Cloud Sync Card (Floating-Dock Parity) */
+.profile-sync-card {
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex;
-  align-items: center;
-  justify-content: space-around;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
 }
 
-.profile-stat-box {
+.profile-sync-header {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  flex: 1;
+  gap: 2px;
 }
 
-.profile-stat-label {
+.profile-sync-title {
   font-family: var(--font-ui);
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 1px;
-  color: #94a3b8;
+  color: #f8fafc;
   text-transform: uppercase;
 }
 
-.profile-stat-value {
-  font-family: 'Orbitron', monospace;
-  font-size: 13.5px;
-  font-weight: 800;
-  color: #f8fafc;
-  letter-spacing: 0.5px;
-}
-
-.profile-stat-value.status-active {
-  color: #10b981;
+.profile-sync-hint {
   font-family: var(--font-ui);
-  font-size: 13px;
-  letter-spacing: 1px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  text-transform: uppercase;
 }
 
-.profile-stat-divider {
-  width: 1px;
-  height: 28px;
-  background: rgba(255, 255, 255, 0.08);
+.btn-profile-sync-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 10px;
+  color: #38bdf8;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+}
+
+.btn-profile-sync-copy:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+.sync-icon-svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.profile-sync-manual-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-sync-manual-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #38bdf8;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color 0.18s ease;
+}
+
+.profile-sync-manual-row input:focus {
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.btn-profile-sync-load {
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #f8fafc;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btn-profile-sync-load:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
 }
 
 /* =========================================================================
@@ -4167,62 +4245,98 @@ canvas#gameCanvas {
 }
 
 /* =========================================================================
-   8. TUTORIAL MODAL (2-SLIDE SIMPLE BUTTON TUTORIAL)
+   8. TUTORIAL MODAL (REDESIGNED: FLOATING-DOCK & COMMERCIAL MINIMALISM)
    ========================================================================= */
-.tutorial-card {
+.tutorial-modal-card {
   max-width: 440px;
   width: 92%;
   padding: 24px 20px;
-}
-
-.tutorial-step-badge {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--action-start);
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  padding: 4px 12px;
-  border-radius: 999px;
-  display: inline-block;
-  margin-bottom: 4px;
-}
-
-.tutorial-slide {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.tutorial-visual-box {
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
-  width: 100%;
-  max-width: 360px;
-  position: relative;
-  overflow: hidden;
+  background: #0b0d13 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.1);
+  text-align: center;
   box-sizing: border-box;
 }
 
-#tut-sling-canvas {
-  width: 100%;
-  max-width: 360px;
-  height: auto;
-  aspect-ratio: 360 / 160;
-  display: block;
+.tutorial-header-lockup {
+  text-align: center;
+  margin-bottom: 18px;
 }
 
-#tut-circles-canvas {
-  width: 100%;
-  max-width: 360px;
-  height: auto;
-  aspect-ratio: 360 / 100;
-  display: block;
+.tutorial-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 0 16px rgba(225, 29, 72, 0.25);
 }
 
-.tutorial-desc-box {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+.tutorial-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.tutorial-step-card {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 16px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.tutorial-step-card:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.tutorial-step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tutorial-step-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid;
+  line-height: 1.3;
+}
+
+.tutorial-step-label {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #f8fafc;
+  text-transform: uppercase;
+}
+
+.tutorial-step-desc {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.tutorial-button-stack {
+  margin-top: 4px;
 }
 
 /* =========================================================================

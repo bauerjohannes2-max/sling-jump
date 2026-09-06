@@ -7,6 +7,7 @@ class StorageService {
     this.key = CONSTANTS.STORAGE_KEY;
     this.data = this.getDefaultState();
     this.load();
+    this.syncToCloud();
   }
 
   static generateRandomGamerTag() {
@@ -279,6 +280,78 @@ class StorageService {
       localStorage.setItem(this.key, JSON.stringify(this.data));
     } catch (err) {
       console.warn('StorageService: Failed to write to localStorage (quota or disabled)', err);
+    }
+
+    // Auto-sync state to cloud in background
+    this.syncToCloud();
+  }
+
+  syncToCloud() {
+    if (this._cloudSyncTimer) return;
+    this._cloudSyncTimer = setTimeout(() => {
+      this._cloudSyncTimer = null;
+      try {
+        const profile = this.getPlayerProfile();
+        if (!profile || !profile.playerId) return;
+
+        const syncPayload = {
+          playerId: profile.playerId,
+          state: {
+            cores: this.data.cores,
+            hyperCrystals: this.data.hyperCrystals,
+            highScore: this.data.highScore,
+            selectedShip: this.data.selectedShip,
+            selectedTrail: this.data.selectedTrail,
+            selectedTheme: this.data.selectedTheme,
+            unlockedShips: this.data.unlockedShips,
+            unlockedTrails: this.data.unlockedTrails,
+            unlockedThemes: this.data.unlockedThemes,
+            playerProfile: this.data.playerProfile,
+            stats: this.data.stats,
+            questProgress: this.data.questProgress,
+            claimedQuestIds: this.data.claimedQuestIds,
+            leaderboard: this.data.leaderboard,
+            settings: this.data.settings
+          }
+        };
+
+        if (typeof fetch !== 'undefined' && typeof window !== 'undefined' && window.location && window.location.protocol !== 'file:') {
+          fetch('/api/player/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(syncPayload)
+          }).catch(() => {});
+        }
+      } catch (e) {}
+    }, 800);
+  }
+
+  async restoreFromCloud(rawId) {
+    if (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:') {
+      return { success: false, message: 'Server nicht erreichbar.' };
+    }
+    if (!rawId || typeof rawId !== 'string') {
+      return { success: false, message: 'Ungültige User-ID.' };
+    }
+    let cleanId = rawId.trim().toUpperCase();
+    if (!cleanId.startsWith('#')) cleanId = '#' + cleanId;
+
+    try {
+      const res = await fetch(`/api/player/${encodeURIComponent(cleanId)}`);
+      if (!res.ok) {
+        return { success: false, message: `Spieler ${cleanId} nicht gefunden.` };
+      }
+      const data = await res.json();
+      if (data && data.ok && data.player && data.player.state) {
+        this.data = this.migrate(data.player.state);
+        try {
+          localStorage.setItem(this.key, JSON.stringify(this.data));
+        } catch (e) {}
+        return { success: true, profile: this.data.playerProfile, message: `Spielstand für ${cleanId} geladen!` };
+      }
+      return { success: false, message: 'Spielstand unvollständig.' };
+    } catch (err) {
+      return { success: false, message: 'Server nicht erreichbar.' };
     }
   }
 

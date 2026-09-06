@@ -1,6 +1,6 @@
 # Sling Jump - Game Systems & Technical Specification Manual
 
-> Live Version: 5.16.9 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
+> Live Version: 5.17.0 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
 
 ---
 
@@ -216,5 +216,22 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - Header: Left-aligned title (`14px` bold pure white `#ffffff`), top-right reward text (`+ ... C` in `Orbitron:wght@800` gold `#fbbf24` with vector bullion coin).
   - Clean description (`12.5px`, `#94a3b8`) followed by full-width progress bar and status actions.
   - Zero emojis across all cards, tabs, and headers.
+
+### 10.4 Profile Modal & Cross-Device Cloud Sync Architecture
+- **Container & Card Parity (`.profile-modal-card`):**
+  - Solid `#0b0d13` base with 24px border radius and `rgba(255, 255, 255, 0.08)` border.
+  - Floating-dock internal cards (`rgba(255, 255, 255, 0.035)`, 16px blur) for `.profile-hero-card`, `.profile-edit-card`, and `.profile-sync-card`.
+- **Short User ID Architecture:** 4-character uppercase alphanumeric identifier with hash prefix (`#XXXX`, e.g. `#EXGN`). Automatically generated on initial session start; legacy IDs auto-migrated.
+- **Name Change Policy:** 2 free name changes (`MAX_FREE_CHANGES = 2`). Notice banner is optically centered vertically and horizontally inside the status box (`display: flex; align-items: center; justify-content: center;`). Form locks upon exhaustion.
+- **Cross-Device Cloud Sync & Recognition:**
+  - `POST /api/player/sync`: Ingests and merges player game state in `data/players.json`.
+  - `GET /api/player/:id`: Returns verified cloud state by player ID.
+  - Zero-friction link sharing: Clicking "SPIELSTAND-LINK KOPIEREN" copies `?id=XXXX`. When opened on any browser or mobile device, state is automatically restored on initial page load.
+  - Manual ID load: Players can enter any `#XXXX` code and click "LADEN" to restore progress immediately.
+
+### 10.5 Tutorial Modal Architecture
+- **Commercial Minimalism:** 100% text-driven guide (Alto's Adventure style) replacing legacy video/canvas loops. Zero CPU/GPU animation overhead.
+- **Floating-Dock Cards:** 3 sequential cards (`01 / HALTEN` - Gravitations-Anker, `02 / ROTIEREN` - Orbit-Schwung, `03 / KATAPULTIEREN` - Apex-Launch).
+- **CTA:** Single primary button `VERSTANDEN` with karminrot glow.
 
 

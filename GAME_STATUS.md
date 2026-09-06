@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (v5.16.9 - Profile Modal Redesign, 2x Free Name Changes & Short User IDs)  
+> **Status:** Release Candidate (v5.17.0 - Tutorial Redesign, Centered Renames & Cross-Device Sync)  
 > **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
@@ -267,6 +267,22 @@
 - **Dynamisches Rank-Overlay:** Erst nach Absolvierung des ersten Flugs mit erzielten Metern (`bestAltitude > 0`) erscheint das goldene Rang-Badge (`#${rank}`).
 - **Entfernung FPS-Playwright-Runner:** `scripts/benchmark_fps.js` und `scripts/stress_test_gameplay.js` sowie `08b_gameplay_fps_hud.png` und `package.json` `"test:fps"` restlos entfernt zur Maximierung der Token-Effizienz.
 - **Komprimierung aller Markdown-Dateien:** Sämtliche `.md`-Dokumente auf dichte, token-effiziente Fakten komprimiert (-75% Token-Last).
+
+### v5.17.0 (06.09.2026) - Minimalist Text Tutorial, Centered Renames & Cross-Device Sync
+- **Tutorial Modal Redesign (`#tutorial-modal`):**
+  - Video- & Canvas-Animationen restlos entfernt. 100% textbasiertes, minimalistisches Arcade-Design (Alto's Adventure Ästhetik).
+  - 3 schwebende Floating-Dock Karten: `01 / HALTEN` (Gravitations-Anker), `02 / ROTIEREN` (Orbit-Schwung), `03 / KATAPULTIEREN` (Apex-Launch).
+  - Neuer prominenter `VERSTANDEN`-Button mit Karmin-Glow.
+- **Profil-Modal Optimierungen (`#profile-modal`):**
+  - Untere Telemetrie-Zeile ("Bestleistung, Flüge, Status") restlos entfernt.
+  - Namensänderungs-Badge auf "NOCH 2 NAMENSÄNDERUNGEN VERFÜGBAR" (bzw. "NOCH 1 NAMENSÄNDERUNG VERFÜGBAR") aktualisiert und im grünen Kasten horizontal & vertikal perfekt zentriert (`display: flex; align-items: center; justify-content: center;`).
+- **Cross-Device Unique User & Cloud Sync System:**
+  - Automatische Erkennung & Login mit einzigartiger 4-stelliger User-ID (`#XXXX`, z. B. `#EXGN`) ab der ersten Sekunde (0-Klick Onboarding).
+  - Neuer "SPIELSTAND-LINK KOPIEREN"-Button im Profil-Tab generiert direkten Link (`?id=XXXX`) für nahtlose Übertragung auf andere Geräte und Browser.
+  - Manuelle Code-Eingabe ("ID Z.B. #EXGN") mit "LADEN"-Button zur flexiblen Spielstand-Wiederherstellung.
+  - Server-Endpunkte `POST /api/player/sync` und `GET /api/player/:id` in `scripts/serve.js` mit `data/players.json`-Persistenz implementiert.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`node scripts/playwright_runner.js 06b,13,07`) mit 0 Fehlern erfolgreich ausgeführt (`06b_pilot_profile.png`, `13_tutorial_modal.png`, `07_settings.png`).
 
 ### v5.16.9 (06.09.2026) - Profile Modal Floating-Dock Parity, 2x Free Renames & Short IDs (#XXXX)
 - **Profil-Modal Redesign:** Schwebende Dock-Karten (`.profile-hero-card`, `.profile-edit-card`, `.profile-telemetry-card`) mit exakter Floating-Dock-Hintergrund-Parität (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`).

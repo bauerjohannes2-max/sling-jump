@@ -21,6 +21,18 @@
   window.addEventListener('pointerdown', unlockAudio, { passive: true });
   window.addEventListener('keydown', unlockAudio, { passive: true });
 
+  // --- QUICK TOAST NOTIFICATION ---
+  let toastTimeout;
+  const triggerQuickToast = (txt) => {
+    const toast = document.getElementById('quick-toast');
+    if (!toast) return;
+    toast.textContent = txt;
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 1600);
+  };
+  window._quickToast = triggerQuickToast;
+
   // Wire DOM UI Button Events
   function bindUIButtons() {
     const ui = engine.ui;
@@ -83,16 +95,51 @@
     onBtn('btn-menu-profile', () => ui.openProfileModal());
     onBtn('btn-profile-close', () => ui.closeProfileModal());
 
-    // --- QUICK TOAST NOTIFICATION ---
-    let toastTimeout;
-    const triggerQuickToast = (txt) => {
-      const toast = document.getElementById('quick-toast');
-      if (!toast) return;
-      toast.textContent = txt;
-      toast.classList.add('show');
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => toast.classList.remove('show'), 1600);
-    };
+    // --- CLOUD ACCOUNT & SYNC BUTTONS ---
+    onBtn('btn-copy-sync-link', async () => {
+      const profile = engine.storage.getPlayerProfile();
+      const playerId = (profile && profile.playerId) ? profile.playerId.replace('#', '') : '';
+      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(playerId)}`;
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(shareUrl);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = shareUrl;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        triggerQuickToast('LINK KOPIERT! AUF ANDEREM GERÄT ÖFFNEN');
+      } catch (err) {
+        triggerQuickToast(`DEIN CODE: #${playerId}`);
+      }
+    });
+
+    onBtn('btn-load-sync-id', async () => {
+      const input = document.getElementById('sync-player-id-input');
+      const enteredId = input ? input.value.trim() : '';
+      if (!enteredId) {
+        triggerQuickToast('BITTE USER-ID EINGEBEN');
+        return;
+      }
+      const res = await engine.storage.restoreFromCloud(enteredId);
+      if (res && res.success) {
+        triggerQuickToast('SPIELSTAND ERFOLGREICH GELADEN!');
+        ui.updateUserProfileNav();
+        ui.updateHUD();
+        ui.initHangar();
+        ui.initSettingsUI();
+        ui.openProfileModal();
+        if (input) input.value = '';
+      } else {
+        triggerQuickToast(res && res.message ? res.message.toUpperCase() : 'USER-ID NICHT GEFUNDEN');
+      }
+    });
 
     // --- CENTER STAGE INTERACTIVE SHIP HANGAR CAROUSEL ---
     // Skin 1: Sleek Delta Dart from user screenshot
@@ -617,5 +664,28 @@
   bindUIButtons();
   engine.state.changeState(StateManager.STATES.MENU);
   engine.start();
+
+  // Cross-Device Auto-Onboarding via URL parameter (?id=XXXX or ?user=XXXX)
+  (async () => {
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const syncId = urlParams.get('id') || urlParams.get('user');
+        if (syncId) {
+          const res = await engine.storage.restoreFromCloud(syncId);
+          if (res && res.success) {
+            triggerQuickToast(`KONTO GELADEN: ${res.profile.playerId}`);
+            engine.ui.updateUserProfileNav();
+            engine.ui.updateHUD();
+            engine.ui.initHangar();
+            engine.ui.initSettingsUI();
+          }
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        }
+      }
+    } catch (e) {}
+  })();
 
 })();
