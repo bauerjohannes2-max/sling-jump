@@ -50,6 +50,11 @@
   - In-memory rate limiting throttles API endpoints to 60 req/min per IP to block ID enumeration and scrapers.
   - Brute-force lockout triggers after 5 failed authentication attempts per IP+account, enforcing a 60-second cooldown (`HTTP 429 Too Many Requests` with `Retry-After: 60`).
   - Client handles 429 responses with user-facing countdown toast guidance.
+- **CORS & Input Hardening (`scripts/serve.js`):**
+  - Origin whitelist restricts cross-origin access to localhost, private LAN subnets, and GitHub Pages; rejects untrusted websites with 403 Forbidden.
+  - Enforces 100KB request body limit returning `413 Payload Too Large` to prevent memory exhaustion DoS.
+  - Regex validation on Player ID format (`/^#[2-9A-HJ-NP-Z]{4,10}$/`) blocks injection attempts with 400 Bad Request.
+  - Sanitizes prototype-polluting properties (`__proto__`, `constructor`) from incoming state objects.
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

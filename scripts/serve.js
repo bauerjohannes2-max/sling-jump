@@ -181,16 +181,85 @@ const rateLimitCleanupInterval = setInterval(() => {
 }, 300000);
 if (rateLimitCleanupInterval.unref) rateLimitCleanupInterval.unref();
 
+const ALLOWED_ORIGIN_PATTERNS = [
+  /^https?:\/\/localhost(:\d+)?$/,
+  /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/,
+  /^https?:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/,
+  /^https?:\/\/172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+(:\d+)?$/,
+  /^https:\/\/bauerjohannes2-max\.github\.io$/
+];
+
+function getCorsOrigin(req) {
+  const origin = req.headers.origin;
+  if (!origin) return '*';
+  const isAllowed = ALLOWED_ORIGIN_PATTERNS.some(p => p.test(origin));
+  return isAllowed ? origin : null;
+}
+
+const MAX_BODY_BYTES = 100 * 1024;
+
+function readJsonBody(req, res, corsOrigin, callback) {
+  let body = '';
+  let exceeded = false;
+  req.on('data', chunk => {
+    if (exceeded) return;
+    body += chunk;
+    if (body.length > MAX_BODY_BYTES) {
+      exceeded = true;
+      res.writeHead(413, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': corsOrigin || '*'
+      });
+      res.end(JSON.stringify({ ok: false, error: 'PAYLOAD ZU GROSS (MAX 100KB)' }));
+    }
+  });
+  req.on('end', () => {
+    if (exceeded) return;
+    try {
+      const parsed = JSON.parse(body || '{}');
+      callback(null, parsed);
+    } catch (e) {
+      res.writeHead(400, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': corsOrigin || '*'
+      });
+      res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGES JSON' }));
+    }
+  });
+}
+
+const ID_REGEX = /^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4,10}$/;
+
+function sanitizeState(state) {
+  if (!state || typeof state !== 'object') return {};
+  const clean = {};
+  for (const [k, v] of Object.entries(state)) {
+    if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+    clean[k] = v;
+  }
+  return clean;
+}
+
 function createServer() {
   return http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
+    const corsOrigin = getCorsOrigin(req);
+
+    // Block disallowed external cross-origin requests
+    if (req.headers.origin && !corsOrigin) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'ORIGIN NICHT ERLAUBT' }));
+      return;
+    }
 
     // CORS Preflight
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': corsOrigin || '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Vary': 'Origin'
       });
       res.end();
       return;
@@ -203,8 +272,9 @@ function createServer() {
       if (ipLimit.limited) {
         res.writeHead(429, {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Retry-After': String(ipLimit.retryAfter)
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Retry-After': String(ipLimit.retryAfter),
+          'Vary': 'Origin'
         });
         res.end(JSON.stringify({
           ok: false,
@@ -217,143 +287,143 @@ function createServer() {
 
     // API: Player Cloud Sync (POST)
     if (req.method === 'POST' && reqUrl === '/api/player/sync') {
-      let body = '';
-      req.on('data', chunk => { body += chunk; });
-      req.on('end', () => {
-        try {
-          const payload = JSON.parse(body);
-          let rawId = (payload.playerId || '').trim().toUpperCase();
-          if (!rawId) {
-            res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-            res.end(JSON.stringify({ error: 'Missing playerId' }));
-            return;
-          }
-          if (!rawId.startsWith('#')) rawId = '#' + rawId;
+      readJsonBody(req, res, corsOrigin, (err, payload) => {
+        let rawId = (payload.playerId || '').trim().toUpperCase();
+        if (!rawId) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ error: 'Missing playerId' }));
+          return;
+        }
+        if (!rawId.startsWith('#')) rawId = '#' + rawId;
 
-          const authKey = `${clientIp}:${rawId}`;
-          const lockCheck = checkAuthLockout(authKey);
-          if (lockCheck.locked) {
-            res.writeHead(429, {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-              'Retry-After': String(lockCheck.retryAfter)
-            });
-            res.end(JSON.stringify({
-              ok: false,
-              error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
-              retryAfter: lockCheck.retryAfter
-            }));
-            return;
-          }
+        if (!ID_REGEX.test(rawId)) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGES USER-ID FORMAT' }));
+          return;
+        }
 
-          // Password handling: client sends pre-hashed SHA-256
-          const clientPwHash = (payload.passwordHash || '').trim() || null;
-          const existing = playersStore[rawId];
-
-          // If record exists with a password, enforce authentication before overwriting
-          if (existing && existing.passwordHash) {
-            if (!clientPwHash || !safeCompareHashes(existing.passwordHash, clientPwHash)) {
-              recordAuthFailure(authKey, 5, 60000);
-              res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-              res.end(JSON.stringify({ error: 'FALSCHES PASSWORT', requiresPassword: true }));
-              return;
-            }
-          }
-
-          recordAuthSuccess(authKey);
-
-          // Support explicit password removal if requested and authenticated
-          const finalPasswordHash = payload.removePassword
-            ? null
-            : (clientPwHash || (existing && existing.passwordHash) || null);
-
-          playersStore[rawId] = {
-            playerId: rawId,
-            updatedAt: new Date().toISOString(),
-            passwordHash: finalPasswordHash,
-            state: payload.state || {}
-          };
-          savePlayers();
-
-          res.writeHead(200, {
+        const authKey = `${clientIp}:${rawId}`;
+        const lockCheck = checkAuthLockout(authKey);
+        if (lockCheck.locked) {
+          res.writeHead(429, {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': corsOrigin || '*',
+            'Retry-After': String(lockCheck.retryAfter),
+            'Vary': 'Origin'
           });
           res.end(JSON.stringify({
-            ok: true,
-            playerId: rawId,
-            updatedAt: playersStore[rawId].updatedAt,
-            hasPassword: !!playersStore[rawId].passwordHash
+            ok: false,
+            error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
+            retryAfter: lockCheck.retryAfter
           }));
-        } catch (e) {
-          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-          res.end(JSON.stringify({ error: 'Invalid JSON' }));
+          return;
         }
+
+        // Password handling: client sends pre-hashed SHA-256
+        const clientPwHash = (payload.passwordHash || '').trim() || null;
+        const existing = playersStore[rawId];
+
+        // If record exists with a password, enforce authentication before overwriting
+        if (existing && existing.passwordHash) {
+          if (!clientPwHash || !safeCompareHashes(existing.passwordHash, clientPwHash)) {
+            recordAuthFailure(authKey, 5, 60000);
+            res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+            res.end(JSON.stringify({ error: 'FALSCHES PASSWORT', requiresPassword: true }));
+            return;
+          }
+        }
+
+        recordAuthSuccess(authKey);
+
+        // Support explicit password removal if requested and authenticated
+        const finalPasswordHash = payload.removePassword
+          ? null
+          : (clientPwHash || (existing && existing.passwordHash) || null);
+
+        playersStore[rawId] = {
+          playerId: rawId,
+          updatedAt: new Date().toISOString(),
+          passwordHash: finalPasswordHash,
+          state: sanitizeState(payload.state)
+        };
+        savePlayers();
+
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Vary': 'Origin'
+        });
+        res.end(JSON.stringify({
+          ok: true,
+          playerId: rawId,
+          updatedAt: playersStore[rawId].updatedAt,
+          hasPassword: !!playersStore[rawId].passwordHash
+        }));
       });
       return;
     }
 
     // API: Player Cloud Restore (POST /api/player/restore) - Secure JSON body
     if (req.method === 'POST' && reqUrl === '/api/player/restore') {
-      let body = '';
-      req.on('data', chunk => { body += chunk; });
-      req.on('end', () => {
-        try {
-          const payload = JSON.parse(body);
-          let rawId = (payload.playerId || '').trim().toUpperCase();
-          if (!rawId) {
-            res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-            res.end(JSON.stringify({ ok: false, error: 'Missing playerId' }));
-            return;
-          }
-          if (!rawId.startsWith('#')) rawId = '#' + rawId;
-
-          const authKey = `${clientIp}:${rawId}`;
-          const lockCheck = checkAuthLockout(authKey);
-          if (lockCheck.locked) {
-            res.writeHead(429, {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-              'Retry-After': String(lockCheck.retryAfter)
-            });
-            res.end(JSON.stringify({
-              ok: false,
-              error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
-              retryAfter: lockCheck.retryAfter
-            }));
-            return;
-          }
-
-          const clientPwHash = (payload.passwordHash || '').trim() || null;
-          const record = playersStore[rawId];
-
-          if (!record) {
-            res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-            res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
-            return;
-          }
-
-          if (record.passwordHash) {
-            if (!clientPwHash || !safeCompareHashes(record.passwordHash, clientPwHash)) {
-              recordAuthFailure(authKey, 5, 60000);
-              res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-              res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
-              return;
-            }
-          }
-
-          recordAuthSuccess(authKey);
-
-          res.writeHead(200, {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'no-cache'
-          });
-          res.end(JSON.stringify({ ok: true, player: record }));
-        } catch (e) {
-          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-          res.end(JSON.stringify({ ok: false, error: 'Invalid JSON' }));
+      readJsonBody(req, res, corsOrigin, (err, payload) => {
+        let rawId = (payload.playerId || '').trim().toUpperCase();
+        if (!rawId) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Missing playerId' }));
+          return;
         }
+        if (!rawId.startsWith('#')) rawId = '#' + rawId;
+
+        if (!ID_REGEX.test(rawId)) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGES USER-ID FORMAT' }));
+          return;
+        }
+
+        const authKey = `${clientIp}:${rawId}`;
+        const lockCheck = checkAuthLockout(authKey);
+        if (lockCheck.locked) {
+          res.writeHead(429, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': corsOrigin || '*',
+            'Retry-After': String(lockCheck.retryAfter),
+            'Vary': 'Origin'
+          });
+          res.end(JSON.stringify({
+            ok: false,
+            error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
+            retryAfter: lockCheck.retryAfter
+          }));
+          return;
+        }
+
+        const clientPwHash = (payload.passwordHash || '').trim() || null;
+        const record = playersStore[rawId];
+
+        if (!record) {
+          res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
+          return;
+        }
+
+        if (record.passwordHash) {
+          if (!clientPwHash || !safeCompareHashes(record.passwordHash, clientPwHash)) {
+            recordAuthFailure(authKey, 5, 60000);
+            res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+            res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
+            return;
+          }
+        }
+
+        recordAuthSuccess(authKey);
+
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Cache-Control': 'no-cache',
+          'Vary': 'Origin'
+        });
+        res.end(JSON.stringify({ ok: true, player: record }));
       });
       return;
     }
@@ -363,13 +433,20 @@ function createServer() {
       let rawId = decodeURIComponent(reqUrl.replace('/api/player/', '')).trim().toUpperCase();
       if (!rawId.startsWith('#')) rawId = '#' + rawId;
 
+      if (!ID_REGEX.test(rawId)) {
+        res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+        res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGES USER-ID FORMAT' }));
+        return;
+      }
+
       const authKey = `${clientIp}:${rawId}`;
       const lockCheck = checkAuthLockout(authKey);
       if (lockCheck.locked) {
         res.writeHead(429, {
           'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': '*',
-          'Retry-After': String(lockCheck.retryAfter)
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Retry-After': String(lockCheck.retryAfter),
+          'Vary': 'Origin'
         });
         res.end(JSON.stringify({
           ok: false,
@@ -392,7 +469,8 @@ function createServer() {
           recordAuthFailure(authKey, 5, 60000);
           res.writeHead(403, {
             'Content-Type': 'application/json; charset=utf-8',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': corsOrigin || '*',
+            'Vary': 'Origin'
           });
           res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
           return;
@@ -402,14 +480,16 @@ function createServer() {
 
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'no-cache'
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Cache-Control': 'no-cache',
+          'Vary': 'Origin'
         });
         res.end(JSON.stringify({ ok: true, player: record }));
       } else {
         res.writeHead(404, {
           'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': '*'
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Vary': 'Origin'
         });
         res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
       }
@@ -418,11 +498,7 @@ function createServer() {
 
     // API: Telemetry Ingest (POST)
     if (req.method === 'POST' && reqUrl === '/api/telemetry') {
-      let body = '';
-      req.on('data', chunk => { body += chunk; });
-      req.on('end', () => {
-        try {
-          const payload = JSON.parse(body);
+      readJsonBody(req, res, corsOrigin, (err, payload) => {
           const today = new Date().toISOString().slice(0, 10);
           if (analyticsStore.currentDate !== today) {
             analyticsStore.currentDate = today;
@@ -467,13 +543,10 @@ function createServer() {
 
           res.writeHead(200, {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': corsOrigin || '*',
+            'Vary': 'Origin'
           });
           res.end(JSON.stringify({ ok: true, activeOnline: getActivePlayersCount() }));
-        } catch (err) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Invalid JSON' }));
-        }
       });
       return;
     }

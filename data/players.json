@@ -59,13 +59,5 @@
         "showFps": false
       }
     }
-  },
-  "#RLTEST": {
-    "playerId": "#RLTEST",
-    "updatedAt": "2026-09-06T19:20:08.958Z",
-    "passwordHash": "valid_password_hash_xyz",
-    "state": {
-      "coins": 100
-    }
   }
 }

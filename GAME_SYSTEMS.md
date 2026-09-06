@@ -255,6 +255,11 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - Global IP threshold: Max 60 requests per 60-second window per IP.
   - Brute-force threshold: Max 5 consecutive failed authentication attempts per `IP:PlayerId`. Exceeding this triggers an immediate 60-second lockout returning `HTTP 429 Too Many Requests` with a standard `Retry-After: 60` header and remaining cooldown countdown.
   - Successful authentication immediately resets the failure counter.
+- **CORS & Input Hardening:**
+  - Strict origin whitelist (`localhost`, 127.0.0.1, LAN IP subnets, GitHub Pages) blocks untrusted cross-origin requests with `403 Forbidden`.
+  - Enforces 100KB body limit (`MAX_BODY_BYTES = 100 * 1024`) returning `413 Payload Too Large` to prevent memory exhaustion DoS.
+  - Player ID syntax enforced via regex (`/^#[2-9A-HJ-NP-Z]{4,10}$/`) rejecting malicious formats with `400 Bad Request`.
+  - Prototype pollution protection (`sanitizeState()`) strips dangerous keys (`__proto__`, `constructor`, `prototype`).
 - **UI:** Profile sync card shows password status badge, set/remove buttons. Load section includes password input field.
 
 ### 10.9 Tutorial Modal Text
