@@ -41,6 +41,11 @@
   - Profile sync card: "PASSWORT SETZEN" input + "PASSWORT ENTFERNEN" button with reactive status badge (KEIN PASSWORT GESETZT / PASSWORT AKTIV).
   - Load section: Password input alongside ID field. Server returns 403 on wrong password.
   - Backward compatible: unprotected accounts sync freely.
+- **Auth Hardening Security Patch (`scripts/serve.js`, `StorageService.js`, `main.js`):**
+  - Neutralized auth bypass vulnerability in `POST /api/player/sync`: unauthenticated requests are strictly rejected with 403 when modifying a password-protected account.
+  - Constant-time hash comparison using `crypto.timingSafeEqual` prevents timing side-channel attacks.
+  - Replaced query-param restore (`GET /api/player/:id?pw=hash`) with secure `POST /api/player/restore` JSON body transmission, eliminating hash leakage into URL logs.
+  - Validated with 9 automated security test cases covering bypass attempts, invalid hashes, constant-time checks, and authenticated removal.
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

@@ -248,8 +248,9 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 
 ### 10.8 Cross-Device Password Authentication
 - **Client-Side Hashing:** `StorageService.setPassword(plainText)` hashes via `crypto.subtle.digest('SHA-256', ...)` (Web Crypto API). Stored as hex string in `playerProfile.passwordHash`.
-- **Sync Flow:** `syncToCloud()` includes `passwordHash` in POST payload. Server stores alongside player record in `players.json`.
-- **Restore Validation:** `restoreFromCloud(id, password)` hashes password client-side, sends as `?pw=hash` query param. Server validates against stored hash. Returns 403 `FALSCHES PASSWORT` on mismatch.
+- **Timing-Safe Sync Verification:** `POST /api/player/sync` checks if the existing record is password-protected. If protected, incoming `passwordHash` is strictly required and compared via `crypto.timingSafeEqual`. Omitting the hash or supplying an invalid hash returns 403 `FALSCHES PASSWORT` and rejects state overwrite.
+- **Authenticated Password Removal:** Removing a password requires an authenticated sync payload (`removePassword: true` with valid `passwordHash`), ensuring unauthorized callers cannot strip protection.
+- **Secure Restore Endpoint:** `restoreFromCloud(id, password)` issues `POST /api/player/restore` with JSON body `{ playerId, passwordHash }`. Eliminates credential exposure in URL query strings and server access logs.
 - **UI:** Profile sync card shows password status badge, set/remove buttons. Load section includes password input field.
 
 ### 10.9 Tutorial Modal Text

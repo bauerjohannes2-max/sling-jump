@@ -108,6 +108,14 @@ function getActivePlayersCount() {
   return activeSessions.size;
 }
 
+function safeCompareHashes(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const bufA = Buffer.from(a, 'utf8');
+  const bufB = Buffer.from(b, 'utf8');
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 function createServer() {
   return http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
@@ -142,17 +150,24 @@ function createServer() {
           const clientPwHash = (payload.passwordHash || '').trim() || null;
           const existing = playersStore[rawId];
 
-          // If record exists with a password, verify before overwriting
-          if (existing && existing.passwordHash && clientPwHash && existing.passwordHash !== clientPwHash) {
-            res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-            res.end(JSON.stringify({ error: 'FALSCHES PASSWORT' }));
-            return;
+          // If record exists with a password, enforce authentication before overwriting
+          if (existing && existing.passwordHash) {
+            if (!clientPwHash || !safeCompareHashes(existing.passwordHash, clientPwHash)) {
+              res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+              res.end(JSON.stringify({ error: 'FALSCHES PASSWORT', requiresPassword: true }));
+              return;
+            }
           }
+
+          // Support explicit password removal if requested and authenticated
+          const finalPasswordHash = payload.removePassword
+            ? null
+            : (clientPwHash || (existing && existing.passwordHash) || null);
 
           playersStore[rawId] = {
             playerId: rawId,
             updatedAt: new Date().toISOString(),
-            passwordHash: clientPwHash || (existing && existing.passwordHash) || null,
+            passwordHash: finalPasswordHash,
             state: payload.state || {}
           };
           savePlayers();
@@ -161,7 +176,12 @@ function createServer() {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           });
-          res.end(JSON.stringify({ ok: true, playerId: rawId, updatedAt: playersStore[rawId].updatedAt, hasPassword: !!playersStore[rawId].passwordHash }));
+          res.end(JSON.stringify({
+            ok: true,
+            playerId: rawId,
+            updatedAt: playersStore[rawId].updatedAt,
+            hasPassword: !!playersStore[rawId].passwordHash
+          }));
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Invalid JSON' }));
@@ -170,7 +190,53 @@ function createServer() {
       return;
     }
 
-    // API: Player Cloud Restore (GET /api/player/:id?pw=hash)
+    // API: Player Cloud Restore (POST /api/player/restore) - Secure JSON body
+    if (req.method === 'POST' && reqUrl === '/api/player/restore') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const payload = JSON.parse(body);
+          let rawId = (payload.playerId || '').trim().toUpperCase();
+          if (!rawId) {
+            res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+            res.end(JSON.stringify({ ok: false, error: 'Missing playerId' }));
+            return;
+          }
+          if (!rawId.startsWith('#')) rawId = '#' + rawId;
+
+          const clientPwHash = (payload.passwordHash || '').trim() || null;
+          const record = playersStore[rawId];
+
+          if (!record) {
+            res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+            res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
+            return;
+          }
+
+          if (record.passwordHash) {
+            if (!clientPwHash || !safeCompareHashes(record.passwordHash, clientPwHash)) {
+              res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+              res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
+              return;
+            }
+          }
+
+          res.writeHead(200, {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'no-cache'
+          });
+          res.end(JSON.stringify({ ok: true, player: record }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Invalid JSON' }));
+        }
+      });
+      return;
+    }
+
+    // API: Player Cloud Restore Legacy (GET /api/player/:id?pw=hash)
     if (req.method === 'GET' && reqUrl.startsWith('/api/player/')) {
       let rawId = decodeURIComponent(reqUrl.replace('/api/player/', '')).trim().toUpperCase();
       if (!rawId.startsWith('#')) rawId = '#' + rawId;
@@ -184,7 +250,7 @@ function createServer() {
       const record = playersStore[rawId];
       if (record) {
         // Validate password if record is password-protected
-        if (record.passwordHash && record.passwordHash !== clientPw) {
+        if (record.passwordHash && (!clientPw || !safeCompareHashes(record.passwordHash, clientPw))) {
           res.writeHead(403, {
             'Content-Type': 'application/json; charset=utf-8',
             'Access-Control-Allow-Origin': '*'

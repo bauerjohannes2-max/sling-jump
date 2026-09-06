@@ -83,10 +83,10 @@
   - **Short User ID Architecture:** Generates 4-character uppercase alphanumeric IDs with hash prefix (`#XXXX`, e.g. `#EXGN`, `#8K2P`) replacing legacy long hashes.
   - **2x Free Name Change Policy:** Players receive 2 free name changes (`MAX_FREE_CHANGES = 2`) tracked persistently in `StorageService`, with reactive centered status badges ("NOCH 2 NAMENSÄNDERUNGEN VERFÜGBAR") and input locking upon exhaustion.
   - **Cross-Device Cloud Sync Architecture:**
-    - Seamless 0-click onboarding: `POST /api/player/sync` and `GET /api/player/:id?pw=hash` persisted in `data/players.json`.
+    - Seamless 0-click onboarding: `POST /api/player/sync` and secure `POST /api/player/restore` (with legacy `GET /api/player/:id` fallback) persisted in `data/players.json`.
     - One-click shareable link (`?id=XXXX`) auto-loads user profile across browsers and devices on boot.
     - Manual 4-character ID transfer input with immediate local state restore and reactive UI reload.
-    - **Optional Password Protection:** Players can set a SHA-256 hashed password via `StorageService.setPassword()` (Web Crypto API client-side). Server stores hash in `players.json`, validates on restore. Password status badge in profile sync card. Backward compatible — unprotected accounts sync freely.
+    - **Hardened Authentication & Sync Protection:** Enforces strict password validation with `crypto.timingSafeEqual` before allowing save state overwrites on `POST /api/player/sync`. Credentials in restore requests are transmitted securely via `POST /api/player/restore` JSON body rather than cleartext URL query parameters. Backward compatible — unprotected accounts sync freely.
 - **Tutorial Modal Architecture (`#tutorial-modal`):**
   - Commercial arcade minimalism (Alto's Adventure style) with solid `#0b0d13` base and floating-dock parity cards.
   - 100% text-driven guide (zero video, zero runtime canvas animation loops) with 3 monochrome step cards:

@@ -353,8 +353,16 @@ class StorageService {
     }
 
     try {
-      const pwParam = pwHash ? `?pw=${encodeURIComponent(pwHash)}` : '';
-      const res = await fetch(`/api/player/${encodeURIComponent(cleanId)}${pwParam}`);
+      // Send credentials securely via POST body to prevent query-string logging & leaks
+      const res = await fetch('/api/player/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerId: cleanId,
+          passwordHash: pwHash || null
+        })
+      });
+
       if (res.status === 403) {
         const errData = await res.json().catch(() => ({}));
         if (errData.requiresPassword) {
@@ -397,9 +405,26 @@ class StorageService {
     }
   }
 
-  removePassword() {
+  async removePassword() {
+    const oldHash = this.data.playerProfile ? this.data.playerProfile.passwordHash : null;
     this.data.playerProfile.passwordHash = null;
     this.save();
+
+    if (oldHash && typeof fetch !== 'undefined' && typeof window !== 'undefined' && window.location && window.location.protocol !== 'file:') {
+      try {
+        await fetch('/api/player/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            playerId: this.data.playerProfile.playerId,
+            passwordHash: oldHash,
+            removePassword: true,
+            state: this.data
+          })
+        });
+      } catch (e) {}
+    }
+
     return { success: true, message: 'PASSWORT ENTFERNT' };
   }
 
