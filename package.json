@@ -4,6 +4,8 @@
   "description": "Sling Jump - Neon Vector Arcade Game with Playwright Visual Verification & Mobile Access",
   "scripts": {
     "start": "node scripts/serve.js",
+    "start:https": "node scripts/serve.js --https",
+    "certs": "node scripts/generate_certs.js",
     "serve": "node scripts/serve.js",
     "share": "node scripts/share.js",
     "serve:dashboard": "node dashboard/server.js",

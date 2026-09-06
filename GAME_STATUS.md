@@ -77,6 +77,12 @@
   - Equipment selections (`selectedShip`, `selectedTrail`, `selectedTheme`) validated against registered catalogs in `Constants.js`, falling back to safe starter defaults (`dart`, `neon_cyan`, `deep_space`) on unverified keys.
   - Unlocked item arrays filtered of unauthorized strings; sub-objects recursively stripped of prototype-pollution properties (`__proto__`, `constructor`, `prototype`).
   - Verified with automated unit and integration suite (`test_schema_bounds.js`) + Playwright runner 06 (0 console errors).
+- **Local TLS / HTTPS Transport Support for Mobile Dev (`scripts/serve.js`, `scripts/generate_certs.js`, `package.json`, `.gitignore`):**
+  - Implemented `--https` mode and `HTTPS=true` environment flag for encrypted mobile testing over shared local Wi-Fi.
+  - Built `scripts/generate_certs.js` supporting `mkcert` (system-trusted certificates) with automatic zero-dependency Node.js ECDSA P-256 self-signed certificate fallback.
+  - Integrated dual-listener architecture: launches `https.createServer(...)` on HTTPS port with an accompanying HTTP-to-HTTPS redirect server (`301 Moved Permanently`) on port 3000.
+  - Added `npm run start:https` and `npm run certs` commands to `package.json`, and added `certs/` and `*.pem` to `.gitignore`.
+  - Verified with automated 3-part test suite (`test_local_tls.js`) and Playwright visual suite 06 (0 console errors).
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

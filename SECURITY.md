@@ -21,8 +21,8 @@ This document defines the security architecture and incremental hardening roadma
 - [x] **Step 4: Server-Side Cryptographic Salt & Key Derivation (PBKDF2)** (Completed)
 - [x] **Step 5: Ephemeral Session Tokens (Eliminate Per-Request Credential Transmission)** (Completed)
 - [x] **Step 6: Collision-Resistant 8-Character Player ID Architecture** (Completed - Commit `02bbf60`)
-- [x] **Step 7: Save State Schema Validation & Numeric Bounds Enforcement** (Completed)
-- [ ] **Step 8: Local TLS / HTTPS Transport Support for Mobile Dev**
+- [x] **Step 7: Save State Schema Validation & Numeric Bounds Enforcement** (Completed - Commit `7d24951`)
+- [x] **Step 8: Local TLS / HTTPS Transport Support for Mobile Dev** (Completed)
 - [ ] **Step 9: Production Backend Adapter (Supabase / Firebase)**
 
 ---
@@ -118,19 +118,25 @@ This document defines the security architecture and incremental hardening roadma
 
 ---
 
-### [ ] Step 8: Local TLS / HTTPS Transport Support for Mobile Dev
-* **Status:** NEXT UP
+### [x] Step 8: Local TLS / HTTPS Transport Support for Mobile Dev
+* **Status:** COMPLETED
 * **Goal:** Protect network traffic across shared local Wi-Fi.
-* **Files to Modify:**
-  * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js), `package.json`
+* **Files Modified:**
+  * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js), [`scripts/generate_certs.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/generate_certs.js), `package.json`, `.gitignore`
 * **Implementation Details:**
-  1. Add flag `--https` or check for `certs/key.pem` and `certs/cert.pem`.
-  2. If present or requested, launch `https.createServer(...)` alongside HTTP redirect.
-  3. Provide `npm run certs` script to generate local trusted certificates via `mkcert`.
+  1. Added `--https` command-line flag and `HTTPS=true` environment variable support in `scripts/serve.js`.
+  2. Implemented `scripts/generate_certs.js` supporting `mkcert` (for system-trusted certs) with automatic zero-dependency Node.js ECDSA P-256 self-signed certificate fallback.
+  3. Added `npm run certs` and `npm run start:https` scripts to `package.json`.
+  4. Server launches `https.createServer(...)` alongside automatic HTTP-to-HTTPS redirect (`301 Moved Permanently`) on standard HTTP port.
+  5. Ignored `certs/` and `*.pem` in `.gitignore` to prevent committing private keys.
+* **Verification:**
+  * Automated unit & integration tests (`test_local_tls.js`): Generated certificates, verified HTTPS `GET /index.html` and `POST /api/player/sync`, and confirmed HTTP to HTTPS 301 redirection.
+  * Playwright visual test `06`: Fresh `06b_pilot_profile.png` verified with 0 console errors.
 
 ---
 
 ### [ ] Step 9: Production Backend Adapter (Supabase / Firebase)
+* **Status:** NEXT UP
 * **Goal:** True production-grade global persistence without hosting `serve.js`.
 * **Files to Modify:**
   * New adapter file `js/services/CloudBackend.js`

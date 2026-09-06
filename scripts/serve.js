@@ -3,6 +3,7 @@
  * Auto-detects LAN IPv4 and displays scannable terminal QR code for instant phone testing.
  */
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -15,6 +16,9 @@ try {
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const ROOT_DIR = path.join(__dirname, '..');
+const CERTS_DIR = path.join(ROOT_DIR, 'certs');
+const KEY_FILE = path.join(CERTS_DIR, 'key.pem');
+const CERT_FILE = path.join(CERTS_DIR, 'cert.pem');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -461,8 +465,8 @@ function sanitizeState(state) {
   return clean;
 }
 
-function createServer() {
-  return http.createServer((req, res) => {
+function createRequestListener() {
+  return (req, res) => {
     let reqUrl = req.url.split('?')[0];
     const corsOrigin = getCorsOrigin(req);
 
@@ -998,12 +1002,87 @@ function createServer() {
       const stream = fs.createReadStream(filePath);
       stream.pipe(res);
     });
-  });
+  };
 }
 
-function startServer(port = PORT) {
-  const server = createServer();
+function createServer(sslOptions = null) {
+  const handler = createRequestListener();
+  if (sslOptions && sslOptions.key && sslOptions.cert) {
+    return https.createServer(sslOptions, handler);
+  }
+  return http.createServer(handler);
+}
+
+function startServer(port = PORT, options = {}) {
+  const useHttps = options.https !== undefined
+    ? options.https
+    : (process.argv.includes('--https') || process.env.HTTPS === 'true' || process.env.USE_HTTPS === 'true');
+
   const localIp = getLocalIpAddress();
+
+  if (useHttps || (options.autoDetectCerts && fs.existsSync(KEY_FILE) && fs.existsSync(CERT_FILE))) {
+    if (!fs.existsSync(KEY_FILE) || !fs.existsSync(CERT_FILE)) {
+      console.log('[TLS] Keine Zertifikate in certs/ gefunden. Erzeuge lokale Entwickler-Zertifikate...');
+      try {
+        const { generateCerts } = require(path.join(__dirname, 'generate_certs.js'));
+        generateCerts();
+      } catch (err) {
+        console.error('[TLS] Fehler beim Erzeugen der Zertifikate:', err);
+      }
+    }
+
+    if (fs.existsSync(KEY_FILE) && fs.existsSync(CERT_FILE)) {
+      const sslOptions = {
+        key: fs.readFileSync(KEY_FILE),
+        cert: fs.readFileSync(CERT_FILE)
+      };
+
+      const httpsPort = options.httpsPort || parseInt(process.env.HTTPS_PORT, 10) || (port === 3000 ? 3443 : port + 443);
+      const server = createServer(sslOptions);
+      const localUrl = `https://localhost:${httpsPort}`;
+      const networkUrl = `https://${localIp}:${httpsPort}`;
+
+      server.listen(httpsPort, '0.0.0.0', () => {
+        console.log('\n======================================================');
+        console.log('         SLING JUMP - MOBILE SERVER (HTTPS/TLS)       ');
+        console.log('======================================================\n');
+        console.log(`  Local:    ${localUrl}`);
+        console.log(`  Network:  ${networkUrl}\n`);
+
+        if (qrcode) {
+          console.log('  SCAN MIT DEM SMARTPHONE (im selben WLAN):\n');
+          qrcode.generate(networkUrl, { small: true }, (qr) => {
+            console.log(qr);
+          });
+        }
+
+        console.log('======================================================');
+        console.log('  Druecke Strg+C zum Beenden des Servers');
+        console.log('======================================================\n');
+      });
+
+      // HTTP to HTTPS Redirect server
+      const httpRedirectServer = http.createServer((req, res) => {
+        const hostHeader = req.headers.host || `localhost:${port}`;
+        const hostWithoutPort = hostHeader.split(':')[0];
+        const redirectUrl = `https://${hostWithoutPort}:${httpsPort}${req.url}`;
+        res.writeHead(301, {
+          'Location': redirectUrl,
+          'Content-Type': 'text/plain; charset=utf-8'
+        });
+        res.end(`Redirecting to ${redirectUrl}`);
+      });
+
+      httpRedirectServer.listen(port, '0.0.0.0', () => {
+        console.log(`  HTTP Redirect: http://localhost:${port} -> https://localhost:${httpsPort}\n`);
+      });
+
+      return { server, httpRedirectServer, localUrl, networkUrl, isHttps: true, httpsPort, httpPort: port };
+    }
+  }
+
+  // Standard HTTP server fallback
+  const server = createServer();
   const localUrl = `http://localhost:${port}`;
   const networkUrl = `http://${localIp}:${port}`;
 
@@ -1021,12 +1100,13 @@ function startServer(port = PORT) {
       });
     }
 
+    console.log('  Tipp: Starte mit "npm run start:https" fuer verschluesselten TLS-Zugriff.\n');
     console.log('======================================================');
     console.log('  Druecke Strg+C zum Beenden des Servers');
     console.log('======================================================\n');
   });
 
-  return { server, localUrl, networkUrl };
+  return { server, localUrl, networkUrl, isHttps: false, httpPort: port };
 }
 
 if (require.main === module) {
@@ -1035,6 +1115,7 @@ if (require.main === module) {
 
 module.exports = {
   createServer,
+  createRequestListener,
   startServer,
   getLocalIpAddress,
   reloadPlayers,
@@ -1048,5 +1129,8 @@ module.exports = {
   validateSessionToken,
   revokePlayerSessions,
   sanitizeState,
-  SCHEMA_BOUNDS
+  SCHEMA_BOUNDS,
+  KEY_FILE,
+  CERT_FILE,
+  CERTS_DIR
 };

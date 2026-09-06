@@ -1,8 +1,8 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
   "mode": "Selective (06)",
-  "executedAt": "2026-09-06T19:55:24.103Z",
-  "localTimestamp": "6.9.2026, 21:55:24",
+  "executedAt": "2026-09-06T20:02:07.044Z",
+  "localTimestamp": "6.9.2026, 22:02:07",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
   "selectiveScreenshotsCount": 2,
@@ -11,18 +11,18 @@
     {
       "filename": "06_hub_stats.png",
       "description": "Pilot Stats",
-      "sizeKb": 154,
-      "capturedAt": "2026-09-06T19:55:21.196Z",
-      "localTime": "21:55:21",
-      "sha256": "be42a70246f1105f"
+      "sizeKb": 155,
+      "capturedAt": "2026-09-06T20:02:04.149Z",
+      "localTime": "22:02:04",
+      "sha256": "6cb08cc9766876a0"
     },
     {
       "filename": "06b_pilot_profile.png",
       "description": "Pilot Profile",
-      "sizeKb": 176,
-      "capturedAt": "2026-09-06T19:55:22.666Z",
-      "localTime": "21:55:22",
-      "sha256": "9ac7f5c13753646d"
+      "sizeKb": 181,
+      "capturedAt": "2026-09-06T20:02:05.602Z",
+      "localTime": "22:02:05",
+      "sha256": "d66fbfc5435f4305"
     }
   ],
   "manifest": [
@@ -189,18 +189,18 @@
     {
       "filename": "06_hub_stats.png",
       "description": "Pilot Stats",
-      "sizeKb": 154,
-      "capturedAt": "2026-09-06T19:55:21.196Z",
-      "localTime": "21:55:21",
-      "sha256": "be42a70246f1105f"
+      "sizeKb": 155,
+      "capturedAt": "2026-09-06T20:02:04.149Z",
+      "localTime": "22:02:04",
+      "sha256": "6cb08cc9766876a0"
     },
     {
       "filename": "06b_pilot_profile.png",
       "description": "Pilot Profile",
-      "sizeKb": 176,
-      "capturedAt": "2026-09-06T19:55:22.666Z",
-      "localTime": "21:55:22",
-      "sha256": "9ac7f5c13753646d"
+      "sizeKb": 181,
+      "capturedAt": "2026-09-06T20:02:05.602Z",
+      "localTime": "22:02:05",
+      "sha256": "d66fbfc5435f4305"
     }
   ]
 }

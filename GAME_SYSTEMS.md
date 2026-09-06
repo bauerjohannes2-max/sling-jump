@@ -228,6 +228,7 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - `POST /api/player/restore`: Secure credential verification and state restoration by player ID (`#XXXX-XXXX` or legacy `#XXXX`).
   - Zero-friction link sharing: Clicking "SPIELSTAND-LINK KOPIEREN" copies `?id=XXXX-XXXX`. When opened on any browser or mobile device, state is automatically restored on initial page load.
   - Manual ID load: Players can enter any `#XXXX-XXXX` (or legacy `#XXXX`) code and click "LADEN" to restore progress immediately.
+  - Local TLS/HTTPS Mobile Transport: Supports secure HTTPS transport over local Wi-Fi via `npm run start:https` with automatic certificate provisioning (`npm run certs`), QR code display, and HTTP-to-HTTPS redirect (`301 Moved Permanently`).
 
 ### 10.5 Tutorial Modal Architecture
 - **Commercial Minimalism:** 100% text-driven guide (Alto's Adventure style) replacing legacy video/canvas loops. Zero CPU/GPU animation overhead.
