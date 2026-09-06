@@ -20,7 +20,7 @@ This document defines the security architecture and incremental hardening roadma
 - [x] **Step 3: CORS Whitelisting, 100KB Body Ceiling & Prototype Sanitization** (Completed - Commit `17345e8`)
 - [x] **Step 4: Server-Side Cryptographic Salt & Key Derivation (PBKDF2)** (Completed)
 - [x] **Step 5: Ephemeral Session Tokens (Eliminate Per-Request Credential Transmission)** (Completed)
-- [ ] **Step 6: Collision-Resistant 8-Character Player ID Architecture**
+- [x] **Step 6: Collision-Resistant 8-Character Player ID Architecture** (Completed - Commit `02bbf60`)
 - [ ] **Step 7: Save State Schema Validation & Numeric Bounds Enforcement**
 - [ ] **Step 8: Local TLS / HTTPS Transport Support for Mobile Dev**
 - [ ] **Step 9: Production Backend Adapter (Supabase / Firebase)**
