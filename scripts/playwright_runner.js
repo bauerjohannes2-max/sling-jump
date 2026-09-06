@@ -275,8 +275,8 @@ async function runPlaywrightSuite() {
     await sleep(300);
   }
 
-  // Gameplay Flow: 08, 08b, 09, 10, 10b
-  const needsGameplay = shouldCapture('08_gameplay_hud.png') || shouldCapture('08b_gameplay_fps_hud.png') || shouldCapture('09_pause_modal.png') || shouldCapture('10_game_over.png') || shouldCapture('10b_revived_gameplay.png');
+  // Gameplay Flow: 08, 08b, 09, 10, 10b, 10c
+  const needsGameplay = shouldCapture('08_gameplay_hud.png') || shouldCapture('08b_gameplay_fps_hud.png') || shouldCapture('09_pause_modal.png') || shouldCapture('10_game_over.png') || shouldCapture('10b_revived_gameplay.png') || shouldCapture('10c_mobile_game_over.png');
   if (needsGameplay) {
     console.log('[Playwright] Starting gameplay session...');
     await page.evaluate(() => {
@@ -375,10 +375,20 @@ async function runPlaywrightSuite() {
           eng.triggerGameOver();
         }
       });
-      await sleep(1500);
+      await sleep(2100);
       if (shouldCapture('10_game_over.png')) {
         console.log('[Playwright] Capturing 10_game_over.png');
         await captureScreenshot(page, '10_game_over.png', 'Game Over Screen');
+      }
+
+      if (shouldCapture('10c_mobile_game_over.png')) {
+        console.log('[Playwright] Testing Mobile Game Over Viewport (390x844)...');
+        await page.setViewportSize({ width: 390, height: 844 });
+        await sleep(350);
+        console.log('[Playwright] Capturing 10c_mobile_game_over.png');
+        await captureScreenshot(page, '10c_mobile_game_over.png', 'Mobile Game Over Screen');
+        await page.setViewportSize({ width: 1280, height: 800 });
+        await sleep(350);
       }
 
       if (shouldCapture('10b_revived_gameplay.png')) {

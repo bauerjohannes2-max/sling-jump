@@ -885,8 +885,105 @@ class UIManager {
   }
 
   /* =========================================================================
-     GAME OVER SUMMARY
+     GAME OVER SUMMARY & TRAJECTORY ANIMATION
      ========================================================================= */
+  updateDebriefTrajectory(altitude, highScore, isNewRecord) {
+    const tracePath = document.getElementById('debrief-trace-path');
+    const crashDot = document.getElementById('debrief-crash-dot');
+    const tickRowCrash = document.getElementById('tick-row-crash');
+    const tickRowHi = document.getElementById('tick-row-hi');
+    const tickRowTop = document.getElementById('tick-row-top');
+    const tickRowMid = document.getElementById('tick-row-mid');
+    const tickCrash = document.getElementById('debrief-tick-crash');
+    const tickHi = document.getElementById('debrief-tick-hi');
+    const tickTop = document.getElementById('debrief-tick-top');
+    const tickMid = document.getElementById('debrief-tick-mid');
+
+    const topAlt = Math.max(100, Math.round(Math.max(highScore, altitude) * 1.25));
+    const midAlt = Math.round(topAlt * 0.5);
+
+    if (tickTop) tickTop.textContent = String(topAlt);
+    if (tickMid) tickMid.textContent = String(midAlt);
+    if (tickHi) tickHi.textContent = String(highScore);
+    if (tickCrash) tickCrash.textContent = String(altitude);
+
+    // Coordinate mapping in SVG viewBox (120 x 932)
+    // Base 000 m is at Y = 890
+    // Ceiling topAlt is at Y = 160
+    // Total vertical travel = 730
+    const baseY = 890;
+    const topY = 160;
+    const travel = baseY - topY;
+
+    const crashRatio = Math.max(0.04, Math.min(0.96, altitude / topAlt));
+    const crashY = Math.round(baseY - (crashRatio * travel));
+    const hiRatio = Math.max(0.04, Math.min(0.96, highScore / topAlt));
+    const hiY = Math.round(baseY - (hiRatio * travel));
+
+    // Dynamic X: gentle organic wander within the 80px rail column
+    const crashX = Math.round(34 + (Math.sin(altitude * 0.08) * 8));
+
+    // Generate wavy flight trajectory spline from (26, 890) up to (crashX, crashY)
+    const points = [];
+    const steps = 4;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const py = Math.round(baseY + t * (crashY - baseY));
+      // Organic slingshot curvature within rail bounds
+      const wave = Math.sin(t * Math.PI * 2.2 + (altitude % 5)) * 10;
+      const px = Math.round(26 + wave + (t * (crashX - 26)));
+      points.push({ x: px, y: py });
+    }
+
+    // Build SVG Path d string with smooth cubic beziers
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const cy1 = Math.round(p0.y + (p1.y - p0.y) * 0.45);
+      const cy2 = Math.round(p0.y + (p1.y - p0.y) * 0.55);
+      d += ` C ${p0.x} ${cy1}, ${p1.x} ${cy2}, ${p1.x} ${p1.y}`;
+    }
+
+    if (tracePath) {
+      tracePath.setAttribute('d', d);
+      let length = 900;
+      try {
+        if (typeof tracePath.getTotalLength === 'function') {
+          length = Math.ceil(tracePath.getTotalLength());
+        }
+      } catch (e) {}
+      tracePath.style.setProperty('--trace-length', `${length}`);
+      tracePath.style.strokeDasharray = `${length}`;
+      tracePath.style.strokeDashoffset = `${length}`;
+    }
+
+    // Position crash beacon position group directly at (crashX, crashY)
+    const crashPos = document.getElementById('debrief-crash-pos');
+    if (crashPos) {
+      crashPos.setAttribute('transform', `translate(${crashX}, ${crashY})`);
+    }
+
+    // Position rail ticks so crash tick aligns horizontally with crash dot
+    // ViewBox height is 932
+    if (tickRowCrash) {
+      const crashPct = ((crashY / 932) * 100).toFixed(2);
+      tickRowCrash.style.top = `${crashPct}%`;
+    }
+
+    if (tickRowHi) {
+      if (isNewRecord || altitude >= highScore) {
+        tickRowHi.style.display = 'none'; // Merged into crash tick
+        if (tickRowCrash) tickRowCrash.classList.add('new-record-tick');
+      } else {
+        tickRowHi.style.display = 'flex';
+        const hiPct = ((hiY / 932) * 100).toFixed(2);
+        tickRowHi.style.top = `${hiPct}%`;
+        if (tickRowCrash) tickRowCrash.classList.remove('new-record-tick');
+      }
+    }
+  }
+
   populateGameOver(data = {}) {
     const altitude = data.altitude || 0;
     const cores = data.cores || 0;
@@ -895,41 +992,57 @@ class UIManager {
     const canRevive = data.canRevive !== false;
     const highScore = Math.max(altitude, (this.storage && this.storage.data && this.storage.data.highScore) || 0);
 
-    const altVal = document.getElementById('final-altitude-val');
-    if (altVal) {
-      altVal.textContent = Number(altitude).toLocaleString('de-DE');
-    } else if (this.dom.finalAltitude) {
-      const heroValClass = isNewRecord ? 'hero-altitude-val new-record' : 'hero-altitude-val';
-      this.dom.finalAltitude.innerHTML = `<span class="${heroValClass}">${Number(altitude).toLocaleString('de-DE')}</span><span class="hero-altitude-unit">m</span>`;
+    // Update dynamic trajectory line to actual crash point
+    this.updateDebriefTrajectory(altitude, highScore, isNewRecord);
+
+    // Reset and trigger sequenced arrival animation on the debrief card
+    const debriefCard = document.getElementById('debrief-card');
+    if (debriefCard) {
+      debriefCard.classList.remove('play-seq');
+      void debriefCard.offsetWidth; // Force reflow to re-arm keyframe animations
+      debriefCard.classList.add('play-seq');
     }
 
-    // Currency Count-up (Tween from 0 to final over ~600ms eased)
-    const animateCountUp = (element, targetValue, duration = 600, prefix = '+') => {
+    // Count-up helper (Tween with cubic-ease-out and delay)
+    const animateCountUp = (element, targetValue, duration = 600, delay = 0, prefix = '+') => {
       if (!element) return;
       if (targetValue <= 0) {
         element.textContent = `${prefix}0`;
         return;
       }
-      const startTime = performance.now();
-      const step = (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(1, elapsed / duration);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const current = Math.round(easeOut * targetValue);
-        element.textContent = `${prefix}${current.toLocaleString('de-DE')}`;
-        if (progress < 1) {
-          requestAnimationFrame(step);
-        } else {
-          element.textContent = `${prefix}${targetValue.toLocaleString('de-DE')}`;
-        }
-      };
-      requestAnimationFrame(step);
+      setTimeout(() => {
+        const startTime = performance.now();
+        const step = (now) => {
+          const elapsed = now - startTime;
+          const progress = Math.min(1, elapsed / duration);
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(easeOut * targetValue);
+          element.textContent = `${prefix}${current.toLocaleString('de-DE')}`;
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            element.textContent = `${prefix}${targetValue.toLocaleString('de-DE')}`;
+          }
+        };
+        requestAnimationFrame(step);
+      }, delay);
     };
 
+    // Hero Altitude Display (Counts up right when the trajectory line reaches crash beacon ~800ms)
+    const altVal = document.getElementById('final-altitude-val');
+    if (altVal) {
+      altVal.textContent = '0';
+      animateCountUp(altVal, altitude, 650, 800, '');
+    } else if (this.dom.finalAltitude) {
+      const heroValClass = isNewRecord ? 'hero-altitude-val new-record' : 'hero-altitude-val';
+      this.dom.finalAltitude.innerHTML = `<span class="${heroValClass}">${Number(altitude).toLocaleString('de-DE')}</span><span class="hero-altitude-unit">m</span>`;
+    }
+
+    // Currency Count-up (Starts when rewards card cascades in ~1150ms)
     const finalOrbsEl = document.getElementById('final-orbs') || this.dom.finalOrbs;
     const finalCrystalsEl = document.getElementById('final-crystals') || this.dom.finalCrystals;
-    if (finalOrbsEl) animateCountUp(finalOrbsEl, cores);
-    if (finalCrystalsEl) animateCountUp(finalCrystalsEl, crystals);
+    if (finalOrbsEl) animateCountUp(finalOrbsEl, cores, 500, 1150, '+');
+    if (finalCrystalsEl) animateCountUp(finalCrystalsEl, crystals, 500, 1150, '+');
 
     // Record Chase Bar & Gap
     const finalBest = document.getElementById('final-best');
@@ -942,28 +1055,22 @@ class UIManager {
     const barFill = document.getElementById('debrief-bar-fill');
     const gapText = document.getElementById('debrief-gap-text');
     const pct = highScore > 0 ? Math.min(100, Math.round((altitude / highScore) * 100)) : 100;
-    if (barFill) barFill.style.width = `${pct}%`;
+    if (barFill) {
+      barFill.style.width = '0%';
+      setTimeout(() => {
+        barFill.style.width = `${pct}%`;
+      }, 1000);
+    }
     if (gapText) {
       if (isNewRecord || altitude >= highScore) {
         gapText.textContent = 'NEUER REKORD!';
+        gapText.className = 'debrief-gapline new-rec';
       } else {
         const gap = Math.max(0, highScore - altitude);
         gapText.innerHTML = `Nur <em>${gap.toLocaleString('de-DE')} m</em> bis zum neuen Rekord.`;
+        gapText.className = 'debrief-gapline';
       }
     }
-
-    // Telemetry Rail Ticks
-    const tickCrash = document.getElementById('debrief-tick-crash');
-    if (tickCrash) tickCrash.textContent = String(altitude);
-
-    const tickHi = document.getElementById('debrief-tick-hi');
-    if (tickHi) tickHi.textContent = String(highScore);
-
-    const tickTop = document.getElementById('debrief-tick-top');
-    if (tickTop) tickTop.textContent = String(Math.max(highScore, Math.round(altitude * 1.3)));
-
-    const tickMid = document.getElementById('debrief-tick-mid');
-    if (tickMid) tickMid.textContent = String(Math.round(altitude * 0.45));
 
     // Telemetry 3-Column Stats
     const statGrapples = document.getElementById('debrief-stat-grapples');

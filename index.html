@@ -277,85 +277,89 @@
         <!-- Backdrop -->
         <div class="debrief-stars"></div>
         <div class="debrief-stars2"></div>
-        <div class="debrief-diag"></div>
 
         <!-- Flown Trajectory SVG (Animated) -->
-        <svg class="debrief-trace" viewBox="0 0 120 932" preserveAspectRatio="none" fill="none">
+        <svg class="debrief-trace" id="debrief-trace-svg" viewBox="0 0 80 932" preserveAspectRatio="none" fill="none">
           <defs>
             <linearGradient id="debrief-tg" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0" stop-color="#38e8ff" stop-opacity=".05"/>
-              <stop offset=".55" stop-color="#38e8ff" stop-opacity=".75"/>
+              <stop offset="0" stop-color="#38e8ff" stop-opacity=".15"/>
+              <stop offset=".60" stop-color="#38e8ff" stop-opacity=".90"/>
               <stop offset="1" stop-color="#ff2d55"/>
             </linearGradient>
           </defs>
-          <path class="debrief-trace-path" stroke="url(#debrief-tg)" stroke-width="2"
-            d="M18 910 C 60 840, -6 780, 30 712 C 66 646, 8 596, 42 528 C 74 464, 14 414, 46 350 C 72 300, 30 296, 34 280"/>
-          <g class="debrief-crash-dot" style="transform-origin:34px 280px">
-            <circle cx="34" cy="280" r="16" fill="rgba(255,45,85,.12)"/>
-            <circle cx="34" cy="280" r="8.5" fill="none" stroke="#ff2d55" stroke-width="2"/>
-            <circle cx="34" cy="280" r="3" fill="#fff"/>
-            <path d="M22 268l24 24M46 268l-24 24" stroke="rgba(255,45,85,.55)" stroke-width="1.4"/>
+          <path class="debrief-trace-path" id="debrief-trace-path" stroke="url(#debrief-tg)" stroke-width="2.5"
+            d="M 24 890 C 38 780, 16 640, 36 500 C 48 400, 26 340, 34 280"/>
+          <g id="debrief-crash-pos" transform="translate(34, 280)">
+            <g class="debrief-crash-dot" id="debrief-crash-dot">
+              <circle class="debrief-shockwave" cx="0" cy="0" r="10" fill="none" stroke="#ff2d55" stroke-width="2"/>
+              <circle cx="0" cy="0" r="14" fill="rgba(255,45,85,.18)"/>
+              <circle cx="0" cy="0" r="7.5" fill="none" stroke="#ff2d55" stroke-width="2"/>
+              <circle cx="0" cy="0" r="2.8" fill="#fff"/>
+              <path d="M -8 -8 L 8 8 M 8 -8 L -8 8" stroke="rgba(255,45,85,.85)" stroke-width="1.8"/>
+            </g>
           </g>
         </svg>
 
         <!-- Left Telemetry Rail -->
-        <aside class="debrief-rail">
-          <div class="debrief-tick"><i></i><span id="debrief-tick-top">800</span></div>
-          <div class="debrief-tick hi"><i></i><span id="debrief-tick-hi">679</span><span class="debrief-star-ico">★</span></div>
-          <div class="debrief-tick crash"><i></i><span id="debrief-tick-crash">259</span></div>
-          <div class="debrief-tick"><i></i><span id="debrief-tick-mid">150</span></div>
-          <div class="debrief-tick"><i></i>000</div>
+        <aside class="debrief-rail" id="debrief-rail">
+          <div class="debrief-tick top" id="tick-row-top"><i></i><span id="debrief-tick-top">800</span></div>
+          <div class="debrief-tick hi" id="tick-row-hi"><i></i><span id="debrief-tick-hi">679</span><svg class="debrief-star-svg" viewBox="0 0 24 24" width="9" height="9" fill="none"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="#fbbf24"/></svg></div>
+          <div class="debrief-tick crash" id="tick-row-crash"><i></i><span id="debrief-tick-crash">259</span></div>
+          <div class="debrief-tick mid" id="tick-row-mid"><i></i><span id="debrief-tick-mid">150</span></div>
+          <div class="debrief-tick base" id="tick-row-base"><i></i><span>000</span></div>
         </aside>
 
         <!-- Debrief Content Wrap -->
         <div class="debrief-wrap">
-          <div class="debrief-stamp"><b></b>SIGNAL VERLOREN</div>
+          <div class="debrief-stamp" id="debrief-stamp"><b></b>SIGNAL VERLOREN</div>
 
-          <div class="debrief-scoreblock">
-            <div class="debrief-label">Flugdistanz</div>
-            <div class="debrief-score" id="final-altitude">
-              <span class="debrief-num" id="final-altitude-val">259</span>
-              <span class="debrief-unit">m</span>
-            </div>
-          </div>
-
-          <div class="debrief-chase">
-            <div class="debrief-chase-row">
-              <span>REKORDJAGD</span>
-              <span>BEST <b id="final-best">679 m</b></span>
-            </div>
-            <div class="debrief-bar"><span id="debrief-bar-fill"></span></div>
-            <div class="debrief-gapline" id="debrief-gap-text">Nur <em id="debrief-gap-val">420 m</em> bis zum neuen Rekord.</div>
-          </div>
-
-          <div class="debrief-telemetry">
-            <div class="debrief-cell">
-              <div class="debrief-k">Grapples</div>
-              <div class="debrief-v" id="debrief-stat-grapples">14</div>
-            </div>
-            <div class="debrief-cell">
-              <div class="debrief-k">Bester Swing</div>
-              <div class="debrief-v"><span id="debrief-stat-swing">38</span><small>m</small></div>
-            </div>
-            <div class="debrief-cell">
-              <div class="debrief-k">Flugzeit</div>
-              <div class="debrief-v" id="debrief-stat-time">0:41</div>
-            </div>
-          </div>
-
-          <div class="debrief-rewards">
-            <div class="debrief-rw gold" id="reward-stat-orbs">
-              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffc93c"/><circle cx="12" cy="12" r="7" fill="none" stroke="#a86e00" stroke-width="1.6"/><path d="M12 8l3 4-3 4-3-4z" fill="#a86e00"/></svg>
-              <div>
-                <div class="t" id="final-orbs">+1</div>
-                <div class="s">MÜNZEN</div>
+          <div class="debrief-body">
+            <div class="debrief-scoreblock">
+              <div class="debrief-label">Flugdistanz</div>
+              <div class="debrief-score" id="final-altitude">
+                <span class="debrief-num" id="final-altitude-val">259</span>
+                <span class="debrief-unit">m</span>
               </div>
             </div>
-            <div class="debrief-rw dim" id="reward-stat-crystals">
-              <svg viewBox="0 0 24 24" fill="none" opacity=".45"><path d="M12 2l7 6-7 14L5 8z" fill="#b366ff"/><path d="M12 2l7 6H5z" fill="#d9a6ff"/></svg>
-              <div>
-                <div class="t" id="final-crystals">+0</div>
-                <div class="s">KRISTALLE</div>
+
+            <div class="debrief-chase">
+              <div class="debrief-chase-row">
+                <span>REKORDJAGD</span>
+                <span>BEST <b id="final-best">679 m</b></span>
+              </div>
+              <div class="debrief-bar"><span id="debrief-bar-fill"></span></div>
+              <div class="debrief-gapline" id="debrief-gap-text">Nur <em id="debrief-gap-val">420 m</em> bis zum neuen Rekord.</div>
+            </div>
+
+            <div class="debrief-telemetry">
+              <div class="debrief-cell">
+                <div class="debrief-k">Grapples</div>
+                <div class="debrief-v" id="debrief-stat-grapples">14</div>
+              </div>
+              <div class="debrief-cell">
+                <div class="debrief-k">Bester Swing</div>
+                <div class="debrief-v"><span id="debrief-stat-swing">38</span><small>m</small></div>
+              </div>
+              <div class="debrief-cell">
+                <div class="debrief-k">Flugzeit</div>
+                <div class="debrief-v" id="debrief-stat-time">0:41</div>
+              </div>
+            </div>
+
+            <div class="debrief-rewards">
+              <div class="debrief-rw gold" id="reward-stat-orbs">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffc93c"/><circle cx="12" cy="12" r="7" fill="none" stroke="#a86e00" stroke-width="1.6"/><path d="M12 8l3 4-3 4-3-4z" fill="#a86e00"/></svg>
+                <div>
+                  <div class="t" id="final-orbs">+1</div>
+                  <div class="s">MÜNZEN</div>
+                </div>
+              </div>
+              <div class="debrief-rw dim" id="reward-stat-crystals">
+                <svg viewBox="0 0 24 24" fill="none" opacity=".45"><path d="M12 2l7 6-7 14L5 8z" fill="#b366ff"/><path d="M12 2l7 6H5z" fill="#d9a6ff"/></svg>
+                <div>
+                  <div class="t" id="final-crystals">+0</div>
+                  <div class="s">KRISTALLE</div>
+                </div>
               </div>
             </div>
           </div>

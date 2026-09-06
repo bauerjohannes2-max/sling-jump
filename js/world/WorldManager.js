@@ -33,13 +33,15 @@ class WorldManager {
 
   initStarfield(width, height) {
     this.stars = [];
-    const numStars = Math.floor((width * height) / 4500);
+    const numStars = Math.floor((width * height) / 4000);
     for (let i = 0; i < numStars; i++) {
+      const r = Math.random();
+      const layer = r < 0.45 ? 0.20 : (r < 0.80 ? 0.45 : 0.75);
       this.stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
         size: Math.random() * 1.6 + 0.6,
-        layer: Math.random() < 0.65 ? 0.15 : 0.45,
+        layer: layer,
         twinkleSpeed: Math.random() * 1.5 + 0.8,
         baseAlpha: Math.random() * 0.5 + 0.25
       });
@@ -464,9 +466,7 @@ class WorldManager {
         const star = this.stars[i];
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const driftX = (now * 0.005 * star.layer);
-        const starX = (star.x + driftX) % width;
-        const finalX = starX < 0 ? starX + width : starX;
+        const finalX = star.x;
         const streakLength = warpFactor * 45 * star.layer;
 
         context.moveTo(finalX | 0, finalY | 0);
@@ -475,40 +475,41 @@ class WorldManager {
       context.stroke();
       context.restore();
     } else {
-      // Classic Starfield: Dual-Pass Batched Rendering (Zero per-star state thrashing)
-      // Pass A: Distant background stars (white/dim)
+      // Classic Starfield: Dual-Pass Batched Rendering
+      // Pass A: Distant background stars (white/silver, soft circular points)
       context.fillStyle = '#ffffff';
-      context.globalAlpha = 0.55;
       for (let i = 0; i < this.stars.length; i++) {
         const star = this.stars[i];
         if (star.layer > 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const driftX = (now * 0.005 * star.layer);
-        const starX = (star.x + driftX) % width;
-        const finalX = starX < 0 ? starX + width : starX;
-        const s = star.size < 1.2 ? 1 : 2;
-        context.fillRect(finalX | 0, finalY | 0, s, s);
+        const finalX = star.x;
+        const twinkle = Math.sin(now * 0.0018 * star.twinkleSpeed + star.x) * 0.15;
+        context.globalAlpha = Math.max(0.35, Math.min(0.85, star.baseAlpha + twinkle));
+        context.beginPath();
+        context.arc(finalX, finalY, Math.max(0.8, star.size * 0.75), 0, Math.PI * 2);
+        context.fill();
       }
 
-      // Pass B: Near celestial stars (theme neon tint, brighter, 4-point cross sparkles)
-      context.fillStyle = theme.primary || '#00f0ff';
+      // Pass B: Near celestial stars (bright white with theme neon glint, 4-point cross sparkles)
       for (let i = 0; i < this.stars.length; i++) {
         const star = this.stars[i];
         if (star.layer <= 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const driftX = (now * 0.005 * star.layer);
-        const starX = (star.x + driftX) % width;
-        const finalX = starX < 0 ? starX + width : starX;
-        const twinkle = Math.sin(now * 0.0018 * star.twinkleSpeed + star.x) * 0.2;
-        context.globalAlpha = Math.max(0.45, Math.min(0.95, star.baseAlpha + twinkle));
-        const s = star.size < 1.5 ? 2 : 3;
-        context.fillRect(finalX | 0, finalY | 0, s, s);
+        const finalX = star.x;
+        const twinkle = Math.sin(now * 0.0022 * star.twinkleSpeed + star.x) * 0.25;
+        context.globalAlpha = Math.max(0.55, Math.min(1.0, star.baseAlpha + twinkle + 0.2));
+
+        context.fillStyle = (i % 3 === 0) ? (theme.primary || '#00f0ff') : '#ffffff';
+        context.beginPath();
+        context.arc(finalX, finalY, Math.max(1.2, star.size), 0, Math.PI * 2);
+        context.fill();
+
         // Subtle cross-glint on radiant stars (zero allocations)
-        if (s >= 3 && (i & 3) === 0) {
-          context.fillRect((finalX - 2) | 0, (finalY + 1) | 0, 5, 1);
-          context.fillRect((finalX + 1) | 0, (finalY - 2) | 0, 1, 5);
+        if (star.size >= 1.6 && (i & 3) === 0) {
+          context.fillRect((finalX - 3) | 0, finalY | 0, 7, 1);
+          context.fillRect(finalX | 0, (finalY - 3) | 0, 1, 7);
         }
       }
       context.globalAlpha = 1.0;

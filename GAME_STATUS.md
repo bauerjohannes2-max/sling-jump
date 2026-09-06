@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC56 - v5.5.0 - Classic Starfield Drift & Glints, Difficulty Tuning & Node Density Reduction, Main Menu Ship Hover Bobbing & Enhanced Dual-Layer Thruster Fire)  
+> **Status:** Release Candidate (RC57 - v5.6.0 - Cinematic Flight Debrief Overhaul: Dynamic Trajectory Ascent, Shockwave Impact Beacon, Edge-to-Edge Container Fit, Red Shimmer Elimination & Fluid Death Slow-Mo Transition)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 06.09.2026  
@@ -55,6 +55,32 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v5.6.0 (06.09.2026) - Cinematic Flight Debrief Overhaul: Dynamic Trajectory Ascent, Shockwave Impact Beacon, Edge-to-Edge Container Fit, Red Shimmer Elimination & Fluid Death Slow-Mo Transition
+* **1. Sequenzierte Trajektorie-Aufstiegsanimation ("at first the line should come up to where you died and then the rest should come"):**
+  * Entkoppelte Staging-Phasen: Nach dem Spielertod zeichnet sich zunächst ausschließlich die Trajektorie-Linie (`stroke-dashoffset`) in einer 850ms weichen Bézier-Bewegung von der Basis (000 m) bis zur exakten Absturzhöhe hoch.
+  * Sobald die Linie den Absturzpunkt erreicht, detoniert der Absturz-Bake-Leuchtpunkt mit einem radialen Schockwellen-Impuls (`debrief-shockwave-pulse`).
+  * Erst nach dem Aufprall (ab 820ms bis 1250ms) kaskadieren die restlichen UI-Elemente hierarchisch und flüssig ein: Statusstempel (`SIGNAL VERLOREN`), Flugdistanz-Zähler (Zählt live von 0 bis zur Endhöhe hoch), Rekordjagd-Balken, Telemetrie-Box, Belohnungen und Aktions-Buttons (`WEITERFLIEGEN`, `NEUSTART`).
+* **2. Vollbild-Arcade-Passform & Beseitigung des Card-Rahmens (`style.css`):**
+  * `.debrief-container` auf `width: 100%; height: 100%; border-radius: 0; box-shadow: none;` umgestellt, sodass der Death Screen nahtlos den gesamten Bildschirm ausfüllt – sowohl im mobilen Viewport als auch im 9:16 Desktop-Arcade-Kabinett.
+  * Beseitigung der 430px-Begrenzung und der schwarzen Randabstände um die Karte.
+  * Beseitigung der 300px großen Leerstelle in der Bildschirmmitte durch harmonische vertikale Flex-Verteilung (`.debrief-body { justify-content: center; gap: 14px; }`).
+* **3. Vollständige Entfernung des diagonalen roten Schimmers (`index.html`, `style.css`):**
+  * Element `<div class="debrief-diag"></div>` und zugehörige CSS-Klasse `.debrief-diag` mit der 112°-Rotverlaufs-Animation restlos gelöscht.
+  * Roter Farbverlauf am oberen Rand durch tiefschwarzen, reinen Kosmos mit dezenten Cyan-Akzenten ersetzt.
+* **4. Mathematisch perfekte Telemetrie-Ausrichtung (`UIManager.js`, `index.html`):**
+  * Das Trajektorie-SVG und die Telemetrie-Schiene teilen sich nun denselben 80px breiten Koordinatenraum (`viewBox="0 0 80 932"`).
+  * Der Absturz-Marker (`tick-row-crash`) wird in Echtzeit dynamisch auf denselben Prozentwert (`crashY / 932 * 100%`) wie das Absturzzentrum gesetzt – Tick-Linie und Bake liegen exakt auf derselben Pixel-Höhe.
+  * Bei neuem Rekord wird der Marker goldfarben hervorgehoben (`new-record-tick`) und der Highscore-Tick nahtlos verschmolzen.
+* **5. Flüssiger Übergang nach dem Tod (`GameEngine.js`):**
+  * Bei `triggerGameOver()` wird ein sanfter Slow-Motion-Drift (`this.timeScale = 0.35`) eingeleitet, der die Partikel und Trümmer organisch verlangsamt.
+  * Aktivierung einer dezenten Gefahren-Vignette (`#danger-overlay`), die nach 750ms weich in den Death Screen überblendet.
+* **6. Beseitigung von Syntaxfehlern & CSS-Bereinigung (`style.css`):**
+  * Verwaister CSS-Block bei Zeile 2364 restlos bereinigt.
+  * Telemetrie-Werte in eine hochwertige, abgerundete Glas-Modul-Box mit subtilen Trennlinien eingebettet.
+* **7. Verifikation & Performance:**
+  * Playwright Visual Test Suite (`10_game_over.png`, `10c_mobile_game_over.png`, `10b_revived_gameplay.png`) mit 0 Konsolenfehlern erfolgreich bestanden.
+  * Real-Time Gameplay FPS Benchmark: 119.1 FPS, 0.3 ms JS-Budget (Ziel <= 5.0 ms), 0 Hitches > 50 ms.
 
 ### v5.5.0 (06.09.2026) - Classic Starfield Drift & Glints, Difficulty Tuning & Node Density Reduction, Main Menu Ship Hover Bobbing & Enhanced Dual-Layer Thruster Fire
 * **1. Sternenfeld-Wiederherstellung mit Parallax-Drift & Kreuz-Glints (`WorldManager.js`):**

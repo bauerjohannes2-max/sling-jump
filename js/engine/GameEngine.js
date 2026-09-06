@@ -140,6 +140,11 @@ class GameEngine {
     if (newState === StateManager.STATES.PLAYING && oldState === StateManager.STATES.PAUSED) {
       if (this.audio) this.audio.setDucking(false);
     }
+
+    if (newState === StateManager.STATES.MENU) {
+      this.gameStarted = false;
+      this.player = null;
+    }
   }
 
   startTutorial() {
@@ -455,7 +460,14 @@ class GameEngine {
     const secs = durationSec % 60;
     const flightTimeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 
+    // Smooth cinematic post-death slow-mo drift and soft warning vignette
+    this.timeScale = 0.35;
+    const danger = document.getElementById('danger-overlay');
+    if (danger) danger.classList.add('active');
+
     setTimeout(() => {
+      this.timeScale = 1.0;
+      if (danger) danger.classList.remove('active');
       this.state.changeState(StateManager.STATES.GAME_OVER, {
         altitude: this.maxAltitudeMeters,
         cores: this.runCores,
@@ -468,7 +480,7 @@ class GameEngine {
         isNewRecord: runResult.isNewHighScore,
         canRevive: !this.hasRevivedThisRun
       });
-    }, 700);
+    }, 750);
   }
 
   revivePlayer() {
@@ -659,9 +671,16 @@ class GameEngine {
       this.screenShake = Math.max(0, this.screenShake - rawDt * 36);
     }
 
-    // STATE: MENU - Ambient Camera Drift
-    if (this.state.is(StateManager.STATES.MENU)) {
-      this.cameraY += 28 * rawDt;
+    // STATE: MENU & Modals - Ambient Camera Drift (Top-to-Bottom Floating Stars)
+    const isMenuScreen = this.state.is(StateManager.STATES.MENU) ||
+      this.state.is(StateManager.STATES.SETTINGS) ||
+      this.state.is(StateManager.STATES.STATS) ||
+      this.state.is(StateManager.STATES.LEADERBOARD) ||
+      this.state.is(StateManager.STATES.QUESTS) ||
+      this.state.is(StateManager.STATES.SHOP);
+
+    if (isMenuScreen) {
+      this.cameraY += 34 * rawDt;
       this.world.generateUpTo(this.cameraY + this.height + 600, this.width, this.cameraY);
       for (const node of this.world.nodes) {
         node.update(rawDt, this.width, null, null);

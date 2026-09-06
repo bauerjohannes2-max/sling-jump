@@ -562,22 +562,23 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 
 ## 16. FLIGHT DEBRIEF DEATH SCREEN & SKIN 2 PROGRESSIONS-ÖKONOMIE (v5.4.0)
 
-### 16.1 Flight Debrief (Neues Death Screen Design)
-* **Raster- & Linien-Eliminierung:**
-  * Keine störenden Hintergrund-Raster (Grids) und keine konvergierenden Linienbündel in der oberen Ecke.
-  * Reiner, fokussierter Tiefraum-Hintergrund mit sanftem radialen Vignette-Verlauf.
-* **Kaskadierende Animations-Phasen:**
-  1. **Flugbahn-Zeichnung (`debrief-trace-path`):** Dauer 1.2s mit `stroke-dashoffset`-Tweening von unten zum Crashpunkt.
-  2. **Crash-Markierung (`debrief-crash-dot`):** Roter Radar-Crosshair ploppt bei 1.3s am Scheitelpunkt auf.
-  3. **Inhalts-Kaskade (Top-to-Bottom):**
-     - Status-Stamp (`SIGNAL VERLOREN` mit pulsierendem Punkt) bei 0.2s.
-     - Flugdistanz (`FLUGDISTANZ` + Mega-Nummer + Cyan-Einheit) bei 0.4s.
-     - Rekordjagd-Leiste (`REKORDJAGD`, Bester Wert, animierter Fortschrittsbalken) bei 0.6s.
-     - 3-Spalten-Telemetrie (`GRAPPLES`, `BESTER SWING` in Metern, `FLUGZEIT` in M:SS) bei 0.8s.
-     - 2-Karten-Belohnungen (`MÜNZEN`, `KRISTALLE` mit Count-Up-Tweening) bei 1.0s.
-     - Action-Buttons (`WEITERFLIEGEN`, `NEUSTART`, `MENÜ`, `RANG`, `TEILEN`) bei 1.2s.
-* **Dynamische Telemetrie-Schiene:**
-  * Die vertikale Skala auf der linken Seite passt sich dynamisch den geflogenen Höhenwerten an (Top, Rekord-Stern, Crash-Höhe, Mid, 000).
+### 16.1 Flight Debrief (Architektur & Sequenzierung)
+* **Vollbild-Arcade-Passform & Shimmer-Beseitigung:**
+  * Der Death Screen (`.debrief-container`) füllt `#game-container` nahtlos zu 100% aus (`width: 100%; height: 100%; border-radius: 0;`).
+  * Alle künstlichen Phone-Card-Rahmen und störenden diagonalen Rot-Schimmer (`.debrief-diag`) wurden restlos entfernt.
+  * Reiner, fokussierter Tiefraum-Hintergrund mit sanfter Vignette und subtilem Sternenstaub.
+* **Sequenzierte Staging-Phasen (Line First, Then Rest):**
+  1. **Phase 1: Trajektorie-Aufstieg (0.0s – 0.85s):** Die Flugbahn-Linie (`#debrief-trace-path`) zeichnet sich via `stroke-dashoffset` organisch geschwungen von der Startbasis (000 m) bis zur exakten Absturzhöhe hoch.
+  2. **Phase 2: Crash-Detonation & Schockwelle (0.82s):** Sobald die Linie ankommt, detoniert der Crash-Leuchtpunkt mit einem expandierenden Radar-Schockwellenring (`debrief-shockwave-pulse`).
+  3. **Phase 3: Synchroner Höhenzähler (0.80s – 1.45s):** Die Flugdistanz (`#final-altitude-val`) zählt exakt ab dem Eintreffen der Linie live von 0 auf die erreichte Meterzahl hoch.
+  4. **Phase 4: Kaskadierende Debrief-Module (0.82s – 1.30s):**
+     - Status-Stamp (`SIGNAL VERLOREN` mit pulsierendem Punkt) bei 0.82s.
+     - Rekordjagd-Leiste & Füllbalken bei 0.98s / 1.05s (Gold-Badge bei `NEUER REKORD!`).
+     - Telemetrie-Modulbox (`GRAPPLES`, `BESTER SWING`, `FLUGZEIT`) bei 1.06s.
+     - Belohnungen (`MÜNZEN`, `KRISTALLE` mit Live-Count-Up) bei 1.14s.
+     - Action-Buttons (`WEITERFLIEGEN`, `NEUSTART`, `MENÜ`, `RANG`, `TEILEN`) bei 1.22s.
+* **Geteilter 80px-Koordinatenraum:**
+  * Trajektorie-SVG (`viewBox="0 0 80 932"`) und linke Telemetrie-Schiene (`width: 80px`) nutzen identische Skalierung: Der Absturz-Marker (`tick-row-crash`) liegt exakt auf derselben Pixel-Höhe wie das Zentrum der Absturz-Bake.
 
 ### 16.2 Progression: Gesperrter Phönix-Skin mit 500 Münzen Kauf
 * **Stealth-Vorschau (Gesperrt):**
