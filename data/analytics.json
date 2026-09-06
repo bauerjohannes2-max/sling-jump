@@ -1,5 +1,5 @@
 {
-  "totalVisits": 53,
+  "totalVisits": 54,
   "uniqueDevices": {
     "dev_lw4pn7cacmtlpezo2": 6,
     "dev_kqm0lbdr5mtokkmi0": 21,
@@ -9,15 +9,55 @@
     "dev_dcnitoprwmtolpsob": 2,
     "dev_fkkcyiamhmtolr251": 2,
     "dev_j7xqu5w1fmtolsspd": 2,
-    "dev_cd5n7qafrmtolgc8r": 14
+    "dev_cd5n7qafrmtolgc8r": 15
   },
-  "totalRuns": 40,
-  "todayRuns": 17,
+  "totalRuns": 45,
+  "todayRuns": 22,
   "currentDate": "2026-09-06",
   "recordAltitude": 12163,
-  "totalAltitude": 63093,
-  "totalCoins": 287,
+  "totalAltitude": 68611,
+  "totalCoins": 314,
   "recentRuns": [
+    {
+      "timestamp": "2026-09-06T09:22:38.847Z",
+      "altitude": 435,
+      "coins": 3,
+      "shipId": "dart",
+      "duration": 11,
+      "isNewRecord": false
+    },
+    {
+      "timestamp": "2026-09-06T09:22:12.539Z",
+      "altitude": 710,
+      "coins": 2,
+      "shipId": "dart",
+      "duration": 39,
+      "isNewRecord": false
+    },
+    {
+      "timestamp": "2026-09-06T09:21:21.736Z",
+      "altitude": 1885,
+      "coins": 12,
+      "shipId": "dart",
+      "duration": 27,
+      "isNewRecord": false
+    },
+    {
+      "timestamp": "2026-09-06T09:19:38.758Z",
+      "altitude": 542,
+      "coins": 3,
+      "shipId": "dart",
+      "duration": 13,
+      "isNewRecord": false
+    },
+    {
+      "timestamp": "2026-09-06T09:19:13.896Z",
+      "altitude": 1946,
+      "coins": 7,
+      "shipId": "dart",
+      "duration": 38,
+      "isNewRecord": false
+    },
     {
       "timestamp": "2026-09-06T09:15:49.153Z",
       "altitude": 45,
@@ -217,46 +257,6 @@
       "shipId": "dart",
       "duration": 35,
       "isNewRecord": true
-    },
-    {
-      "timestamp": "2026-09-05T16:22:19.135Z",
-      "altitude": 75,
-      "coins": 0,
-      "shipId": "dart",
-      "duration": 5,
-      "isNewRecord": false
-    },
-    {
-      "timestamp": "2026-09-05T16:21:36.827Z",
-      "altitude": 1004,
-      "coins": 9,
-      "shipId": "dart",
-      "duration": 23,
-      "isNewRecord": true
-    },
-    {
-      "timestamp": "2026-09-05T16:03:31.637Z",
-      "altitude": 5504,
-      "coins": 21,
-      "shipId": "dart",
-      "duration": 80,
-      "isNewRecord": true
-    },
-    {
-      "timestamp": "2026-09-05T16:00:56.778Z",
-      "altitude": 41,
-      "coins": 0,
-      "shipId": "dart",
-      "duration": 4,
-      "isNewRecord": true
-    },
-    {
-      "timestamp": "2026-09-03T16:28:33.715Z",
-      "altitude": 2257,
-      "coins": 3,
-      "shipId": "dart",
-      "duration": 41,
-      "isNewRecord": false
     }
   ]
 }

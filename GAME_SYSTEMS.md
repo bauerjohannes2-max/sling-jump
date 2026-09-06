@@ -564,20 +564,24 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 ## 16. FLIGHT DEBRIEF DEATH SCREEN & SKIN 2 PROGRESSIONS-ÖKONOMIE (v5.4.0)
 
 ### 16.1 Flight Debrief (Architektur & Sequenzierung)
-* **Vollbild-Arcade-Passform & Shimmer-Beseitigung:**
+* **Vollbild-Arcade-Passform & Kosmische Hintergrund-Parität:**
   * Der Death Screen (`.debrief-container`) füllt `#game-container` nahtlos zu 100% aus (`width: 100%; height: 100%; border-radius: 0;`).
-  * Alle künstlichen Phone-Card-Rahmen und störenden diagonalen Rot-Schimmer (`.debrief-diag`) wurden restlos entfernt.
-  * Reiner, fokussierter Tiefraum-Hintergrund mit sanfter Vignette und subtilem Sternenstaub.
+  * Sämtliche künstlichen bläulichen Gradienten (`#070a14`), synthetische CSS-Sternenpunkte (`.debrief-stars`) und Scanlines (`.debrief-scan`) wurden restlos entfernt.
+  * Das Modal `#gameover-modal.modal-overlay` liegt als tiefschwarze Kosmos-Vignette (`rgba(2, 3, 6, 0.78)` bis `rgba(0, 0, 0, 0.94)`) mit dezentem `backdrop-filter: blur(6px)` über dem Canvas, sodass das reale Spiel-Canvas mit seinen originalen Sternen und Nodes unmittelbar als Hintergrund sichtbar bleibt – identisch zum Gameplay und spürbar dunkler.
+* **Fokussierter Minimalismus (Zero Clutter):**
+  * Status-Stempel (`SIGNAL VERLOREN`) und Währungszeile (`MÜNZEN`, `KRISTALLE`) wurden entfernt, um der Held-Flugdistanz und dem Rekordfortschritt uneingeschränkte Priorität zu geben.
 * **Sequenzierte Staging-Phasen (Line First, Then Rest):**
   1. **Phase 1: Trajektorie-Aufstieg (0.0s – 0.85s):** Die Flugbahn-Linie (`#debrief-trace-path`) zeichnet sich via `stroke-dashoffset` organisch geschwungen von der Startbasis (000 m) bis zur exakten Absturzhöhe hoch.
   2. **Phase 2: Crash-Detonation & Schockwelle (0.82s):** Sobald die Linie ankommt, detoniert der Crash-Leuchtpunkt mit einem expandierenden Radar-Schockwellenring (`debrief-shockwave-pulse`).
   3. **Phase 3: Synchroner Höhenzähler (0.80s – 1.45s):** Die Flugdistanz (`#final-altitude-val`) zählt exakt ab dem Eintreffen der Linie live von 0 auf die erreichte Meterzahl hoch.
-  4. **Phase 4: Kaskadierende Debrief-Module (0.82s – 1.30s):**
-     - Status-Stamp (`SIGNAL VERLOREN` mit pulsierendem Punkt) bei 0.82s.
-     - Rekordjagd-Leiste & Füllbalken bei 0.98s / 1.05s (Gold-Badge bei `NEUER REKORD!`).
-     - Telemetrie-Modulbox (`GRAPPLES`, `BESTER SWING`, `FLUGZEIT`) bei 1.06s.
-     - Belohnungen (`MÜNZEN`, `KRISTALLE` mit Live-Count-Up) bei 1.14s.
-     - Action-Buttons (`WEITERFLIEGEN`, `NEUSTART`, `MENÜ`, `RANG`, `TEILEN`) bei 1.22s.
+  4. **Phase 4: Kaskadierende Debrief-Module (0.85s – 1.25s):**
+     - Flugdistanz-Hero-Block bei 0.85s.
+     - Rekordjagd-Leiste & Füllbalken bei 0.94s / 1.00s (Gold-Badge bei `NEUER REKORD!`).
+     - Telemetrie-Modulbox (`GRAPPLES`, `BESTER SWING`, `FLUGZEIT`) bei 1.04s.
+     - Action-Buttons (`WEITERFLIEGEN`, `NEUSTART`, `MENÜ`, `RANG`, `TEILEN`) bei 1.15s.
+* **High-End Button-Architektur:**
+  * **WEITERFLIEGEN:** Cyber-Glas mit violett-blauem Gradienten, Quantum-Schild-Vektor in Glas-Badge, entkoppelter Typografie ("WEITERFLIEGEN" + "ZWEITE CHANCE · AB [ALT] M") und Kristall-Kosten-Chip.
+  * **NEUSTART:** High-Impact Arcade-Crimson-Rot (`#ff244c`), kreisförmiges Reload-Icon links, fette tracked Typografie, und klares `SPACE`-Desktop-Kürzel.
 * **Geteilter 80px-Koordinatenraum:**
   * Trajektorie-SVG (`viewBox="0 0 80 932"`) und linke Telemetrie-Schiene (`width: 80px`) nutzen identische Skalierung: Der Absturz-Marker (`tick-row-crash`) liegt exakt auf derselben Pixel-Höhe wie das Zentrum der Absturz-Bake.
 

@@ -274,10 +274,6 @@
     <!-- 4. GAME OVER MODAL (FLIGHT DEBRIEF REDESIGN) -->
     <div class="modal-overlay gameover-screen-overlay" id="gameover-modal">
       <div class="debrief-container" id="debrief-card">
-        <!-- Backdrop -->
-        <div class="debrief-stars"></div>
-        <div class="debrief-stars2"></div>
-
         <!-- Flown Trajectory SVG (Animated) -->
         <svg class="debrief-trace" id="debrief-trace-svg" viewBox="0 0 80 932" preserveAspectRatio="none" fill="none">
           <defs>
@@ -311,8 +307,6 @@
 
         <!-- Debrief Content Wrap -->
         <div class="debrief-wrap">
-          <div class="debrief-stamp" id="debrief-stamp"><b></b>SIGNAL VERLOREN</div>
-
           <div class="debrief-body">
             <div class="debrief-scoreblock">
               <div class="debrief-label">Flugdistanz</div>
@@ -345,23 +339,6 @@
                 <div class="debrief-v" id="debrief-stat-time">0:41</div>
               </div>
             </div>
-
-            <div class="debrief-rewards">
-              <div class="debrief-rw gold" id="reward-stat-orbs">
-                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffc93c"/><circle cx="12" cy="12" r="7" fill="none" stroke="#a86e00" stroke-width="1.6"/><path d="M12 8l3 4-3 4-3-4z" fill="#a86e00"/></svg>
-                <div>
-                  <div class="t" id="final-orbs">+1</div>
-                  <div class="s">MÜNZEN</div>
-                </div>
-              </div>
-              <div class="debrief-rw dim" id="reward-stat-crystals">
-                <svg viewBox="0 0 24 24" fill="none" opacity=".45"><path d="M12 2l7 6-7 14L5 8z" fill="#b366ff"/><path d="M12 2l7 6H5z" fill="#d9a6ff"/></svg>
-                <div>
-                  <div class="t" id="final-crystals">+0</div>
-                  <div class="s">KRISTALLE</div>
-                </div>
-              </div>
-            </div>
           </div>
 
           <!-- Actions -->
@@ -370,22 +347,27 @@
             <button class="debrief-btn revive" id="btn-gameover-revive">
               <div class="lft">
                 <div class="ico">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#d9a6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v6c0 4-3 6.5-7 8-4-1.5-7-4-7-8V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
                 </div>
-                <div>
+                <div class="txt-wrap">
                   <div class="ttl" id="revive-btn-text">WEITERFLIEGEN</div>
-                  <div class="sub" id="revive-status-text">1× PRO FLUG · BEI <span id="revive-alt-display">259</span> M STARTEN</div>
+                  <div class="sub" id="revive-status-text">ZWEITE CHANCE · AB <span id="revive-alt-display">259</span> M</div>
                 </div>
               </div>
               <div class="cost" id="revive-cost-tag">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 6-7 14L5 8z" fill="#e6c8ff"/><path d="M12 2l7 6H5z" fill="#fff"/></svg>
-                1
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l7 6-7 14L5 8z"/></svg>
+                <span>1</span>
               </div>
             </button>
 
             <!-- Retry (Primary CTA) -->
             <button class="debrief-btn retry" id="btn-gameover-restart">
-              <div class="ttl">NEUSTART</div>
+              <div class="btn-left">
+                <svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+                </svg>
+                <span class="ttl">NEUSTART</span>
+              </div>
               <div class="kbd">SPACE</div>
             </button>
 
@@ -407,7 +389,6 @@
           </div>
         </div>
 
-        <div class="debrief-scan"></div>
         <div class="debrief-vig"></div>
       </div>
     </div>

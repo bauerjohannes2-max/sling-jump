@@ -1,20 +1,36 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (11)",
-  "executedAt": "2026-09-06T09:15:35.618Z",
-  "localTimestamp": "6.9.2026, 11:15:35",
+  "mode": "Selective (10)",
+  "executedAt": "2026-09-06T09:23:52.779Z",
+  "localTimestamp": "6.9.2026, 11:23:52",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
-  "selectiveScreenshotsCount": 1,
+  "selectiveScreenshotsCount": 3,
   "totalCatalogScreenshotsCount": 20,
   "freshRunManifest": [
     {
-      "filename": "11_mobile_responsive.png",
-      "description": "Mobile Responsive Menu",
-      "sizeKb": 240,
-      "capturedAt": "2026-09-06T09:15:35.175Z",
-      "localTime": "11:15:35",
-      "sha256": "a538d9cf3834a88d"
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 576,
+      "capturedAt": "2026-09-06T09:23:49.941Z",
+      "localTime": "11:23:49",
+      "sha256": "219023573d818308"
+    },
+    {
+      "filename": "10c_mobile_game_over.png",
+      "description": "Mobile Game Over Screen",
+      "sizeKb": 412,
+      "capturedAt": "2026-09-06T09:23:50.842Z",
+      "localTime": "11:23:50",
+      "sha256": "1f75487058a36cd2"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 384,
+      "capturedAt": "2026-09-06T09:23:52.225Z",
+      "localTime": "11:23:52",
+      "sha256": "15043b2e687e96c3"
     }
   ],
   "manifest": [
@@ -139,30 +155,6 @@
       "sha256": "c5599a76e770a350"
     },
     {
-      "filename": "10_game_over.png",
-      "description": "Game Over Screen",
-      "sizeKb": 687,
-      "capturedAt": "2026-09-06T09:10:17.775Z",
-      "localTime": "11:10:17",
-      "sha256": "a5ee1c875e4f6a5b"
-    },
-    {
-      "filename": "10c_mobile_game_over.png",
-      "description": "Mobile Game Over Screen",
-      "sizeKb": 566,
-      "capturedAt": "2026-09-06T09:10:18.582Z",
-      "localTime": "11:10:18",
-      "sha256": "0977819008b07177"
-    },
-    {
-      "filename": "10b_revived_gameplay.png",
-      "description": "Revived Gameplay",
-      "sizeKb": 478,
-      "capturedAt": "2026-09-06T09:10:19.816Z",
-      "localTime": "11:10:19",
-      "sha256": "eb0a3358f78d9bff"
-    },
-    {
       "filename": "01_main_menu.png",
       "description": "Main Menu",
       "sizeKb": 312,
@@ -177,6 +169,30 @@
       "capturedAt": "2026-09-06T09:15:35.175Z",
       "localTime": "11:15:35",
       "sha256": "a538d9cf3834a88d"
+    },
+    {
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 576,
+      "capturedAt": "2026-09-06T09:23:49.941Z",
+      "localTime": "11:23:49",
+      "sha256": "219023573d818308"
+    },
+    {
+      "filename": "10c_mobile_game_over.png",
+      "description": "Mobile Game Over Screen",
+      "sizeKb": 412,
+      "capturedAt": "2026-09-06T09:23:50.842Z",
+      "localTime": "11:23:50",
+      "sha256": "1f75487058a36cd2"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 384,
+      "capturedAt": "2026-09-06T09:23:52.225Z",
+      "localTime": "11:23:52",
+      "sha256": "15043b2e687e96c3"
     }
   ]
 }

@@ -1,14 +1,16 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 6.9.2026, 11:15:35  
-> **Modus:** Selektiv (`11`)  
+> **Laufzeit:** 6.9.2026, 11:23:52  
+> **Modus:** Selektiv (`10`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
-> **Frisch erfasste Screenshots in diesem Lauf:** 1  
+> **Frisch erfasste Screenshots in diesem Lauf:** 3  
 > **Garantierte Frische:** Alle unten aufgeführten Dateien wurden in diesem Testlauf frisch erzeugt.
 
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `11_mobile_responsive.png` | Mobile Responsive Menu | 11:15:35 | 240 KB | `a538d9cf3834a88d` |
+| `10_game_over.png` | Game Over Screen | 11:23:49 | 576 KB | `219023573d818308` |
+| `10c_mobile_game_over.png` | Mobile Game Over Screen | 11:23:50 | 412 KB | `1f75487058a36cd2` |
+| `10b_revived_gameplay.png` | Revived Gameplay | 11:23:52 | 384 KB | `15043b2e687e96c3` |
 
 
 ### Gesamter Screenshot-Bestand (20 Dateien)
@@ -29,8 +31,8 @@
 | `12_mobile_skins.png` | 10:56:20 | 131 KB |
 | `14_dashboard_locked.png` | 10:56:21 | 48 KB |
 | `14b_dashboard_unlocked.png` | 10:56:22 | 240 KB |
-| `10_game_over.png` | 11:10:17 | 687 KB |
-| `10c_mobile_game_over.png` | 11:10:18 | 566 KB |
-| `10b_revived_gameplay.png` | 11:10:19 | 478 KB |
 | `01_main_menu.png` | 11:15:16 | 312 KB |
 | `11_mobile_responsive.png` | 11:15:35 | 240 KB |
+| `10_game_over.png` | 11:23:49 | 576 KB |
+| `10c_mobile_game_over.png` | 11:23:50 | 412 KB |
+| `10b_revived_gameplay.png` | 11:23:52 | 384 KB |

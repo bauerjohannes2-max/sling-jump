@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC58 - v5.7.0 - Main Menu Background Kinetic Starfield Reimplementation: Top-to-Bottom Parallax Drift, Transparent Overlay Hygiene, High-Fidelity Circular Stars & 4-Point Glints)  
+> **Status:** Release Candidate (RC59 - v5.8.0 - Death Screen Commercial Polish: Cosmic Canvas Void Background Parity, Removal of "Signal Verloren" and Currency Rows, and Aerospace Button Redesign ("Weiterfliegen" & "Neustart"))  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 06.09.2026  
@@ -56,7 +56,31 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
 
-### v5.7.0 (06.09.2026) - Main Menu Background Kinetic Starfield Reimplementation: Top-to-Bottom Parallax Drift, Transparent Overlay Hygiene, High-Fidelity Circular Stars & 4-Point Glints
+### v5.8.0 (06.09.2026) - Death Screen Commercial Polish: Cosmic Canvas Void Background Parity, Removal of "Signal Verloren" & Currency Rows, and High-Contrast Action Buttons ("Weiterfliegen" & "Neustart")
+* **1. Kosmische Hintergrund-Parität & Reiner Deep-Space Void (`style.css`):**
+  * Künstliche bläuliche CSS-Verläufe (`#070a14` bis `#03050c`), synthetische CSS-Sternenpunkte (`.debrief-stars`, `.debrief-stars2`) und Scanline-Filter (`.debrief-scan`) restlos entfernt.
+  * `#gameover-modal.modal-overlay` nutzt nun eine tiefdunkle Kosmos-Vignette (`rgba(2, 3, 6, 0.78)` bis `rgba(0, 0, 0, 0.94)`) mit dezentem `backdrop-filter: blur(6px)`, wodurch das reale Spiel-Canvas mit seinen originalen Sternen und Nodes direkt als Spielhintergrund hindurchscheint.
+  * `.debrief-container` auf `background: transparent;` gesetzt – das Spielgefühl nach dem Absturz ist nun 100% konsistent, merklich dunkler und atmosphärisch tief.
+* **2. Entfernung des Statusstempels "SIGNAL VERLOREN" (`index.html`, `style.css`):**
+  * Element `<div class="debrief-stamp">SIGNAL VERLOREN</div>` sowie sämtliche Stempel-Keyframes und Selektoren gelöscht.
+  * Die gewonnene Vertikaldistanz gibt der Held-Flugdistanz (`Flugdistanz` + dynamischer Zähler) den ungeteilten visuellen Fokus am oberen Bildschirmrand.
+* **3. Bereinigung der Belohnungszeile ("MÜNZEN" & "KRISTALLE") (`index.html`, `style.css`):**
+  * Block `<div class="debrief-rewards">` vollständig entfernt; der Debrief-Bereich konzentriert sich nun rein auf das Wesentliche (Distanz, Rekordjagd-Balken, Telemetrie-Werte).
+  * Null-Checks in `UIManager.js` verhindern jegliche Laufzeitfehler beim Währungs-Counter.
+* **4. Hochwertiges Button-Redesign ("WEITERFLIEGEN" & "NEUSTART") (`style.css`, `index.html`):**
+  * **WEITERFLIEGEN (Revive / 2. Chance):**
+    - Hochglanz Cyber-Glas-Finish mit dezentem violett-blauem Gradienten (`rgba(147, 51, 234, 0.25)` bis `rgba(99, 102, 241, 0.18)`), leuchtender violetter Energieleiste links und 1px Innenlicht.
+    - Prägnantes Quantum-Schild-SVG-Icon in beleuchtetem Glas-Badge.
+    - Sauber hierarchisierte Typografie ("WEITERFLIEGEN" + "ZWEITE CHANCE · AB 482 M") ohne Überlappungen auf mobilen Screens (390px Viewport abgesichert).
+    - Kristall-Kosten-Chip mit lila Diamant-Vektor und klarer "1".
+  * **NEUSTART (Primary Hero CTA):**
+    - Strahlend satter Crimson-Rot-Arcade-Gradient (`#ff244c` zu `#9b0b28`) mit dimensionalem 3D-Kantenlicht (`inset 0 1.5px 0 rgba(255,255,255,0.4)`).
+    - Kreisförmiges Reload-Pfeil-SVG-Icon links neben fettem `NEUSTART`-Display-Schriftzug.
+    - Edles `SPACE`-Tastatur-Kürzel-Badge rechts mit dezentem Rahmen.
+    - Geschmeidiger Hover-Lift (`translateY(-2px)`) und sattes taktiles Klick-Feedback (`scale(0.98)`).
+* **5. Verifikation & Performance:**
+  * Playwright Visual Suite (`10_game_over.png`, `10c_mobile_game_over.png`, `10b_revived_gameplay.png`) mit 0 Konsolenfehlern und 0 Ausnahmen bestanden.
+  * Real-Time Gameplay FPS Benchmark: 119.9 FPS im Durchschnitt, 0.35 ms JS-Frame-Budget (Ziel <= 5.0 ms), 0 Hitches > 50 ms.
 * **1. Reimplementierung der Hauptmenü-Hintergrund-Sterne (`style.css`):**
   * Das Overlay `#menu-overlay.state-overlay` besaß zuvor `background: rgba(2, 3, 7, 0.95)`, welches 95% des Canvas-Lichts blockierte und das Sternenfeld im Hauptmenü unsichtbar machte.
   * Hintergrund auf `background: transparent;` umgestellt, sodass der tiefe kosmische Canvas-Hintergrund mit seinen schwebenden Sternen unmittelbar und brillant hinter den Menü-Karten, dem schwebenden Schiff und den Buttons hindurchscheint.
