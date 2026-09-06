@@ -1,6 +1,6 @@
 # Sling Jump - Game Systems & Technical Specification Manual
 
-> Live Version: 5.16.3 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
+> Live Version: 5.16.7 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
 
 ---
 

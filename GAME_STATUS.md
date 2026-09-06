@@ -268,6 +268,10 @@
 - **Entfernung FPS-Playwright-Runner:** `scripts/benchmark_fps.js` und `scripts/stress_test_gameplay.js` sowie `08b_gameplay_fps_hud.png` und `package.json` `"test:fps"` restlos entfernt zur Maximierung der Token-Effizienz.
 - **Komprimierung aller Markdown-Dateien:** Sämtliche `.md`-Dokumente auf dichte, token-effiziente Fakten komprimiert (-75% Token-Last).
 
+### v5.16.7 (06.09.2026) - Version Single Source of Truth & Settings Parity
+- **Versions-Synchronisation:** `CONSTANTS.VERSION`, `package.json`, `version.json`, `sw.js`, `index.html` und `GAME_SYSTEMS.md` auf einheitliche Release-Version `5.16.7` gehoben.
+- **Settings-Modal Redesign:** Schwebende Dock-Card mit exaktem Floating-Dock-Hintergrund (`rgba(10, 14, 26, 0.72)`), 20px Corner-Radius, zentrierten Action-Buttons und akkuratem Versions-Tag.
+
 ### v5.8.0 (06.09.2026) - Death Screen Commercial Polish & Sequenced Stagger
 - **Kosmische Void-Parität:** Künstliche CSS-Gradienten entfernt; Death-Screen nutzt nun transparenten Deep-Space-Canvas mit Vignette (`backdrop-filter: blur(6px)`).
 - **Stempel- & Rewards-Bereinigung:** "SIGNAL VERLOREN" und alte Belohnungszeile entfernt; Flugdistanz bildet ungeteilten visuellen Hero-Fokus.

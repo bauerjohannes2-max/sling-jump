@@ -1,5 +1,5 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 6.9.2026, 20:09:21  
+> **Laufzeit:** 6.9.2026, 20:14:36  
 > **Modus:** Selektiv (`07_settings`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
 > **Frisch erfasste Screenshots in diesem Lauf:** 1  
@@ -8,7 +8,7 @@
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `07_settings.png` | Settings Modal | 20:09:20 | 205 KB | `ce454a438a07e1ef` |
+| `07_settings.png` | Settings Modal | 20:14:35 | 203 KB | `38e250d6bb40d762` |
 
 
 ### Gesamter Screenshot-Bestand (22 Dateien)
@@ -35,4 +35,4 @@
 | `05c_hub_quests_scrolled.png` | 19:58:30 | 195 KB |
 | `05d_hub_quests_tab_weekly.png` | 19:58:31 | 195 KB |
 | `05e_hub_quests_tab_daily.png` | 19:59:36 | 339 KB |
-| `07_settings.png` | 20:09:20 | 205 KB |
+| `07_settings.png` | 20:14:35 | 203 KB |

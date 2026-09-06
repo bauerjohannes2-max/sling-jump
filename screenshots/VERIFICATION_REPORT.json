@@ -1,8 +1,8 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
   "mode": "Selective (07_settings)",
-  "executedAt": "2026-09-06T18:09:21.902Z",
-  "localTimestamp": "6.9.2026, 20:09:21",
+  "executedAt": "2026-09-06T18:14:36.760Z",
+  "localTimestamp": "6.9.2026, 20:14:36",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
   "selectiveScreenshotsCount": 1,
@@ -11,10 +11,10 @@
     {
       "filename": "07_settings.png",
       "description": "Settings Modal",
-      "sizeKb": 205,
-      "capturedAt": "2026-09-06T18:09:20.648Z",
-      "localTime": "20:09:20",
-      "sha256": "ce454a438a07e1ef"
+      "sizeKb": 203,
+      "capturedAt": "2026-09-06T18:14:35.480Z",
+      "localTime": "20:14:35",
+      "sha256": "38e250d6bb40d762"
     }
   ],
   "manifest": [
@@ -189,10 +189,10 @@
     {
       "filename": "07_settings.png",
       "description": "Settings Modal",
-      "sizeKb": 205,
-      "capturedAt": "2026-09-06T18:09:20.648Z",
-      "localTime": "20:09:20",
-      "sha256": "ce454a438a07e1ef"
+      "sizeKb": 203,
+      "capturedAt": "2026-09-06T18:14:35.480Z",
+      "localTime": "20:14:35",
+      "sha256": "38e250d6bb40d762"
     }
   ]
 }
