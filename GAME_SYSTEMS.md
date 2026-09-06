@@ -1,7 +1,7 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 4.7.1  
-Aktualisiert am: 05. September 2026  
+Dokumentationsstand: Version 5.4.0  
+Aktualisiert am: 06. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness, 60+ FPS Benchmark & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
 Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.com/bauerjohannes2-max/sling-jump)
@@ -495,3 +495,116 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   4. Hitches $> 50\text{ ms} = 0$.
   5. 0 Konsolenfehler und 0 unbehandelte Exceptions.
 * Speichert detaillierten Audit-Report in `screenshots/FPS_BENCHMARK.json` und erfasst Live-Screenshot `screenshots/08b_gameplay_fps_hud.png`.
+
+## 14. BOLD CRIMSON RED HAUPTMENÜ-SYSTEM, DELTA DART & HARMONISIERTE HANGAR-BÜHNE (v5.3.0)
+
+### 14.1 Crimson Red Theme & Typografie-Hierarchie
+* **Design-Tokens (`css/style.css`):**
+  * `--accent-crimson: #ff1e42` (Primäres Karminrot)
+  * `--accent-crimson-rgb: 255, 30, 66`
+  * `--accent-crimson-glow: rgba(255, 30, 66, 0.55)`
+* **Dominanter Wordmark-Hero (54px Display):**
+  * `.center-stage` auf `margin: 4px 0 auto 0;` gestrafft, `.brand-hero` auf `transform: translateY(-26px); margin-bottom: 6px;` angehoben.
+  * `SLING`: Hochkontrastiges, klares Weiß (`#ffffff`) mit 54px Größe und 12px Letter-Spacing (Mobile: 44px, 9px Spacing).
+  * `JUMP`: Elektrisierendes Karminrot mit intensiver Neon-Aura (`text-shadow: 0 0 35px var(--accent-crimson-glow)`).
+* **Launch-CTA (`.btn-play-bold`):**
+  * 66px hoher Primär-Button mit abgerundeten Ecken (20px), hochauflösendem Farbverlauf (`#ff1e42` nach `#b91c1c`) und animiertem Schräg-Glanzlicht (`light-swipe 3s`).
+  * Triggert bei Start 180ms Abschuss-Impuls (`scale(1.4)`, Translation nach oben) mit haptischem Feedback (16ms) vor Zustandswechsel.
+
+### 14.2 Harmonisierte Hangar-Bühne & Pfeillose Direktauswahl
+* **Proportionale Geometrie-Harmonisierung:**
+  * Hangar-Container: **320x300px** (Desktop) bzw. **280x260px** (Mobile).
+  * Äußerer Halo (`.orbit-halo`): **280x280px** (Desktop) bzw. **245x245px** (Mobile) mit 34s Rotation.
+  * Inneres Gravitationsfeld (`.orbit-field`): **195x195px** (Desktop) bzw. **170x170px** (Mobile) mit 22s Gegenrotation.
+  * Raumschiff (`.hero-centered-ship` & `#ship-svg`): **140x140px Container mit 125px SVG** (Desktop) bzw. **120px Container mit 105px SVG** (Mobile).
+* **Pfeillose Interaktion & Stille Selektion:**
+  * Keine störenden Pfeile links und rechts mehr im Hangar.
+  * Umschaltung erfolgt barrierefrei durch Klick/Tap auf das Raumschiff (`#ship-unit`), native Wischgesten ($35\text{px}$ Schwellenwert) oder Klick auf die Kapsel-Punkte (`#dot-0`, `#dot-1`).
+  * Aktives Schiff wird durch pulsierende karminrote Pille hervorgehoben.
+  * Kein störendes Text-Banner am oberen Bildschirmrand beim Durchschalten.
+
+### 14.3 Skin-System: Delta Dart & Phönix
+* **Skin 1: DELTA PFEIL (`dart`):**
+  * Basierend auf maßgeschneiderter Delta-Abfangjäger-Geometrie: Tiefdunkler Rumpf (`#0c1220`) mit markanter weißer Außenkontur, inneres Crimson-Chevron entlang der Flügelkanten, roter Speerkopf an der Bugspitze, vertikaler roter Kiel/Rückgrat, zentraler Cyan-Reaktorring mit massivem weißem Kern.
+  * Triebwerk: Zentrierter einzelner Plasma-Jet (`single-thruster`) mit pulsendem Farbverlauf.
+  * Vollständig synchronisiert in Hangar-SVG und in-flight 2D-Canvas (`renderShipModel`).
+* **Skin 2: PHÖNIX (`phoenix`):**
+  * Symmetrischer Doppel-Klingen-Flügler mit energetisierter Crimson-Innenstruktur und symmetrischen Zwillings-Plasmatriebwerken.
+
+### 14.4 Rasterfreier Kosmos & Vertikales Sternenfeld
+* **Elimination des Hintergrund-Gitters:**
+  * Das prozedurale Cyber-Grid wurde vollständig aus `WorldManager.js` entfernt. Das Weltall wirkt rein, organisch und tiefenschwarz.
+  * `gridColor` aus allen 4 Farbthemen entfernt.
+* **Beruhigte Sternen-Dynamik:**
+  * Schräge Translationsberechnungen (`driftX`) entfernt. Sterne bewegen sich rein vertikal synchron mit dem Kameraschub.
+  * 5px Pixel-Kreuze durch feine, funkelnde Mikro-Dots mit sanfter Sinus-Alpha-Pulsierung ersetzt.
+
+### 14.5 Persistentes Rang-Badge (#42) & Unverwechselbare Trophäe
+* **Echtzeit-Rang-Trophäe (`#btn-menu-leaderboard`):**
+  * Echter Siegerpokal mit geschwungenen Griffen, Sockel und Schaft – optisch sofort von der 3-Balken-Statistik (`#btn-menu-stats`) differenziert.
+  * Pinned Gold-Pille (`#42` oder berechneter Spieler-Rang aus den Top-100) direkt an der Trophäe.
+  * Macht den eigenen Rang sofort sichtbar, ohne dass der Spieler die Bestenliste aufrufen muss.
+
+---
+
+## 15. FRONT-TAB MODAL-ARCHITEKTUR & UI-STIL-VEREINHEITLICHUNG (v5.1.0)
+
+### 15.1 Front-Tab Layering & Canvas-Isolierung
+* **Persistenter Menü-Hintergrund:**
+  * Wenn sekundäre Modals geöffnet werden (`SETTINGS`, `STATS`, `LEADERBOARD`, `QUESTS`, `TUTORIAL`), bleibt das Hauptmenü (`#menu-overlay`) mit der Klasse `.visible` im Hintergrund aktiv und sichtbar.
+  * Modals fungieren als hochkontrastige **Front-Tabs** direkt vor dem Hauptmenü mit semi-transparentem Backdrop (`background: rgba(3, 7, 18, 0.58)`) und Tiefen-Weichzeichner (`backdrop-filter: blur(16px)`).
+  * Wenn Einstellungen aus dem Pause-Zustand geöffnet werden, bleibt das pausierte HUD und Pause-Overlay im Hintergrund erhalten.
+* **Unterdrückung von Gameplay-Knoten im Menü:**
+  * In `GameEngine.render()` wird das Zeichnen von dynamischen Gameplay-Knoten und Orbs unterdrückt, solange sich das Spiel in Menü- oder Modal-Zuständen befindet (`MENU`, `SETTINGS`, `STATS`, `LEADERBOARD`, `QUESTS`).
+  * Dadurch bleibt der 2D-Canvas ein ruhiges, ungestörtes Sternenfeld ohne unerwünschte Hintergrund-Artefakte oder -Sprünge.
+
+### 15.2 Neon Crimson & Void Black Design-Harmonisierung
+* **Karten & Container:**
+  * Alle Modal-Karten (`.modal-card`) nutzen einen tiefschwarzen Verlauf (`rgba(8, 14, 28, 0.94)` auf `rgba(4, 8, 18, 0.98)`), subtile 1px Rahmen mit Karminrot-Glow (`rgba(255, 30, 66, 0.22)`) und weiche Schatten.
+  * Interaktive Schalter (`#btn-audio-toggle`, `#btn-fps-toggle`) wechseln im aktiven Zustand auf karminrote Ränder (`#ff1e42`) mit passendem Glow.
+  * Primäre Schaltflächen (`.btn-primary`) nutzen den markanten Farbverlauf (`#ff1e42` zu `#b91c1c`) mit sanfter Atemanimation (`crimson-breathe 2.8s`).
+
+### 15.3 Architektur-Entschlackung & Zero-Dead-Code Invariante
+* **Entfernung des Legacy Shop-Modals:**
+  * Das historische `#shop-modal` wurde vollständig aus dem DOM und CSS entfernt.
+  * Sämtliche Shop-spezifischen Event-Listener in `main.js` wurden bereinigt.
+  * Das Schiffs-Browsing und die Auswahl finden exklusiv und nativ über das zentrierte Hauptmenü-Karussell statt.
+* **Statische Währungs-Kapsel:**
+  * Das Währungs-Pill im Menü-Header (`#menu-currency-pill`) ist ein reines Status-Display (Münzen und Kristalle). Klicks lösen keine unerwünschten Modals oder Navigationen mehr aus.
+
+---
+
+## 16. FLIGHT DEBRIEF DEATH SCREEN & SKIN 2 PROGRESSIONS-ÖKONOMIE (v5.4.0)
+
+### 16.1 Flight Debrief (Neues Death Screen Design)
+* **Raster- & Linien-Eliminierung:**
+  * Keine störenden Hintergrund-Raster (Grids) und keine konvergierenden Linienbündel in der oberen Ecke.
+  * Reiner, fokussierter Tiefraum-Hintergrund mit sanftem radialen Vignette-Verlauf.
+* **Kaskadierende Animations-Phasen:**
+  1. **Flugbahn-Zeichnung (`debrief-trace-path`):** Dauer 1.2s mit `stroke-dashoffset`-Tweening von unten zum Crashpunkt.
+  2. **Crash-Markierung (`debrief-crash-dot`):** Roter Radar-Crosshair ploppt bei 1.3s am Scheitelpunkt auf.
+  3. **Inhalts-Kaskade (Top-to-Bottom):**
+     - Status-Stamp (`SIGNAL VERLOREN` mit pulsierendem Punkt) bei 0.2s.
+     - Flugdistanz (`FLUGDISTANZ` + Mega-Nummer + Cyan-Einheit) bei 0.4s.
+     - Rekordjagd-Leiste (`REKORDJAGD`, Bester Wert, animierter Fortschrittsbalken) bei 0.6s.
+     - 3-Spalten-Telemetrie (`GRAPPLES`, `BESTER SWING` in Metern, `FLUGZEIT` in M:SS) bei 0.8s.
+     - 2-Karten-Belohnungen (`MÜNZEN`, `KRISTALLE` mit Count-Up-Tweening) bei 1.0s.
+     - Action-Buttons (`WEITERFLIEGEN`, `NEUSTART`, `MENÜ`, `RANG`, `TEILEN`) bei 1.2s.
+* **Dynamische Telemetrie-Schiene:**
+  * Die vertikale Skala auf der linken Seite passt sich dynamisch den geflogenen Höhenwerten an (Top, Rekord-Stern, Crash-Höhe, Mid, 000).
+
+### 16.2 Progression: Gesperrter Phönix-Skin mit 500 Münzen Kauf
+* **Stealth-Vorschau (Gesperrt):**
+  * Vor dem Kauf bleibt das 2. Raumschiff (`phoenix`) geheim: Eine dunkle Silhouette mit gelber Zielmatrix und dezentem Puls-Glow wird gerendert, ohne Triebwerksflammen oder Innengeometrie zu verraten.
+* **Kauf-Schaltfläche (`#btn-buy-ship`):**
+  * Zeigt `KAUFEN 500 [MÜNZE]`.
+  * Bei Klick wird geprüft, ob `storage.data.cores >= 500`:
+    - **Erfolg:** 500 Münzen werden abgebucht, der Skin freigeschaltet (`unlockShip('phoenix')`), das Schiff enthüllt und der Sound-Jingle ausgelöst.
+    - **Nicht genügend Münzen:** Button führt eine visuelle Rüttelanimation (`ship-btn-shake`) mit rotem Rahmen aus.
+
+### 16.3 Stille Belohnungseinlösung bei Quests
+* **Befreiung von störenden Toasts:**
+  * Klick auf `BELOHNUNG EINSAMMELN` im Quest-Hub löst keinen Bildschirm-Toast mehr aus.
+  * Der Button wechselt geräuschlos und direkt auf `EINGELÖST`, Münzen werden gebucht und das Währungs-Display im Header zählt auf.
+
+

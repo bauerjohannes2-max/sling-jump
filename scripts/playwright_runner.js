@@ -138,13 +138,13 @@ async function runPlaywrightSuite() {
     await captureScreenshot(page, '01_main_menu.png', 'Main Menu');
   }
 
-  // 2. Open Hangar / Skins
+  // 2. Center Stage Ship Hangar Showcase (Skin Switching)
   if (shouldCapture('02_hangar_skins.png')) {
-    console.log('[Playwright] Testing Hangar / Skins Showcase...');
-    await page.click('#btn-menu-shop');
+    console.log('[Playwright] Testing Main Menu Center Hangar Skins Switching...');
+    await page.click('#dot-1');
     await sleep(400);
-    await captureScreenshot(page, '02_hangar_skins.png', 'Hangar Skins Showcase');
-    await page.click('#btn-shop-close');
+    await captureScreenshot(page, '02_hangar_skins.png', 'Center Hangar Skin 2 (Phönix)');
+    await page.click('#dot-0');
     await sleep(300);
   }
 
@@ -375,7 +375,7 @@ async function runPlaywrightSuite() {
           eng.triggerGameOver();
         }
       });
-      await sleep(850);
+      await sleep(1500);
       if (shouldCapture('10_game_over.png')) {
         console.log('[Playwright] Capturing 10_game_over.png');
         await captureScreenshot(page, '10_game_over.png', 'Game Over Screen');

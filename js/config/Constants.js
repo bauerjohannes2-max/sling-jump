@@ -40,10 +40,9 @@ const CONSTANTS = {
     {
       id: 'deep_space',
       name: 'WELTRAUM',
-      description: 'Klassisch dunkelblaues Weltall mit Cyan-Gitter.',
+      description: 'Klassisch dunkelblaues Weltall mit purem Kosmos.',
       cost: 0,
       background: '#080b10',
-      gridColor: 'rgba(0, 240, 255, 0.035)',
       primary: '#00f0ff',
       secondary: '#38bdf8',
       accent: '#fbbf24',
@@ -59,7 +58,6 @@ const CONSTANTS = {
       description: 'Leuchtende Cyberpunk-Farben in Pink & Blau.',
       cost: 400,
       background: '#0a0518',
-      gridColor: 'rgba(255, 0, 128, 0.04)',
       primary: '#ff007f',
       secondary: '#00f0ff',
       accent: '#ffe600',
@@ -75,7 +73,6 @@ const CONSTANTS = {
       description: 'Warme Orange- und Goldtöne mit Sonnen-Glow.',
       cost: 750,
       background: '#140804',
-      gridColor: 'rgba(255, 140, 0, 0.04)',
       primary: '#ff8800',
       secondary: '#fbbf24',
       accent: '#38bdf8',
@@ -91,7 +88,6 @@ const CONSTANTS = {
       description: 'Schlichtes, tiefschwarzes Minimal-Design.',
       cost: 1200,
       background: '#040406',
-      gridColor: 'rgba(255, 255, 255, 0.03)',
       primary: '#f8fafc',
       secondary: '#94a3b8',
       accent: '#38bdf8',
@@ -107,13 +103,23 @@ const CONSTANTS = {
   SHIPS: [
     {
       id: 'dart',
-      name: 'PFEIL',
-      tier: 'STANDARD',
-      description: 'Wendiger Starter-Aufklärer mit doppelter Impulsdüse.',
+      name: 'DELTA PFEIL',
+      tier: 'SERIE 01',
+      description: 'Präzisions-Abfangjäger mit Crimson-Chevron und Einzeldüse.',
       cost: 0,
       radius: 12,
+      thrusterCount: 1,
+      thrusterOffsets: [{ x: 0, y: 8 }]
+    },
+    {
+      id: 'phoenix',
+      name: 'PHÖNIX',
+      tier: 'SERIE 02',
+      description: 'Zweiflügeliger Raumgleiter mit doppelter Impulsdüse.',
+      cost: 500,
+      radius: 12,
       thrusterCount: 2,
-      thrusterOffsets: [{ x: -4, y: 8 }, { x: 4, y: 8 }]
+      thrusterOffsets: [{ x: -5, y: 8 }, { x: 5, y: 8 }]
     }
   ],
 

@@ -432,82 +432,27 @@ class WorldManager {
     const totalW = width + padX * 2;
     const totalH = height + padY * 2;
 
-    // 1. Cached Atmospheric Deep-Space Gradient Fill (Zero GC)
+    // 1. Cached Atmospheric Deep-Space Gradient Fill (Pure pitch black void)
     if (!this._bgGrad || this._bgGradTheme !== theme.id || this._bgGradH !== totalH) {
       this._bgGrad = context.createLinearGradient(0, -padY, 0, height + padY);
-      this._bgGrad.addColorStop(0, theme.cardBg ? theme.cardBg.replace(/[\d\.]+\)$/, '0.95)') : '#0f172a');
-      this._bgGrad.addColorStop(0.42, theme.background);
-      this._bgGrad.addColorStop(1, '#030509');
+      this._bgGrad.addColorStop(0, '#020306');
+      this._bgGrad.addColorStop(0.5, '#010204');
+      this._bgGrad.addColorStop(1, '#000000');
       this._bgGradTheme = theme.id;
       this._bgGradH = totalH;
     }
     context.fillStyle = this._bgGrad;
     context.fillRect(-padX, -padY, totalW, totalH);
 
-    // 2. Parallax Vector Cyber-Grid (Subtle neon architectural grid)
-    if (theme.gridColor) {
-      const gridSize = 72;
-      const offsetY = (cameraY * 0.22) % gridSize;
-      const startY = -padY;
-      const endY = height + padY;
-      const startX = -padX;
-      const endX = width + padX;
+    // 2. Parallax Cyber-Grid: DELETED per user request (pure cosmic void)
+    // 3. Ambient Celestial Nebulae: DELETED per user request (eliminates white brush/lighting haze)
 
-      context.save();
-      context.strokeStyle = theme.gridColor;
-      context.lineWidth = 1.0;
-      context.beginPath();
-
-      // Horizontal lines with smooth parallax scroll
-      for (let y = startY - offsetY; y <= endY; y += gridSize) {
-        context.moveTo(startX, y | 0);
-        context.lineTo(endX, y | 0);
-      }
-      // Vertical lines
-      for (let x = startX; x <= endX; x += gridSize) {
-        context.moveTo(x | 0, startY);
-        context.lineTo(x | 0, endY);
-      }
-      context.stroke();
-      context.restore();
-    }
-
-    // 3. Ambient Celestial Nebulae (Atmospheric floating neon blooms)
-    if (playerVy < 300) {
-      context.save();
-      const pulse1 = Math.sin(now * 0.0008) * 0.015 + 0.035;
-      const pulse2 = Math.cos(now * 0.0006) * 0.012 + 0.030;
-      
-      // Upper Right Nebula (Primary neon hue)
-      const gradNebula1 = context.createRadialGradient(
-        width * 0.75, height * 0.25, 10,
-        width * 0.75, height * 0.25, width * 0.65
-      );
-      gradNebula1.addColorStop(0, theme.primary || '#00f0ff');
-      gradNebula1.addColorStop(1, 'rgba(0,0,0,0)');
-      context.globalAlpha = pulse1;
-      context.fillStyle = gradNebula1;
-      context.fillRect(-padX, -padY, totalW, totalH);
-
-      // Lower Left Nebula (Secondary / Purple hue)
-      const gradNebula2 = context.createRadialGradient(
-        width * 0.2, height * 0.7, 10,
-        width * 0.2, height * 0.7, width * 0.6
-      );
-      gradNebula2.addColorStop(0, theme.secondary || '#d946ef');
-      gradNebula2.addColorStop(1, 'rgba(0,0,0,0)');
-      context.globalAlpha = pulse2;
-      context.fillStyle = gradNebula2;
-      context.fillRect(-padX, -padY, totalW, totalH);
-      context.restore();
-    }
-
-    // 4. High-Performance Batched Parallax Starfield
+    // 4. Smooth Parallax Starfield (Pure vertical motion, zero horizontal drift)
     const isWarpSpeed = playerVy > 320;
     const warpFactor = isWarpSpeed ? Math.min(1.0, (playerVy - 320) / 750) : 0;
 
     if (warpFactor > 0.05) {
-      // Hyperspace Warp Streaks: Batched single-pass stroke
+      // Hyperspace Warp Streaks: Clean vertical acceleration
       context.save();
       context.strokeStyle = theme.primary || '#00f0ff';
       context.lineWidth = 1.6;
@@ -519,9 +464,7 @@ class WorldManager {
         const star = this.stars[i];
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const driftX = (now * 0.005 * star.layer);
-        const starX = (star.x + driftX) % width;
-        const finalX = starX < 0 ? starX + width : starX;
+        const finalX = star.x;
         const streakLength = warpFactor * 45 * star.layer;
 
         context.moveTo(finalX | 0, finalY | 0);
@@ -530,40 +473,32 @@ class WorldManager {
       context.stroke();
       context.restore();
     } else {
-      // Classic Starfield: Dual-Pass Batched Rendering (Zero per-star state thrashing)
-      // Pass A: Distant background stars (white/dim)
+      // Serene Cosmic Starfield: Dual-Pass Batched Rendering
+      // Pass A: Distant background micro-stars (gentle silver-white, stable X)
       context.fillStyle = '#ffffff';
-      context.globalAlpha = 0.5;
       for (let i = 0; i < this.stars.length; i++) {
         const star = this.stars[i];
         if (star.layer > 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const driftX = (now * 0.005 * star.layer);
-        const starX = (star.x + driftX) % width;
-        const finalX = starX < 0 ? starX + width : starX;
-        const s = star.size < 1.2 ? 1 : 2;
-        context.fillRect(finalX | 0, finalY | 0, s, s);
+        const finalX = star.x;
+        const twinkle = Math.sin(now * 0.0018 * star.twinkleSpeed + i) * 0.15 + 0.45;
+        context.globalAlpha = twinkle;
+        context.fillRect(finalX | 0, finalY | 0, 1, 1);
       }
 
-      // Pass B: Near celestial stars (theme neon tint, brighter)
-      context.fillStyle = theme.primary || '#00f0ff';
-      context.globalAlpha = 0.85;
+      // Pass B: Mid/Near celestial stars (crisp, subtle neon glint, stable X)
+      context.fillStyle = '#ffffff';
       for (let i = 0; i < this.stars.length; i++) {
         const star = this.stars[i];
         if (star.layer <= 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const driftX = (now * 0.005 * star.layer);
-        const starX = (star.x + driftX) % width;
-        const finalX = starX < 0 ? starX + width : starX;
-        const s = star.size < 1.5 ? 2 : 3;
+        const finalX = star.x;
+        const twinkle = Math.sin(now * 0.0022 * star.twinkleSpeed + i * 1.7) * 0.25 + 0.75;
+        context.globalAlpha = twinkle;
+        const s = star.size < 1.4 ? 1.5 : 2;
         context.fillRect(finalX | 0, finalY | 0, s, s);
-        // Subtle cross-glint on radiant stars (zero allocations)
-        if (s >= 3 && (i & 3) === 0) {
-          context.fillRect((finalX - 2) | 0, (finalY + 1) | 0, 5, 1);
-          context.fillRect((finalX + 1) | 0, (finalY - 2) | 0, 1, 5);
-        }
       }
       context.globalAlpha = 1.0;
     }

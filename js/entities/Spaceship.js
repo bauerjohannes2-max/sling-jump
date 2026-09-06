@@ -455,29 +455,59 @@ class Spaceship {
         context.strokeRect(-4, -9, 8, 14);
         break;
       }
+      case 'dart':
       default: {
-        // Base Tier: PFEIL - Clean Agile Scout
+        // Delta Dart (Screenshot Skin 1): Deep navy body, crimson chevron, red spine, cyan core
+        context.fillStyle = '#0c1220';
+        context.strokeStyle = '#ffffff';
+        context.lineWidth = 2;
+
         context.beginPath();
-        context.moveTo(0, -15);
-        context.lineTo(11, 10);
-        context.lineTo(4, 7);
-        context.lineTo(0, 9);
-        context.lineTo(-4, 7);
-        context.lineTo(-11, 10);
+        context.moveTo(0, -18);
+        context.lineTo(14, 10);
+        context.lineTo(7, 13);
+        context.lineTo(0, 6);
+        context.lineTo(-7, 13);
+        context.lineTo(-14, 10);
         context.closePath();
         context.fill();
         context.stroke();
 
-        context.strokeStyle = glowColor;
-        context.lineWidth = 1.5;
+        // Inner crimson chevron
+        context.strokeStyle = '#e63946';
+        context.lineWidth = 1.6;
         context.beginPath();
-        context.moveTo(0, -10);
-        context.lineTo(0, 4);
+        context.moveTo(-10, 8);
+        context.lineTo(0, -11);
+        context.lineTo(10, 8);
         context.stroke();
 
-        context.fillStyle = glowColor;
+        // Red spearhead at nose
+        context.fillStyle = '#e63946';
         context.beginPath();
-        context.arc(0, -3, 2, 0, Math.PI * 2);
+        context.moveTo(0, -18);
+        context.lineTo(3.5, -11);
+        context.lineTo(0, -13.5);
+        context.lineTo(-3.5, -11);
+        context.closePath();
+        context.fill();
+
+        // Vertical red spine
+        context.beginPath();
+        context.moveTo(0, -13.5);
+        context.lineTo(0, 6);
+        context.stroke();
+
+        // Center cyan ring & white core
+        context.strokeStyle = '#00f0ff';
+        context.lineWidth = 1.4;
+        context.beginPath();
+        context.arc(0, -2, 3.2, 0, Math.PI * 2);
+        context.stroke();
+
+        context.fillStyle = '#ffffff';
+        context.beginPath();
+        context.arc(0, -2, 1.4, 0, Math.PI * 2);
         context.fill();
         break;
       }

@@ -53,101 +53,158 @@
     <div id="flash-overlay"></div>
 
     <!-- 1. MAIN MENU OVERLAY -->
-    <div class="state-overlay visible" id="menu-overlay">
-      <div class="menu-top-bar">
-        <div class="menu-top-left-col">
-          <button class="icon-nav-btn" id="btn-menu-quests" aria-label="Aufgaben">
-            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
-          </button>
+    <div class="state-overlay visible theme-crimson" id="menu-overlay">
+      <!-- 1. TOP HEADER BAR: Profile | Currencies | Quests & Settings -->
+      <header class="menu-top-bar">
+        <!-- Player Profile Capsule -->
+        <button class="icon-nav-btn profile-nav-btn" id="btn-menu-profile" aria-label="Profil" title="Spielerprofil">
+          <span class="profile-status-dot" title="Online"></span>
+          <svg class="icon-svg profile-nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span class="profile-nav-name" id="menu-profile-name">SPIELER</span>
+        </button>
+
+        <!-- Centered Currency Capsule (Gold Cores & Void Crystals) -->
+        <div class="currency-group currency-capsule" id="menu-currency-pill" title="Währungen">
+          <div class="currency-chip gold" title="Gold-Kerne">
+            <span class="icon">
+              <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;">
+                <circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle>
+                <polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon>
+                <circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle>
+              </svg>
+            </span>
+            <span class="value" id="menu-currency-val">0</span>
+          </div>
+          <div class="currency-chip crystal" title="Void-Kristalle">
+            <span class="icon">
+              <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;">
+                <polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon>
+                <polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon>
+                <polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon>
+              </svg>
+            </span>
+            <span class="value" id="menu-crystals-val">1</span>
+          </div>
+        </div>
+
+        <!-- Right Action Controls (Quests with alert pip, Settings) -->
+        <div class="menu-top-right-group">
+          <!-- Hidden/Compact FPS pill if enabled -->
           <div class="stat-badge fps menu-fps-pill" id="menu-fps-badge" style="display: none;">
             <span class="fps-indicator-dot"></span>
             <span id="menu-fps-val">60.0 FPS</span>
             <span id="menu-fps-dt">16.6ms</span>
           </div>
-        </div>
-        <div class="menu-top-right-group">
-          <button class="icon-nav-btn profile-nav-btn" id="btn-menu-profile" aria-label="Profil" title="Spielerprofil">
-            <span class="profile-status-dot" title="Online"></span>
-            <svg class="icon-svg profile-nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span class="profile-nav-name" id="menu-profile-name">SPIELER</span>
+
+          <button class="icon-nav-btn" id="btn-menu-quests" aria-label="Aufgaben" title="Missionen">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
           </button>
-          <button class="icon-nav-btn" id="btn-menu-leaderboard" aria-label="Bestenliste" title="Bestenliste">
-            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 21h8"></path>
-              <path d="M12 17v4"></path>
-              <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"></path>
-              <path d="M7 6H4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1"></path>
-              <path d="M17 6h3a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1"></path>
-            </svg>
-          </button>
-          <button class="icon-nav-btn" id="btn-menu-settings" aria-label="Einstellungen">
+          <button class="icon-nav-btn" id="btn-menu-settings" aria-label="Einstellungen" title="Einstellungen">
             <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           </button>
         </div>
+      </header>
+
+      <!-- Minimal Dropdown Toast Notification -->
+      <div id="quick-toast">INFO</div>
+
+      <!-- 2. CENTER STAGE: BOLD HERO TITLE & CENTERED INTERACTIVE SHIP HANGAR -->
+      <div class="center-stage">
+        <div class="brand-hero">
+          <span class="title-sling">SLING</span>
+          <span class="title-jump">JUMP</span>
+        </div>
+
+        <!-- The Interactive Centerpiece: Centered Ship with Swiping -->
+        <div class="hangar-stage-container" id="hangar-stage">
+          <!-- Outer Orbital Halos -->
+          <div class="orbit-halo"></div>
+          <div class="orbit-field"></div>
+
+          <!-- THE SHIP COMPLETELY IN THE CENTER -->
+          <div class="hero-centered-ship" id="ship-unit" title="Klicken zum Wechseln">
+            <div class="plasma-jets single-thruster" id="ship-plasma">
+              <div class="plasma-flame center"></div>
+              <div class="plasma-flame left" style="display: none;"></div>
+              <div class="plasma-flame right" style="display: none;"></div>
+            </div>
+            
+            <svg id="ship-svg" width="125" height="125" viewBox="-28 -28 56 56">
+              <!-- Rendered dynamically -->
+            </svg>
+          </div>
+
+          <!-- Interactive Buy Button for Locked Skins (e.g. Skin 2) -->
+          <button class="ship-buy-btn" id="btn-buy-ship" style="display: none;" title="Raumschiff mit Münzen freischalten">
+            <span class="buy-label">KAUFEN</span>
+            <span class="buy-price">500 <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:13px;height:13px;vertical-align:middle;margin-left:2px;"><circle cx="12" cy="12" r="9.5" fill="none" stroke="#fbbf24" stroke-width="2"></circle><polygon points="12,6 16.5,12 12,18 7.5,12" fill="#fbbf24"></polygon></svg></span>
+          </button>
+        </div>
+
+        <!-- Ship Selection Dots (2 Skins) -->
+        <div class="ship-dots">
+          <span class="s-dot active" id="dot-0"></span>
+          <span class="s-dot" id="dot-1"></span>
+        </div>
       </div>
 
-      <div class="menu-content">
-        <div class="game-title-container">
-          <div class="wordmark-ring-motif"></div>
-          <h1 class="game-title">SLING JUMP</h1>
-          <div class="game-subtitle">SPRINGE VON STERN ZU STERN</div>
-          <div class="app-version-tag">v4.7.1</div>
-        </div>
+      <!-- 3. BOTTOM CORE: MASSIVE PLAY CTA & REFINED FLOATING DOCK -->
+      <footer class="bottom-core">
+        <!-- Primary Action Button -->
+        <button class="btn-play-bold" id="btn-menu-play">
+          <span>START</span>
+        </button>
 
-        <div class="currency-group currency-capsule" id="menu-currency-pill" role="button" tabindex="0" title="Skins & Hangar">
-          <div class="currency-chip gold">
-            <span class="icon"><svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg></span>
-            <span class="value" id="menu-currency-val">0</span>
-          </div>
-          <div class="currency-chip crystal">
-            <span class="icon"><svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg></span>
-            <span class="value" id="menu-crystals-val">1</span>
-          </div>
-        </div>
-
-        <div class="menu-buttons">
-          <button class="btn-primary" id="btn-menu-play">
-            <span>SPIEL STARTEN</span>
-            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <!-- Minimalist Floating Dock: Tutorial, Stats, and Rank (with #42 badge) -->
+        <nav class="floating-dock">
+          <!-- Tutorial -->
+          <button class="dock-btn" id="btn-menu-tutorial" title="Tutorial">
+            <div class="dock-icon-wrap">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
+            </div>
+            <span>TUTORIAL</span>
           </button>
-          <div class="tile-row">
-            <button class="tile tile-tutorial" id="btn-menu-tutorial">
-              <div class="tile-icon-bubble">
-                <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-              </div>
-              <span class="tile-label">TUTORIAL</span>
-            </button>
-            <button class="tile tile-skins" id="btn-menu-shop">
-              <div class="tile-icon-bubble">
-                <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-              </div>
-              <span class="tile-label">SKINS</span>
-            </button>
-            <button class="tile tile-stats" id="btn-menu-stats">
-              <div class="tile-icon-bubble">
-                <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><line x1="3" y1="20" x2="21" y2="20"></line></svg>
-              </div>
-              <span class="tile-label">STATISTIKEN</span>
-            </button>
-          </div>
-        </div>
 
-        <!-- PWA Mobile Install Banner -->
-        <div class="pwa-install-banner" id="pwa-install-banner" style="display: none;">
-          <div class="pwa-banner-content">
-            <div class="pwa-banner-icon">
-              <svg class="icon-svg" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+          <!-- Stats -->
+          <button class="dock-btn" id="btn-menu-stats" title="Statistiken">
+            <div class="dock-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             </div>
-            <div class="pwa-banner-text">
-              <span class="pwa-banner-title">ALS APP INSTALLIEREN</span>
-              <span class="pwa-banner-desc" id="pwa-banner-desc">Vollbild ohne Browserleiste</span>
+            <span>STATS</span>
+          </button>
+
+          <!-- Rank (with persistent #42 badge) -->
+          <button class="dock-btn" id="btn-menu-leaderboard" title="Bestenliste">
+            <div class="dock-icon-wrap">
+              <span class="rank-badge-chip" id="rank-pill-badge">#42</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 21h8"></path>
+                <path d="M12 17v4"></path>
+                <path d="M7 4h10v6a5 5 0 0 1-10 0V4z"></path>
+                <path d="M7 6H4a2 2 0 0 0-2 2v1a3 3 0 0 0 3 3h2"></path>
+                <path d="M17 6h3a2 2 0 0 1 2 2v1a3 3 0 0 1-3 3h-2"></path>
+              </svg>
             </div>
-            <button class="pwa-install-btn" id="btn-pwa-install">INSTALLIEREN</button>
-            <button class="pwa-dismiss-btn" id="btn-pwa-dismiss" aria-label="Schließen">
-              <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
+            <span>RANK</span>
+          </button>
+        </nav>
+      </footer>
+
+      <!-- PWA Mobile Install Banner -->
+      <div class="pwa-install-banner" id="pwa-install-banner" style="display: none;">
+        <div class="pwa-banner-content">
+          <div class="pwa-banner-icon">
+            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
           </div>
+          <div class="pwa-banner-text">
+            <span class="pwa-banner-title">ALS APP INSTALLIEREN</span>
+            <span class="pwa-banner-desc" id="pwa-banner-desc">Vollbild ohne Browserleiste</span>
+          </div>
+          <button class="pwa-install-btn" id="btn-pwa-install">INSTALLIEREN</button>
+          <button class="pwa-dismiss-btn" id="btn-pwa-dismiss" aria-label="Schließen">
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
       </div>
     </div>
@@ -212,120 +269,140 @@
       </div>
     </div>
 
-    <!-- 4. GAME OVER MODAL -->
-    <div class="modal-overlay" id="gameover-modal">
-      <div class="modal-card gameover-card">
-        <!-- Status Header (Flight Over or New Record) -->
-        <div class="gameover-header-row">
-          <div class="new-record-indicator" id="new-record-badge" style="display:none;">
-            <svg class="icon-svg record-star-icon" viewBox="0 0 24 24" style="width:13px;height:13px;vertical-align:middle;fill:#fbbf24;"><polygon points="12,2 15,8.5 22,9.5 17,14.5 18.5,21.5 12,18 5.5,21.5 7,14.5 2,9.5 9,8.5"></polygon></svg>
-            <span>NEUER REKORD</span>
-          </div>
-          <div class="flight-ended-indicator" id="flight-ended-badge">
-            <span>FLUG BEENDET</span>
-          </div>
-        </div>
-        
-        <!-- Hero Altitude / Score Display -->
-        <div class="gameover-hero-score">
-          <div class="hero-altitude" id="final-altitude"><span class="hero-altitude-val">0</span><span class="hero-altitude-unit">m</span></div>
-        </div>
+    <!-- 4. GAME OVER MODAL (FLIGHT DEBRIEF REDESIGN) -->
+    <div class="modal-overlay gameover-screen-overlay" id="gameover-modal">
+      <div class="debrief-container" id="debrief-card">
+        <!-- Backdrop -->
+        <div class="debrief-stars"></div>
+        <div class="debrief-stars2"></div>
+        <div class="debrief-diag"></div>
 
-        <!-- Highscore Row (Clean, No Background Capsule) -->
-        <div class="gameover-highscore-row">
-          <svg class="icon-svg highscore-trophy-icon" viewBox="0 0 24 24" style="width:13px;height:13px;vertical-align:middle;"><path d="M6 3h12v3c0 3.3-2.7 6-6 6s-6-2.7-6-6V3z" fill="none" stroke="#94a3b8" stroke-width="1.8"></path><path d="M6 5H3v3c0 2 1.5 3.5 3 3.8V5zM18 5h3v3c0 2-1.5 3.5-3 3.8V5z" fill="none" stroke="#94a3b8" stroke-width="1.5"></path><path d="M12 12v5M9 21h6M10 17h4" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"></path></svg>
-          <span class="highscore-label">HIGHSCORE:</span>
-          <span class="highscore-val" id="final-best">0 m</span>
-        </div>
+        <!-- Flown Trajectory SVG (Animated) -->
+        <svg class="debrief-trace" viewBox="0 0 120 932" preserveAspectRatio="none" fill="none">
+          <defs>
+            <linearGradient id="debrief-tg" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#38e8ff" stop-opacity=".05"/>
+              <stop offset=".55" stop-color="#38e8ff" stop-opacity=".75"/>
+              <stop offset="1" stop-color="#ff2d55"/>
+            </linearGradient>
+          </defs>
+          <path class="debrief-trace-path" stroke="url(#debrief-tg)" stroke-width="2"
+            d="M18 910 C 60 840, -6 780, 30 712 C 66 646, 8 596, 42 528 C 74 464, 14 414, 46 350 C 72 300, 30 296, 34 280"/>
+          <g class="debrief-crash-dot" style="transform-origin:34px 280px">
+            <circle cx="34" cy="280" r="16" fill="rgba(255,45,85,.12)"/>
+            <circle cx="34" cy="280" r="8.5" fill="none" stroke="#ff2d55" stroke-width="2"/>
+            <circle cx="34" cy="280" r="3" fill="#fff"/>
+            <path d="M22 268l24 24M46 268l-24 24" stroke="rgba(255,45,85,.55)" stroke-width="1.4"/>
+          </g>
+        </svg>
 
-        <!-- Rewards Stats (Clean, No Background) -->
-        <div class="gameover-rewards-row">
-          <div class="reward-stat" id="reward-stat-orbs" title="Gesammelte Coins">
-            <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><circle cx="12" cy="12" r="9.5" fill="none" stroke="#fbbf24" stroke-width="1.8"></circle><polygon points="12,6 16.5,12 12,18 7.5,12" fill="#fbbf24"></polygon></svg>
-            <span class="reward-val" id="final-orbs">+0</span>
+        <!-- Left Telemetry Rail -->
+        <aside class="debrief-rail">
+          <div class="debrief-tick"><i></i><span id="debrief-tick-top">800</span></div>
+          <div class="debrief-tick hi"><i></i><span id="debrief-tick-hi">679</span><span class="debrief-star-ico">★</span></div>
+          <div class="debrief-tick crash"><i></i><span id="debrief-tick-crash">259</span></div>
+          <div class="debrief-tick"><i></i><span id="debrief-tick-mid">150</span></div>
+          <div class="debrief-tick"><i></i>000</div>
+        </aside>
+
+        <!-- Debrief Content Wrap -->
+        <div class="debrief-wrap">
+          <div class="debrief-stamp"><b></b>SIGNAL VERLOREN</div>
+
+          <div class="debrief-scoreblock">
+            <div class="debrief-label">Flugdistanz</div>
+            <div class="debrief-score" id="final-altitude">
+              <span class="debrief-num" id="final-altitude-val">259</span>
+              <span class="debrief-unit">m</span>
+            </div>
           </div>
-          <div class="reward-stat" id="reward-stat-crystals" title="Gesammelte Hyper-Kristalle">
-            <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.25)" stroke="#d946ef" stroke-width="1.8" stroke-linejoin="round"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#d946ef"></polygon></svg>
-            <span class="reward-val" id="final-crystals">+0</span>
+
+          <div class="debrief-chase">
+            <div class="debrief-chase-row">
+              <span>REKORDJAGD</span>
+              <span>BEST <b id="final-best">679 m</b></span>
+            </div>
+            <div class="debrief-bar"><span id="debrief-bar-fill"></span></div>
+            <div class="debrief-gapline" id="debrief-gap-text">Nur <em id="debrief-gap-val">420 m</em> bis zum neuen Rekord.</div>
           </div>
-        </div>
 
-        <!-- Compact Modern Revive Action (Second Chance) -->
-        <div class="revive-compact-container" id="revive-box">
-          <button class="btn-revive" id="btn-gameover-revive">
-            <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:15px;height:15px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="currentColor"></polygon></svg>
-            <span id="revive-btn-text">WIEDERBELEBEN</span>
-            <span class="revive-cost-tag" id="revive-cost-tag">1 <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:11px;height:11px;vertical-align:middle;margin-left:2px;display:inline-block;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.3)" stroke="#d946ef" stroke-width="1.8" stroke-linejoin="round"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#d946ef"></polygon></svg></span>
-          </button>
-          <div class="revive-subtext" id="revive-status-text">1x pro Flug</div>
-        </div>
+          <div class="debrief-telemetry">
+            <div class="debrief-cell">
+              <div class="debrief-k">Grapples</div>
+              <div class="debrief-v" id="debrief-stat-grapples">14</div>
+            </div>
+            <div class="debrief-cell">
+              <div class="debrief-k">Bester Swing</div>
+              <div class="debrief-v"><span id="debrief-stat-swing">38</span><small>m</small></div>
+            </div>
+            <div class="debrief-cell">
+              <div class="debrief-k">Flugzeit</div>
+              <div class="debrief-v" id="debrief-stat-time">0:41</div>
+            </div>
+          </div>
 
-        <!-- Primary Replay & Secondary Actions -->
-        <div class="modal-button-stack">
-          <button class="btn-primary btn-replay" id="btn-gameover-restart">
-            <svg class="icon-svg replay-icon" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:middle;"><path d="M1 4v6h6M23 20v-6h-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            <span>NOCHMAL SPIELEN</span>
-          </button>
-          <div class="gameover-secondary-row">
-            <button class="btn-secondary btn-secondary-compact" id="btn-gameover-shop">
-              <svg class="icon-svg btn-sub-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-              <span>SKINS</span>
+          <div class="debrief-rewards">
+            <div class="debrief-rw gold" id="reward-stat-orbs">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffc93c"/><circle cx="12" cy="12" r="7" fill="none" stroke="#a86e00" stroke-width="1.6"/><path d="M12 8l3 4-3 4-3-4z" fill="#a86e00"/></svg>
+              <div>
+                <div class="t" id="final-orbs">+1</div>
+                <div class="s">MÜNZEN</div>
+              </div>
+            </div>
+            <div class="debrief-rw dim" id="reward-stat-crystals">
+              <svg viewBox="0 0 24 24" fill="none" opacity=".45"><path d="M12 2l7 6-7 14L5 8z" fill="#b366ff"/><path d="M12 2l7 6H5z" fill="#d9a6ff"/></svg>
+              <div>
+                <div class="t" id="final-crystals">+0</div>
+                <div class="s">KRISTALLE</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="debrief-actions">
+            <!-- Revive (Second Chance) -->
+            <button class="debrief-btn revive" id="btn-gameover-revive">
+              <div class="lft">
+                <div class="ico">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#d9a6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v6c0 4-3 6.5-7 8-4-1.5-7-4-7-8V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>
+                </div>
+                <div>
+                  <div class="ttl" id="revive-btn-text">WEITERFLIEGEN</div>
+                  <div class="sub" id="revive-status-text">1× PRO FLUG · BEI <span id="revive-alt-display">259</span> M STARTEN</div>
+                </div>
+              </div>
+              <div class="cost" id="revive-cost-tag">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 6-7 14L5 8z" fill="#e6c8ff"/><path d="M12 2l7 6H5z" fill="#fff"/></svg>
+                1
+              </div>
             </button>
-            <button class="btn-secondary btn-secondary-compact" id="btn-gameover-menu">
-              <svg class="icon-svg btn-sub-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" stroke-width="1.8"></polyline></svg>
-              <span>HAUPTMENÜ</span>
+
+            <!-- Retry (Primary CTA) -->
+            <button class="debrief-btn retry" id="btn-gameover-restart">
+              <div class="ttl">NEUSTART</div>
+              <div class="kbd">SPACE</div>
             </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- 5. SKINS / SHOP MODAL -->
-    <div class="modal-overlay" id="shop-modal">
-      <div class="modal-card hangar-card" style="max-width: 440px; text-align: center; position: relative;">
-        <button class="modal-close-x" id="btn-shop-close" aria-label="Schließen">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-        <div class="hangar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-right: 36px;">
-          <div>
-            <div class="modal-title" style="margin-bottom: 2px; text-align: left;">SKINS</div>
-            <div style="font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-align: left;">HANGAR &bull; RAUMSCHIFFE</div>
-          </div>
-          <div class="currency-group">
-            <div class="currency-badge" title="Coins">
-              <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg>
-              <span id="shop-currency-val">0</span>
-            </div>
-            <div class="currency-badge crystal-badge" title="Hyper-Kristalle">
-              <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg>
-              <span id="shop-crystals-val">1</span>
+            <!-- Secondary Ghost Row -->
+            <div class="debrief-srow">
+              <button class="debrief-ghost" id="btn-gameover-menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5.5 9.5V20h13V9.5"/></svg>
+                MENÜ
+              </button>
+              <button class="debrief-ghost" id="btn-gameover-leaderboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 5H4a3 3 0 003 4M17 5h3a3 3 0 01-3 4"/></svg>
+                RANG
+              </button>
+              <button class="debrief-ghost" id="btn-gameover-share">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+                TEILEN
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Central Hero Preview Stage -->
-        <div class="hangar-hero-box" style="position: relative; background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 14px; padding: 14px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center;">
-          <canvas id="hangar-preview-canvas" width="280" height="190" style="border-radius: 10px; max-width: 100%; height: auto;"></canvas>
-          
-          <div style="margin-top: 10px; width: 100%;">
-            <div class="hangar-item-title" id="shop-item-title" style="font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 900; letter-spacing: 2px; color: #fff;">PFEIL</div>
-            <div class="hangar-item-desc" id="shop-item-desc" style="font-size: 12px; color: #94a3b8; margin: 4px 0 10px 0;">Wendiger Starter-Aufklärer mit doppelter Impulsdüse.</div>
-            <div id="shop-status-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 16px; color: #38bdf8; font-size: 10px; font-weight: 800; letter-spacing: 1px;">
-              <span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 6px #38bdf8;"></span>
-              AKTIV IM EINSATZ
-            </div>
-          </div>
-        </div>
-
-        <!-- Future Models Teaser -->
-        <div style="padding: 12px 14px; background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 10px; margin-bottom: 8px; text-align: center;">
-          <div style="font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">WEITERE MODELLE IN ENTWICKLUNG</div>
-          <div style="font-size: 11px; color: #475569; margin-top: 2px;">Neue Raumschiff-Designs folgen in kommenden Updates.</div>
-        </div>
-
-        <!-- Hidden compat anchors for JS listeners -->
-        <div id="shop-grid" style="display: none;"></div>
-        <button id="shop-action-btn" style="display: none;"></button>
+        <div class="debrief-scan"></div>
+        <div class="debrief-vig"></div>
       </div>
     </div>
 
@@ -384,8 +461,8 @@
         </button>
         <div class="modal-title" style="margin-bottom:14px;">STATISTIKEN</div>
         <div class="stats-grid">
-          <div class="stat-box stat-box-hero" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border-color: rgba(56, 189, 248, 0.3); padding: 12px 14px;">
-            <div class="stat-box-label" style="color: #38bdf8;">Persönlicher Rekord</div>
+          <div class="stat-box stat-box-hero" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border-color: rgba(225, 29, 72, 0.4); padding: 12px 14px;">
+            <div class="stat-box-label" style="color: var(--accent-crimson);">Persönlicher Rekord</div>
             <div class="stat-box-val" id="stat-high-score" style="font-size: 22px; color: #f8fafc;">0 m</div>
           </div>
           <div class="stat-box">
@@ -419,15 +496,15 @@
         <div class="settings-list">
           <div class="setting-row">
             <span class="setting-label">Audio & Musik</span>
-            <button class="btn-toggle" id="btn-audio-toggle" style="padding: 6px 14px; font-size: 11px; font-weight: 800; letter-spacing: 1px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15); color: #38bdf8; transition: all 0.2s ease;">AN</button>
+            <button class="btn-toggle" id="btn-audio-toggle">AN</button>
           </div>
           <div class="setting-row">
             <span class="setting-label">FPS-Anzeige</span>
-            <button class="btn-toggle" id="btn-fps-toggle" style="padding: 6px 14px; font-size: 11px; font-weight: 800; letter-spacing: 1px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15); color: #38bdf8; transition: all 0.2s ease;">AUS</button>
+            <button class="btn-toggle" id="btn-fps-toggle">AUS</button>
           </div>
           <div class="setting-row">
             <span class="setting-label">Performance-Modus</span>
-            <button class="btn-toggle" id="btn-perf-toggle" style="padding: 6px 14px; font-size: 11px; font-weight: 800; letter-spacing: 1px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15); color: #38bdf8; transition: all 0.2s ease;">AUS</button>
+            <button class="btn-toggle" id="btn-perf-toggle">AUS</button>
           </div>
         </div>
 
@@ -451,16 +528,16 @@
           <div class="modal-title" style="margin-bottom: 14px; font-size: 22px; letter-spacing: 2px;">STEUERUNG</div>
 
           <!-- Interactive Dynamic Canvas for Tutorial (Taller View, Zero in-video text) -->
-          <div class="tutorial-visual-box" style="margin: 12px auto; width: 100%; max-width: 360px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+          <div class="tutorial-visual-box" style="margin: 12px auto; width: 100%; max-width: 360px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(225, 29, 72, 0.35); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
             <canvas id="tut-sling-canvas" width="360" height="220" style="width: 100%; max-width: 360px; height: auto; aspect-ratio: 360 / 220; display: block; border-radius: 12px;"></canvas>
           </div>
 
           <div class="tutorial-desc-box" style="text-align: left; background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;">
             <p style="font-size: 13px; color: #e2e8f0; line-height: 1.55; margin: 0 0 8px 0;">
-              <strong style="color: #38bdf8;">GEDRÜCKT HALTEN:</strong> Halte den Bildschirm gedrückt, um dich am Kreis einzuhaken und Schwung aufzubauen.
+              <strong style="color: var(--accent-crimson);">GEDRÜCKT HALTEN:</strong> Halte den Bildschirm gedrückt, um dich am Kreis einzuhaken und Schwung aufzubauen.
             </p>
             <p style="font-size: 13px; color: #e2e8f0; line-height: 1.55; margin: 0;">
-              <strong style="color: #38bdf8;">LOSLASSEN:</strong> Im gewünschten Moment loslassen, um in Blickrichtung nach vorne katapultiert zu werden.
+              <strong style="color: var(--accent-crimson);">LOSLASSEN:</strong> Im gewünschten Moment loslassen, um in Blickrichtung nach vorne katapultiert zu werden.
             </p>
           </div>
 
@@ -482,8 +559,8 @@
         <div class="modal-title" style="margin-bottom: 16px; font-size: 20px; letter-spacing: 2px;">PROFIL</div>
 
         <!-- Sleek Avatar Circle -->
-        <div class="profile-avatar-container" style="position: relative; width: 62px; height: 62px; margin: 0 auto 12px; border-radius: 50%; background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1.5px solid rgba(56, 189, 248, 0.5); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 24px rgba(56, 189, 248, 0.25);">
-          <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: none; stroke: #38bdf8; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <div class="profile-avatar-container" style="position: relative; width: 62px; height: 62px; margin: 0 auto 12px; border-radius: 50%; background: radial-gradient(circle, rgba(225, 29, 72, 0.22) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1.5px solid rgba(225, 29, 72, 0.5); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 24px var(--accent-crimson-glow);">
+          <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: none; stroke: var(--accent-crimson); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </div>
 
         <!-- Hero Gamer Tag & User ID Pill -->
@@ -491,7 +568,7 @@
         <div class="profile-id-pill" id="profile-user-id-badge" style="display: inline-block; font-size: 10px; font-family: monospace; color: #94a3b8; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 3px 8px; margin-bottom: 14px; letter-spacing: 0.5px;">ID: usr_...</div>
 
         <!-- Name Change Restriction Info Banner -->
-        <div id="profile-change-notice" style="font-size: 10px; font-weight: 700; color: #38bdf8; letter-spacing: 0.5px; margin-bottom: 12px; padding: 4px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2);">
+        <div id="profile-change-notice" style="font-size: 10px; font-weight: 700; color: var(--accent-crimson); letter-spacing: 0.5px; margin-bottom: 12px; padding: 4px 8px; border-radius: 6px; background: rgba(225, 29, 72, 0.08); border: 1px solid rgba(225, 29, 72, 0.25);">
           1x NAMENSWECHSEL VERFÜGBAR
         </div>
 

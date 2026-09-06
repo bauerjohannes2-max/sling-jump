@@ -21,9 +21,7 @@ class GameEngine {
     this.input = new InputManager();
     this.world = new WorldManager(this.storage);
     this.shop = new ShopManager(this.storage, this.audio, this.world);
-    this.missions = new MissionManager(this.storage, this.audio, (q) => {
-      this.ui.showQuestToast(q);
-    });
+    this.missions = new MissionManager(this.storage, this.audio, null);
 
     this.state = new StateManager((newState, oldState, data) => {
       this.handleStateTransition(newState, oldState, data);
@@ -47,6 +45,7 @@ class GameEngine {
     this.maxAltitudeMeters = 0;
     this.runCores = 0;
     this.runSlingshots = 0;
+    this.runBestSwingMeters = 0;
     this.runNearMisses = 0;
     this.recordBrokenThisRun = false;
     this.gameStarted = false;
@@ -230,6 +229,7 @@ class GameEngine {
     this.hasRevivedThisRun = false;
     this.reviveCheckpoint = null;
     this.runSlingshots = 0;
+    this.runBestSwingMeters = 0;
     this.runNearMisses = 0;
     this.slingshotCombo = 0;
     this.lastSlingshotTime = 0;
@@ -382,6 +382,12 @@ class GameEngine {
         },
         this.slingshotCombo
       );
+
+      if (this.player) {
+        const launchSpd = Math.hypot(this.player.vx, this.player.vy);
+        const estSwing = Math.max(14, Math.round((launchSpd / 620) * 38));
+        this.runBestSwingMeters = Math.max(this.runBestSwingMeters, estSwing);
+      }
     }
   }
 
@@ -444,12 +450,20 @@ class GameEngine {
       });
     }
 
+    const durationSec = Math.max(1, Math.round((Date.now() - (this.runStartTime || Date.now())) / 1000));
+    const mins = Math.floor(durationSec / 60);
+    const secs = durationSec % 60;
+    const flightTimeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
     setTimeout(() => {
       this.state.changeState(StateManager.STATES.GAME_OVER, {
         altitude: this.maxAltitudeMeters,
         cores: this.runCores,
         crystals: this.runCrystals,
         nearMisses: this.runNearMisses,
+        grapples: this.runSlingshots,
+        bestSwing: this.runBestSwingMeters || (this.maxAltitudeMeters > 0 ? Math.min(this.maxAltitudeMeters, 24) : 0),
+        flightTime: flightTimeStr,
         totalScore: runResult.totalScore,
         isNewRecord: runResult.isNewHighScore,
         canRevive: !this.hasRevivedThisRun
@@ -895,8 +909,15 @@ class GameEngine {
 
     const theme = this.world.currentTheme;
 
-    // 2. Nodes & Orbs (Suppressed in Main Menu to prevent loose rings overlapping buttons)
-    if (!this.state.is(StateManager.STATES.MENU)) {
+    // 2. Nodes & Orbs (Suppressed in Main Menu and Menu Modal Tabs)
+    const isMenuScreen = this.state.is(StateManager.STATES.MENU) ||
+      this.state.is(StateManager.STATES.SETTINGS) ||
+      this.state.is(StateManager.STATES.STATS) ||
+      this.state.is(StateManager.STATES.LEADERBOARD) ||
+      this.state.is(StateManager.STATES.QUESTS) ||
+      this.state.is(StateManager.STATES.SHOP);
+
+    if (!isMenuScreen) {
       for (const orb of this.world.energyOrbs) {
         orb.draw(this.ctx, this.cameraY, this.height, theme);
       }

@@ -1,35 +1,36 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 5.9.2026, 20:54:46  
-> **Modus:** Selektiv (`01`)  
+> **Laufzeit:** 6.9.2026, 10:46:13  
+> **Modus:** Selektiv (`10`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
-> **Frisch erfasste Screenshots in diesem Lauf:** 1  
+> **Frisch erfasste Screenshots in diesem Lauf:** 2  
 > **Garantierte Frische:** Alle unten aufgeführten Dateien wurden in diesem Testlauf frisch erzeugt.
 
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `01_main_menu.png` | Main Menu | 20:54:46 | 719 KB | `05803f4750c8bcff` |
+| `10_game_over.png` | Game Over Screen | 10:46:11 | 973 KB | `9e8ec6566cb9eb5e` |
+| `10b_revived_gameplay.png` | Revived Gameplay | 10:46:12 | 432 KB | `27ee8a979a432ecd` |
 
 
 ### Gesamter Screenshot-Bestand (19 Dateien)
 | Datei | Letzte Erfassung | Dateigröße |
 | :--- | :--- | :--- |
-| `02_hangar_skins.png` | 10:45:52 | 291 KB |
-| `04_hub_leaderboard.png` | 10:45:54 | 180 KB |
-| `05_hub_quests.png` | 10:45:56 | 243 KB |
-| `05b_hub_quests_claimed.png` | 10:45:57 | 242 KB |
-| `05c_hub_quests_scrolled.png` | 10:45:58 | 239 KB |
-| `06_hub_stats.png` | 10:46:00 | 213 KB |
-| `06b_pilot_profile.png` | 10:46:01 | 148 KB |
-| `09_pause_modal.png` | 10:46:08 | 211 KB |
-| `07_settings.png` | 11:08:31 | 115 KB |
-| `13_tutorial_modal.png` | 18:59:11 | 283 KB |
-| `08_gameplay_hud.png` | 18:59:12 | 601 KB |
-| `08b_gameplay_fps_hud.png` | 18:59:13 | 591 KB |
-| `10_game_over.png` | 18:59:14 | 507 KB |
-| `10b_revived_gameplay.png` | 18:59:15 | 662 KB |
-| `11_mobile_responsive.png` | 18:59:16 | 684 KB |
-| `12_mobile_skins.png` | 18:59:16 | 285 KB |
-| `14_dashboard_locked.png` | 18:59:17 | 48 KB |
-| `14b_dashboard_unlocked.png` | 18:59:18 | 240 KB |
-| `01_main_menu.png` | 20:54:46 | 719 KB |
+| `06_hub_stats.png` | 23:45:04 | 269 KB |
+| `06b_pilot_profile.png` | 23:45:06 | 262 KB |
+| `07_settings.png` | 23:45:07 | 236 KB |
+| `08_gameplay_hud.png` | 23:45:10 | 638 KB |
+| `08b_gameplay_fps_hud.png` | 23:45:10 | 629 KB |
+| `09_pause_modal.png` | 23:45:11 | 190 KB |
+| `04_hub_leaderboard.png` | 10:14:28 | 263 KB |
+| `01_main_menu.png` | 10:44:45 | 239 KB |
+| `02_hangar_skins.png` | 10:44:46 | 255 KB |
+| `05_hub_quests.png` | 10:44:48 | 293 KB |
+| `05b_hub_quests_claimed.png` | 10:44:48 | 270 KB |
+| `05c_hub_quests_scrolled.png` | 10:44:49 | 270 KB |
+| `13_tutorial_modal.png` | 10:44:50 | 345 KB |
+| `11_mobile_responsive.png` | 10:44:55 | 199 KB |
+| `12_mobile_skins.png` | 10:44:56 | 129 KB |
+| `14_dashboard_locked.png` | 10:44:57 | 48 KB |
+| `14b_dashboard_unlocked.png` | 10:44:58 | 241 KB |
+| `10_game_over.png` | 10:46:11 | 973 KB |
+| `10b_revived_gameplay.png` | 10:46:12 | 432 KB |

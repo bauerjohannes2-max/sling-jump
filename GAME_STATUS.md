@@ -1,9 +1,9 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC50 - v4.7.1 - Live Dynamic High-Precision FPS Telemetry Engine)  
+> **Status:** Release Candidate (RC55 - v5.4.0 - Silent Quest Claim, Locked Skin 2 Coin Purchase, Deep Black Void & Cascading Flight Debrief Death Screen)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
-> **Letzte Aktualisierung:** 05.09.2026  
+> **Letzte Aktualisierung:** 06.09.2026  
 > **Lauffaehigkeit:** 24/7 Online via GitHub Pages Edge CDN, oder lokal via Direkt-Doppelklick (`file:///`) / `npm start`  
 > **Test-Runner:** Playwright Test-Suite via `npm test` (`scripts/playwright_runner.js`), selective tests via `node scripts/playwright_runner.js <screen>`  
 > **Vertriebs- & Hosting-Dokumentation:** Siehe [`DISTRIBUTION.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/DISTRIBUTION.md)
@@ -19,7 +19,7 @@
 | `npm run share` | **Dev-Tunnel & QR-Code** | Gibt den permanenten Link samt ASCII-QR-Code im Terminal aus und startet optional einen temporären Entwickler-Tunnel. |
 | `npm test` | **Automatisierte Playwright Suite** | Bereinigt vorab alle alten Screenshots, erzeugt 18 frische Screenshots, neutralisiert NTFS-Tunneling und garantiert 0 Konsolenfehler. |
 | `npm run test:fps` | **Automatisierter Gameplay FPS Benchmark** | Misst 8 Sekunden Real-Time Autopilot-Flug, analysiert Frame-Deltas, JS-Budget und Hitch-Statistiken. |
-| `node scripts/playwright_runner.js <screen>` | **Selektiver Test (Token-Schonung)** | Führt nur die relevanten Testschritte aus (z.B. `10` für Game Over) und erzeugt gezielt frische Screenshots bei minimalem Token-Verbrauch. |
+| `node scripts/playwright_runner.js <screen>` | **Selektiver Test (Token-Schonung)** | Führt nur die relevanten Testschritte aus (z.B. `01` für Hauptmenü) und erzeugt gezielt frische Screenshots bei minimalem Token-Verbrauch. |
 
 ---
 
@@ -55,6 +55,115 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v5.4.0 (06.09.2026) - Silent Quest Claim, Locked Skin 2 Coin Purchase, Deep Black Void & Cascading Flight Debrief Death Screen
+* **1. Stille Münzen-Einlösung bei Aufgaben (`MissionManager.js`, `GameEngine.js`, `UIManager.js`):**
+  * Das störende Overlay-Popup (`#quest-toast`) beim Einsammeln von Aufgaben-Belohnungen wurde vollständig entfernt.
+  * Beim Klick auf "BELOHNUNG EINSAMMELN" wandelt sich die Schaltfläche unmittelbar und lautlos in "EINGELÖST", die verdienten Münzen werden dem Spielerkonto gutgeschrieben und im HUD live aktualisiert – ohne störende Popups.
+* **2. Unsichtbarer / Gesperrter Skin 2 mit Münzkauf (`Constants.js`, `StorageService.js`, `main.js`, `style.css`):**
+  * Skin 2 (`phoenix`) ist standardmäßig gesperrt (`unlocked: false`, `cost: 500` Münzen).
+  * Im Hangar-Karussell wird für den gesperrten Phönix-Gleiter eine abgedunkelte Stealth-Silhouette mit geheimnisvollem Zielkreuz und sanft pulsierendem Sperr-Glow angezeigt – ohne Triebwerksflammen oder sichtbare Rumpfdetails.
+  * Unter dem gesperrten Schiff erscheint der goldene Button `KAUFEN 500 [MÜNZE]`. Bei Klick werden 500 Münzen abgebucht, der Skin dauerhaft freigeschaltet, ein festlicher Audio-Jingle ausgelöst und der fertige Phönix mit Doppel-Plasmatriebwerken enthüllt.
+* **3. Tiefschwarzer Hauptmenü-Hintergrund (`WorldManager.js`, `style.css`):**
+  * Sämtliche diffusen radialen Nebel-Gradienten (`gradNebula1` & `gradNebula2`), die in der oberen rechten Ecke wie ein weißer Pinselstrich wirkten, wurden restlos aus `drawBackground()` entfernt.
+  * Farbverlauf auf reines Kosmos-Tiefschwarz (`#020306` bis `#000000`) gesetzt.
+  * Overlay-Deckkraft auf 95% Tiefschwarz (`rgba(2, 3, 7, 0.95)`) harmonisiert.
+* **4. Vollständiges Redesign des Death-Screens (Flight Debrief) (`index.html`, `style.css`, `GameEngine.js`, `UIManager.js`, `main.js`):**
+  * **Exakte Vorlage:** Basierend auf der bereitgestellten UI-Referenz und Markup ohne störendes Hintergrund-Raster und ohne die 5 feinen Linien oben links.
+  * **Kaskadierende Einblende-Animation:** Zuerst zeichnet sich die geflogene Flugbahn (`debrief-trace-path`) von unten nach oben empor (0.2s–1.4s), gefolgt vom Crash-Punkt (1.3s). Anschließend kaskadieren die Texte und Karten sanft von oben nach unten ein (Signal verloren -> Flugdistanz -> Rekordjagd -> Telemetrie-Zellen -> Belohnungen -> Action-Buttons).
+  * **Echtzeit-Telemetrie:** Erfassung und Anzeige von `GRAPPLES`, `BESTER SWING` (Meters) und `FLUGZEIT` (M:SS).
+  * **Dynamische Telemetrie-Schiene:** Höhen-Ticks auf der linken Leitschiene spiegeln die erreichte Flughöhe und den Rekord wider.
+  * **Interaktive Buttons:**
+    - `WEITERFLIEGEN`: Sofortige Wiederbelebung für 1 Hyper-Kristall mit Angabe der Starthöhe.
+    - `NEUSTART` (`SPACE`): Direkter neuer Flug.
+    - Ghost-Trio: `MENÜ`, `RANG` (öffnet Bestenliste) und `TEILEN` (kopiert Flugleistung in die Zwischenablage / System-Share).
+* **5. Playwright Visual Suite & FPS Benchmark Verifikation:**
+  * Selective Playwright Visual Suite (`01, 02, 05, 10, 10b, 11`) mit 0 Konsolenfehlern und 0 Ausnahmen bestanden.
+  * Real-Time Gameplay FPS Benchmark: 120.1 FPS im Durchschnitt, 0.25 ms JS-Frame-Budget (Ziel <= 5.0 ms), 0 Hitches > 25 ms.
+
+### v5.3.0 (06.09.2026) - Custom Delta Dart Skin 1, Phoenix Skin 2, Arrowless Hangar, Enlarged Title & Clean Starfield
+* **1. Custom Delta Dart Skin 1 & Phoenix Skin 2 (`main.js`, `Spaceship.js`, `Constants.js`):**
+  * **Skin 1 (Delta Dart):** Exakte Umsetzung nach Screenshot-Vorgabe: markante weiße Außenkontur, tiefdunkler Navy-Rumpf (`#0c1220`), inneres Crimson-Chevron entlang der Tragflächen, roter Speerkopf an der Bugspitze, vertikaler roter Kiel/Rückgrat, zentraler Cyan-Reaktorring mit massivem weißem Kern und zentrierter Einzel-Plasmastrahl.
+  * **Skin 2 (Phönix):** Zweiflügeliger Raumgleiter mit geschwungener Doppelklinge und symmetrischen Zwillings-Plasmatriebwerken.
+  * **Systemweite Einheitlichkeit:** Sowohl in der interaktiven SVG-Hangar-Darstellung im Hauptmenü als auch im 2D-Canvas im aktiven Flug (`renderShipModel`) identisch gerendert.
+* **2. Pfeillose Hangar-Bedienung (`index.html`, `style.css`, `main.js`):**
+  * Seitliche Pfeil-Buttons (`#btn-ship-prev`, `#btn-ship-next`) restlos aus dem DOM, Stylesheet und Event-System entfernt.
+  * Umschaltung erfolgt barrierefrei und intuitiv durch Klick/Tap direkt auf das Schiff (`#ship-unit`) oder über die minimalistischen Kapsel-Indikatoren (`#dot-0`, `#dot-1`).
+* **3. Vergrößerter Titel "SLING JUMP" & Hangar-Harmonisierung (`style.css`):**
+  * `SLING JUMP` Titel auf 54px mit 12px Letter-Spacing vergrößert (Mobile: 44px, 9px Spacing) für dominanten Markenauftritt.
+  * Hangar-Stage dezent auf 320x300px (Orbit-Halo: 280px, Orbit-Field: 195px, Schiff: 140px) verkleinert für vollendete visuelle Ausgewogenheit.
+* **4. Hintergrund-Raster (Grid) restlos entfernt (`WorldManager.js`, `Constants.js`):**
+  * Prozedurale Parallax-Cybergrid-Schleife vollständig aus `WorldManager.js` entfernt.
+  * `gridColor` aus allen 4 Farbthemen in `Constants.js` getilgt.
+* **5. Sternenfeld-Bewegung überarbeitet (`WorldManager.js`):**
+  * Schräge Drift-Formel (`driftX`) eliminiert; Sterne bewegen sich rein vertikal synchron zur Kamera.
+  * Grobe 5px Kreuz-Pixel entfernt zugunsten feiner, scharfer Mikro-Punkte mit organischem Alpha-Twinkle.
+* **6. Playwright Visual Suite & FPS Benchmark Verifikation:**
+  * 10/10 Screenshots erfolgreich frisch erfasst, 0 Konsolenfehler.
+  * Real-Time Gameplay FPS Benchmark: 120.1 FPS, 0.22ms JS-Frame-Budget, 0 Hitches > 25ms.
+
+### v5.2.0 (06.09.2026) - 50% Scaled Hangar Stage, Elevated Hero Title, Distinct Trophy Icon & Silent Skin Switch
+* **1. Stille Skin-Auswahl (Entfernung störender Top-Toasts):**
+  * `triggerQuickToast` beim Durchschalten der Raumschiffe (`selectMenuShip`), beim Antippen zur Enthüllung (`toggleMenuShipUnlock`) und beim Schiff-Antippen im Hauptmenü vollständig entfernt. Kein störendes Text-Banner mehr am oberen Bildschirmrand beim Durchklicken der Skins.
+* **2. Leaderboard-Icon Redesign als echter Siegerpokal (Trophy):**
+  * Das bisherige Balken-Podium in `#btn-menu-leaderboard` wurde durch eine unverwechselbare Vektor-Trophäe (Pokal) mit elegant geschwungenen Griffen, stabiler Basis und zentriertem Schaft ersetzt.
+  * Klare, sofortige visuelle Unterscheidung zur 3-Balken-Statistik (`STATS`). Persistentes `#42` Gold-Rang-Badge ziert die Trophäe passgenau in der oberen rechten Ecke.
+* **3. Erhöhte Platzierung des Titels "SLING JUMP":**
+  * `SLING JUMP` (`.brand-hero`) um zusätzliche 10px angehoben (`transform: translateY(-26px); margin-bottom: 6px;`).
+  * `.center-stage` auf `margin: 4px 0 auto 0;` gestrafft, wodurch der Titel dominant im oberen Fokusbereich des Hauptmenüs thront und dem erweiterten Hangar-Stage optimalen Raum bietet.
+* **4. Schiff und Kreis-Geometrie um exakt 50% vergrößert:**
+  * **Hangar-Bühne (`.hangar-stage-container`):** Von 260x250px auf **390x360px** (+50%) skaliert.
+  * **Äußerer Orbit-Ring (`.orbit-halo`):** Von 230x230px auf **345x345px** (+50%) skaliert.
+  * **Inneres Gravitationsfeld (`.orbit-field`):** Von 160x160px auf **240x240px** (+50%) skaliert.
+  * **Raumschiff-Einheit (`.hero-centered-ship` & `#ship-svg`):** Von 116x116px (104px SVG) auf **174x174px (156px SVG)** (+50%) skaliert.
+  * **Zwillings-Plasma-Triebwerke (`.plasma-jets` & `.plasma-flame`):** Düsen auf 38x44px mit 30px Flammen (+50%) vergrößert, passgenau an den Heck-Triebwerken ausgerichtet.
+  * **Mobile Skalierung:** Auf 390px Viewports ebenfalls um 50% vergrößert (330px Container, 300px Ring, 150px Schiff), millimetergenau zentriert ohne horizontales Clipping.
+* **5. Verifikation & Performance-Audit:**
+  * Selective Playwright Suite: 10/10 Screenshots frisch verifiziert, 0 Konsolenfehler (`LATEST_RUN.md` aktualisiert).
+  * Real-Time Gameplay FPS Benchmark: 120.1 FPS, 0.3ms JS-Frame-Budget, 0 Hitches > 25ms.
+
+### v5.1.0 (05.09.2026) - UI Style Unification, Clean Front-Tab Modals, Leaderboard Icon Rework & Architecture Refactoring
+* **1. Leaderboard-Icon Redesign:**
+  * Neues, minimalistisches SVG-Podest-Icon (`#btn-menu-leaderboard`) mit 3-Stufen-Podium, zentralem Stern-Emblem und persistenter `#42` Gold-Rang-Pille. Ersetzt das alte generische Icon durch eine elegante, passgenaue Vektor-Grafik.
+* **2. Visuelle Balance & Skalierung des Hauptmenüs:**
+  * **Erhöhte Wortmarke:** "SLING JUMP" (`.brand-hero`) um 16px nach oben versetzt (`transform: translateY(-16px)`), um dem Titel maximale Dominanz und ausgewogene Vertikaldynamik zu verleihen.
+  * **Vergrößertes Raumschiff:** Hangar-Schiff (`.hero-centered-ship`) von 84x84 auf 116x116 (Desktop) bzw. 100x100 (Mobile) vergrößert; Reticle-Ringe und Plasma-Düsen passgenau zentriert.
+  * **Zentrierter START-Button:** Rechter Pfeil entfernt, Text horizontal und vertikal absolut exakt zentriert mit reinem Fokus auf den Arcade-Launch.
+* **3. Front-Tab Modal-Architektur (Kein Hintergrund-Wechsel mehr):**
+  * **Problem behoben:** Beim Öffnen von Einstellungen, Statistiken, Bestenliste oder Quests verschwand das Hauptmenü und der Hintergrund wechselte.
+  * **Lösung:** `UIManager.showState()` behält `menuOverlay` aktiv im Hintergrund (`classList.add('visible')`). Das Modal legt sich als transparenter Front-Tab (`background: rgba(3, 7, 18, 0.58)` mit `backdrop-filter: blur(16px)`) direkt vor das sichtbare Menü.
+  * `GameEngine.render()` unterdrückt Knoten-Spawns während aller Menü-Zustände (`MENU`, `SETTINGS`, `STATS`, `LEADERBOARD`, `QUESTS`), sodass der Hintergrund ein reines, tiefschwarzes Sternenfeld bleibt.
+* **4. Vollständige Vereinheitlichung des UI-Stils (Neon Crimson & Void Black):**
+  * Alle Modals (Einstellungen, Statistiken, Bestenliste, Aufgaben, Profil, Tutorial) wurden auf den einheitlichen Neon Crimson / Deep Void Stil umgestellt (`--accent-crimson: #ff1e42` Rahmen-Glow, subtile rote Akzentlinien, karminrote Schalter-Badges `[ AN ]` und Primär-Buttons).
+* **5. Bereinigung der Code-Architektur & Entfernung von Legacy-Überresten:**
+  * Währungskapsel (`#menu-currency-pill`) ist jetzt ein reines Informations-Badge; Klick-Interaktion vollständig deaktiviert (kein Öffnen von Tabs oder Modals).
+  * Veraltetes separates `#shop-modal` und redundante Shop-Buttons/Event-Listener in `main.js` und `index.html` restlos entfernt. Das Schiffs-Browsing findet nahtlos und nativ direkt im Hauptmenü-Karussell statt.
+* **6. QA, Playwright & Benchmark Verifikation:**
+  * 19/19 Screenshots frisch validiert, 0 Konsolenfehler (`LATEST_RUN.md` SHA-256 verifiziert).
+  * Real-Time Gameplay FPS Benchmark: 120.1 FPS Schnitt, 0.22ms durchschnittliches JS-Frame-Budget, 0 Hitches > 25ms.
+
+### v5.0.0 (05.09.2026) - Bold Crimson Red Main Menu Overhaul, Centered Hangar Stage & Pokemon-Style Mystery Silhouette Integration
+* **1. Bold Crimson Red Aesthetic & Typography:**
+  * **Brand Wordmark:** Hero-Typografie mit geteiltem Fokus – `SLING` in markantem Weiß mit subtilem Weichzeichner, `JUMP` in elektrisierendem Karminrot (`--accent-crimson: #ff1e42`) mit intensivem Neon-Glow.
+  * **High-Impact CTA Launch:** Großflächiger, abgerundeter Launch-Button (`.btn-play-bold`: `START ▶`) mit Karminrot-Farbverlauf (`#ff1e42` auf `#b91c1c`), durchlaufendem Glanzlicht (`light-swipe`) und haptischem Abschuss-Feedback.
+  * **Atmosphärisches Menü-Backdrop:** Tiefschwarzer Kosmos mit abwärts schwebendem Sternenfeld und zentrierter karminroter Radial-Nebel-Aura.
+* **2. Zentrierter Interaktiver Hangar-Stage & Karussell:**
+  * **Ersatz des alten Skins-Buttons:** Die redundante "Skins"-Kachel weicht einer zentralen, interaktiven Hangar-Bühne direkt im Menü.
+  * **Rotierende Gravitations-Halos:** Äußerer gestrichelter Orbit-Ring (`.orbit-halo`) und innerer Gravitationsring (`.orbit-field`) umkreisen das Schiff zentriert.
+  * **Navigations-Pfeile & Touch-Gesten:** Links- und Rechts-Chevrons (`#btn-ship-prev`, `#btn-ship-next`) sowie native Wisch-Gesten (`touchstart` / `touchend` mit Delta > 35px).
+  * **Pulsierender Zwillings-Plasma-Antrieb:** Animierte Plasma-Düsen (`.plasma-jets`, `.plasma-flame`) mit dynamischem Flammen-Pulsieren am Heck des Schiffs.
+* **3. Pokémon-Style Mystery Silhouette (Standard-Form in Schwarz):**
+  * **Gesperrter Zustand:** Zweiter Skin (`VOID SPECTRE`) erscheint im gesperrten Zustand als pechschwarze Silhouette (`#000000`) in der exakten Geometrie des Standard-Schiffs (`standardBlackSilhouetteSvg`) mit dezentem weißem Außenrand und pulsierendem Schatten.
+  * **Coming Soon Badge:** Schwebendes Status-Badge (`#lock-badge`) mit Vorhängeschloss-Icon und Text `COMING SOON`.
+  * **Interaktive Enthüllung:** Antippen des Silhouetten-Schiffs oder des Badges enthüllt die wahre, exotische Raubvogel-Form mit vorwärtsgekrümmten Flügeln, rubinrotem Reaktorkern und Status `FREIGESCHALTET!`.
+* **4. Persistentes Rang-Badge im Menü-Dock:**
+  * **Rank-Trophäe mit Badge:** Der Bestenlisten-Button (`#btn-menu-leaderboard`) im schwebenden Dock trägt ein goldenes Pill-Badge (`#rank-pill-badge`) mit der aktuellen Spieler-Platzierung (z.B. `#42` oder berechneter Rang aus dem Leaderboard), ohne dass der Spieler die Bestenliste öffnen muss.
+* **5. Minimales Dropdown-Toast-System:**
+  * Minimalistische Benachrichtigungs-Kapsel (`#quick-toast`) am oberen Bildschirmrand für augenblickliches Feedback bei Schiffwechsel, Enthüllung und Start.
+* **6. Performance, Zero-Emoji & Playwright-Prüfung:**
+  * **Strikte Zero-Emoji-Doktrin:** 100% reine Vektor-SVG- und Canvas-Geometrie, null Emojis.
+  * **60/120 FPS Stabilität:** `npm run test:fps` Benchmark mit **119.9 FPS Durchschnitt**, **0.36 ms** durchschnittlicher JS-Rechenzeit (Ziel: &le; 5.0ms) und 0 Hitches > 50ms bestanden.
+  * **Playwright Visual Suite:** Alle Tests (Screens 01, 02, 04, 05, 06, 07, 08, 13) mit 0 Konsolenfehlern fehlerfrei verifiziert. Screenshots frisch erzeugt mit aktuellen Zeitstempeln und SHA-256 Hashes.
 
 ### v4.7.1 (05.09.2026) - Live Dynamic High-Precision FPS Telemetry Engine & Multi-Screen Support
 * **Diagnose statischer Anzeige (Root Cause):**

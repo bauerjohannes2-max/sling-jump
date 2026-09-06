@@ -89,6 +89,7 @@ class UIManager {
       playerRankBadge: document.getElementById('player-rank-badge'),
       playerRankPercentile: document.getElementById('player-rank-percentile'),
       playerRankDelta: document.getElementById('player-rank-delta'),
+      rankPillBadge: document.getElementById('rank-pill-badge'),
       btnLeaderboardClose: document.getElementById('btn-leaderboard-close'),
 
       // Challenges & Timers
@@ -152,13 +153,19 @@ class UIManager {
      STATE VISIBILITY SWITCHER
      ========================================================================= */
   showState(state, previousState, contextData = {}) {
-    // Hide all overlays first
-    const overlays = [
-      this.dom.menuOverlay,
+    const isMenuTab = (
+      state === StateManager.STATES.SETTINGS ||
+      state === StateManager.STATES.STATS ||
+      state === StateManager.STATES.LEADERBOARD ||
+      state === StateManager.STATES.QUESTS ||
+      state === StateManager.STATES.TUTORIAL
+    );
+
+    // Hide other modal overlays
+    const modalOverlays = [
       this.dom.hudLayer,
       this.dom.pauseModal,
       this.dom.gameoverModal,
-      this.dom.shopModal,
       this.dom.questsModal,
       this.dom.leaderboardModal,
       this.dom.statsModal,
@@ -166,9 +173,20 @@ class UIManager {
       this.dom.tutorialModal,
       this.dom.profileModal
     ];
-    overlays.forEach(el => {
+    modalOverlays.forEach(el => {
       if (el) el.classList.remove('active', 'visible');
     });
+
+    // Only hide menuOverlay when transitioning to active gameplay, tutorial run, or game over
+    if (!isMenuTab && state !== StateManager.STATES.MENU) {
+      if (this.dom.menuOverlay) this.dom.menuOverlay.classList.remove('active', 'visible');
+    }
+
+    // If opening settings while in PAUSED state, keep paused HUD & pauseModal active behind settings
+    if (state === StateManager.STATES.SETTINGS && previousState === StateManager.STATES.PAUSED) {
+      if (this.dom.hudLayer) this.dom.hudLayer.classList.add('visible');
+      if (this.dom.pauseModal) this.dom.pauseModal.classList.add('visible');
+    }
 
     switch (state) {
       case StateManager.STATES.MENU:
@@ -202,29 +220,32 @@ class UIManager {
         if (this.audio) this.audio.playMusic('bgm_gameover', false);
         break;
 
-      case StateManager.STATES.SHOP:
-        if (this.dom.shopModal) this.dom.shopModal.classList.add('visible');
-        this.openHangarTab(this.activeShopTab || 'ships');
-        break;
-
       case StateManager.STATES.QUESTS:
+        if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
         if (this.dom.questsModal) this.dom.questsModal.classList.add('visible');
         this.renderChallenges();
         break;
 
       case StateManager.STATES.LEADERBOARD:
+        if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
         if (this.dom.leaderboardModal) this.dom.leaderboardModal.classList.add('visible');
         this.renderGlobalLeaderboard();
         break;
 
       case StateManager.STATES.STATS:
+        if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
         if (this.dom.statsModal) this.dom.statsModal.classList.add('visible');
         this.populateLifetimeStats();
         break;
 
       case StateManager.STATES.SETTINGS:
+        if (previousState !== StateManager.STATES.PAUSED) {
+          if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
+        }
         if (this.dom.settingsModal) this.dom.settingsModal.classList.add('visible');
         this.updateAudioToggleBtn();
+        this.updateFpsToggleBtn();
+        this.updatePerfToggleBtn();
         break;
     }
   }
@@ -847,15 +868,7 @@ class UIManager {
   }
 
   showQuestToast(quest) {
-    if (!this.dom.questToast) return;
-    if (this.dom.questToastTitle) this.dom.questToastTitle.textContent = quest.title;
-    if (this.dom.questToastReward) this.dom.questToastReward.innerHTML = `+${quest.reward} ${UIManager.COIN_SVG}`;
-
-    this.dom.questToast.classList.add('show');
-    setTimeout(() => {
-      this.dom.questToast.classList.remove('show');
-    }, 3800);
-
+    // User requested: No pop-up when getting coins / completing tasks
     this.updateActiveHUDQuest();
   }
 
@@ -880,8 +893,12 @@ class UIManager {
     const crystals = data.crystals || 0;
     const isNewRecord = data.isNewRecord || false;
     const canRevive = data.canRevive !== false;
+    const highScore = Math.max(altitude, (this.storage && this.storage.data && this.storage.data.highScore) || 0);
 
-    if (this.dom.finalAltitude) {
+    const altVal = document.getElementById('final-altitude-val');
+    if (altVal) {
+      altVal.textContent = Number(altitude).toLocaleString('de-DE');
+    } else if (this.dom.finalAltitude) {
       const heroValClass = isNewRecord ? 'hero-altitude-val new-record' : 'hero-altitude-val';
       this.dom.finalAltitude.innerHTML = `<span class="${heroValClass}">${Number(altitude).toLocaleString('de-DE')}</span><span class="hero-altitude-unit">m</span>`;
     }
@@ -909,27 +926,76 @@ class UIManager {
       requestAnimationFrame(step);
     };
 
-    if (this.dom.finalOrbs) animateCountUp(this.dom.finalOrbs, cores);
-    if (this.dom.finalCrystals) animateCountUp(this.dom.finalCrystals, crystals);
-    if (this.dom.finalBest) this.dom.finalBest.textContent = `${Number(this.storage.data.highScore).toLocaleString('de-DE')} m`;
+    const finalOrbsEl = document.getElementById('final-orbs') || this.dom.finalOrbs;
+    const finalCrystalsEl = document.getElementById('final-crystals') || this.dom.finalCrystals;
+    if (finalOrbsEl) animateCountUp(finalOrbsEl, cores);
+    if (finalCrystalsEl) animateCountUp(finalCrystalsEl, crystals);
 
-    // Recede +0 reward chips visually relative to non-zero rewards
-    const orbsStat = document.getElementById('reward-stat-orbs') || (this.dom.finalOrbs ? this.dom.finalOrbs.closest('.reward-stat') : null);
-    if (orbsStat) {
-      if (cores > 0) orbsStat.classList.remove('zero-reward');
-      else orbsStat.classList.add('zero-reward');
-    }
-    const crystalsStat = document.getElementById('reward-stat-crystals') || (this.dom.finalCrystals ? this.dom.finalCrystals.closest('.reward-stat') : null);
-    if (crystalsStat) {
-      if (crystals > 0) crystalsStat.classList.remove('zero-reward');
-      else crystalsStat.classList.add('zero-reward');
+    // Record Chase Bar & Gap
+    const finalBest = document.getElementById('final-best');
+    if (finalBest) {
+      finalBest.textContent = `${Number(highScore).toLocaleString('de-DE')} m`;
+    } else if (this.dom.finalBest) {
+      this.dom.finalBest.textContent = `${Number(highScore).toLocaleString('de-DE')} m`;
     }
 
-    if (this.dom.newRecordBadge) {
-      this.dom.newRecordBadge.style.display = isNewRecord ? 'inline-flex' : 'none';
+    const barFill = document.getElementById('debrief-bar-fill');
+    const gapText = document.getElementById('debrief-gap-text');
+    const pct = highScore > 0 ? Math.min(100, Math.round((altitude / highScore) * 100)) : 100;
+    if (barFill) barFill.style.width = `${pct}%`;
+    if (gapText) {
+      if (isNewRecord || altitude >= highScore) {
+        gapText.textContent = 'NEUER REKORD!';
+      } else {
+        const gap = Math.max(0, highScore - altitude);
+        gapText.innerHTML = `Nur <em>${gap.toLocaleString('de-DE')} m</em> bis zum neuen Rekord.`;
+      }
     }
-    if (this.dom.flightEndedBadge) {
-      this.dom.flightEndedBadge.style.display = isNewRecord ? 'none' : 'inline-flex';
+
+    // Telemetry Rail Ticks
+    const tickCrash = document.getElementById('debrief-tick-crash');
+    if (tickCrash) tickCrash.textContent = String(altitude);
+
+    const tickHi = document.getElementById('debrief-tick-hi');
+    if (tickHi) tickHi.textContent = String(highScore);
+
+    const tickTop = document.getElementById('debrief-tick-top');
+    if (tickTop) tickTop.textContent = String(Math.max(highScore, Math.round(altitude * 1.3)));
+
+    const tickMid = document.getElementById('debrief-tick-mid');
+    if (tickMid) tickMid.textContent = String(Math.round(altitude * 0.45));
+
+    // Telemetry 3-Column Stats
+    const statGrapples = document.getElementById('debrief-stat-grapples');
+    if (statGrapples) statGrapples.textContent = String(data.grapples || 0);
+
+    const statSwing = document.getElementById('debrief-stat-swing');
+    if (statSwing) statSwing.textContent = String(Number(data.bestSwing || 0).toLocaleString('de-DE'));
+
+    const statTime = document.getElementById('debrief-stat-time');
+    if (statTime) statTime.textContent = data.flightTime || '0:00';
+
+    // Interactive Revive Section
+    const reviveAltDisplay = document.getElementById('revive-alt-display');
+    if (reviveAltDisplay) {
+      reviveAltDisplay.textContent = Number(altitude).toLocaleString('de-DE');
+    }
+
+    const currentCrystals = (this.storage && this.storage.data && this.storage.data.hyperCrystals) || 0;
+    const btnRevive = document.getElementById('btn-gameover-revive');
+    if (btnRevive) {
+      if (canRevive && currentCrystals >= 1) {
+        btnRevive.disabled = false;
+        btnRevive.classList.remove('disabled');
+      } else {
+        btnRevive.disabled = true;
+        btnRevive.classList.add('disabled');
+        if (reviveAltDisplay && !canRevive) {
+          reviveAltDisplay.textContent = 'BEREITS GENUTZT';
+        } else if (reviveAltDisplay && currentCrystals < 1) {
+          reviveAltDisplay.textContent = 'KEINE KRISTALLE (BENÖTIGT 1)';
+        }
+      }
     }
 
     // Configure Interactive Revive Section (Second Chance)
@@ -1227,6 +1293,20 @@ class UIManager {
     if (this.dom.shopCrystalsVal) this.dom.shopCrystalsVal.textContent = crystals;
     this.updateUserProfileNav();
     this.updateUnclaimedBadges();
+    this.updateMenuRank();
+  }
+
+  updateMenuRank() {
+    if (!this.dom.rankPillBadge) return;
+    const bestAltitude = (this.storage && this.storage.data && this.storage.data.highScore) || 0;
+    if (bestAltitude > 0) {
+      const storedRuns = (this.storage.data.leaderboard || []).filter(r => r && r.altitude);
+      const higherCount = storedRuns.filter(r => (r.altitude || 0) > bestAltitude).length;
+      const rank = higherCount + 1;
+      this.dom.rankPillBadge.textContent = `#${rank}`;
+    } else {
+      this.dom.rankPillBadge.textContent = '#42';
+    }
   }
 
   updateUnclaimedBadges() {
@@ -1357,6 +1437,9 @@ class UIManager {
     }
     if (this.dom.playerRankDelta) {
       this.dom.playerRankDelta.textContent = deltaDisplay;
+    }
+    if (this.dom.rankPillBadge && rankDisplay) {
+      this.dom.rankPillBadge.textContent = rankDisplay;
     }
   }
 
@@ -1550,13 +1633,15 @@ class UIManager {
     const isEnabled = this.storage.data.settings.audioEnabled !== false;
     this.dom.btnAudioToggle.textContent = isEnabled ? 'AN' : 'AUS';
     if (isEnabled) {
-      this.dom.btnAudioToggle.style.color = '#38bdf8';
-      this.dom.btnAudioToggle.style.background = 'rgba(56, 189, 248, 0.15)';
-      this.dom.btnAudioToggle.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+      this.dom.btnAudioToggle.style.color = '#ffffff';
+      this.dom.btnAudioToggle.style.background = 'rgba(225, 29, 72, 0.22)';
+      this.dom.btnAudioToggle.style.borderColor = 'var(--accent-crimson)';
+      this.dom.btnAudioToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
     } else {
       this.dom.btnAudioToggle.style.color = '#94a3b8';
       this.dom.btnAudioToggle.style.background = 'rgba(30, 41, 59, 0.5)';
       this.dom.btnAudioToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+      this.dom.btnAudioToggle.style.boxShadow = 'none';
     }
   }
 
@@ -1579,13 +1664,15 @@ class UIManager {
     const isEnabled = Boolean(this.storage.data.settings.showFps);
     this.dom.btnFpsToggle.textContent = isEnabled ? 'AN' : 'AUS';
     if (isEnabled) {
-      this.dom.btnFpsToggle.style.color = '#10b981';
-      this.dom.btnFpsToggle.style.background = 'rgba(16, 185, 129, 0.15)';
-      this.dom.btnFpsToggle.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+      this.dom.btnFpsToggle.style.color = '#ffffff';
+      this.dom.btnFpsToggle.style.background = 'rgba(225, 29, 72, 0.22)';
+      this.dom.btnFpsToggle.style.borderColor = 'var(--accent-crimson)';
+      this.dom.btnFpsToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
     } else {
       this.dom.btnFpsToggle.style.color = '#94a3b8';
       this.dom.btnFpsToggle.style.background = 'rgba(30, 41, 59, 0.5)';
       this.dom.btnFpsToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+      this.dom.btnFpsToggle.style.boxShadow = 'none';
     }
   }
 
@@ -1602,13 +1689,15 @@ class UIManager {
     const isEnabled = Boolean(this.storage.data.settings.performanceMode);
     this.dom.btnPerfToggle.textContent = isEnabled ? 'AN' : 'AUS';
     if (isEnabled) {
-      this.dom.btnPerfToggle.style.color = '#10b981';
-      this.dom.btnPerfToggle.style.background = 'rgba(16, 185, 129, 0.15)';
-      this.dom.btnPerfToggle.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+      this.dom.btnPerfToggle.style.color = '#ffffff';
+      this.dom.btnPerfToggle.style.background = 'rgba(225, 29, 72, 0.22)';
+      this.dom.btnPerfToggle.style.borderColor = 'var(--accent-crimson)';
+      this.dom.btnPerfToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
     } else {
       this.dom.btnPerfToggle.style.color = '#94a3b8';
       this.dom.btnPerfToggle.style.background = 'rgba(30, 41, 59, 0.5)';
       this.dom.btnPerfToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+      this.dom.btnPerfToggle.style.boxShadow = 'none';
     }
   }
 

@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SLING JUMP // Bold Minimalist Main Menu [Concept V4]</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================================
+       SLING JUMP - COMMERCIAL MINIMALISM V4
+       Rules: In-Game Currencies | Centered Ship Showcase | Pokemon Silhouette
+              Always-Visible Rank Badge | Expanded Color Themes (incl. Crimson Red)
+       ========================================================================= */
+
+    :root {
+      /* Theme 1: CYAN NEON (Default) */
+      --bg-void: #03050a;
+      --accent-primary: #00f0ff;
+      --accent-primary-rgb: 0, 240, 255;
+      --accent-cta: #00f0ff;
+      --accent-cta-text: #020712;
+      --accent-glow: rgba(0, 240, 255, 0.45);
+      
+      --currency-gold: #fbbf24;
+      --currency-crystal: #d946ef;
+
+      --text-white: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.45);
+      --glass-surface: rgba(14, 21, 37, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.1);
+
+      --font-display: 'Orbitron', system-ui, sans-serif;
+      --font-mono: 'Rajdhani', sans-serif;
+    }
+
+    /* Theme 2: CRIMSON RED (New) */
+    body.theme-crimson {
+      --bg-void: #060204;
+      --accent-primary: #ff1e42;
+      --accent-primary-rgb: 255, 30, 66;
+      --accent-cta: #ff1e42;
+      --accent-cta-text: #ffffff;
+      --accent-glow: rgba(255, 30, 66, 0.55);
+    }
+
+    /* Theme 3: ACID VOLT */
+    body.theme-volt {
+      --bg-void: #040608;
+      --accent-primary: #d4ff00;
+      --accent-primary-rgb: 212, 255, 0;
+      --accent-cta: #d4ff00;
+      --accent-cta-text: #000000;
+      --accent-glow: rgba(212, 255, 0, 0.5);
+    }
+
+    /* Theme 4: ROYAL PURPLE */
+    body.theme-purple {
+      --bg-void: #05020a;
+      --accent-primary: #c026d3;
+      --accent-primary-rgb: 192, 38, 211;
+      --accent-cta: #c026d3;
+      --accent-cta-text: #ffffff;
+      --accent-glow: rgba(192, 38, 211, 0.5);
+    }
+
+    /* Theme 5: SOLAR BLAZE */
+    body.theme-solar {
+      --bg-void: #060402;
+      --accent-primary: #ff6600;
+      --accent-primary-rgb: 255, 102, 0;
+      --accent-cta: #ff6600;
+      --accent-cta-text: #ffffff;
+      --accent-glow: rgba(255, 102, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background-color: #000;
+      color: var(--text-white);
+      font-family: var(--font-mono);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Top Color Switcher Bar */
+    .lab-bar {
+      position: absolute;
+      top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 100;
+      font-size: 10.5px;
+      font-weight: 700;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 10px;
+    }
+
+    .palette-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .palette-btn.active {
+      background: var(--accent-primary);
+      color: #000;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Device Container: 16:9 Vertical Ratio */
+    .viewport-shell {
+      position: relative;
+      width: 100%;
+      max-width: 414px;
+      height: 860px;
+      max-height: calc(100dvh - 48px);
+      background: var(--bg-void);
+      border-radius: 40px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 0 0 6px #080a0f,
+        0 30px 80px rgba(0, 0, 0, 0.95),
+        0 0 90px rgba(var(--accent-primary-rgb), 0.18);
+      transition: box-shadow 0.3s ease;
+    }
+
+    @media (max-width: 480px) {
+      .lab-bar { display: none; }
+      .viewport-shell {
+        max-width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* Dynamic Canvas Layer */
+    #kinetic-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Main Menu Layout */
+    .menu-layout {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 34px 22px 26px 22px;
+      box-sizing: border-box;
+    }
+
+    /* -------------------------------------------------------------------------
+       1. TOP HUD: PROFILE, EXACT CURRENCIES, SETTINGS
+       ------------------------------------------------------------------------- */
+    .top-rail {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .profile-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      padding: 6px 12px 6px 8px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: all 0.15s ease;
+    }
+    .profile-pill:hover {
+      border-color: var(--accent-primary);
+      background: rgba(var(--accent-primary-rgb), 0.08);
+    }
+    .profile-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+    .profile-name {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+
+    /* Exact In-Game Currency SVGs */
+    .currency-dock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    .cur-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+    }
+    .cur-chip svg {
+      width: 17px;
+      height: 17px;
+      display: block;
+    }
+
+    .cur-divider {
+      width: 1px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-glass-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: all 0.15s ease;
+      position: relative;
+    }
+    .icon-glass-btn:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: scale(1.05);
+    }
+    .icon-glass-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+    .alert-pip {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* -------------------------------------------------------------------------
+       2. CENTER STAGE: WORDMARK & THE CENTERED SKIN SHOWCASE
+       ------------------------------------------------------------------------- */
+    .center-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      margin: auto 0;
+      width: 100%;
+    }
+
+    .brand-hero {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .title-sling {
+      font-family: var(--font-display);
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      line-height: 0.92;
+      color: #ffffff;
+      display: block;
+      filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.25));
+    }
+    .title-jump {
+      font-family: var(--font-display);
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      line-height: 0.95;
+      color: var(--accent-primary);
+      display: block;
+      text-shadow: 0 0 35px var(--accent-glow);
+    }
+
+    /* Interactive Center Hangar & Slingshot Stage */
+    .hangar-stage-container {
+      position: relative;
+      width: 260px;
+      height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: pan-y;
+    }
+
+    /* Celestial Gravity Wave Rings */
+    .orbit-halo {
+      position: absolute;
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      border: 1px dashed rgba(var(--accent-primary-rgb), 0.28);
+      animation: spin-cw 34s linear infinite;
+    }
+    .orbit-field {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(var(--accent-primary-rgb), 0.3);
+      box-shadow: 0 0 35px rgba(var(--accent-primary-rgb), 0.12);
+      animation: spin-ccw 22s linear infinite;
+    }
+
+    /* Swipe Arrows (Left / Right) */
+    .swipe-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      z-index: 20;
+    }
+    .swipe-arrow:hover {
+      background: rgba(var(--accent-primary-rgb), 0.2);
+      color: #fff;
+      border-color: var(--accent-primary);
+    }
+    .swipe-left { left: 4px; }
+    .swipe-right { right: 4px; }
+    .swipe-arrow svg { width: 16px; height: 16px; stroke-width: 2.5; }
+
+    /* The SHIP COMPLETELY IN THE CENTER */
+    .hero-centered-ship {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 15;
+      width: 96px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .hero-centered-ship {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 15;
+      width: 96px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease;
+    }
+
+    .hero-centered-ship:hover {
+      transform: translate(-50%, -50%) scale(1.12);
+    }
+
+    /* Twin Plasma Thruster Jets */
+    .plasma-jets {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 30px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .plasma-flame {
+      width: 6.5px;
+      height: 22px;
+      background: linear-gradient(180deg, #ffffff 0%, var(--accent-primary) 40%, transparent 100%);
+      border-radius: 50%;
+      filter: blur(1px);
+      animation: jet-pulse 0.09s infinite alternate;
+    }
+
+    .plasma-flame.right {
+      animation-delay: 0.04s;
+    }
+
+    @keyframes jet-pulse {
+      0% { height: 18px; opacity: 0.75; transform: scaleX(0.9); }
+      100% { height: 32px; opacity: 1; transform: scaleX(1.1); filter: drop-shadow(0 0 12px var(--accent-primary)); }
+    }
+
+    /* POKEMON SILHOUETTE COMING SOON EFFECT */
+    .hero-centered-ship.pokemon-locked {
+      filter: drop-shadow(0 0 24px rgba(var(--accent-primary-rgb), 0.45));
+    }
+    .hero-centered-ship.pokemon-locked .plasma-jets {
+      display: none;
+    }
+
+    /* Coming Soon / Unlock Badge */
+    .lock-status-badge {
+      position: absolute;
+      bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(4, 7, 16, 0.92);
+      border: 1px solid var(--accent-primary);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      color: var(--accent-primary);
+      box-shadow: 0 0 16px var(--accent-glow);
+      z-index: 25;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .lock-status-badge:hover {
+      transform: scale(1.06);
+      background: rgba(12, 20, 40, 0.98);
+    }
+    .lock-status-badge svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+    .lock-status-badge.unlocked {
+      border-color: #10b981;
+      color: #34d399;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+    }
+
+    @keyframes spin-cw {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spin-ccw {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    /* Ship Selector Dots */
+    .ship-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .s-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .s-dot.active {
+      width: 18px;
+      border-radius: 4px;
+      background: var(--accent-primary);
+      box-shadow: 0 0 10px var(--accent-primary);
+    }
+
+    /* -------------------------------------------------------------------------
+       3. BOTTOM CORE: MASSIVE PLAY CTA & REFINED ICON DOCK (WITH OWN RANK BADGE)
+       ------------------------------------------------------------------------- */
+    .bottom-core {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      align-items: center;
+    }
+
+    /* Bold Primary Launch Button */
+    .btn-play-bold {
+      position: relative;
+      width: 100%;
+      height: 66px;
+      border: none;
+      border-radius: 20px;
+      background: var(--accent-cta);
+      color: var(--accent-cta-text);
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 
+        0 0 35px var(--accent-glow),
+        0 14px 28px rgba(0, 0, 0, 0.6);
+      transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .btn-play-bold:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 
+        0 0 52px var(--accent-glow),
+        0 18px 36px rgba(0, 0, 0, 0.7);
+    }
+    .btn-play-bold:active {
+      transform: scale(0.97);
+    }
+
+    .play-arrow-svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    .btn-play-bold::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+      transform: skewX(-20deg);
+      animation: light-swipe 3s infinite ease-in-out;
+    }
+
+    @keyframes light-swipe {
+      0% { left: -100%; }
+      30%, 100% { left: 180%; }
+    }
+
+    /* Floating Dock (Tutorial, Stats, and Rank with VISIBLE BADGE) */
+    .floating-dock {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 8px 16px;
+      backdrop-filter: blur(16px);
+    }
+
+    .dock-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 12px;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .dock-icon-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dock-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+    .dock-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .dock-btn:hover svg {
+      color: var(--accent-primary);
+      filter: drop-shadow(0 0 8px var(--accent-primary));
+    }
+
+    /* Always-Visible Rank Badge (#42) */
+    .dock-rank-chip {
+      position: absolute;
+      top: -4px;
+      right: -14px;
+      padding: 1px 5px;
+      background: var(--currency-gold);
+      color: #030814;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+      line-height: 1.1;
+    }
+
+    /* Minimal Toast */
+    #quick-toast {
+      position: absolute;
+      top: 66px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-15px);
+      background: #050812;
+      border: 1px solid var(--accent-primary);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 100;
+      white-space: nowrap;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    #quick-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mockup Color Theme Bar (5 Options including Crimson Red) -->
+  <div class="lab-bar">
+    <button class="palette-btn active" onclick="setTheme('')">CYAN NEON</button>
+    <button class="palette-btn" onclick="setTheme('theme-crimson')">CRIMSON RED</button>
+    <button class="palette-btn" onclick="setTheme('theme-volt')">ACID VOLT</button>
+    <button class="palette-btn" onclick="setTheme('theme-purple')">ROYAL PURPLE</button>
+    <button class="palette-btn" onclick="setTheme('theme-solar')">SOLAR BLAZE</button>
+  </div>
+
+  <!-- Mobile 16:9 Viewport Shell -->
+  <div class="viewport-shell">
+    
+    <!-- Kinetic Star Canvas -->
+    <canvas id="kinetic-canvas"></canvas>
+
+    <div class="menu-layout">
+
+      <!-- 1. TOP HUD: IN-GAME EXACT CURRENCY SVGS -->
+      <header class="top-rail">
+        <div class="profile-pill" onclick="triggerToast('PROFIL: JoJosenx')">
+          <span class="profile-dot"></span>
+          <span class="profile-name">JoJosenx</span>
+        </div>
+
+        <!-- Exact In-Game Currency SVGs -->
+        <div class="currency-dock">
+          <!-- Coins / Cores: Exact in-game SVG (Gold with white/amber diamond) -->
+          <div class="cur-chip" title="Cores" onclick="triggerToast('44 KERNE')">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle>
+              <polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon>
+              <circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle>
+            </svg>
+            <span>44</span>
+          </div>
+
+          <div class="cur-divider"></div>
+
+          <!-- Void Crystal: Exact in-game SVG (Faceted Magenta Prism) -->
+          <div class="cur-chip" title="Void Crystals" onclick="triggerToast('1 KRISTALL')">
+            <svg viewBox="0 0 24 24">
+              <polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon>
+              <polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon>
+              <polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon>
+            </svg>
+            <span>1</span>
+          </div>
+        </div>
+
+        <div class="hud-right">
+          <!-- Daily Missions Icon -->
+          <button class="icon-glass-btn" aria-label="Missions" onclick="triggerToast('DAILY OP: BEREIT')">
+            <span class="alert-pip"></span>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </button>
+
+          <!-- Settings Cog -->
+          <button class="icon-glass-btn" aria-label="Settings" onclick="triggerToast('EINSTELLUNGEN')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- 2. CENTER STAGE: BOLD TITLE & CENTERED INTERACTIVE SHIP HANGAR -->
+      <div class="center-stage">
+        
+        <div class="brand-hero">
+          <span class="title-sling">SLING</span>
+          <span class="title-jump">JUMP</span>
+        </div>
+
+        <!-- The Interactive Centerpiece: Centered Ship with Swiping -->
+        <div class="hangar-stage-container" id="hangar-stage">
+          <!-- Swiping Navigation Chevrons -->
+          <div class="swipe-arrow swipe-left" onclick="event.stopPropagation(); cycleShip(-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </div>
+          <div class="swipe-arrow swipe-right" onclick="event.stopPropagation(); cycleShip(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+
+          <!-- Outer Orbital Halos -->
+          <div class="orbit-halo"></div>
+          <div class="orbit-field"></div>
+
+          <!-- THE SHIP COMPLETELY IN THE CENTER -->
+          <div class="hero-centered-ship" id="ship-unit" onclick="handleShipClick(event)" title="Klicken zum Interagieren">
+            <div class="plasma-jets" id="ship-plasma">
+              <div class="plasma-flame left"></div>
+              <div class="plasma-flame right"></div>
+            </div>
+            
+            <svg id="ship-svg" width="84" height="84" viewBox="-28 -28 56 56">
+              <!-- Initial Standard Ship populated via JS -->
+            </svg>
+          </div>
+
+          <!-- Lock / Unlock Status Badge (Interactive: Click to Reveal/Toggle) -->
+          <div class="lock-status-badge" id="lock-badge" style="display: none;" onclick="toggleShipUnlock(event)" title="Klicken zum Enthüllen / Sperren">
+            <svg id="lock-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span id="lock-label">COMING SOON</span>
+          </div>
+        </div>
+
+        <!-- Ship Selection Dots (2 Skins Only) -->
+        <div class="ship-dots">
+          <span class="s-dot active" id="dot-0" onclick="selectShip(0)"></span>
+          <span class="s-dot" id="dot-1" onclick="selectShip(1)"></span>
+        </div>
+
+      </div>
+
+      <!-- 3. BOTTOM CORE: MASSIVE PLAY CTA & REFINED ICON DOCK (WITH OWN RANK BADGE) -->
+      <footer class="bottom-core">
+        
+        <!-- Primary Action Button -->
+        <button class="btn-play-bold" onclick="launchGame()">
+          <span>START</span>
+          <svg class="play-arrow-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </button>
+
+        <!-- Minimalist Dock: Tutorial, Statistiken, and Rank (with visible #42 badge) -->
+        <nav class="floating-dock">
+          <!-- Tutorial -->
+          <button class="dock-btn" onclick="triggerToast('TUTORIAL')">
+            <div class="dock-icon-wrap">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
+            </div>
+            <span>TUTORIAL</span>
+          </button>
+
+          <!-- Statistiken -->
+          <button class="dock-btn" onclick="triggerToast('STATISTIKEN')">
+            <div class="dock-icon-wrap">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><line x1="3" y1="20" x2="21" y2="20"></line></svg>
+            </div>
+            <span>STATS</span>
+          </button>
+
+          <!-- Rank with ALWAYS-VISIBLE #42 BADGE -->
+          <button class="dock-btn" onclick="triggerToast('DEIN RANG: #42')">
+            <div class="dock-icon-wrap">
+              <svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1M17 6h3a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1"></path></svg>
+              <!-- Prominent Player Rank Chip -->
+              <span class="dock-rank-chip">#42</span>
+            </div>
+            <span>RANK</span>
+          </button>
+        </nav>
+
+      </footer>
+
+      <!-- Dynamic Feedback Toast -->
+      <div id="quick-toast">INFO</div>
+
+    </div>
+  </div>
+
+  <script>
+    // 1. Kinetic Starfield Canvas (Moving Down)
+    (function() {
+      const cvs = document.getElementById('kinetic-canvas');
+      const ctx = cvs.getContext('2d');
+      let w, h, pts = [];
+
+      function resize() {
+        w = cvs.width = cvs.parentElement.clientWidth;
+        h = cvs.height = cvs.parentElement.clientHeight;
+        pts = [];
+        for (let i = 0; i < 50; i++) {
+          pts.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: Math.random() * 1.5 + 0.4,
+            vy: Math.random() * 0.45 + 0.15, // Positive: moving down
+            alpha: Math.random() * 0.6 + 0.2
+          });
+        }
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        
+        // Ambient Radial Nebula Glow behind center
+        const rgb = getComputedStyle(document.body).getPropertyValue('--accent-primary-rgb').trim() || '0, 240, 255';
+        const g = ctx.createRadialGradient(w/2, h*0.48, 15, w/2, h*0.48, w*0.85);
+        g.addColorStop(0, `rgba(${rgb}, 0.08)`);
+        g.addColorStop(0.5, 'rgba(8, 14, 28, 0.3)');
+        g.addColorStop(1, 'rgba(2, 4, 8, 0.95)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        // Twinkling Space Dust Moving Down
+        ctx.fillStyle = '#ffffff';
+        for (const p of pts) {
+          p.y += p.vy;
+          if (p.y > h) { p.y = 0; p.x = Math.random() * w; }
+          ctx.globalAlpha = p.alpha;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // 2. Interactive Ship Catalog (2 Skins: Standard & Mystery Skin)
+    // Standard Ship SVG Geometry (Refined Vector Aerodynamic Fighter)
+    const standardShipSvg = `
+      <polygon points="0,-22 4.5,-9 7,-4 21,10 20,14 11,11 7,13 0,9 -7,13 -11,11 -20,14 -21,10 -7,-4 -4.5,-9" fill="#080e1a" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"></polygon>
+      <polygon points="5,-3 19,9 13,10 7,4" fill="rgba(255,255,255,0.06)"></polygon>
+      <polygon points="-5,-3 -19,9 -13,10 -7,4" fill="rgba(255,255,255,0.06)"></polygon>
+      <polyline points="4,-5 16,7 12,10" fill="none" stroke="var(--accent-primary)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></polyline>
+      <polyline points="-4,-5 -16,7 -12,10" fill="none" stroke="var(--accent-primary)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></polyline>
+      <polygon points="0,-19 3,-7 3,6 0,8 -3,6 -3,-7" fill="#0f192c" stroke="rgba(255,255,255,0.3)" stroke-width="1"></polygon>
+      <polygon points="0,-14 3.5,-6 0,-1 -3.5,-6" fill="var(--accent-primary)"></polygon>
+      <polygon points="0,-13 2,-6 0,-3" fill="#ffffff" opacity="0.85"></polygon>
+      <line x1="-7" y1="13" x2="-4" y2="13" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round"></line>
+      <line x1="4" y1="13" x2="7" y2="13" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round"></line>
+      <circle cx="0" cy="4" r="1.8" fill="#ffffff"></circle>
+    `;
+
+    // Standard Ship Silhouette in Pure Black (Locked Mystery State)
+    const standardBlackSilhouetteSvg = `
+      <polygon points="0,-22 4.5,-9 7,-4 21,10 20,14 11,11 7,13 0,9 -7,13 -11,11 -20,14 -21,10 -7,-4 -4.5,-9" fill="#000000" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-linejoin="round"></polygon>
+    `;
+
+    // Unlocked Real Shape: Exotic Forward-Swept Predator Interceptor
+    const realSecondShipSvg = `
+      <polygon points="0,-23 7,-13 24,-2 18,11 12,16 0,10 -12,16 -18,11 -24,-2 -7,-13" fill="#090f1d" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"></polygon>
+      <polygon points="6,-9 19,0 15,7 6,-3" fill="rgba(255,255,255,0.08)"></polygon>
+      <polygon points="-6,-9 -19,0 -15,7 -6,-3" fill="rgba(255,255,255,0.08)"></polygon>
+      <polyline points="0,-18 6,-10 20,-1 16,8" fill="none" stroke="var(--accent-primary)" stroke-width="1.8" stroke-linecap="round"></polyline>
+      <polyline points="0,-18 -6,-10 -20,-1 -16,8" fill="none" stroke="var(--accent-primary)" stroke-width="1.8" stroke-linecap="round"></polyline>
+      <polygon points="0,-16 4,-7 0,-2 -4,-7" fill="var(--accent-primary)"></polygon>
+      <polygon points="0,-15 2.2,-7 0,-4" fill="#ffffff" opacity="0.9"></polygon>
+      <line x1="-12" y1="16" x2="-8" y2="16" stroke="var(--accent-primary)" stroke-width="2.2" stroke-linecap="round"></line>
+      <line x1="8" y1="16" x2="12" y2="16" stroke="var(--accent-primary)" stroke-width="2.2" stroke-linecap="round"></line>
+      <circle cx="0" cy="5" r="2.2" fill="#ffffff"></circle>
+      <circle cx="0" cy="5" r="4.2" fill="none" stroke="var(--accent-primary)" stroke-width="1.4"></circle>
+    `;
+
+    const ships = [
+      {
+        id: 'standard',
+        name: 'PHÖNIX STANDARD',
+        isLocked: false,
+        getSvg: () => standardShipSvg
+      },
+      {
+        id: 'mystery',
+        name: 'VOID SPECTRE',
+        isLocked: true, // In black, standard ship silhouette. When unlocked, real shape revealed!
+        getSvg: function() {
+          return this.isLocked ? standardBlackSilhouetteSvg : realSecondShipSvg;
+        }
+      }
+    ];
+    let shipIndex = 0;
+
+    function renderShip() {
+      const ship = ships[shipIndex];
+      const shipUnit = document.getElementById('ship-unit');
+      const shipSvg = document.getElementById('ship-svg');
+      const lockBadge = document.getElementById('lock-badge');
+      const lockLabel = document.getElementById('lock-label');
+      const lockSvg = document.getElementById('lock-svg');
+
+      // Update SVG
+      shipSvg.innerHTML = ship.getSvg();
+
+      if (ship.id === 'mystery') {
+        lockBadge.style.display = 'flex';
+        if (ship.isLocked) {
+          // Locked: Standard ship in pure black silhouette
+          shipUnit.classList.add('pokemon-locked');
+          lockBadge.classList.remove('unlocked');
+          lockLabel.textContent = 'COMING SOON';
+          lockSvg.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>';
+        } else {
+          // Unlocked: Real exotic shape revealed!
+          shipUnit.classList.remove('pokemon-locked');
+          lockBadge.classList.add('unlocked');
+          lockLabel.textContent = 'FREIGESCHALTET!';
+          lockSvg.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 7a5 5 0 0 1 9.9-1"></path>';
+        }
+      } else {
+        shipUnit.classList.remove('pokemon-locked');
+        lockBadge.style.display = 'none';
+      }
+
+      // Update Dots
+      for (let i = 0; i < ships.length; i++) {
+        const dot = document.getElementById('dot-' + i);
+        if (dot) dot.classList.toggle('active', i === shipIndex);
+      }
+    }
+
+    function selectShip(idx) {
+      shipIndex = (idx + ships.length) % ships.length;
+      const ship = ships[shipIndex];
+      renderShip();
+      if (ship.id === 'mystery' && ship.isLocked) {
+        triggerToast('COMING SOON: NEUER SKIN (KLICKEN)');
+      } else {
+        triggerToast('SCHIFF: ' + ship.name);
+      }
+    }
+
+    function cycleShip(dir = 1) {
+      selectShip(shipIndex + dir);
+    }
+
+    function toggleShipUnlock(e) {
+      if (e) e.stopPropagation();
+      const ship = ships[1];
+      ship.isLocked = !ship.isLocked;
+      renderShip();
+      if (!ship.isLocked) {
+        triggerToast('ENTHÜLLT: ' + ship.name);
+        const unit = document.getElementById('ship-unit');
+        unit.style.transform = 'translate(-50%, -50%) scale(1.22)';
+        setTimeout(() => unit.style.transform = '', 250);
+      } else {
+        triggerToast('GESPERRT: STANDARD SILHOUETTE');
+      }
+    }
+
+    function handleShipClick(e) {
+      if (shipIndex === 1) {
+        toggleShipUnlock(e);
+      } else {
+        const unit = document.getElementById('ship-unit');
+        unit.style.transform = 'translate(-50%, -58%) scale(1.1)';
+        triggerToast('PHÖNIX BEREIT');
+        setTimeout(() => unit.style.transform = '', 200);
+      }
+    }
+
+    // Initialize Ship Render on Load
+    renderShip();
+
+    // Touch Swipe Support on Hangar Stage
+    let touchStartX = 0;
+    const stage = document.getElementById('hangar-stage');
+    stage.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].clientX;
+    }, { passive: true });
+    stage.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      if (touchStartX - touchEndX > 35) cycleShip(1);
+      else if (touchEndX - touchStartX > 35) cycleShip(-1);
+    }, { passive: true });
+
+    // 3. Theme Switcher (Cyan, Crimson, Volt, Purple, Solar)
+    function setTheme(themeClass) {
+      document.body.className = themeClass;
+      document.querySelectorAll('.palette-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick').includes(themeClass));
+      });
+      triggerToast('THEME GEWECHSELT');
+    }
+
+    // 4. Toast Notification
+    let toastTimeout;
+    function triggerToast(txt) {
+      const toast = document.getElementById('quick-toast');
+      toast.textContent = txt;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.remove('show'), 1600);
+    }
+
+    // 5. Play Launch Effect
+    function launchGame() {
+      triggerToast('START!');
+      const unit = document.getElementById('ship-unit');
+      unit.style.transform = 'translate(-50%, -100px) scale(1.4)';
+      unit.style.filter = 'drop-shadow(0 0 45px var(--accent-primary))';
+      setTimeout(() => {
+        unit.style.transform = '';
+        unit.style.filter = '';
+      }, 500);
+    }
+  </script>
+</body>
+</html>

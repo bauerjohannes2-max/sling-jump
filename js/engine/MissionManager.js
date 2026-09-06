@@ -157,9 +157,7 @@ class MissionManager {
         this.audio.playSfx('sfx_slingshot_boost', { isBoost: true });
       }
 
-      if (this.onQuestCompleted) {
-        this.onQuestCompleted(quest);
-      }
+      // User requested: No pop-up when getting the coins of a completed task
       return true;
     }
     return false;

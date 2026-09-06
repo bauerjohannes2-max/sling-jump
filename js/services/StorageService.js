@@ -238,6 +238,20 @@ class StorageService {
     }
   }
 
+  isShipUnlocked(shipId) {
+    return Array.isArray(this.data.unlockedShips) && this.data.unlockedShips.includes(shipId);
+  }
+
+  unlockShip(shipId) {
+    if (!this.isShipUnlocked(shipId)) {
+      if (!Array.isArray(this.data.unlockedShips)) this.data.unlockedShips = ['dart'];
+      this.data.unlockedShips.push(shipId);
+      this.save();
+      return true;
+    }
+    return false;
+  }
+
   save(immediate = true) {
     if (!immediate) {
       if (this._saveTimer) return;
