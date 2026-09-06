@@ -265,6 +265,11 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - Account salt: Unique cryptographically random 16-byte hex salt (`crypto.randomBytes(16).toString('hex')`) per account.
   - Stored format: Stores `{ salt, derivedHash }` in `playersStore[rawId].passwordHash`. Identical passwords produce distinct salts and derived hashes, rendering rainbow tables completely ineffective against stolen database records.
   - Transparent upgrade: Existing legacy records containing raw SHA-256 strings without a salt are automatically upgraded to the salted PBKDF2 format upon successful authentication during sync or restore.
+- **Ephemeral Session Tokens (Zero Per-Request Credentials):**
+  - Generation: `POST /api/player/login` and authenticated `/restore` endpoints issue 30-day 256-bit cryptographically secure session tokens (`crypto.randomBytes(32).toString('hex')`).
+  - Storage & Verification: Server stores active tokens in `data/sessions.json` with in-memory caching and sweep on expiration. `POST /api/player/sync` accepts `Authorization: Bearer <token>` or `payload.sessionToken`.
+  - Zero Credential Transmission: Routine active game syncs (`saveDeferred`) transmit the session token instead of password hashes. Password credentials are sent only on initial login or explicit password changes.
+  - Rejection & Invalidation: Invalid, revoked, or expired tokens immediately return `401 Unauthorized` with `tokenExpired: true`. Password removal or modification automatically revokes all existing sessions.
 - **UI:** Profile sync card shows password status badge, set/remove buttons. Load section includes password input field.
 
 ### 10.9 Tutorial Modal Text

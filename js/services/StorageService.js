@@ -50,7 +50,8 @@ class StorageService {
         playerId: StorageService.generateUniqueUserId(),
         registeredAt: new Date().toISOString(),
         nameChanges: 0,
-        passwordHash: null
+        passwordHash: null,
+        sessionToken: null
       },
       
       // Daily & Weekly Mission System
@@ -168,6 +169,9 @@ class StorageService {
     }
     if (typeof merged.playerProfile.nameChanges !== 'number') {
       merged.playerProfile.nameChanges = 0;
+    }
+    if (merged.playerProfile.sessionToken === undefined) {
+      merged.playerProfile.sessionToken = null;
     }
     merged.playerProfile.registered = true;
 
@@ -297,7 +301,8 @@ class StorageService {
 
         const syncPayload = {
           playerId: profile.playerId,
-          passwordHash: profile.passwordHash || null,
+          sessionToken: profile.sessionToken || null,
+          passwordHash: profile.sessionToken ? null : (profile.passwordHash || null),
           state: {
             cores: this.data.cores,
             hyperCrystals: this.data.hyperCrystals,
@@ -317,11 +322,30 @@ class StorageService {
           }
         };
 
+        const headers = { 'Content-Type': 'application/json' };
+        if (profile.sessionToken) {
+          headers['Authorization'] = `Bearer ${profile.sessionToken}`;
+        }
+
         if (typeof fetch !== 'undefined' && typeof window !== 'undefined' && window.location && window.location.protocol !== 'file:') {
           fetch('/api/player/sync', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify(syncPayload)
+          }).then(async res => {
+            if (res.status === 401) {
+              if (this.data && this.data.playerProfile) {
+                this.data.playerProfile.sessionToken = null;
+              }
+            } else if (res.ok) {
+              const data = await res.json().catch(() => ({}));
+              if (data && data.sessionToken && this.data && this.data.playerProfile) {
+                this.data.playerProfile.sessionToken = data.sessionToken;
+                try {
+                  localStorage.setItem(this.key, JSON.stringify(this.data));
+                } catch (e) {}
+              }
+            }
           }).catch(() => {});
         }
       } catch (e) {}
@@ -380,6 +404,12 @@ class StorageService {
       const data = await res.json();
       if (data && data.ok && data.player && data.player.state) {
         this.data = this.migrate(data.player.state);
+        if (data.sessionToken && this.data.playerProfile) {
+          this.data.playerProfile.sessionToken = data.sessionToken;
+        }
+        if (pwHash && this.data.playerProfile) {
+          this.data.playerProfile.passwordHash = pwHash;
+        }
         try {
           localStorage.setItem(this.key, JSON.stringify(this.data));
         } catch (e) {}
@@ -402,6 +432,7 @@ class StorageService {
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
       this.data.playerProfile.passwordHash = hash;
+      this.data.playerProfile.sessionToken = null; // Forces token re-negotiation on next sync
       this.save();
       return { success: true, message: 'PASSWORT GESETZT' };
     } catch (e) {
@@ -411,17 +442,24 @@ class StorageService {
 
   async removePassword() {
     const oldHash = this.data.playerProfile ? this.data.playerProfile.passwordHash : null;
+    const oldToken = this.data.playerProfile ? this.data.playerProfile.sessionToken : null;
     this.data.playerProfile.passwordHash = null;
+    this.data.playerProfile.sessionToken = null;
     this.save();
 
-    if (oldHash && typeof fetch !== 'undefined' && typeof window !== 'undefined' && window.location && window.location.protocol !== 'file:') {
+    if (typeof fetch !== 'undefined' && typeof window !== 'undefined' && window.location && window.location.protocol !== 'file:') {
       try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (oldToken) {
+          headers['Authorization'] = `Bearer ${oldToken}`;
+        }
         await fetch('/api/player/sync', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             playerId: this.data.playerProfile.playerId,
             passwordHash: oldHash,
+            sessionToken: oldToken,
             removePassword: true,
             state: this.data
           })
@@ -430,6 +468,59 @@ class StorageService {
     }
 
     return { success: true, message: 'PASSWORT ENTFERNT' };
+  }
+
+  async login(rawId, password) {
+    if (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:') {
+      return { success: false, message: 'Server nicht erreichbar.' };
+    }
+    let cleanId = (rawId || '').trim().toUpperCase();
+    if (!cleanId.startsWith('#')) cleanId = '#' + cleanId;
+
+    let pwHash = '';
+    if (password && password.trim()) {
+      try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password.trim());
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        pwHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        return { success: false, message: 'Passwort-Verschlüsselung fehlgeschlagen.' };
+      }
+    }
+
+    try {
+      const res = await fetch('/api/player/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: cleanId, passwordHash: pwHash || null })
+      });
+      if (res.status === 403) {
+        return { success: false, message: 'FALSCHES PASSWORT' };
+      }
+      if (res.status === 429) {
+        const err = await res.json().catch(() => ({}));
+        return { success: false, message: err.error || 'ZU VIELE VERSUCHE! BITTE WARTEN.' };
+      }
+      if (!res.ok) {
+        return { success: false, message: `Spieler ${cleanId} nicht gefunden.` };
+      }
+      const data = await res.json();
+      if (data && data.ok && data.sessionToken) {
+        if (this.data && this.data.playerProfile) {
+          this.data.playerProfile.sessionToken = data.sessionToken;
+          if (pwHash) this.data.playerProfile.passwordHash = pwHash;
+          try {
+            localStorage.setItem(this.key, JSON.stringify(this.data));
+          } catch (e) {}
+        }
+        return { success: true, sessionToken: data.sessionToken };
+      }
+      return { success: false, message: 'Login unvollständig.' };
+    } catch (e) {
+      return { success: false, message: 'Server nicht erreichbar.' };
+    }
   }
 
   saveDeferred() {

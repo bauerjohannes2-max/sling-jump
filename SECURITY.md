@@ -19,7 +19,7 @@ This document defines the security architecture and incremental hardening roadma
 - [x] **Step 2: In-Memory Rate Limiting & Brute-Force Lockout** (Completed - Commit `a4d6ab0`)
 - [x] **Step 3: CORS Whitelisting, 100KB Body Ceiling & Prototype Sanitization** (Completed - Commit `17345e8`)
 - [x] **Step 4: Server-Side Cryptographic Salt & Key Derivation (PBKDF2)** (Completed)
-- [ ] **Step 5: Ephemeral Session Tokens (Eliminate Per-Request Credential Transmission)**
+- [x] **Step 5: Ephemeral Session Tokens (Eliminate Per-Request Credential Transmission)** (Completed)
 - [ ] **Step 6: Collision-Resistant 8-Character Player ID Architecture**
 - [ ] **Step 7: Save State Schema Validation & Numeric Bounds Enforcement**
 - [ ] **Step 8: Local TLS / HTTPS Transport Support for Mobile Dev**
@@ -69,23 +69,20 @@ This document defines the security architecture and incremental hardening roadma
 
 ---
 
-### [ ] Step 5: Ephemeral Session Tokens (Eliminate Per-Request Password Hashes)
-* **Status:** NEXT UP
-* **Goal:** Stop transmitting password hashes on active periodic syncs (`saveDeferred` every few seconds).
-* **Files to Modify:**
-  * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js), [`js/services/StorageService.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/StorageService.js)
-* **Implementation Details:**
-  1. Add `POST /api/player/login` endpoint that accepts `{ playerId, passwordHash }`.
-  2. If valid, server generates an ephemeral session token: `crypto.randomBytes(32).toString('hex')` with 30-day expiration.
-  3. Server stores token map in memory (or `data/sessions.json`): `{ token: { playerId, expiresAt } }`.
-  4. `POST /api/player/sync` accepts `Authorization: Bearer <token>` or `{ sessionToken }`.
-  5. Password hash is only transmitted once during login or password changes.
-* **Verification:**
-  * Automated test: Login produces token, subsequent syncs succeed using token alone, expired/invalid tokens return 401 Unauthorized.
+### [x] Step 5: Ephemeral Session Tokens (Eliminate Per-Request Password Hashes)
+* **Status:** COMPLETED
+* **Accomplished:**
+  * Implemented `POST /api/player/login` endpoint issuing 30-day cryptographically secure 256-bit session tokens (`crypto.randomBytes(32)`).
+  * Persisted session tokens in `data/sessions.json` with memory cache, validation, and auto-sweep on expiration.
+  * Updated `POST /api/player/sync` to authenticate via `Authorization: Bearer <token>` or `payload.sessionToken`, returning 401 on invalid/expired tokens.
+  * Completely eliminated password hash transmission on recurring in-flight syncs (`StorageService.syncToCloud`). Password hash is only transmitted during login or initial password creation.
+  * Transparent issuance: `POST /api/player/restore` and `POST /api/player/sync` return `sessionToken` upon authenticated requests.
+  * Session revocation: Updating or removing a password revokes active session tokens.
 
 ---
 
 ### [ ] Step 6: Collision-Resistant 8-Character Player ID Architecture
+* **Status:** NEXT UP
 * **Goal:** Increase ID entropy to eliminate birthday collision risks.
 * **Files to Modify:**
   * [`js/services/StorageService.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/StorageService.js), [`index.html`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/index.html), [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js)

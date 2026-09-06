@@ -60,6 +60,12 @@
   - Generates unique 16-byte random salts per account (`crypto.randomBytes(16)`), ensuring identical passwords yield distinct stored hashes and rainbow tables are neutralized.
   - Transparent backward compatibility: legacy unsalted records (raw string hashes) verify correctly and are automatically upgraded to PBKDF2 upon successful authentication on sync or restore.
   - Verified with 7-part automated unit & integration test suite (`test_pbkdf2_auth.js`) + Playwright runner 06 (0 console errors).
+- **Ephemeral Session Tokens (`scripts/serve.js`, `StorageService.js`):**
+  - Added `POST /api/player/login` generating 30-day 256-bit cryptographically secure session tokens (`crypto.randomBytes(32)`).
+  - Persisted tokens in `data/sessions.json` with memory caching and unreferenced sweep on expiration.
+  - `POST /api/player/sync` accepts `Authorization: Bearer <token>` or `payload.sessionToken`. Returns `401 Unauthorized` with `tokenExpired: true` on invalid/expired tokens.
+  - Completely eliminated password hash transmission on active flight sync cycles (`StorageService.syncToCloud`). Credentials sent only during login or initial password creation.
+  - Verified with 8-part automated integration suite (`test_session_tokens.js`) + Playwright runner 06 (0 console errors).
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

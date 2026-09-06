@@ -102,6 +102,72 @@ function savePlayers() {
   } catch (e) {}
 }
 
+// Cross-Device Player Ephemeral Sessions Store
+const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
+const SESSION_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+function loadSessions() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (fs.existsSync(SESSIONS_FILE)) {
+      return JSON.parse(fs.readFileSync(SESSIONS_FILE, 'utf8'));
+    }
+  } catch (e) {}
+  return {};
+}
+
+let sessionsStore = loadSessions();
+
+function reloadSessions() {
+  sessionsStore = loadSessions();
+  return sessionsStore;
+}
+
+function saveSessions() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessionsStore, null, 2), 'utf8');
+  } catch (e) {}
+}
+
+function createSessionToken(playerId) {
+  const token = crypto.randomBytes(32).toString('hex');
+  const now = Date.now();
+  sessionsStore[token] = {
+    playerId,
+    createdAt: new Date(now).toISOString(),
+    expiresAt: now + SESSION_EXPIRY_MS
+  };
+  saveSessions();
+  return token;
+}
+
+function validateSessionToken(token, expectedPlayerId) {
+  if (!token || typeof token !== 'string') return { valid: false, reason: 'MISSING_TOKEN' };
+  const session = sessionsStore[token];
+  if (!session) return { valid: false, reason: 'INVALID_TOKEN' };
+  if (Date.now() > session.expiresAt) {
+    delete sessionsStore[token];
+    saveSessions();
+    return { valid: false, reason: 'EXPIRED_TOKEN' };
+  }
+  if (expectedPlayerId && session.playerId !== expectedPlayerId) {
+    return { valid: false, reason: 'PLAYER_MISMATCH' };
+  }
+  return { valid: true, session };
+}
+
+function revokePlayerSessions(playerId) {
+  let changed = false;
+  for (const [t, s] of Object.entries(sessionsStore)) {
+    if (s.playerId === playerId) {
+      delete sessionsStore[t];
+      changed = true;
+    }
+  }
+  if (changed) saveSessions();
+}
+
 
 function getActivePlayersCount() {
   const now = Date.now();
@@ -230,6 +296,9 @@ const rateLimitCleanupInterval = setInterval(() => {
   for (const [k, v] of authLockoutStore.entries()) {
     if (v.lockoutUntil && now > v.lockoutUntil) authLockoutStore.delete(k);
   }
+  for (const [k, v] of Object.entries(sessionsStore)) {
+    if (v.expiresAt && now > v.expiresAt) delete sessionsStore[k];
+  }
 }, 300000);
 if (rateLimitCleanupInterval.unref) rateLimitCleanupInterval.unref();
 
@@ -310,7 +379,7 @@ function createServer() {
       res.writeHead(204, {
         'Access-Control-Allow-Origin': corsOrigin || '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Vary': 'Origin'
       });
       res.end();
@@ -335,6 +404,81 @@ function createServer() {
         }));
         return;
       }
+    }
+
+    // API: Player Login (POST /api/player/login) -> Ephemeral Session Token
+    if (req.method === 'POST' && reqUrl === '/api/player/login') {
+      readJsonBody(req, res, corsOrigin, (err, payload) => {
+        let rawId = (payload.playerId || '').trim().toUpperCase();
+        if (!rawId) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Missing playerId' }));
+          return;
+        }
+        if (!rawId.startsWith('#')) rawId = '#' + rawId;
+
+        if (!ID_REGEX.test(rawId)) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGES USER-ID FORMAT' }));
+          return;
+        }
+
+        const authKey = `${clientIp}:${rawId}`;
+        const lockCheck = checkAuthLockout(authKey);
+        if (lockCheck.locked) {
+          res.writeHead(429, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': corsOrigin || '*',
+            'Retry-After': String(lockCheck.retryAfter),
+            'Vary': 'Origin'
+          });
+          res.end(JSON.stringify({
+            ok: false,
+            error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
+            retryAfter: lockCheck.retryAfter
+          }));
+          return;
+        }
+
+        const record = playersStore[rawId];
+        if (!record) {
+          res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
+          return;
+        }
+
+        const clientPwHash = (payload.passwordHash || '').trim() || null;
+
+        if (hasPassword(record)) {
+          const authResult = verifyPassword(record.passwordHash, clientPwHash);
+          if (!authResult.valid) {
+            recordAuthFailure(authKey, 5, 60000);
+            res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+            res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
+            return;
+          }
+          if (authResult.needsUpgrade && clientPwHash) {
+            record.passwordHash = createSaltedPassword(clientPwHash);
+            savePlayers();
+          }
+        }
+
+        recordAuthSuccess(authKey);
+
+        const token = createSessionToken(rawId);
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Vary': 'Origin'
+        });
+        res.end(JSON.stringify({
+          ok: true,
+          playerId: rawId,
+          sessionToken: token,
+          expiresAt: sessionsStore[token].expiresAt
+        }));
+      });
+      return;
     }
 
     // API: Player Cloud Sync (POST)
@@ -371,12 +515,35 @@ function createServer() {
           return;
         }
 
-        // Password handling: client sends pre-hashed SHA-256
+        // Check for session token in Authorization header or request payload
+        let token = null;
+        const authHeader = req.headers['authorization'];
+        if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+          token = authHeader.slice(7).trim();
+        } else if (payload.sessionToken) {
+          token = String(payload.sessionToken).trim();
+        }
+
         const clientPwHash = (payload.passwordHash || '').trim() || null;
         const existing = playersStore[rawId];
+        let tokenAuthenticated = false;
+
+        if (token) {
+          const tokenCheck = validateSessionToken(token, rawId);
+          if (!tokenCheck.valid) {
+            res.writeHead(401, {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': corsOrigin || '*',
+              'Vary': 'Origin'
+            });
+            res.end(JSON.stringify({ ok: false, error: 'UNGUELTIGES ODER ABGELAUFENES TOKEN', tokenExpired: true }));
+            return;
+          }
+          tokenAuthenticated = true;
+        }
 
         // If record exists with a password, enforce authentication before overwriting
-        if (existing && hasPassword(existing)) {
+        if (existing && hasPassword(existing) && !tokenAuthenticated) {
           const authResult = verifyPassword(existing.passwordHash, clientPwHash);
           if (!authResult.valid) {
             recordAuthFailure(authKey, 5, 60000);
@@ -392,6 +559,7 @@ function createServer() {
         let finalPasswordHash = null;
         if (payload.removePassword) {
           finalPasswordHash = null;
+          revokePlayerSessions(rawId);
         } else if (clientPwHash) {
           if (existing && existing.passwordHash && typeof existing.passwordHash === 'object' && existing.passwordHash.salt && existing.passwordHash.derivedHash) {
             const computed = derivePasswordKey(clientPwHash, existing.passwordHash.salt);
@@ -399,6 +567,7 @@ function createServer() {
               finalPasswordHash = existing.passwordHash;
             } else {
               finalPasswordHash = createSaltedPassword(clientPwHash);
+              revokePlayerSessions(rawId);
             }
           } else {
             finalPasswordHash = createSaltedPassword(clientPwHash);
@@ -415,6 +584,12 @@ function createServer() {
         };
         savePlayers();
 
+        // Maintain or issue session token for authenticated password-protected accounts
+        let issuedToken = tokenAuthenticated ? token : null;
+        if (!issuedToken && hasPassword(playersStore[rawId])) {
+          issuedToken = createSessionToken(rawId);
+        }
+
         res.writeHead(200, {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': corsOrigin || '*',
@@ -424,7 +599,8 @@ function createServer() {
           ok: true,
           playerId: rawId,
           updatedAt: playersStore[rawId].updatedAt,
-          hasPassword: hasPassword(playersStore[rawId])
+          hasPassword: hasPassword(playersStore[rawId]),
+          sessionToken: issuedToken || undefined
         }));
       });
       return;
@@ -490,13 +666,15 @@ function createServer() {
 
         recordAuthSuccess(authKey);
 
+        const sessionToken = createSessionToken(rawId);
+
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
           'Access-Control-Allow-Origin': corsOrigin || '*',
           'Cache-Control': 'no-cache',
           'Vary': 'Origin'
         });
-        res.end(JSON.stringify({ ok: true, player: record }));
+        res.end(JSON.stringify({ ok: true, player: record, sessionToken }));
       });
       return;
     }
@@ -764,5 +942,10 @@ module.exports = {
   derivePasswordKey,
   createSaltedPassword,
   verifyPassword,
-  hasPassword
+  hasPassword,
+  loadSessions,
+  reloadSessions,
+  createSessionToken,
+  validateSessionToken,
+  revokePlayerSessions
 };
