@@ -270,11 +270,11 @@ async function runPlaywrightSuite() {
     console.log('[Playwright] Testing #btn-menu-profile...');
     await page.click('#btn-menu-profile');
     await sleep(400);
+    console.log('[Playwright] Capturing 06b_pilot_profile.png (Clean Initial State: 2 renames available)');
+    await captureScreenshot(page, '06b_pilot_profile.png', 'Pilot Profile');
     await page.fill('#profile-name-input', 'ApexStriker');
     await page.click('#profile-form button[type="submit"]');
     await sleep(300);
-    console.log('[Playwright] Capturing 06b_pilot_profile.png');
-    await captureScreenshot(page, '06b_pilot_profile.png', 'Pilot Profile');
     await page.click('#btn-profile-close');
     await sleep(300);
   }

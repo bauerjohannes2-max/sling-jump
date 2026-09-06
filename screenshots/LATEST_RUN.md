@@ -1,16 +1,14 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 6.9.2026, 20:37:00  
-> **Modus:** Selektiv (`06b, 13, 7`)  
+> **Laufzeit:** 6.9.2026, 20:48:19  
+> **Modus:** Selektiv (`04`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
-> **Frisch erfasste Screenshots in diesem Lauf:** 3  
+> **Frisch erfasste Screenshots in diesem Lauf:** 1  
 > **Garantierte Frische:** Alle unten aufgeführten Dateien wurden in diesem Testlauf frisch erzeugt.
 
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `06b_pilot_profile.png` | Pilot Profile | 20:36:56 | 217 KB | `ca10a9e1a3877efa` |
-| `07_settings.png` | Settings Modal | 20:36:57 | 203 KB | `5edb23f4176e52ab` |
-| `13_tutorial_modal.png` | Tutorial Controls Guide | 20:36:59 | 262 KB | `969dd235972ba443` |
+| `04_hub_leaderboard.png` | Global Leaderboard | 20:48:18 | 201 KB | `e5d80f2f60bc41ad` |
 
 
 ### Gesamter Screenshot-Bestand (22 Dateien)
@@ -22,7 +20,6 @@
 | `02_hangar_skins.png` | 17:02:30 | 245 KB |
 | `08_gameplay_hud.png` | 18:53:08 | 213 KB |
 | `01_main_menu.png` | 19:10:29 | 222 KB |
-| `04_hub_leaderboard.png` | 19:10:30 | 255 KB |
 | `10_game_over.png` | 19:10:37 | 503 KB |
 | `10c_mobile_game_over.png` | 19:10:38 | 368 KB |
 | `10b_revived_gameplay.png` | 19:10:39 | 223 KB |
@@ -35,6 +32,7 @@
 | `05d_hub_quests_tab_weekly.png` | 19:58:31 | 195 KB |
 | `05e_hub_quests_tab_daily.png` | 19:59:36 | 339 KB |
 | `05_hub_quests.png` | 20:20:22 | 378 KB |
-| `06b_pilot_profile.png` | 20:36:56 | 217 KB |
 | `07_settings.png` | 20:36:57 | 203 KB |
-| `13_tutorial_modal.png` | 20:36:59 | 262 KB |
+| `06b_pilot_profile.png` | 20:47:34 | 222 KB |
+| `13_tutorial_modal.png` | 20:47:36 | 264 KB |
+| `04_hub_leaderboard.png` | 20:48:18 | 201 KB |

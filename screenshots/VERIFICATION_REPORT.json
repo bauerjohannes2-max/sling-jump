@@ -1,36 +1,20 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (06b, 13, 7)",
-  "executedAt": "2026-09-06T18:37:00.344Z",
-  "localTimestamp": "6.9.2026, 20:37:00",
+  "mode": "Selective (04)",
+  "executedAt": "2026-09-06T18:48:19.757Z",
+  "localTimestamp": "6.9.2026, 20:48:19",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
-  "selectiveScreenshotsCount": 3,
+  "selectiveScreenshotsCount": 1,
   "totalCatalogScreenshotsCount": 22,
   "freshRunManifest": [
     {
-      "filename": "06b_pilot_profile.png",
-      "description": "Pilot Profile",
-      "sizeKb": 217,
-      "capturedAt": "2026-09-06T18:36:56.498Z",
-      "localTime": "20:36:56",
-      "sha256": "ca10a9e1a3877efa"
-    },
-    {
-      "filename": "07_settings.png",
-      "description": "Settings Modal",
-      "sizeKb": 203,
-      "capturedAt": "2026-09-06T18:36:57.789Z",
-      "localTime": "20:36:57",
-      "sha256": "5edb23f4176e52ab"
-    },
-    {
-      "filename": "13_tutorial_modal.png",
-      "description": "Tutorial Controls Guide",
-      "sizeKb": 262,
-      "capturedAt": "2026-09-06T18:36:59.464Z",
-      "localTime": "20:36:59",
-      "sha256": "969dd235972ba443"
+      "filename": "04_hub_leaderboard.png",
+      "description": "Global Leaderboard",
+      "sizeKb": 201,
+      "capturedAt": "2026-09-06T18:48:18.936Z",
+      "localTime": "20:48:18",
+      "sha256": "e5d80f2f60bc41ad"
     }
   ],
   "manifest": [
@@ -81,14 +65,6 @@
       "capturedAt": "2026-09-06T17:10:29.083Z",
       "localTime": "19:10:29",
       "sha256": "b7d73d4228ba84fb"
-    },
-    {
-      "filename": "04_hub_leaderboard.png",
-      "description": "Global Leaderboard",
-      "sizeKb": 255,
-      "capturedAt": "2026-09-06T17:10:30.167Z",
-      "localTime": "19:10:30",
-      "sha256": "75d04ac11e0056f7"
     },
     {
       "filename": "10_game_over.png",
@@ -187,14 +163,6 @@
       "sha256": "d442d6557a38db0f"
     },
     {
-      "filename": "06b_pilot_profile.png",
-      "description": "Pilot Profile",
-      "sizeKb": 217,
-      "capturedAt": "2026-09-06T18:36:56.498Z",
-      "localTime": "20:36:56",
-      "sha256": "ca10a9e1a3877efa"
-    },
-    {
       "filename": "07_settings.png",
       "description": "Settings Modal",
       "sizeKb": 203,
@@ -203,12 +171,28 @@
       "sha256": "5edb23f4176e52ab"
     },
     {
+      "filename": "06b_pilot_profile.png",
+      "description": "Pilot Profile",
+      "sizeKb": 222,
+      "capturedAt": "2026-09-06T18:47:34.290Z",
+      "localTime": "20:47:34",
+      "sha256": "de7bdb2e9a93fdc8"
+    },
+    {
       "filename": "13_tutorial_modal.png",
       "description": "Tutorial Controls Guide",
-      "sizeKb": 262,
-      "capturedAt": "2026-09-06T18:36:59.464Z",
-      "localTime": "20:36:59",
-      "sha256": "969dd235972ba443"
+      "sizeKb": 264,
+      "capturedAt": "2026-09-06T18:47:36.018Z",
+      "localTime": "20:47:36",
+      "sha256": "e1c9f720941a4eb8"
+    },
+    {
+      "filename": "04_hub_leaderboard.png",
+      "description": "Global Leaderboard",
+      "sizeKb": 201,
+      "capturedAt": "2026-09-06T18:48:18.936Z",
+      "localTime": "20:48:18",
+      "sha256": "e5d80f2f60bc41ad"
     }
   ]
 }

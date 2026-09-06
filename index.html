@@ -561,25 +561,39 @@
       </div>
     </div>
 
-    <!-- 7. BESTENLISTE MODAL (DEDICATED) -->
+    <!-- 7. BESTENLISTE MODAL (REDESIGNED: FLOATING-DOCK & STIFF HEIGHT PARITY) -->
     <div class="modal-overlay" id="leaderboard-modal">
-      <div class="modal-card hub-card" style="position: relative;">
+      <div class="modal-card hub-card leaderboard-modal-card" style="position: relative;">
         <button class="modal-close-x" id="btn-leaderboard-close" aria-label="Schließen">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <div class="modal-title" style="margin-bottom:14px;">BESTENLISTE (TOP 100)</div>
-        <div class="leaderboard-list" id="global-leaderboard-list"></div>
 
-        <!-- Sticky Player Rank Banner -->
-        <div class="player-rank-card" id="player-rank-card">
+        <!-- Header Lockup -->
+        <div class="leaderboard-header-lockup">
+          <div class="modal-title leaderboard-title">BESTENLISTE</div>
+        </div>
+
+        <!-- Sticky Player Rank Hero Card (Floating-Dock Parity, repositioned to top) -->
+        <div class="player-rank-card leaderboard-hero-card" id="player-rank-card">
           <div class="rank-card-main">
-            <div class="rank-badge" id="player-rank-badge">#---</div>
-            <div class="rank-info">
-              <div class="rank-title" id="player-rank-percentile">BERECHNE RANG...</div>
-              <div class="rank-delta" id="player-rank-delta">Rekord: 0m</div>
+            <div class="rank-badge lb-hero-rank-badge" id="player-rank-badge">#---</div>
+            <div class="rank-info lb-hero-rank-info">
+              <div class="rank-title lb-hero-rank-title" id="player-rank-percentile">BERECHNE RANG...</div>
+              <div class="rank-delta lb-hero-rank-delta" id="player-rank-delta">Bestleistung: 0 m</div>
             </div>
+            <div class="lb-hero-status-pill">DEIN RANG</div>
           </div>
         </div>
+
+        <!-- Table Column Headers -->
+        <div class="leaderboard-table-header">
+          <span class="lb-col-rank">RANG</span>
+          <span class="lb-col-name">PILOT</span>
+          <span class="lb-col-alt">REKORD</span>
+        </div>
+
+        <!-- Stiff Scrollable Leaderboard List -->
+        <div class="leaderboard-list" id="global-leaderboard-list"></div>
       </div>
     </div>
 
@@ -644,7 +658,7 @@
           <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag">SLING JUMP v5.17.0</div>
+        <div class="settings-version-tag">SLING JUMP v5.17.1</div>
       </div>
     </div>
 
@@ -771,21 +785,21 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=5.17.0"></script>
-  <script src="js/services/StorageService.js?v=5.17.0"></script>
-  <script src="js/services/AnalyticsService.js?v=5.17.0"></script>
-  <script src="js/audio/AudioManager.js?v=5.17.0"></script>
-  <script src="js/engine/ParticleSystem.js?v=5.17.0"></script>
-  <script src="js/engine/InputManager.js?v=5.17.0"></script>
-  <script src="js/engine/MissionManager.js?v=5.17.0"></script>
-  <script src="js/entities/Node.js?v=5.17.0"></script>
-  <script src="js/entities/EnergyOrb.js?v=5.17.0"></script>
-  <script src="js/entities/Spaceship.js?v=5.17.0"></script>
-  <script src="js/world/WorldManager.js?v=5.17.0"></script>
-  <script src="js/engine/ShopManager.js?v=5.17.0"></script>
-  <script src="js/engine/StateManager.js?v=5.17.0"></script>
-  <script src="js/engine/UIManager.js?v=5.17.0"></script>
-  <script src="js/engine/GameEngine.js?v=5.17.0"></script>
-  <script src="js/main.js?v=5.17.0"></script>
+  <script src="js/config/Constants.js?v=5.17.1"></script>
+  <script src="js/services/StorageService.js?v=5.17.1"></script>
+  <script src="js/services/AnalyticsService.js?v=5.17.1"></script>
+  <script src="js/audio/AudioManager.js?v=5.17.1"></script>
+  <script src="js/engine/ParticleSystem.js?v=5.17.1"></script>
+  <script src="js/engine/InputManager.js?v=5.17.1"></script>
+  <script src="js/engine/MissionManager.js?v=5.17.1"></script>
+  <script src="js/entities/Node.js?v=5.17.1"></script>
+  <script src="js/entities/EnergyOrb.js?v=5.17.1"></script>
+  <script src="js/entities/Spaceship.js?v=5.17.1"></script>
+  <script src="js/world/WorldManager.js?v=5.17.1"></script>
+  <script src="js/engine/ShopManager.js?v=5.17.1"></script>
+  <script src="js/engine/StateManager.js?v=5.17.1"></script>
+  <script src="js/engine/UIManager.js?v=5.17.1"></script>
+  <script src="js/engine/GameEngine.js?v=5.17.1"></script>
+  <script src="js/main.js?v=5.17.1"></script>
 </body>
 </html>

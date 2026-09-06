@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (v5.17.0 - Tutorial Redesign, Centered Renames & Cross-Device Sync)  
+> **Status:** Release Candidate (v5.17.1 - Leaderboard Redesign, Stiff Height & Floating-Dock Parity)  
 > **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
@@ -34,6 +34,18 @@
 | **Zone 7: Meister-Kosmos** | 14.000 m+ | 16% | 2% | 30% | 44% | 8% | ~10% | 250 – 320 px | 74% dynamische Knoten, maximale Reach |
 
 ## 3. Chronologische Release-Historie
+
+### v5.17.1 (06.09.2026) - Leaderboard Tab Cybernetic Redesign, Stiff Height & Hero Standing
+- **Leaderboard Redesign & Floating-Dock Parität (`style.css`, `index.html`, `architecture.md`):**
+  - Äußere Hülle (`.leaderboard-modal-card`) an Missions- und Einstellungs-Modalkästen angeglichen: Solide dunkle `#0b0d13` Basis, `1px solid rgba(255, 255, 255, 0.08)`, `24px` Border-Radius, `0 24px 64px rgba(0, 0, 0, 0.9)` Tiefenschatten.
+  - Starrer, fester Höhenrahmen (`height: 580px; max-height: 88vh;` Desktop, `560px` Mobile) mit `display: flex; flex-direction: column;` und `flex: 1; min-height: 0;` Scroll-Liste. Kein Höhenzittern oder Verrutschen mehr bei unterschiedlicher Spieleranzahl.
+  - Neugedachte visuelle Platzierung: Der Spieler-Status (`.leaderboard-hero-card` / `#player-rank-card`) thront direkt unter dem zentrierten, getrackten Titel `BESTENLISTE` auf Augenhöhe – inklusive leuchtendem Rang-Badge `#2`, dynamischem Prozentrang-Titel, Bestleistung in Orbitron Tabular-Ziffern und `DEIN RANG` Status-Pill.
+  - Elegante Tabellen-Spaltenleiste (`RANG`, `PILOT`, `REKORD`) und überarbeitete Zeilen mit Podium-Medaillen-Glow (Gold #1, Silber #2, Bronze #3), aktivem Spieler-Highlighting (`.player-entry`) und feinem Crimson-Scrollbalken.
+- **Profil-Tab Bereinigung & Namensänderungs-Notice (`scripts/playwright_runner.js`):**
+  - Bestätigung der vollständigen Abwesenheit alter Performance/Flug-Statusleisten.
+  - Timing der Screenshot-Erfassung optimiert, sodass `06b_pilot_profile.png` den sauberen Ausgangszustand mit `NOCH 2 NAMENSÄNDERUNGEN VERFÜGBAR` zeigt.
+- **Automatisierte Playwright Verifikation:**
+  - 0 Konsolenfehler, 0 ungefangene Ausnahmen, Screenshots `04_hub_leaderboard.png`, `06b_pilot_profile.png`, `13_tutorial_modal.png` visuell geprüft.
 
 ### v5.16.7 (06.09.2026) - Settings Modal Floating-Dock & Mission Parity Redesign
 - **Settings Redesign & Floating-Dock Hintergrund-Angleichung (`style.css`, `index.html`, `UIManager.js`):**

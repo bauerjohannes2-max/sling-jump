@@ -93,5 +93,10 @@
     2. `02 / ROTIEREN`: Orbit-Schwung
     3. `03 / KATAPULTIEREN`: Apex-Launch
   - Minimalist crimson action button (`VERSTANDEN`).
+- **Leaderboard Hub Architecture (`#leaderboard-modal`):**
+  - Solid dark modal base (`#0b0d13` base, `1px solid rgba(255, 255, 255, 0.08)`, `24px` radius, `box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9)`) matching Settings, Profile, and Missions.
+  - Rigid height geometry (`580px` desktop, `560px` mobile, `flex: 1; min-height: 0;` scroll area) ensuring zero height fluctuations or layout jitter as more players populate the table.
+  - Eye-level Hero Player Standing Card (`.leaderboard-hero-card` / `#player-rank-card`) positioned immediately below the header with bold Orbitron rank badge, title, personal best score, and status pill (`DEIN RANG`).
+  - Sleek column header bar (`RANG`, `PILOT`, `REKORD`) and scrollable table rows with top 3 podium highlights (Gold, Silver, Bronze) and active player highlighting (`.player-entry`).
 
 

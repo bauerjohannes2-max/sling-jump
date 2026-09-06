@@ -234,4 +234,10 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **Floating-Dock Cards:** 3 sequential cards (`01 / HALTEN` - Gravitations-Anker, `02 / ROTIEREN` - Orbit-Schwung, `03 / KATAPULTIEREN` - Apex-Launch).
 - **CTA:** Single primary button `VERSTANDEN` with karminrot glow.
 
+### 10.6 Leaderboard Modal Architecture
+- **Outer Shell Parity:** `.leaderboard-modal-card` uses `#0b0d13` solid dark base, `1px solid rgba(255, 255, 255, 0.08)` hairline border, `24px` radius, and aerospace elevation shadow (`box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9)`).
+- **Rigid Height Geometry:** Fixed height of `580px` (`max-height: 88vh` desktop, `560px` / `90vh` mobile) with `display: flex; flex-direction: column;` and `flex: 1; min-height: 0;` internal scroll area. Eliminates height jumps or dynamic bouncing when player counts vary.
+- **Hero Standing Placement:** `.leaderboard-hero-card` positioned immediately below the header lockup at eye level. Prominently highlights the player's personal badge (e.g. `#2`), rank title (`RANG #2 • GLOBAL (TOP 100)`), personal best score (`4.820 m`), and uppercase status pill (`DEIN RANG`).
+- **Podium & Row Polish:** Sleek micro-typography column header (`RANG`, `PILOT`, `REKORD`). Dynamic podium medal glow (Gold `#1`, Silver `#2`, Bronze `#3`), bold active player row highlight (`.player-entry`), and ultra-thin custom scrollbars.
+
 
