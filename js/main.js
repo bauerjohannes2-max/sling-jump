@@ -96,6 +96,51 @@
     onBtn('btn-profile-close', () => ui.closeProfileModal());
 
     // --- CLOUD ACCOUNT & SYNC BUTTONS ---
+
+    // Password status UI updater
+    function updatePasswordUI() {
+      const profile = engine.storage.getPlayerProfile();
+      const hasPassword = !!(profile && profile.passwordHash);
+      const statusEl = document.getElementById('profile-pw-status');
+      const removeBtn = document.getElementById('btn-remove-password');
+      const pwInput = document.getElementById('sync-password-input');
+      if (statusEl) {
+        statusEl.textContent = hasPassword ? 'PASSWORT AKTIV' : 'KEIN PASSWORT GESETZT';
+        statusEl.classList.toggle('active', hasPassword);
+      }
+      if (removeBtn) removeBtn.style.display = hasPassword ? 'block' : 'none';
+      if (pwInput && hasPassword) pwInput.placeholder = 'Neues Passwort...';
+      if (pwInput && !hasPassword) pwInput.placeholder = 'Passwort setzen...';
+    }
+
+    // Set password
+    onBtn('btn-set-password', async () => {
+      const input = document.getElementById('sync-password-input');
+      const pw = input ? input.value.trim() : '';
+      if (!pw) {
+        triggerQuickToast('BITTE PASSWORT EINGEBEN');
+        return;
+      }
+      const res = await engine.storage.setPassword(pw);
+      triggerQuickToast(res.message);
+      if (input) input.value = '';
+      updatePasswordUI();
+    });
+
+    // Remove password
+    onBtn('btn-remove-password', () => {
+      const res = engine.storage.removePassword();
+      triggerQuickToast(res.message);
+      updatePasswordUI();
+    });
+
+    // Initialize password UI on profile open
+    const origOpenProfile = ui.openProfileModal.bind(ui);
+    ui.openProfileModal = function() {
+      origOpenProfile();
+      updatePasswordUI();
+    };
+
     onBtn('btn-copy-sync-link', async () => {
       const profile = engine.storage.getPlayerProfile();
       const playerId = (profile && profile.playerId) ? profile.playerId.replace('#', '') : '';
@@ -114,7 +159,8 @@
           document.execCommand('copy');
           document.body.removeChild(ta);
         }
-        triggerQuickToast('LINK KOPIERT! AUF ANDEREM GERÄT ÖFFNEN');
+        const hasPassword = !!(profile && profile.passwordHash);
+        triggerQuickToast(hasPassword ? 'LINK KOPIERT! PASSWORT WIRD BENÖTIGT' : 'LINK KOPIERT! AUF ANDEREM GERÄT ÖFFNEN');
       } catch (err) {
         triggerQuickToast(`DEIN CODE: #${playerId}`);
       }
@@ -122,12 +168,14 @@
 
     onBtn('btn-load-sync-id', async () => {
       const input = document.getElementById('sync-player-id-input');
+      const pwInput = document.getElementById('sync-load-password-input');
       const enteredId = input ? input.value.trim() : '';
+      const enteredPw = pwInput ? pwInput.value.trim() : '';
       if (!enteredId) {
         triggerQuickToast('BITTE USER-ID EINGEBEN');
         return;
       }
-      const res = await engine.storage.restoreFromCloud(enteredId);
+      const res = await engine.storage.restoreFromCloud(enteredId, enteredPw || undefined);
       if (res && res.success) {
         triggerQuickToast('SPIELSTAND ERFOLGREICH GELADEN!');
         ui.updateUserProfileNav();
@@ -136,6 +184,7 @@
         ui.initSettingsUI();
         ui.openProfileModal();
         if (input) input.value = '';
+        if (pwInput) pwInput.value = '';
       } else {
         triggerQuickToast(res && res.message ? res.message.toUpperCase() : 'USER-ID NICHT GEFUNDEN');
       }

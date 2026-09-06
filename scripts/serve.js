@@ -6,6 +6,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const crypto = require('crypto');
 
 let qrcode = null;
 try {
@@ -137,9 +138,21 @@ function createServer() {
           }
           if (!rawId.startsWith('#')) rawId = '#' + rawId;
 
+          // Password handling: client sends pre-hashed SHA-256
+          const clientPwHash = (payload.passwordHash || '').trim() || null;
+          const existing = playersStore[rawId];
+
+          // If record exists with a password, verify before overwriting
+          if (existing && existing.passwordHash && clientPwHash && existing.passwordHash !== clientPwHash) {
+            res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+            res.end(JSON.stringify({ error: 'FALSCHES PASSWORT' }));
+            return;
+          }
+
           playersStore[rawId] = {
             playerId: rawId,
             updatedAt: new Date().toISOString(),
+            passwordHash: clientPwHash || (existing && existing.passwordHash) || null,
             state: payload.state || {}
           };
           savePlayers();
@@ -148,7 +161,7 @@ function createServer() {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           });
-          res.end(JSON.stringify({ ok: true, playerId: rawId, updatedAt: playersStore[rawId].updatedAt }));
+          res.end(JSON.stringify({ ok: true, playerId: rawId, updatedAt: playersStore[rawId].updatedAt, hasPassword: !!playersStore[rawId].passwordHash }));
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Invalid JSON' }));
@@ -157,13 +170,28 @@ function createServer() {
       return;
     }
 
-    // API: Player Cloud Restore (GET /api/player/:id)
+    // API: Player Cloud Restore (GET /api/player/:id?pw=hash)
     if (req.method === 'GET' && reqUrl.startsWith('/api/player/')) {
       let rawId = decodeURIComponent(reqUrl.replace('/api/player/', '')).trim().toUpperCase();
       if (!rawId.startsWith('#')) rawId = '#' + rawId;
 
+      // Parse password hash from query string
+      const fullUrl = req.url;
+      const qIdx = fullUrl.indexOf('?');
+      const params = qIdx >= 0 ? new URLSearchParams(fullUrl.slice(qIdx)) : new URLSearchParams();
+      const clientPw = (params.get('pw') || '').trim();
+
       const record = playersStore[rawId];
       if (record) {
+        // Validate password if record is password-protected
+        if (record.passwordHash && record.passwordHash !== clientPw) {
+          res.writeHead(403, {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Access-Control-Allow-Origin': '*'
+          });
+          res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
+          return;
+        }
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
           'Access-Control-Allow-Origin': '*',

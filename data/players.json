@@ -10,7 +10,7 @@
   },
   "#ZKJJ": {
     "playerId": "#ZKJJ",
-    "updatedAt": "2026-09-06T18:45:54.536Z",
+    "updatedAt": "2026-09-06T19:09:36.155Z",
     "state": {
       "cores": 0,
       "hyperCrystals": 1,
@@ -33,7 +33,8 @@
         "callsign": "KOSMOS",
         "playerId": "#ZKJJ",
         "registeredAt": "2026-09-06T18:32:26.982Z",
-        "nameChanges": 0
+        "nameChanges": 0,
+        "passwordHash": null
       },
       "stats": {
         "lifetimeMeters": 0,

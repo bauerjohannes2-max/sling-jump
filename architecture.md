@@ -83,20 +83,24 @@
   - **Short User ID Architecture:** Generates 4-character uppercase alphanumeric IDs with hash prefix (`#XXXX`, e.g. `#EXGN`, `#8K2P`) replacing legacy long hashes.
   - **2x Free Name Change Policy:** Players receive 2 free name changes (`MAX_FREE_CHANGES = 2`) tracked persistently in `StorageService`, with reactive centered status badges ("NOCH 2 NAMENSÄNDERUNGEN VERFÜGBAR") and input locking upon exhaustion.
   - **Cross-Device Cloud Sync Architecture:**
-    - Seamless 0-click onboarding: `POST /api/player/sync` and `GET /api/player/:id` persisted in `data/players.json`.
+    - Seamless 0-click onboarding: `POST /api/player/sync` and `GET /api/player/:id?pw=hash` persisted in `data/players.json`.
     - One-click shareable link (`?id=XXXX`) auto-loads user profile across browsers and devices on boot.
     - Manual 4-character ID transfer input with immediate local state restore and reactive UI reload.
+    - **Optional Password Protection:** Players can set a SHA-256 hashed password via `StorageService.setPassword()` (Web Crypto API client-side). Server stores hash in `players.json`, validates on restore. Password status badge in profile sync card. Backward compatible — unprotected accounts sync freely.
 - **Tutorial Modal Architecture (`#tutorial-modal`):**
   - Commercial arcade minimalism (Alto's Adventure style) with solid `#0b0d13` base and floating-dock parity cards.
-  - 100% text-driven guide (zero video, zero runtime canvas animation loops) highlighting 3 core actions:
-    1. `01 / HALTEN`: Gravitations-Anker
-    2. `02 / ROTIEREN`: Orbit-Schwung
-    3. `03 / KATAPULTIEREN`: Apex-Launch
+  - 100% text-driven guide (zero video, zero runtime canvas animation loops) with 3 monochrome step cards:
+    1. `01`: Halte den Bildschirm gedrückt, um dich an einem Knoten einzuklinken.
+    2. `02`: Lasse im richtigen Winkel los, um an Höhe zu gewinnen.
+    3. `03`: Im 90-Grad-Winkel bekommst du einen extra Boost.
   - Minimalist crimson action button (`VERSTANDEN`).
+- **Stats Hub Architecture (`#stats-modal`):**
+  - Solid dark modal base (`#0b0d13` base, `1px solid rgba(255, 255, 255, 0.08)`, `24px` radius) matching Leaderboard, Settings, Profile, and Missions.
+  - Rigid height geometry (`580px` desktop, `560px` mobile, `flex: 1; min-height: 0;` scroll area) ensuring zero height fluctuations.
+  - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron personal best value.
+  - 2-column grid of 10 stat tiles (`.stats-tile`) with floating-dock parity fill, hover micro-animations, and custom crimson scrollbar.
 - **Leaderboard Hub Architecture (`#leaderboard-modal`):**
   - Solid dark modal base (`#0b0d13` base, `1px solid rgba(255, 255, 255, 0.08)`, `24px` radius, `box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9)`) matching Settings, Profile, and Missions.
   - Rigid height geometry (`580px` desktop, `560px` mobile, `flex: 1; min-height: 0;` scroll area) ensuring zero height fluctuations or layout jitter as more players populate the table.
   - Eye-level Hero Player Standing Card (`.leaderboard-hero-card` / `#player-rank-card`) positioned immediately below the header with bold Orbitron rank badge, title, personal best score, and status pill (`DEIN RANG`).
   - Sleek column header bar (`RANG`, `PILOT`, `REKORD`) and scrollable table rows with top 3 podium highlights (Gold, Silver, Bronze) and active player highlighting (`.player-entry`).
-
-

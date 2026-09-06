@@ -49,7 +49,8 @@ class StorageService {
         callsign: 'KOSMOS',
         playerId: StorageService.generateUniqueUserId(),
         registeredAt: new Date().toISOString(),
-        nameChanges: 0
+        nameChanges: 0,
+        passwordHash: null
       },
       
       // Daily & Weekly Mission System
@@ -296,6 +297,7 @@ class StorageService {
 
         const syncPayload = {
           playerId: profile.playerId,
+          passwordHash: profile.passwordHash || null,
           state: {
             cores: this.data.cores,
             hyperCrystals: this.data.hyperCrystals,
@@ -326,7 +328,7 @@ class StorageService {
     }, 800);
   }
 
-  async restoreFromCloud(rawId) {
+  async restoreFromCloud(rawId, password) {
     if (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:') {
       return { success: false, message: 'Server nicht erreichbar.' };
     }
@@ -336,8 +338,30 @@ class StorageService {
     let cleanId = rawId.trim().toUpperCase();
     if (!cleanId.startsWith('#')) cleanId = '#' + cleanId;
 
+    // Hash password client-side if provided
+    let pwHash = '';
+    if (password && password.trim()) {
+      try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password.trim());
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        pwHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        return { success: false, message: 'Passwort-Verschlüsselung fehlgeschlagen.' };
+      }
+    }
+
     try {
-      const res = await fetch(`/api/player/${encodeURIComponent(cleanId)}`);
+      const pwParam = pwHash ? `?pw=${encodeURIComponent(pwHash)}` : '';
+      const res = await fetch(`/api/player/${encodeURIComponent(cleanId)}${pwParam}`);
+      if (res.status === 403) {
+        const errData = await res.json().catch(() => ({}));
+        if (errData.requiresPassword) {
+          return { success: false, message: 'PASSWORT ERFORDERLICH', requiresPassword: true };
+        }
+        return { success: false, message: errData.error || 'FALSCHES PASSWORT' };
+      }
       if (!res.ok) {
         return { success: false, message: `Spieler ${cleanId} nicht gefunden.` };
       }
@@ -353,6 +377,30 @@ class StorageService {
     } catch (err) {
       return { success: false, message: 'Server nicht erreichbar.' };
     }
+  }
+
+  async setPassword(plainPassword) {
+    if (!plainPassword || !plainPassword.trim()) {
+      return { success: false, message: 'Passwort darf nicht leer sein.' };
+    }
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plainPassword.trim());
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      this.data.playerProfile.passwordHash = hash;
+      this.save();
+      return { success: true, message: 'PASSWORT GESETZT' };
+    } catch (e) {
+      return { success: false, message: 'Fehler beim Setzen des Passworts.' };
+    }
+  }
+
+  removePassword() {
+    this.data.playerProfile.passwordHash = null;
+    this.save();
+    return { success: true, message: 'PASSWORT ENTFERNT' };
   }
 
   saveDeferred() {

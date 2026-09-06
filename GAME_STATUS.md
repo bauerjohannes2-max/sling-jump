@@ -35,6 +35,20 @@
 
 ## 3. Chronologische Release-Historie
 
+### v5.18.0 (06.09.2026) - Password Auth, Stats Redesign & Tutorial Polish
+- **Username+Password Cross-Device Auth (`serve.js`, `StorageService.js`, `main.js`, `index.html`):**
+  - Optional SHA-256 password protection for cross-device sync. Client hashes via Web Crypto API, server stores hash in `players.json`.
+  - Profile sync card: "PASSWORT SETZEN" input + "PASSWORT ENTFERNEN" button with reactive status badge (KEIN PASSWORT GESETZT / PASSWORT AKTIV).
+  - Load section: Password input alongside ID field. Server returns 403 on wrong password.
+  - Backward compatible: unprotected accounts sync freely.
+- **Stats Modal Redesign (`index.html`, `style.css`):**
+  - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
+  - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.
+  - 10 stat tiles in 2-column grid (`.stats-grid-list` > `.stats-tile`) with floating-dock fill, hover micro-animations, custom crimson scrollbar.
+- **Tutorial Text Simplification (`architecture.md`):**
+  - Removed jargon labels (GRAVITATIONS-ANKER, ORBIT-SCHWUNG, APEX-LAUNCH) from documentation sync.
+  - Tutorial already had simplified monochrome text from v5.17.0.
+
 ### v5.17.1 (06.09.2026) - Leaderboard Tab Cybernetic Redesign, Stiff Height & Hero Standing
 - **Leaderboard Redesign & Floating-Dock Parität (`style.css`, `index.html`, `architecture.md`):**
   - Äußere Hülle (`.leaderboard-modal-card`) an Missions- und Einstellungs-Modalkästen angeglichen: Solide dunkle `#0b0d13` Basis, `1px solid rgba(255, 255, 255, 0.08)`, `24px` Border-Radius, `0 24px 64px rgba(0, 0, 0, 0.9)` Tiefenschatten.

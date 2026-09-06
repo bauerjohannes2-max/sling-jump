@@ -240,4 +240,20 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **Hero Standing Placement:** `.leaderboard-hero-card` positioned immediately below the header lockup at eye level. Prominently highlights the player's personal badge (e.g. `#2`), rank title (`RANG #2 • GLOBAL (TOP 100)`), personal best score (`4.820 m`), and uppercase status pill (`DEIN RANG`).
 - **Podium & Row Polish:** Sleek micro-typography column header (`RANG`, `PILOT`, `REKORD`). Dynamic podium medal glow (Gold `#1`, Silver `#2`, Bronze `#3`), bold active player row highlight (`.player-entry`), and ultra-thin custom scrollbars.
 
+### 10.7 Stats Modal Architecture
+- **Outer Shell:** `.stats-modal-card` with stiff `height: 580px; max-height: 88vh;`, `#0b0d13` base, `24px` radius. Matches leaderboard and missions modals.
+- **Hero Record Card:** `.stats-hero-card` with crimson accent border (`rgba(225, 29, 72, 0.35)`), SVG trend-up icon in crimson badge, bold Orbitron personal best value.
+- **Stat Grid:** `.stats-grid-list` 2-column grid containing 10 `.stats-tile` cards: Geflogene Distanz, Gespielte Runden, Beste Combo, Gesammelte Coins, Gesammelte Sparks, Durchschn. Höhe, Slingshots, Near Misses, Missionen, Wiederbelebungen.
+- **Tiles:** Floating-dock fill (`rgba(255, 255, 255, 0.035)`), `backdrop-filter: blur(16px)`, `14px` radius, hover lift micro-animation.
 
+### 10.8 Cross-Device Password Authentication
+- **Client-Side Hashing:** `StorageService.setPassword(plainText)` hashes via `crypto.subtle.digest('SHA-256', ...)` (Web Crypto API). Stored as hex string in `playerProfile.passwordHash`.
+- **Sync Flow:** `syncToCloud()` includes `passwordHash` in POST payload. Server stores alongside player record in `players.json`.
+- **Restore Validation:** `restoreFromCloud(id, password)` hashes password client-side, sends as `?pw=hash` query param. Server validates against stored hash. Returns 403 `FALSCHES PASSWORT` on mismatch.
+- **UI:** Profile sync card shows password status badge, set/remove buttons. Load section includes password input field.
+
+### 10.9 Tutorial Modal Text
+- 3 monochrome step cards with Orbitron numbered badges (01, 02, 03):
+  1. Halte den Bildschirm gedrückt, um dich an einem Knoten einzuklinken.
+  2. Lasse im richtigen Winkel los, um an Höhe zu gewinnen.
+  3. Im 90-Grad-Winkel bekommst du einen extra Boost.

@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '5.17.1',
+  VERSION: '5.18.0',
   STORAGE_KEY: 'sling_jump_save_v2',
 
   // Physics & Mechanics
