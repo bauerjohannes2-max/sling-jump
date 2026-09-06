@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC55 - v5.4.0 - Silent Quest Claim, Locked Skin 2 Coin Purchase, Deep Black Void & Cascading Flight Debrief Death Screen)  
+> **Status:** Release Candidate (RC56 - v5.5.0 - Classic Starfield Drift & Glints, Difficulty Tuning & Node Density Reduction, Main Menu Ship Hover Bobbing & Enhanced Dual-Layer Thruster Fire)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 06.09.2026  
@@ -25,17 +25,17 @@
 
 ## 1b. Detaillierte Schwierigkeits- & Progressions-Matrix (Höhenzonen & Kreis-Verteilung)
 
-Die prozedurale Weltengenerierung (`WorldManager.js`) skaliert die Herausforderung kontinuierlich entlang von 7 klar definierten Zonen. Bereits ab 250m Höhe treten bewegliche Pendelknoten auf, ab 750m Zeituhr-Knoten und ab 5.000m tödliche Weltraum-Minen:
+Die prozedurale Weltengenerierung (`WorldManager.js`) skaliert die Herausforderung kontinuierlich entlang von 7 klar definierten Zonen. Die Knotenabstände wurden spürbar geweitet und redundante Standard-Knoten reduziert, um das Gameplay kerniger und anspruchsvoller zu gestalten:
 
 | Zone | Höhenbereich (Meter) | Standard (%) | Super-Boost (%) | Beweglich (%) | Zeituhr / Fragil (%) | Köder / Fissur (%) | Weltraum-Mine / Bombe (Lethal) | Min/Max Lücke (px) | Mechanische Herausforderung & Gameplay-Verhalten |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Zone 1: Kalibrierung** | 0 m – 250 m | 100% | 0% | 0% | 0% | 0% | 0% | 135 – 175 px | Reine statische Basis-Knoten zum sicheren Eingewöhnen und Schwungaufbau. |
-| **Zone 2: Erdorbit & Dynamik** | 250 m – 750 m | 80% | 5% | 15% | 0% | 0% | 0% | 145 – 185 px | Frühe Einführung horizontal pendelnder Knoten (15%) & seltene Super-Boosts (5%). |
-| **Zone 3: Stratosphäre** | 750 m – 2.000 m | 58% | 4% | 24% | 14% | 0% | 0% | 165 – 210 px | Frühe Zeituhr-Knoten (14%) mit Countdown-Tick; Pendel (24%) und Boost (4%). |
-| **Zone 4: Mesosphäre** | 2.000 m – 5.000 m | 44% | 3% | 26% | 24% | 3% | 0% | 180 – 230 px | Taktische Zeituhr- (24%) und Pendelknoten (26%), erste Köder (3%). |
-| **Zone 5: Thermosphäre** | 5.000 m – 9.000 m | 34% | 2% | 28% | 30% | 6% | **~6% Korridor-Spawn** | 190 – 245 px | Erste tödliche Weltraum-Minen ab 5.000m; 30% Fragile Knoten fordern Tempo. |
-| **Zone 6: Tiefraum-Gefahren** | 9.000 m – 14.000 m | 28% | **1.0%** | 28% | 36% | 7% | **~10% Korridor-Spawn** | 195 – 250 px | **Dominante Zeituhr-Knoten (36%), Minen-Dichte (~10%), ultra-seltene Kristalle ab 8.000m.** |
-| **Zone 7: Meister-Kosmos** | 14.000 m+ | 23.2% | **0.8%** | 28% | 42% | 6% | **~10% Korridor-Spawn** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Beweglich); Boosts auf 0.8% minimiert (90% Drop). |
+| **Zone 1: Kalibrierung** | 0 m – 250 m | 90% | 0% | 10% | 0% | 0% | 0% | 160 – 205 px | Solide Basis mit 10% leichten Pendelknoten und großzügigem Freiraum. |
+| **Zone 2: Erdorbit & Dynamik** | 250 m – 750 m | 65% | 5% | 22% | 8% | 0% | 0% | 175 – 225 px | Spürbar reduzierte Standard-Kreise, 22% Pendel und 8% frühe Fragile Knoten. |
+| **Zone 3: Stratosphäre** | 750 m – 2.000 m | 44% | 5% | 28% | 20% | 3% | 0% | 195 – 250 px | Taktische Zeituhr- (20%) und Pendelknoten (28%) fordern genaues Zielen. |
+| **Zone 4: Mesosphäre** | 2.000 m – 5.000 m | 34% | 4% | 30% | 26% | 6% | 0% | 215 – 270 px | Weite Sprungdistanzen, 30% Pendel und 26% Fragile Knoten. |
+| **Zone 5: Thermosphäre** | 5.000 m – 9.000 m | 26% | 3% | 30% | 34% | 7% | **~6% Korridor-Spawn** | 230 – 290 px | Hohes Tempo gefordert; 34% Zeituhr, Minen ab 5.000m. |
+| **Zone 6: Tiefraum-Gefahren** | 9.000 m – 14.000 m | 20% | **2.0%** | 30% | 40% | 8% | **~10% Korridor-Spawn** | 240 – 305 px | 40% Zeituhr, 30% Pendel, Minen-Dichte (~10%), seltene Kristalle ab 8.000m. |
+| **Zone 7: Meister-Kosmos** | 14.000 m+ | 16% | **2.0%** | 30% | 44% | 8% | **~10% Korridor-Spawn** | 250 – 320 px | Reines Meisterfeld: 74% dynamische Knoten bei maximalen Sprungdistanzen. |
 
 ---
 
@@ -55,6 +55,25 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 ---
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
+
+### v5.5.0 (06.09.2026) - Classic Starfield Drift & Glints, Difficulty Tuning & Node Density Reduction, Main Menu Ship Hover Bobbing & Enhanced Dual-Layer Thruster Fire
+* **1. Sternenfeld-Wiederherstellung mit Parallax-Drift & Kreuz-Glints (`WorldManager.js`):**
+  * Sanfte kosmische Drift-Berechnung (`driftX = now * 0.005 * star.layer`) reaktiviert, sodass das Sternenfeld auch im Stillstand lebendig und organisch pulsiert.
+  * Zweistufiges Rendern wiederhergestellt: Pass A für subtile weiße Hintergrund-Sterne, Pass B für leuchtende Cyan-Sterne mit zarten 4-Punkt-Kreuz-Glints (`s >= 3 && (i & 3) === 0`).
+  * Tiefer, pechschwarzer Kosmos (`#020306` bis `#000000`) ohne weiße Nebel-Pinselstriche bleibt dabei voll erhalten.
+* **2. Reduzierte Kreis-Dichte & Erhöhte Spiel-Herausforderung (`WorldManager.js`):**
+  * `forkProbability` drastisch von 0.15 auf 0.03–0.05 gesenkt, wodurch das doppelte Nebeneinander-Spawnen von Knoten eliminiert und die vertikale Leitlinie aufgeräumt wird.
+  * Vertikale Mindest- und Höchstabstände (`minGap`, `maxGap`) in allen Höhenzonen um 20%–25% angehoben (z.B. Zone 1: 160–205px statt 135–175px; Zone 7: 250–320px statt 200–260px).
+  * Redundante "normale" Standard-Kreise reduziert und dynamische Knoten früher dosiert integriert (Zone 1: 10% Moving; Zone 2: 65% Standard statt 80%). Jeder Schwung verlangt nun präziseres Timing.
+* **3. Schwebendes Schiffs-Bobbing im Hauptmenü (`index.html`, `style.css`):**
+  * Schiffs-SVG und Triebwerksflamme in einen entkoppelten Container `.hero-ship-inner` eingebettet.
+  * Sanfte sinusförmige Schwebemechanik (`@keyframes ship-float-bob 3.2s ease-in-out infinite`) mit $\pm 8\text{px}$ vertikaler Amplitude, synchron für Schiff und Triebwerksstrahl.
+* **4. Hochenergetisches Plasma-Triebwerksfeuer (`style.css`, `Spaceship.js`):**
+  * **Hauptmenü:** Vollständiges Redesign der Triebwerksflamme: Tropfenförmiger Plasma-Körper mit glühendem Crimson-Mantel, weiß-cyanfarbenem Ionenkern (`::after`), Düsen-Flare-Ring (`::before`) und dynamischem aerodynamischem Pulsieren (`@keyframes jet-pulse 0.085s`).
+  * **In-Game:** Im 2D-Canvas rendert `Spaceship.renderShipModel` nun einen zweistufigen Triebwerksstrahl mit ultra-heißem weißen Kern und dynamischer Flammenlängen-Skalierung abhängig von der Fluggeschwindigkeit.
+* **5. Playwright Visual Suite & FPS Benchmark Verifikation:**
+  * Selective Playwright Visual Suite (`01, 02, 08, 10, 11`) mit 0 Konsolenfehlern und 0 Ausnahmen bestanden.
+  * Real-Time Gameplay FPS Benchmark: 120.1 FPS im Durchschnitt, 0.36 ms JS-Frame-Budget (Ziel <= 5.0 ms), 0 Hitches > 25 ms.
 
 ### v5.4.0 (06.09.2026) - Silent Quest Claim, Locked Skin 2 Coin Purchase, Deep Black Void & Cascading Flight Debrief Death Screen
 * **1. Stille Münzen-Einlösung bei Aufgaben (`MissionManager.js`, `GameEngine.js`, `UIManager.js`):**

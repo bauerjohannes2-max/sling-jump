@@ -82,60 +82,60 @@ class WorldManager {
       let forkProbability = 0.0;
 
       if (altitude < 250) {
-        // ZONE 1: START & KALIBRIERUNG (0m - 250m) -> 100% Solide Basis-Anker
-        minGap = 135;
-        maxGap = 175;
-        typeProbabilities = { standard: 1.0, boost: 0.0, moving: 0.0, fragile: 0.0, decoy: 0.0 };
-        forkProbability = 0.15;
+        // ZONE 1: START & KALIBRIERUNG (0m - 250m) -> Solide Basis mit dezenter Dynamik
+        minGap = 160;
+        maxGap = 205;
+        typeProbabilities = { standard: 0.90, moving: 0.10, boost: 0.0, fragile: 0.0, decoy: 0.0 };
+        forkProbability = 0.04;
       } else if (altitude < 750) {
-        // ZONE 2: ERDORBIT & ERSTE BEWEGUNG (250m - 750m) -> Frühe Pendelknoten (15%) + Boost (5%)
-        minGap = 145;
-        maxGap = 185;
-        typeProbabilities = { standard: 0.80, moving: 0.15, boost: 0.05, fragile: 0.0, decoy: 0.0 };
-        forkProbability = 0.15;
+        // ZONE 2: ERDORBIT & ERSTE BEWEGUNG (250m - 750m) -> Weniger Standard-Knoten, spürbare Dynamik
+        minGap = 175;
+        maxGap = 225;
+        typeProbabilities = { standard: 0.65, moving: 0.22, boost: 0.05, fragile: 0.08, decoy: 0.0 };
+        forkProbability = 0.05;
       } else if (altitude < 2000) {
-        // ZONE 3: STRATOSPHÄRE (750m - 2000m) -> Frühe Zeituhr-Knoten (14%) + Pendel (24%) + Boost (4%)
-        minGap = 165;
-        maxGap = 210;
-        typeProbabilities = { standard: 0.58, moving: 0.24, fragile: 0.14, boost: 0.04, decoy: 0.0 };
-        forkProbability = 0.14;
-      } else if (altitude < 5000) {
-        // ZONE 4: MESOSPHÄRE (2000m - 5000m) -> Taktische Zeituhr- (24%) + Pendel- (26%) + Decoy-Knoten (3%)
-        minGap = 180;
-        maxGap = 230;
-        typeProbabilities = { standard: 0.44, moving: 0.26, fragile: 0.24, decoy: 0.03, boost: 0.03 };
-        forkProbability = 0.12;
-      } else if (altitude < 9000) {
-        // ZONE 5: THERMOSPHÄRE (5000m - 9000m) -> Erhöhte Instabilität (30% Fragile, 28% Moving, 6% Decoy)
-        minGap = 190;
-        maxGap = 245;
-        typeProbabilities = { standard: 0.34, moving: 0.28, fragile: 0.30, decoy: 0.06, boost: 0.02 };
-        forkProbability = 0.10;
-      } else if (altitude < 14000) {
-        // ZONE 6: TIEFRAUM-GEFAHRENZONE (9000m - 14000m) -> Extreme Dynamik, 36% Fragile, 1% Boost
+        // ZONE 3: STRATOSPHÄRE (750m - 2000m) -> Taktische Zeituhr- (20%) + Pendel (28%)
         minGap = 195;
         maxGap = 250;
-        typeProbabilities = { standard: 0.28, moving: 0.28, fragile: 0.36, decoy: 0.07, boost: 0.01 };
-        forkProbability = 0.10;
+        typeProbabilities = { standard: 0.44, moving: 0.28, fragile: 0.20, boost: 0.05, decoy: 0.03 };
+        forkProbability = 0.04;
+      } else if (altitude < 5000) {
+        // ZONE 4: MESOSPHÄRE (2000m - 5000m) -> Anspruchsvolle Abstände, 26% Zeituhr, 30% Pendel
+        minGap = 215;
+        maxGap = 270;
+        typeProbabilities = { standard: 0.34, moving: 0.30, fragile: 0.26, decoy: 0.06, boost: 0.04 };
+        forkProbability = 0.03;
+      } else if (altitude < 9000) {
+        // ZONE 5: THERMOSPHÄRE (5000m - 9000m) -> Weite Sprünge, 34% Fragile, 30% Moving, 7% Decoy
+        minGap = 230;
+        maxGap = 290;
+        typeProbabilities = { standard: 0.26, moving: 0.30, fragile: 0.34, decoy: 0.07, boost: 0.03 };
+        forkProbability = 0.03;
+      } else if (altitude < 14000) {
+        // ZONE 6: TIEFRAUM-GEFAHRENZONE (9000m - 14000m) -> Präzisions-Climber, 40% Fragile
+        minGap = 240;
+        maxGap = 305;
+        typeProbabilities = { standard: 0.20, moving: 0.30, fragile: 0.40, decoy: 0.08, boost: 0.02 };
+        forkProbability = 0.03;
       } else {
-        // ZONE 7: MEISTER-KOSMOS (14000m+) -> Dominante Zeituhr-Knoten (42%), ultra-seltener Boost (0.8%)
-        minGap = 200;
-        maxGap = 260;
-        typeProbabilities = { standard: 0.232, moving: 0.28, fragile: 0.42, decoy: 0.06, boost: 0.008 };
-        forkProbability = 0.10;
+        // ZONE 7: MEISTER-KOSMOS (14000m+) -> Höchste Meisterschaft, 44% Zeituhr, weite Distanzen
+        minGap = 250;
+        maxGap = 320;
+        typeProbabilities = { standard: 0.16, moving: 0.30, fragile: 0.44, decoy: 0.08, boost: 0.02 };
+        forkProbability = 0.03;
       }
 
       // If previous node was a Super-Boost, grant an expansive catapult gap
       if (this.lastNodeType === 'BOOST') {
-        minGap = 320;
-        maxGap = 400;
+        minGap = 340;
+        maxGap = 420;
         forkProbability = 0.0;
       }
 
-      // If previous node was Fragile or Decoy, guarantee a very close, solid landing node
+      // If previous node was Fragile or Decoy, guarantee a solid, reachable landing node
       if (this.lastNodeType === 'FRAGILE' || this.lastNodeType === 'DECOY') {
-        minGap = 145;
-        maxGap = 180;
+        minGap = 165;
+        maxGap = 205;
       }
 
       const gap = Math.random() * (maxGap - minGap) + minGap;
@@ -464,7 +464,9 @@ class WorldManager {
         const star = this.stars[i];
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const finalX = star.x;
+        const driftX = (now * 0.005 * star.layer);
+        const starX = (star.x + driftX) % width;
+        const finalX = starX < 0 ? starX + width : starX;
         const streakLength = warpFactor * 45 * star.layer;
 
         context.moveTo(finalX | 0, finalY | 0);
@@ -473,32 +475,41 @@ class WorldManager {
       context.stroke();
       context.restore();
     } else {
-      // Serene Cosmic Starfield: Dual-Pass Batched Rendering
-      // Pass A: Distant background micro-stars (gentle silver-white, stable X)
+      // Classic Starfield: Dual-Pass Batched Rendering (Zero per-star state thrashing)
+      // Pass A: Distant background stars (white/dim)
       context.fillStyle = '#ffffff';
+      context.globalAlpha = 0.55;
       for (let i = 0; i < this.stars.length; i++) {
         const star = this.stars[i];
         if (star.layer > 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const finalX = star.x;
-        const twinkle = Math.sin(now * 0.0018 * star.twinkleSpeed + i) * 0.15 + 0.45;
-        context.globalAlpha = twinkle;
-        context.fillRect(finalX | 0, finalY | 0, 1, 1);
+        const driftX = (now * 0.005 * star.layer);
+        const starX = (star.x + driftX) % width;
+        const finalX = starX < 0 ? starX + width : starX;
+        const s = star.size < 1.2 ? 1 : 2;
+        context.fillRect(finalX | 0, finalY | 0, s, s);
       }
 
-      // Pass B: Mid/Near celestial stars (crisp, subtle neon glint, stable X)
-      context.fillStyle = '#ffffff';
+      // Pass B: Near celestial stars (theme neon tint, brighter, 4-point cross sparkles)
+      context.fillStyle = theme.primary || '#00f0ff';
       for (let i = 0; i < this.stars.length; i++) {
         const star = this.stars[i];
         if (star.layer <= 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const finalX = star.x;
-        const twinkle = Math.sin(now * 0.0022 * star.twinkleSpeed + i * 1.7) * 0.25 + 0.75;
-        context.globalAlpha = twinkle;
-        const s = star.size < 1.4 ? 1.5 : 2;
+        const driftX = (now * 0.005 * star.layer);
+        const starX = (star.x + driftX) % width;
+        const finalX = starX < 0 ? starX + width : starX;
+        const twinkle = Math.sin(now * 0.0018 * star.twinkleSpeed + star.x) * 0.2;
+        context.globalAlpha = Math.max(0.45, Math.min(0.95, star.baseAlpha + twinkle));
+        const s = star.size < 1.5 ? 2 : 3;
         context.fillRect(finalX | 0, finalY | 0, s, s);
+        // Subtle cross-glint on radiant stars (zero allocations)
+        if (s >= 3 && (i & 3) === 0) {
+          context.fillRect((finalX - 2) | 0, (finalY + 1) | 0, 5, 1);
+          context.fillRect((finalX + 1) | 0, (finalY - 2) | 0, 1, 5);
+        }
       }
       context.globalAlpha = 1.0;
     }

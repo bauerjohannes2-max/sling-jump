@@ -1,6 +1,6 @@
 # SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
 
-Dokumentationsstand: Version 5.4.0  
+Dokumentationsstand: Version 5.5.0  
 Aktualisiert am: 06. September 2026  
 Status: Produktion & QA-verifiziert (100% Playwright Freshness, 60+ FPS Benchmark & 0 Konsolenfehler)  
 Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
@@ -58,36 +58,22 @@ Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.co
 | **3** | COMBO x3 (+9% TEMPO) | **1.09x** | 784 px/s | 1.362 px/s | +65 px/s | 100% Natürliche Gravitation | +3 Gold / +300 Pkt |
 | **4** | COMBO x4 (+12% TEMPO) | **1.12x** | 806 px/s | 1.400 px/s | +85 px/s | 100% Natürliche Gravitation | +4 Gold / +400 Pkt |
 | **5** | HYPER x5 (+15% TEMPO) | **1.15x** | 828 px/s | 1.437 px/s | +105 px/s | 100% Natürliche Gravitation | +5 Gold / +500 Pkt |
-| **6** | HYPER x6 (+18% TEMPO) | **1.18x** | 849 px/s | 1.475 px/s | +125 px/s | 100% Natürliche Gravitation | +6 Gold / +600 Pkt |
-| **7** | HYPER x7 (+21% TEMPO) | **1.21x** | 871 px/s | 1.512 px/s | +145 px/s | 100% Natürliche Gravitation | +7 Gold / +700 Pkt |
-| **8** | HYPER x8 (+24% TEMPO) | **1.24x** | 892 px/s | 1.550 px/s | +165 px/s | 100% Natürliche Gravitation | +8 Gold / +800 Pkt |
-| **9** | HYPER x9 (+27% TEMPO) | **1.27x** | 914 px/s | 1.587 px/s | +185 px/s | 100% Natürliche Gravitation | +9 Gold / +900 Pkt |
-| **10** | MAX COMBO x10 (+30% TEMPO) | **1.30x** | 936 px/s | 1.625 px/s | +200 px/s | 100% Natürliche Gravitation | +10 Gold / +1.000 Pkt |
-
-* **100% Natürliche Gravitation:**
-  * Kein künstliches Aushebeln der Erdanziehung. Die Gravitation greift im Steigflug immer mit vollen 100% (`GRAVITY * dt`), sodass das Steig- und Fallverhalten physikalisch exakt vorhersehbar bleibt.
-* **Akustische Chimes:**
-  * Dual-Oszillator mit chromatisch aufsteigendem Oberton (+2 Halbtöne pro Stufe von C5 bis C7).
-* **Visuelle High-Speed Effekte & Feedback:**
-  * Schockwellenring am Katapult-Knoten (`spawnShockwave`).
-  * Hypersonische Warpgeschwindigkeits-Streifen (`spawnSpeedStreaks`) bei Combo ab Stufe 2.
-  * **Minimalistisches Text-Feedback:** Der redundante Banner-Text am oberen Bildschirmrand (`#hud-combo-badge`) wurde entfernt. Combo- und Perfekt-Meldungen (`PERFEKT`, `COMBO x2`, etc.) erscheinen ausschließlich als dezenter Schwebetext direkt am Katapult-Punkt des Raumschiffs.
 
 ---
 
-## 4. KNOTEN-TYPEN & 7-STUFIGE PROGRESSIONS-MATRIX
+## 4. SCHWIERIGKEITS- & PROGRESSIONS-MATRIX (HÖHENZONEN & KREIS-VERTEILUNG)
 
-Die prozedurale Generierung (`WorldManager.js`) skaliert die Schwierigkeit dynamisch entlang von 7 Zonen:
+Die prozedurale Generierung (`WorldManager.js`) skaliert die Schwierigkeit dynamisch entlang von 7 Zonen. Gaps wurden erweitert und Standard-Knoten reduziert:
 
 | Zone | Höhenbereich | Standard (%) | Super-Boost (%) | Beweglich (%) | Zeituhr / Fragil (%) | Köder / Fissur (%) | Weltraum-Mine / Bombe (Lethal) | Min/Max Lücke | Mechanische Charakteristik |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Zone 1: Kalibrierung** | 0 m – 500 m | 100% | 0% | 0% | 0% | 0% | 0% | 140 – 180 px | 100% stabile Basisknoten zum sicheren Einstieg. |
-| **Zone 2: Stratosphäre** | 500 m – 1.500 m | 95% | 5% | 0% | 0% | 0% | 0% | 150 – 195 px | Erste seltene grüne Katapulte mit 8-Knoten Cooldown. |
-| **Zone 3: Mesosphäre** | 1.500 m – 3.500 m | 76% | 4% | 20% | 0% | 0% | 0% | 165 – 215 px | Violette Pendelknoten erfordern horizontales Vorhalten; Boost gedrosselt auf 4%. |
-| **Zone 4: Thermosphäre** | 3.500 m – 6.500 m | 59% | 3% | 24% | 14% | 0% | 0% | 180 – 235 px | Goldene Zeituhr-Knoten mit Countdown; Boost selten (3%). |
-| **Zone 5: Exosphäre** | 6.500 m – 10.000 m | 40% | 2% | 26% | 26% | 6% | 0% | 190 – 245 px | Mehr Zeituhr-Knoten (26%) fordern zügigen Rhythmus; Boost extrem dosiert (2%). |
-| **Zone 6: Tiefraum-Gefahren** | 10.000 m – 15.000 m | 31% | **1.0%** | 28% | 34% | 6% | **~7% Korridor** | 195 – 250 px | **Dominante Zeituhr-Knoten (34%), 87.5% weniger Boosts (1.0%) & 8-Knoten Cooldown.** |
-| **Zone 7: Meister-Kosmos** | 15.000 m+ | 23.2% | **0.8%** | 28% | 42% | 6% | **~10% Korridor** | 200 – 260 px | 70% dynamische Knoten (42% Zeituhr + 28% Pendel); Boosts auf 0.8% minimiert (90% Drop). |
+| **Zone 1: Kalibrierung** | 0 m – 250 m | 90% | 0% | 10% | 0% | 0% | 0% | 160 – 205 px | Solide Basis mit 10% Pendelknoten und sauberem Freiraum. |
+| **Zone 2: Erdorbit & Dynamik** | 250 m – 750 m | 65% | 5% | 22% | 8% | 0% | 0% | 175 – 225 px | Reduzierte Standard-Kreise, 22% Pendel und 8% frühe Zeituhr-Knoten. |
+| **Zone 3: Stratosphäre** | 750 m – 2.000 m | 44% | 5% | 28% | 20% | 3% | 0% | 195 – 250 px | Taktische Zeituhr- (20%) und Pendelknoten (28%) fordern präzises Timing. |
+| **Zone 4: Mesosphäre** | 2.000 m – 5.000 m | 34% | 4% | 30% | 26% | 6% | 0% | 215 – 270 px | Weite Sprünge, 30% Pendel und 26% Fragile Knoten. |
+| **Zone 5: Thermosphäre** | 5.000 m – 9.000 m | 26% | 3% | 30% | 34% | 7% | **~6% Korridor** | 230 – 290 px | Hohes Tempo gefordert; 34% Zeituhr, Minen ab 5.000m. |
+| **Zone 6: Tiefraum-Gefahren** | 9.000 m – 14.000 m | 20% | **2.0%** | 30% | 40% | 8% | **~10% Korridor** | 240 – 305 px | 40% Zeituhr, 30% Pendel, Minen-Dichte (~10%), seltene Kristalle ab 8.000m. |
+| **Zone 7: Meister-Kosmos** | 14.000 m+ | 16% | **2.0%** | 30% | 44% | 8% | **~10% Korridor** | 250 – 320 px | Reines Meisterfeld: 74% dynamische Knoten bei maximalen Sprungdistanzen. |
 
 ### Detailbeschreibung aller 6 Entitäten
 1. **STANDARD (Cyan `#00f0ff`):** Solider, dauerhafter Orbit-Anker.
@@ -606,5 +592,28 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * **Befreiung von störenden Toasts:**
   * Klick auf `BELOHNUNG EINSAMMELN` im Quest-Hub löst keinen Bildschirm-Toast mehr aus.
   * Der Button wechselt geräuschlos und direkt auf `EINGELÖST`, Münzen werden gebucht und das Währungs-Display im Header zählt auf.
+
+---
+
+## 17. STERNENFELD-DRIFT, SCHWIERIGKEITS-TUNING & HOVER-FEUER (v5.5.0)
+
+### 17.1 Lebendiges Sternenfeld mit Parallax-Drift
+* **Sanfte X-Drift:** Sterne bewegen sich mit horizontalem Offset (`driftX = now * 0.005 * star.layer`), was auch im Menü und ruhigen Phasen organische Tiefe erzeugt.
+* **Dual-Pass Rendering:**
+  * Pass A: Subtile weiße Hintergrund-Sterne (`#ffffff`, Alpha 0.55).
+  * Pass B: Leuchtende Primär-Neonsterne (`theme.primary || '#00f0ff'`) mit pulsierendem Funkeln und 4-Punkt-Kreuz-Glints bei prominenten Sternen.
+* **Tiefschwarzer Kosmos:** Keine störenden Nebel-Verwaschungen; pechschwarzer Hintergrund (`#020306` bis `#000000`).
+
+### 17.2 Knoten-Dichte & Schwierigkeits-Balance
+* **75% Reduktion von Doppel-Knoten (Forks):** `forkProbability` auf 0.03–0.05 minimiert.
+* **20%–25% erweiterte Sprunglücken:** Höhere vertikale Abstände zwischen den Ankern verlangen bewusstes, getimtes Katapultieren statt hektischem Dauer-Klicken.
+* **Weniger monotone Standard-Knoten:** Reduktion von statischen Standard-Kreisen zugunsten von leichten Pendelknoten ab Zone 1 und taktischen Fragile-Knoten ab Zone 2.
+
+### 17.3 Schwebendes Schiff & Zweistufiges Plasmafeuer
+* **Sinus-Bobbing im Hauptmenü:** Schiff und Triebwerksfeuer schweben gemeinsam vertikal ($\pm 8\text{px}$) in einer 3.2s Sinusschleife.
+* **Mehrschichtiges Plasmafeuer:**
+  * Menü: Tropfenförmiger Rumpfstrahl mit ultra-heißem weißen Ionenkern (`::after`), leuchtendem Crimson-Mantel, Düsen-Flare-Ring (`::before`) und 85ms-Flicker.
+  * In-Game: Zweistufiges Canvas-Triebwerk mit weißem Hochtemperatur-Kern und äußerer Flamme mit geschwindigkeitsabhängiger Längenskalierung.
+
 
 

@@ -356,15 +356,29 @@ class Spaceship {
     context.shadowColor = glowColor;
     context.shadowBlur = 16;
 
-    // Dynamic Engine Glow / Plume
-    const flameSize = (Math.hypot(this.vx, this.vy) / 750) * 12 + 6;
-    context.fillStyle = isHooked ? '#38bdf8' : glowColor;
+    // Dynamic Engine Glow / Plume (Dual-layer plasma jet with white-hot core)
+    const spd = Math.hypot(this.vx, this.vy);
+    const flameSize = Math.min(26, (spd / 650) * 16 + 8);
+    const flameFlicker = Math.random() * 3.5;
 
+    // Outer Energetic Mantle
+    context.fillStyle = isHooked ? 'rgba(56, 189, 248, 0.88)' : (glowColor || '#ff1e42');
     for (const offset of shipDef.thrusterOffsets) {
       context.beginPath();
-      context.moveTo(offset.x - 2.5, offset.y);
-      context.lineTo(offset.x, offset.y + flameSize + Math.random() * 3);
-      context.lineTo(offset.x + 2.5, offset.y);
+      context.moveTo(offset.x - 3.5, offset.y);
+      context.lineTo(offset.x, offset.y + flameSize + flameFlicker);
+      context.lineTo(offset.x + 3.5, offset.y);
+      context.closePath();
+      context.fill();
+    }
+
+    // Inner White-Hot Ion Core
+    context.fillStyle = '#ffffff';
+    for (const offset of shipDef.thrusterOffsets) {
+      context.beginPath();
+      context.moveTo(offset.x - 1.5, offset.y);
+      context.lineTo(offset.x, offset.y + (flameSize * 0.55) + flameFlicker * 0.4);
+      context.lineTo(offset.x + 1.5, offset.y);
       context.closePath();
       context.fill();
     }

@@ -1,28 +1,100 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (10)",
-  "executedAt": "2026-09-06T08:46:13.463Z",
-  "localTimestamp": "6.9.2026, 10:46:13",
+  "mode": "Selective (1, 2, 8, 10, 11)",
+  "executedAt": "2026-09-06T08:56:23.207Z",
+  "localTimestamp": "6.9.2026, 10:56:23",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
-  "selectiveScreenshotsCount": 2,
+  "selectiveScreenshotsCount": 11,
   "totalCatalogScreenshotsCount": 19,
   "freshRunManifest": [
     {
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 255,
+      "capturedAt": "2026-09-06T08:56:12.345Z",
+      "localTime": "10:56:12",
+      "sha256": "0acc741b19e8f27d"
+    },
+    {
+      "filename": "02_hangar_skins.png",
+      "description": "Center Hangar Skin 2 (Phönix)",
+      "sizeKb": 257,
+      "capturedAt": "2026-09-06T08:56:13.117Z",
+      "localTime": "10:56:13",
+      "sha256": "a268bd8d3a6f9455"
+    },
+    {
+      "filename": "13_tutorial_modal.png",
+      "description": "Tutorial Controls Guide",
+      "sizeKb": 371,
+      "capturedAt": "2026-09-06T08:56:14.384Z",
+      "localTime": "10:56:14",
+      "sha256": "234657bdab90687f"
+    },
+    {
+      "filename": "08_gameplay_hud.png",
+      "description": "Gameplay HUD & Combo",
+      "sizeKb": 321,
+      "capturedAt": "2026-09-06T08:56:15.726Z",
+      "localTime": "10:56:15",
+      "sha256": "b4170eb8be5bf5ae"
+    },
+    {
+      "filename": "08b_gameplay_fps_hud.png",
+      "description": "Live FPS Telemetry HUD",
+      "sizeKb": 321,
+      "capturedAt": "2026-09-06T08:56:15.989Z",
+      "localTime": "10:56:15",
+      "sha256": "a6d978b4c9c5b179"
+    },
+    {
       "filename": "10_game_over.png",
       "description": "Game Over Screen",
-      "sizeKb": 973,
-      "capturedAt": "2026-09-06T08:46:11.977Z",
-      "localTime": "10:46:11",
-      "sha256": "9e8ec6566cb9eb5e"
+      "sizeKb": 976,
+      "capturedAt": "2026-09-06T08:56:17.974Z",
+      "localTime": "10:56:17",
+      "sha256": "2fd9dfc5a2e5d77c"
     },
     {
       "filename": "10b_revived_gameplay.png",
       "description": "Revived Gameplay",
-      "sizeKb": 432,
-      "capturedAt": "2026-09-06T08:46:12.957Z",
-      "localTime": "10:46:12",
-      "sha256": "27ee8a979a432ecd"
+      "sizeKb": 423,
+      "capturedAt": "2026-09-06T08:56:18.844Z",
+      "localTime": "10:56:18",
+      "sha256": "bd29dbe732621f43"
+    },
+    {
+      "filename": "11_mobile_responsive.png",
+      "description": "Mobile Responsive Menu",
+      "sizeKb": 215,
+      "capturedAt": "2026-09-06T08:56:19.897Z",
+      "localTime": "10:56:19",
+      "sha256": "e68e01f96b806efa"
+    },
+    {
+      "filename": "12_mobile_skins.png",
+      "description": "Mobile Skins Shop",
+      "sizeKb": 131,
+      "capturedAt": "2026-09-06T08:56:20.504Z",
+      "localTime": "10:56:20",
+      "sha256": "65b9f3f136a50176"
+    },
+    {
+      "filename": "14_dashboard_locked.png",
+      "description": "Dashboard Gate Locked",
+      "sizeKb": 48,
+      "capturedAt": "2026-09-06T08:56:21.747Z",
+      "localTime": "10:56:21",
+      "sha256": "a14c99e1fa72c156"
+    },
+    {
+      "filename": "14b_dashboard_unlocked.png",
+      "description": "Dashboard Unlocked",
+      "sizeKb": 240,
+      "capturedAt": "2026-09-06T08:56:22.660Z",
+      "localTime": "10:56:22",
+      "sha256": "c5599a76e770a350"
     }
   ],
   "manifest": [
@@ -51,22 +123,6 @@
       "sha256": "595fc7f02b8640b8"
     },
     {
-      "filename": "08_gameplay_hud.png",
-      "description": "Gameplay HUD & Combo",
-      "sizeKb": 638,
-      "capturedAt": "2026-09-05T21:45:10.095Z",
-      "localTime": "23:45:10",
-      "sha256": "9690b4c34c0218f4"
-    },
-    {
-      "filename": "08b_gameplay_fps_hud.png",
-      "description": "Live FPS Telemetry HUD",
-      "sizeKb": 629,
-      "capturedAt": "2026-09-05T21:45:10.398Z",
-      "localTime": "23:45:10",
-      "sha256": "8da234d202a20de2"
-    },
-    {
       "filename": "09_pause_modal.png",
       "description": "Pause Modal",
       "sizeKb": 190,
@@ -81,22 +137,6 @@
       "capturedAt": "2026-09-06T08:14:28.095Z",
       "localTime": "10:14:28",
       "sha256": "ee22c13af6db71ac"
-    },
-    {
-      "filename": "01_main_menu.png",
-      "description": "Main Menu",
-      "sizeKb": 239,
-      "capturedAt": "2026-09-06T08:44:45.760Z",
-      "localTime": "10:44:45",
-      "sha256": "4ac86ca401cd6140"
-    },
-    {
-      "filename": "02_hangar_skins.png",
-      "description": "Center Hangar Skin 2 (Phönix)",
-      "sizeKb": 255,
-      "capturedAt": "2026-09-06T08:44:46.687Z",
-      "localTime": "10:44:46",
-      "sha256": "f67c087ce74b87a2"
     },
     {
       "filename": "05_hub_quests.png",
@@ -123,60 +163,92 @@
       "sha256": "51952ba7912a90cc"
     },
     {
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 255,
+      "capturedAt": "2026-09-06T08:56:12.345Z",
+      "localTime": "10:56:12",
+      "sha256": "0acc741b19e8f27d"
+    },
+    {
+      "filename": "02_hangar_skins.png",
+      "description": "Center Hangar Skin 2 (Phönix)",
+      "sizeKb": 257,
+      "capturedAt": "2026-09-06T08:56:13.117Z",
+      "localTime": "10:56:13",
+      "sha256": "a268bd8d3a6f9455"
+    },
+    {
       "filename": "13_tutorial_modal.png",
       "description": "Tutorial Controls Guide",
-      "sizeKb": 345,
-      "capturedAt": "2026-09-06T08:44:50.927Z",
-      "localTime": "10:44:50",
-      "sha256": "5a101691cf10c0a5"
+      "sizeKb": 371,
+      "capturedAt": "2026-09-06T08:56:14.384Z",
+      "localTime": "10:56:14",
+      "sha256": "234657bdab90687f"
+    },
+    {
+      "filename": "08_gameplay_hud.png",
+      "description": "Gameplay HUD & Combo",
+      "sizeKb": 321,
+      "capturedAt": "2026-09-06T08:56:15.726Z",
+      "localTime": "10:56:15",
+      "sha256": "b4170eb8be5bf5ae"
+    },
+    {
+      "filename": "08b_gameplay_fps_hud.png",
+      "description": "Live FPS Telemetry HUD",
+      "sizeKb": 321,
+      "capturedAt": "2026-09-06T08:56:15.989Z",
+      "localTime": "10:56:15",
+      "sha256": "a6d978b4c9c5b179"
+    },
+    {
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 976,
+      "capturedAt": "2026-09-06T08:56:17.974Z",
+      "localTime": "10:56:17",
+      "sha256": "2fd9dfc5a2e5d77c"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 423,
+      "capturedAt": "2026-09-06T08:56:18.844Z",
+      "localTime": "10:56:18",
+      "sha256": "bd29dbe732621f43"
     },
     {
       "filename": "11_mobile_responsive.png",
       "description": "Mobile Responsive Menu",
-      "sizeKb": 199,
-      "capturedAt": "2026-09-06T08:44:55.889Z",
-      "localTime": "10:44:55",
-      "sha256": "9c8af8fceea2b7d6"
+      "sizeKb": 215,
+      "capturedAt": "2026-09-06T08:56:19.897Z",
+      "localTime": "10:56:19",
+      "sha256": "e68e01f96b806efa"
     },
     {
       "filename": "12_mobile_skins.png",
       "description": "Mobile Skins Shop",
-      "sizeKb": 129,
-      "capturedAt": "2026-09-06T08:44:56.592Z",
-      "localTime": "10:44:56",
-      "sha256": "b2e972a995ad02c3"
+      "sizeKb": 131,
+      "capturedAt": "2026-09-06T08:56:20.504Z",
+      "localTime": "10:56:20",
+      "sha256": "65b9f3f136a50176"
     },
     {
       "filename": "14_dashboard_locked.png",
       "description": "Dashboard Gate Locked",
       "sizeKb": 48,
-      "capturedAt": "2026-09-06T08:44:57.824Z",
-      "localTime": "10:44:57",
+      "capturedAt": "2026-09-06T08:56:21.747Z",
+      "localTime": "10:56:21",
       "sha256": "a14c99e1fa72c156"
     },
     {
       "filename": "14b_dashboard_unlocked.png",
       "description": "Dashboard Unlocked",
-      "sizeKb": 241,
-      "capturedAt": "2026-09-06T08:44:58.738Z",
-      "localTime": "10:44:58",
-      "sha256": "6b767c293b413740"
-    },
-    {
-      "filename": "10_game_over.png",
-      "description": "Game Over Screen",
-      "sizeKb": 973,
-      "capturedAt": "2026-09-06T08:46:11.977Z",
-      "localTime": "10:46:11",
-      "sha256": "9e8ec6566cb9eb5e"
-    },
-    {
-      "filename": "10b_revived_gameplay.png",
-      "description": "Revived Gameplay",
-      "sizeKb": 432,
-      "capturedAt": "2026-09-06T08:46:12.957Z",
-      "localTime": "10:46:12",
-      "sha256": "27ee8a979a432ecd"
+      "sizeKb": 240,
+      "capturedAt": "2026-09-06T08:56:22.660Z",
+      "localTime": "10:56:22",
+      "sha256": "c5599a76e770a350"
     }
   ]
 }
