@@ -19,7 +19,12 @@ class StorageService {
   }
 
   static generateUniqueUserId() {
-    return 'usr_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 4; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return '#' + code;
   }
 
   getDefaultState() {
@@ -152,8 +157,8 @@ class StorageService {
       merged.leaderboardResetVersion = '4.6.0';
     }
 
-    // Player profile & unique user ID migration
-    if (!merged.playerProfile.playerId || typeof merged.playerProfile.playerId !== 'string' || merged.playerProfile.playerId.startsWith('SJ-')) {
+    // Player profile & unique user ID migration (short ID: #XXXX)
+    if (!merged.playerProfile.playerId || typeof merged.playerProfile.playerId !== 'string' || merged.playerProfile.playerId.length > 5 || merged.playerProfile.playerId.startsWith('usr_') || merged.playerProfile.playerId.startsWith('SJ-')) {
       merged.playerProfile.playerId = StorageService.generateUniqueUserId();
     }
     if (!merged.playerProfile.pilotName || merged.playerProfile.pilotName === 'Gast-Pilot' || merged.playerProfile.pilotName.startsWith('Pilot') || merged.playerProfile.pilotName.trim() === '') {
@@ -190,11 +195,12 @@ class StorageService {
 
   registerPlayer(pilotName, callsign = 'ACE') {
     const existing = this.getPlayerProfile();
-    const changesCount = existing.nameChanges || 0;
+    const changesCount = typeof existing.nameChanges === 'number' ? existing.nameChanges : 0;
+    const MAX_FREE_CHANGES = 2;
 
-    // Strict 1x name change restriction
-    if (changesCount >= 1) {
-      return { success: false, profile: existing, message: 'Name kann nur einmal geändert werden.' };
+    // Strict 2x free name change allowance
+    if (changesCount >= MAX_FREE_CHANGES) {
+      return { success: false, profile: existing, message: 'Keine kostenlosen Namensänderungen mehr verfügbar.' };
     }
 
     const cleanName = (pilotName || '').trim().substring(0, 16);

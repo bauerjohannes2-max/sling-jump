@@ -644,7 +644,7 @@
           <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag">SLING JUMP v5.16.8</div>
+        <div class="settings-version-tag">SLING JUMP v5.16.9</div>
       </div>
     </div>
 
@@ -681,46 +681,66 @@
       </div>
     </div>
 
-    <!-- 7. PROFIL MODAL (MINIMALIST & SLEEK LOGIN) -->
+    <!-- 7. PROFIL MODAL (REDESIGNED: FLOATING-DOCK & COMMERCIAL MINIMALISM) -->
     <div class="modal-overlay" id="profile-modal" style="z-index: 125;">
-      <div class="modal-card profile-card" style="max-width: 380px; text-align: center; padding: 24px 20px; position: relative;">
+      <div class="modal-card hub-card profile-modal-card" style="position: relative;">
         <button class="modal-close-x" id="btn-profile-close" aria-label="Schließen">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <!-- Modal Title -->
-        <div class="modal-title" style="margin-bottom: 16px; font-size: 20px; letter-spacing: 2px;">PROFIL</div>
 
-        <!-- Sleek Avatar Circle -->
-        <div class="profile-avatar-container" style="position: relative; width: 62px; height: 62px; margin: 0 auto 12px; border-radius: 50%; background: radial-gradient(circle, rgba(225, 29, 72, 0.22) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1.5px solid rgba(225, 29, 72, 0.5); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 24px var(--accent-crimson-glow);">
-          <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: none; stroke: var(--accent-crimson); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <!-- Header Lockup -->
+        <div class="profile-header-lockup">
+          <div class="modal-title profile-title">PROFIL</div>
         </div>
 
-        <!-- Hero Gamer Tag & User ID Pill -->
-        <div class="profile-hero-tag" id="profile-hero-name" style="font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: 1.5px; font-family: 'Rajdhani', sans-serif; margin-bottom: 4px;">PLAYER</div>
-        <div class="profile-id-pill" id="profile-user-id-badge" style="display: inline-block; font-size: 10px; font-family: 'Orbitron', monospace, sans-serif; color: #94a3b8; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 3px 8px; margin-bottom: 14px; letter-spacing: 0.5px;">ID: usr_...</div>
-
-        <!-- Name Change Restriction Info Banner -->
-        <div id="profile-change-notice" style="font-size: 10px; font-weight: 700; color: var(--accent-crimson); letter-spacing: 0.5px; margin-bottom: 12px; padding: 4px 8px; border-radius: 6px; background: rgba(225, 29, 72, 0.08); border: 1px solid rgba(225, 29, 72, 0.25);">
-          1x NAMENSWECHSEL VERFÜGBAR
+        <!-- 1. Hero Identity Card (Floating-Dock Parity) -->
+        <div class="profile-hero-card">
+          <div class="profile-avatar-lockup">
+            <div class="profile-avatar-container">
+              <svg viewBox="0 0 24 24" class="profile-avatar-svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span class="profile-online-dot" title="Online"></span>
+            </div>
+            <div class="profile-hero-meta">
+              <div class="profile-hero-tag" id="profile-hero-name">SPIELER</div>
+              <div class="profile-id-pill" id="profile-user-id-badge">ID: #8K2P</div>
+            </div>
+          </div>
         </div>
 
-        <!-- Name Edit Form (Single Input + Submit) -->
-        <form id="profile-form" onsubmit="window._uiManager && window._uiManager.saveProfile(event)" style="display: flex; gap: 8px; margin-bottom: 10px;">
-          <input type="text" id="profile-name-input" maxlength="16" placeholder="Wunschname..." style="flex: 1; min-width: 0; padding: 10px 14px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; color: #fff; font-size: 15px; font-weight: 700; outline: none; font-family: 'Rajdhani', sans-serif;">
-          <button type="submit" id="btn-profile-save" class="btn-primary" style="padding: 10px 16px; font-size: 11px; white-space: nowrap;">SPEICHERN</button>
-        </form>
+        <!-- 2. Name Change Section (Floating-Dock Parity) -->
+        <div class="profile-edit-card">
+          <div class="profile-change-notice" id="profile-change-notice">
+            2 KOSTENLOSE ÄNDERUNGEN VERFÜGBAR
+          </div>
+          <form id="profile-form" onsubmit="window._uiManager && window._uiManager.saveProfile(event)" class="profile-edit-form">
+            <input type="text" id="profile-name-input" maxlength="16" placeholder="Pilotname..." autocomplete="off" spellcheck="false">
+            <button type="submit" id="btn-profile-save" class="btn-profile-submit">SPEICHERN</button>
+          </form>
+          <div id="profile-status-message" class="profile-status-message"></div>
+        </div>
 
-        <div id="profile-status-message" style="min-height: 16px; font-size: 11px; font-weight: 700; color: #10b981; letter-spacing: 1px; margin-bottom: 14px; transition: opacity 0.3s; opacity: 0;">PROFIL GESPEICHERT</div>
-
-        <!-- Hidden compat anchors for JS listeners -->
-        <span id="profile-status-badge" style="display: none;"></span>
+        <!-- 3. Pilot Telemetry Career Card (Floating-Dock Parity) -->
+        <div class="profile-telemetry-card">
+          <div class="profile-stat-box">
+            <span class="profile-stat-label">BESTLEISTUNG</span>
+            <span class="profile-stat-value" id="profile-display-highscore">0 m</span>
+          </div>
+          <div class="profile-stat-divider"></div>
+          <div class="profile-stat-box">
+            <span class="profile-stat-label">FLÜGE</span>
+            <span class="profile-stat-value" id="profile-runs-count">0</span>
+          </div>
+          <div class="profile-stat-divider"></div>
+          <div class="profile-stat-box">
+            <span class="profile-stat-label">STATUS</span>
+            <span class="profile-stat-value status-active" id="profile-status-badge">AKTIV</span>
+          </div>
+        </div>
 
         <!-- Hidden compat anchors for JS listeners -->
         <span id="profile-display-name" style="display: none;"></span>
         <span id="profile-display-id" style="display: none;"></span>
         <span id="profile-registered-date" style="display: none;"></span>
-        <span id="profile-display-highscore" style="display: none;"></span>
-        <span id="profile-runs-count" style="display: none;"></span>
       </div>
     </div>
 

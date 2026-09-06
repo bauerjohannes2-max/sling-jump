@@ -1,28 +1,28 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (05_hub_quests, 07_settings)",
-  "executedAt": "2026-09-06T18:20:25.063Z",
-  "localTimestamp": "6.9.2026, 20:20:25",
+  "mode": "Selective (06b_pilot_profile, 07_settings)",
+  "executedAt": "2026-09-06T18:28:34.774Z",
+  "localTimestamp": "6.9.2026, 20:28:34",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
   "selectiveScreenshotsCount": 2,
   "totalCatalogScreenshotsCount": 22,
   "freshRunManifest": [
     {
-      "filename": "05_hub_quests.png",
-      "description": "Quests Active",
-      "sizeKb": 378,
-      "capturedAt": "2026-09-06T18:20:22.255Z",
-      "localTime": "20:20:22",
-      "sha256": "d442d6557a38db0f"
+      "filename": "06b_pilot_profile.png",
+      "description": "Pilot Profile",
+      "sizeKb": 240,
+      "capturedAt": "2026-09-06T18:28:32.474Z",
+      "localTime": "20:28:32",
+      "sha256": "46c970214e912474"
     },
     {
       "filename": "07_settings.png",
       "description": "Settings Modal",
-      "sizeKb": 212,
-      "capturedAt": "2026-09-06T18:20:23.762Z",
-      "localTime": "20:20:23",
-      "sha256": "8f9be9c72af3175a"
+      "sizeKb": 209,
+      "capturedAt": "2026-09-06T18:28:33.611Z",
+      "localTime": "20:28:33",
+      "sha256": "3f5493e2ef8478fc"
     }
   ],
   "manifest": [
@@ -49,14 +49,6 @@
       "capturedAt": "2026-09-06T08:56:15.989Z",
       "localTime": "10:56:15",
       "sha256": "a6d978b4c9c5b179"
-    },
-    {
-      "filename": "06b_pilot_profile.png",
-      "description": "Pilot Profile",
-      "sizeKb": 256,
-      "capturedAt": "2026-09-06T11:13:26.728Z",
-      "localTime": "13:13:26",
-      "sha256": "394cbb877a5b5c24"
     },
     {
       "filename": "02_hangar_skins.png",
@@ -195,12 +187,20 @@
       "sha256": "d442d6557a38db0f"
     },
     {
+      "filename": "06b_pilot_profile.png",
+      "description": "Pilot Profile",
+      "sizeKb": 240,
+      "capturedAt": "2026-09-06T18:28:32.474Z",
+      "localTime": "20:28:32",
+      "sha256": "46c970214e912474"
+    },
+    {
       "filename": "07_settings.png",
       "description": "Settings Modal",
-      "sizeKb": 212,
-      "capturedAt": "2026-09-06T18:20:23.762Z",
-      "localTime": "20:20:23",
-      "sha256": "8f9be9c72af3175a"
+      "sizeKb": 209,
+      "capturedAt": "2026-09-06T18:28:33.611Z",
+      "localTime": "20:28:33",
+      "sha256": "3f5493e2ef8478fc"
     }
   ]
 }

@@ -78,6 +78,10 @@
   - Rigid height geometry (`580px`, `flex: 1; min-height: 0;` scroll area) guarantees absolute stability with zero height shifting across category filter changes (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`).
   - Solid dark modal base (`#0b0d13` modal fill, `1px solid rgba(255, 255, 255, 0.08)` border) with floating-dock parity fill (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`) applied to `.quest-card`.
   - Minimalist direct category filter navigation (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`) positioned directly below title lockup without redundant progress header bar for maximum vertical space and clarity.
-  - Minimalist top-right reward lockup (`.quest-card-reward`, `+ ... C`) with transparent background, zero border box, and full-width progress meter. Enlarged tracked section titles (`13.5px`, bold white) with nowrap protection.
+- **Profile Hub Architecture (`#profile-modal`):**
+  - Solid dark modal base (`#0b0d13` modal fill, `1px solid rgba(255, 255, 255, 0.08)` border, `24px` radius) with floating-dock parity fill (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`) across all internal cards (`.profile-hero-card`, `.profile-edit-card`, `.profile-telemetry-card`).
+  - **Short User ID Architecture:** Generates 4-character uppercase alphanumeric IDs with hash prefix (`#XXXX`, e.g. `#EXGN`, `#8K2P`) replacing legacy long hashes.
+  - **2x Free Name Change Policy:** Players receive 2 free name changes (`MAX_FREE_CHANGES = 2`) tracked persistently in `StorageService`, with reactive status badges and input locking upon exhaustion.
+  - **Career Telemetry Card:** 3-column stats panel displaying Bestleistung, Flüge, and active status.
 
 

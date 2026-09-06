@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (v5.16.8 - Mission Modal Minimalist Header & Overview Box Removal)  
+> **Status:** Release Candidate (v5.16.9 - Profile Modal Redesign, 2x Free Name Changes & Short User IDs)  
 > **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
@@ -267,6 +267,12 @@
 - **Dynamisches Rank-Overlay:** Erst nach Absolvierung des ersten Flugs mit erzielten Metern (`bestAltitude > 0`) erscheint das goldene Rang-Badge (`#${rank}`).
 - **Entfernung FPS-Playwright-Runner:** `scripts/benchmark_fps.js` und `scripts/stress_test_gameplay.js` sowie `08b_gameplay_fps_hud.png` und `package.json` `"test:fps"` restlos entfernt zur Maximierung der Token-Effizienz.
 - **Komprimierung aller Markdown-Dateien:** Sämtliche `.md`-Dokumente auf dichte, token-effiziente Fakten komprimiert (-75% Token-Last).
+
+### v5.16.9 (06.09.2026) - Profile Modal Floating-Dock Parity, 2x Free Renames & Short IDs (#XXXX)
+- **Profil-Modal Redesign:** Schwebende Dock-Karten (`.profile-hero-card`, `.profile-edit-card`, `.profile-telemetry-card`) mit exakter Floating-Dock-Hintergrund-Parität (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`).
+- **2x Kostenlose Namensänderungen:** Erhöhung des Kontingents auf 2 freie Namenswechsel (`MAX_FREE_CHANGES = 2`). Dynamisches Status-Pill zeigt verbleibendes Kontingent reaktiv an; Formular sperrt sich nach Verbrauch.
+- **Ultrakurze User-IDs:** Neuer kompakter 4-stelliger alphanumerischer Gamer-Tag mit Hash-Präfix (`#XXXX`, z. B. `#EXGN`), automatische Migration aller alten langen Hash-IDs.
+- **Piloten-Telemetrie-Grid:** 3-spaltige Karriere-Übersicht (Bestleistung, Flüge, Online-Status).
 
 ### v5.16.8 (06.09.2026) - Mission Modal Streamlining & Overview Header Removal
 - **Missions-Header Bereinigung:** Obere Übersicht-Box (`#missions-overview-bar` mit "ABGESCHLOSSEN 0/6" & Belohnungsanzeige) vollständig aus HTML, CSS und JS-DOM entfernt.

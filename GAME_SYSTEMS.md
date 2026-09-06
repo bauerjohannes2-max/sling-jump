@@ -1,6 +1,6 @@
 # Sling Jump - Game Systems & Technical Specification Manual
 
-> Live Version: 5.16.8 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
+> Live Version: 5.16.9 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
 
 ---
 
@@ -147,6 +147,13 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **Outer Shell Parity:** `.settings-modal-card` matches `.missions-modal-card` (`background: #0b0d13 !important; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9);`).
 - **Floating-Dock Glassmorphism Parity:** Each setting row (`.setting-row`) mirrors `.floating-dock` (`background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; backdrop-filter: blur(16px); padding: 14px 18px;`).
 - **Toggles & Actions:** `.btn-toggle` switches between active crimson glow (`rgba(225, 29, 72, 0.22)`) and translucent idle glass (`rgba(255, 255, 255, 0.04)`). Action buttons (`.btn-settings-update`, `.btn-settings-danger`) adopt unified glassmorphic pill aesthetics with responsive mobile scaling.
+
+### 7.6 Profile Hub Architecture
+- **Outer Shell Parity:** `.profile-modal-card` matches `.settings-modal-card` (`background: #0b0d13 !important; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9);`).
+- **Floating-Dock Glassmorphism Parity:** Internal cards (`.profile-hero-card`, `.profile-edit-card`, `.profile-telemetry-card`) mirror `.floating-dock` (`background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; backdrop-filter: blur(16px);`).
+- **Short User ID Architecture:** Generates 4-character uppercase alphanumeric IDs with hash prefix (`#XXXX`, e.g. `#EXGN`, `#8K2P`), replacing legacy long hash strings. Automatically migrates legacy IDs.
+- **2x Free Name Change Allowance:** Persistent tracking via `profile.nameChanges`. Up to 2 free renames allowed (`MAX_FREE_CHANGES = 2`). Form dynamically reflects remaining quota (`2 KOSTENLOSE ÄNDERUNGEN VERFÜGBAR`, `1 KOSTENLOSE ÄNDERUNG VERFÜGBAR`, `NAME FESTGELEGT (0 ÄNDERUNGEN ÜBRIG)`). Input and submit button disable cleanly upon depletion.
+- **Career Telemetry Card:** 3-column stats panel presenting lifetime Bestleistung, Flüge, and active pilot status.
 
 ---
 

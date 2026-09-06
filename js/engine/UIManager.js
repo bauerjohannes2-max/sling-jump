@@ -715,12 +715,14 @@ class UIManager {
     const noticeEl = document.getElementById('profile-change-notice');
     const saveBtn = document.getElementById('btn-profile-save');
 
-    const nameChanges = profile.nameChanges || 0;
+    const nameChanges = typeof profile.nameChanges === 'number' ? profile.nameChanges : 0;
+    const MAX_FREE_CHANGES = 2;
+    const remaining = Math.max(0, MAX_FREE_CHANGES - nameChanges);
 
     if (heroNameEl) heroNameEl.textContent = profile.pilotName || 'SPIELER';
-    if (idBadgeEl) idBadgeEl.textContent = `ID: ${profile.playerId || 'usr_init'}`;
+    if (idBadgeEl) idBadgeEl.textContent = `ID: ${profile.playerId || StorageService.generateUniqueUserId()}`;
     if (nameEl) nameEl.textContent = profile.pilotName || 'SPIELER';
-    if (idEl) idEl.textContent = profile.playerId || 'usr_init';
+    if (idEl) idEl.textContent = profile.playerId || '';
     if (statusEl) {
       statusEl.textContent = 'AKTIV';
     }
@@ -729,11 +731,11 @@ class UIManager {
       const d = profile.registeredAt ? new Date(profile.registeredAt).toLocaleDateString('de-DE') : 'Heute';
       dateEl.textContent = `Aktiv seit: ${d}`;
     }
-    if (runsEl) runsEl.textContent = (stats.totalRuns || 0).toString();
+    if (runsEl) runsEl.textContent = (stats.totalRuns || 0).toLocaleString('de-DE');
 
     if (inputEl) {
       inputEl.value = profile.pilotName || '';
-      if (nameChanges >= 1) {
+      if (remaining <= 0) {
         inputEl.disabled = true;
         inputEl.style.opacity = '0.55';
         inputEl.style.cursor = 'not-allowed';
@@ -745,26 +747,31 @@ class UIManager {
     }
 
     if (noticeEl) {
-      if (nameChanges >= 1) {
-        noticeEl.textContent = 'NAME FESTGELEGT (1x GEÄNDERT)';
-        noticeEl.style.color = '#94a3b8';
-        noticeEl.style.background = 'rgba(255, 255, 255, 0.05)';
-        noticeEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-      } else {
-        noticeEl.textContent = '1x NAMENSWECHSEL VERFÜGBAR';
+      if (remaining === 2) {
+        noticeEl.textContent = '2 KOSTENLOSE ÄNDERUNGEN VERFÜGBAR';
+        noticeEl.style.color = '#10b981';
+        noticeEl.style.background = 'rgba(16, 185, 129, 0.08)';
+        noticeEl.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+      } else if (remaining === 1) {
+        noticeEl.textContent = '1 KOSTENLOSE ÄNDERUNG VERFÜGBAR';
         noticeEl.style.color = '#38bdf8';
         noticeEl.style.background = 'rgba(56, 189, 248, 0.08)';
-        noticeEl.style.borderColor = 'rgba(56, 189, 248, 0.2)';
+        noticeEl.style.borderColor = 'rgba(56, 189, 248, 0.25)';
+      } else {
+        noticeEl.textContent = 'NAME FESTGELEGT (0 ÄNDERUNGEN ÜBRIG)';
+        noticeEl.style.color = '#64748b';
+        noticeEl.style.background = 'rgba(255, 255, 255, 0.04)';
+        noticeEl.style.borderColor = 'rgba(255, 255, 255, 0.08)';
       }
     }
 
     if (saveBtn) {
-      if (nameChanges >= 1) {
+      if (remaining <= 0) {
         saveBtn.disabled = true;
         saveBtn.style.display = 'none';
       } else {
         saveBtn.disabled = false;
-        saveBtn.style.display = 'block';
+        saveBtn.style.display = 'inline-flex';
       }
     }
 
@@ -793,22 +800,37 @@ class UIManager {
     const saveBtn = document.getElementById('btn-profile-save');
 
     if (res && res.success) {
+      const remaining = Math.max(0, 2 - (res.profile.nameChanges || 0));
       if (heroNameEl) heroNameEl.textContent = res.profile.pilotName;
       if (inputEl) {
         inputEl.value = res.profile.pilotName;
-        inputEl.disabled = true;
-        inputEl.style.opacity = '0.55';
-        inputEl.style.cursor = 'not-allowed';
+        if (remaining <= 0) {
+          inputEl.disabled = true;
+          inputEl.style.opacity = '0.55';
+          inputEl.style.cursor = 'not-allowed';
+        }
       }
       if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.style.display = 'none';
+        if (remaining <= 0) {
+          saveBtn.disabled = true;
+          saveBtn.style.display = 'none';
+        } else {
+          saveBtn.disabled = false;
+          saveBtn.style.display = 'inline-flex';
+        }
       }
       if (noticeEl) {
-        noticeEl.textContent = 'NAME FESTGELEGT (1x GEÄNDERT)';
-        noticeEl.style.color = '#94a3b8';
-        noticeEl.style.background = 'rgba(255, 255, 255, 0.05)';
-        noticeEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        if (remaining === 1) {
+          noticeEl.textContent = '1 KOSTENLOSE ÄNDERUNG VERFÜGBAR';
+          noticeEl.style.color = '#38bdf8';
+          noticeEl.style.background = 'rgba(56, 189, 248, 0.08)';
+          noticeEl.style.borderColor = 'rgba(56, 189, 248, 0.25)';
+        } else {
+          noticeEl.textContent = 'NAME FESTGELEGT (0 ÄNDERUNGEN ÜBRIG)';
+          noticeEl.style.color = '#64748b';
+          noticeEl.style.background = 'rgba(255, 255, 255, 0.04)';
+          noticeEl.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        }
       }
       this.updateUserProfileNav();
 

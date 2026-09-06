@@ -1,6 +1,6 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 6.9.2026, 20:20:25  
-> **Modus:** Selektiv (`05_hub_quests, 07_settings`)  
+> **Laufzeit:** 6.9.2026, 20:28:34  
+> **Modus:** Selektiv (`06b_pilot_profile, 07_settings`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
 > **Frisch erfasste Screenshots in diesem Lauf:** 2  
 > **Garantierte Frische:** Alle unten aufgeführten Dateien wurden in diesem Testlauf frisch erzeugt.
@@ -8,8 +8,8 @@
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `05_hub_quests.png` | Quests Active | 20:20:22 | 378 KB | `d442d6557a38db0f` |
-| `07_settings.png` | Settings Modal | 20:20:23 | 212 KB | `8f9be9c72af3175a` |
+| `06b_pilot_profile.png` | Pilot Profile | 20:28:32 | 240 KB | `46c970214e912474` |
+| `07_settings.png` | Settings Modal | 20:28:33 | 209 KB | `3f5493e2ef8478fc` |
 
 
 ### Gesamter Screenshot-Bestand (22 Dateien)
@@ -18,7 +18,6 @@
 | `06_hub_stats.png` | 23:45:04 | 269 KB |
 | `09_pause_modal.png` | 23:45:11 | 190 KB |
 | `08b_gameplay_fps_hud.png` | 10:56:15 | 321 KB |
-| `06b_pilot_profile.png` | 13:13:26 | 256 KB |
 | `02_hangar_skins.png` | 17:02:30 | 245 KB |
 | `08_gameplay_hud.png` | 18:53:08 | 213 KB |
 | `01_main_menu.png` | 19:10:29 | 222 KB |
@@ -36,4 +35,5 @@
 | `05d_hub_quests_tab_weekly.png` | 19:58:31 | 195 KB |
 | `05e_hub_quests_tab_daily.png` | 19:59:36 | 339 KB |
 | `05_hub_quests.png` | 20:20:22 | 378 KB |
-| `07_settings.png` | 20:20:23 | 212 KB |
+| `06b_pilot_profile.png` | 20:28:32 | 240 KB |
+| `07_settings.png` | 20:28:33 | 209 KB |
