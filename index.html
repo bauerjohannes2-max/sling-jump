@@ -18,11 +18,11 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=4.7.1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Oxanium:wght@800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=4.8.0">
   <script>
     (function() {
-      var APP_VERSION = '4.7.1';
+      var APP_VERSION = '4.8.0';
       var storedVer = localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('sling_jump_installed_version', APP_VERSION);
@@ -131,9 +131,13 @@
 
       <!-- 2. CENTER STAGE: BOLD HERO TITLE & CENTERED INTERACTIVE SHIP HANGAR -->
       <div class="center-stage">
-        <div class="brand-hero">
-          <span class="title-sling">SLING</span>
-          <span class="title-jump">JUMP</span>
+        <div class="title-lockup">
+          <div class="title-space">SPACE</div>
+          <div class="casing-frame">
+            <div class="casing-plate">
+              <div class="title-jump">JUMP</div>
+            </div>
+          </div>
         </div>
 
         <!-- Clean, Frameless Currencies Centered Beneath Logo -->
@@ -154,7 +158,6 @@
             </span>
             <div class="currency-meta">
               <span class="value currency-value credits-val" id="menu-currency-val">0</span>
-              <span class="currency-label credits-lbl">CREDITS</span>
             </div>
           </div>
           <div class="currency-item crystal" title="Sparks">
@@ -179,7 +182,6 @@
             </span>
             <div class="currency-meta">
               <span class="value currency-value sparks-val" id="menu-crystals-val">1</span>
-              <span class="currency-label sparks-lbl">SPARKS</span>
             </div>
           </div>
         </div>
@@ -348,7 +350,7 @@
             <linearGradient id="debrief-tg" x1="0" y1="1" x2="0" y2="0">
               <stop offset="0" stop-color="#38e8ff" stop-opacity=".15"/>
               <stop offset=".60" stop-color="#38e8ff" stop-opacity=".90"/>
-              <stop offset="1" stop-color="#ff2d55"/>
+              <stop offset="1" stop-color="#e11d48"/>
             </linearGradient>
           </defs>
           <path class="debrief-trace-path" id="debrief-trace-path" stroke="url(#debrief-tg)" stroke-width="2.5"
@@ -356,13 +358,13 @@
           <g id="debrief-crash-pos" transform="translate(34, 280)">
             <g class="debrief-crash-dot" id="debrief-crash-dot">
               <!-- Expanding Shockwave Ring -->
-              <circle class="debrief-shockwave" cx="0" cy="0" r="12" fill="none" stroke="#ff2d55" stroke-width="2"/>
+              <circle class="debrief-shockwave" cx="0" cy="0" r="12" fill="none" stroke="#e11d48" stroke-width="2"/>
               <!-- Tactical High-Contrast Dark Disc -->
-              <circle cx="0" cy="0" r="11" fill="rgba(8, 3, 9, 0.88)" stroke="#ff2d55" stroke-width="1.2" stroke-opacity="0.6"/>
+              <circle cx="0" cy="0" r="11" fill="rgba(8, 3, 9, 0.88)" stroke="#e11d48" stroke-width="1.2" stroke-opacity="0.6"/>
               <!-- Tactical Corner Reticle Pips -->
-              <path d="M -9 -6.5 V -9 H -6.5 M 6.5 -9 H 9 V -6.5 M 9 6.5 V 9 H 6.5 M -6.5 9 H -9 V 6.5" fill="none" stroke="rgba(255, 45, 85, 0.75)" stroke-width="1" stroke-linecap="square"/>
-              <!-- Bold Crimson Impact X -->
-              <path d="M -6 -6 L 6 6 M 6 -6 L -6 6" stroke="#ff1e42" stroke-width="3.2" stroke-linecap="round"/>
+              <path d="M -9 -6.5 V -9 H -6.5 M 6.5 -9 H 9 V -6.5 M 9 6.5 V 9 H 6.5 M -6.5 9 H -9 V 6.5" fill="none" stroke="rgba(225, 29, 72, 0.75)" stroke-width="1" stroke-linecap="square"/>
+              <!-- Bold Carmine Impact X -->
+              <path d="M -6 -6 L 6 6 M 6 -6 L -6 6" stroke="#e11d48" stroke-width="3.2" stroke-linecap="round"/>
               <!-- Luminous White Core X -->
               <path d="M -6 -6 L 6 6 M 6 -6 L -6 6" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
               <!-- Center Impact Pinpoint -->
@@ -424,7 +426,7 @@
                   <circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4" />
                   <!-- Recessed Dark Contrast Well -->
                   <circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75" />
-                  <!-- Precision Centered Rajdhani Bold 'C' -->
+                  <!-- Precision Centered Bold 'C' (Mathematically centered at 18, 18) -->
                   <text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="'Rajdhani', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select: none;">C</text>
                 </svg>
                 <span class="debrief-loot-val" id="final-orbs">+0</span>
@@ -499,27 +501,79 @@
       </div>
     </div>
 
-    <!-- 6. AUFGABEN MODAL (DEDICATED) -->
+    <!-- 6. AUFGABEN / MISSIONEN MODAL (REDESIGNED) -->
     <div class="modal-overlay" id="quests-modal">
-      <div class="modal-card hub-card" style="position: relative;">
+      <div class="modal-card hub-card missions-modal-card" style="position: relative;">
         <button class="modal-close-x" id="btn-quests-close" aria-label="Schließen">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <div class="modal-title" style="margin-bottom:14px;">AUFGABEN</div>
-        <div class="quests-scroll-area">
-          <!-- Daily Quests -->
-          <div class="quest-section-header">
-            <span class="section-subtitle" style="margin:0; font-size:11px; font-weight:800; letter-spacing:1.2px;">TÄGLICH</span>
-            <span class="reset-timer-badge" id="daily-reset-timer">--:--</span>
-          </div>
-          <div class="quests-list" id="daily-quests-list"></div>
 
-          <!-- Weekly Quests -->
-          <div class="quest-section-header" style="margin-top:14px;">
-            <span class="section-subtitle" style="margin:0; font-size:11px; font-weight:800; letter-spacing:1.2px;">WÖCHENTLICH</span>
-            <span class="reset-timer-badge" id="weekly-reset-timer">--:--</span>
+        <!-- Header Lockup -->
+        <div class="missions-header-lockup">
+          <div class="modal-title missions-title">MISSIONEN</div>
+        </div>
+
+        <!-- Global Mission Progress Hero Banner -->
+        <div class="missions-overview-bar" id="missions-overview-bar">
+          <div class="missions-overview-top">
+            <div class="missions-progress-meta">
+              <span class="missions-overview-label">ABGESCHLOSSEN</span>
+              <span class="missions-overview-ratio" id="missions-completed-ratio">0 / 5</span>
+            </div>
+            <div class="missions-rewards-pending" id="missions-rewards-pending">
+              <span class="pending-label">BELOHNUNG BEREIT:</span>
+              <span class="pending-val" id="missions-pending-amount"><span class="pending-num">0</span></span>
+            </div>
           </div>
-          <div class="quests-list" id="weekly-quests-list"></div>
+          <div class="missions-meter-bg">
+            <div class="missions-meter-fill" id="missions-meter-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Segmented Category Navigation Tabs -->
+        <div class="missions-filter-tabs" role="tablist">
+          <button class="missions-tab-btn active" id="tab-missions-all" data-tab="all" type="button">
+            <span class="tab-label">ALLE</span>
+            <span class="tab-count-badge" id="badge-count-all">5</span>
+          </button>
+          <button class="missions-tab-btn" id="tab-missions-daily" data-tab="daily" type="button">
+            <span class="tab-label">TÄGLICH</span>
+            <span class="tab-count-badge" id="badge-count-daily">3</span>
+            <span class="tab-alert-dot" id="dot-unclaimed-daily" style="display:none;"></span>
+          </button>
+          <button class="missions-tab-btn" id="tab-missions-weekly" data-tab="weekly" type="button">
+            <span class="tab-label">WÖCHENTLICH</span>
+            <span class="tab-count-badge" id="badge-count-weekly">2</span>
+            <span class="tab-alert-dot" id="dot-unclaimed-weekly" style="display:none;"></span>
+          </button>
+        </div>
+
+        <div class="quests-scroll-area">
+          <!-- Daily Quests Section -->
+          <div class="quest-section" id="section-daily-quests">
+            <div class="quest-section-header">
+              <div class="section-title-group">
+                <span class="section-subtitle">TÄGLICHE MISSIONEN</span>
+              </div>
+              <div class="reset-timer-badge-wrap">
+                <span class="reset-timer-badge" id="daily-reset-timer">--:--</span>
+              </div>
+            </div>
+            <div class="quests-list" id="daily-quests-list"></div>
+          </div>
+
+          <!-- Weekly Quests Section -->
+          <div class="quest-section" id="section-weekly-quests" style="margin-top:16px;">
+            <div class="quest-section-header">
+              <div class="section-title-group">
+                <span class="section-subtitle">WÖCHENTLICHE HERAUSFORDERUNGEN</span>
+              </div>
+              <div class="reset-timer-badge-wrap">
+                <span class="reset-timer-badge" id="weekly-reset-timer">--:--</span>
+              </div>
+            </div>
+            <div class="quests-list" id="weekly-quests-list"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -657,8 +711,8 @@
         </div>
 
         <!-- Hero Gamer Tag & User ID Pill -->
-        <div class="profile-hero-tag" id="profile-hero-name" style="font-size: 19px; font-weight: 900; color: #f8fafc; letter-spacing: 1.5px; font-family: 'Orbitron', sans-serif; margin-bottom: 4px;">PLAYER</div>
-        <div class="profile-id-pill" id="profile-user-id-badge" style="display: inline-block; font-size: 10px; font-family: monospace; color: #94a3b8; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 3px 8px; margin-bottom: 14px; letter-spacing: 0.5px;">ID: usr_...</div>
+        <div class="profile-hero-tag" id="profile-hero-name" style="font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: 1.5px; font-family: 'Rajdhani', sans-serif; margin-bottom: 4px;">PLAYER</div>
+        <div class="profile-id-pill" id="profile-user-id-badge" style="display: inline-block; font-size: 10px; font-family: 'Orbitron', monospace, sans-serif; color: #94a3b8; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 3px 8px; margin-bottom: 14px; letter-spacing: 0.5px;">ID: usr_...</div>
 
         <!-- Name Change Restriction Info Banner -->
         <div id="profile-change-notice" style="font-size: 10px; font-weight: 700; color: var(--accent-crimson); letter-spacing: 0.5px; margin-bottom: 12px; padding: 4px 8px; border-radius: 6px; background: rgba(225, 29, 72, 0.08); border: 1px solid rgba(225, 29, 72, 0.25);">
@@ -667,7 +721,7 @@
 
         <!-- Name Edit Form (Single Input + Submit) -->
         <form id="profile-form" onsubmit="window._uiManager && window._uiManager.saveProfile(event)" style="display: flex; gap: 8px; margin-bottom: 10px;">
-          <input type="text" id="profile-name-input" maxlength="16" placeholder="Wunschname..." style="flex: 1; min-width: 0; padding: 10px 14px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; color: #fff; font-size: 13px; font-weight: 700; outline: none; font-family: 'Orbitron', sans-serif;">
+          <input type="text" id="profile-name-input" maxlength="16" placeholder="Wunschname..." style="flex: 1; min-width: 0; padding: 10px 14px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; color: #fff; font-size: 15px; font-weight: 700; outline: none; font-family: 'Rajdhani', sans-serif;">
           <button type="submit" id="btn-profile-save" class="btn-primary" style="padding: 10px 16px; font-size: 11px; white-space: nowrap;">SPEICHERN</button>
         </form>
 
@@ -701,21 +755,21 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=4.7.1"></script>
-  <script src="js/services/StorageService.js?v=4.7.1"></script>
-  <script src="js/services/AnalyticsService.js?v=4.7.1"></script>
-  <script src="js/audio/AudioManager.js?v=4.7.1"></script>
-  <script src="js/engine/ParticleSystem.js?v=4.7.1"></script>
-  <script src="js/engine/InputManager.js?v=4.7.1"></script>
-  <script src="js/engine/MissionManager.js?v=4.7.1"></script>
-  <script src="js/entities/Node.js?v=4.7.1"></script>
-  <script src="js/entities/EnergyOrb.js?v=4.7.1"></script>
-  <script src="js/entities/Spaceship.js?v=4.7.1"></script>
-  <script src="js/world/WorldManager.js?v=4.7.1"></script>
-  <script src="js/engine/ShopManager.js?v=4.7.1"></script>
-  <script src="js/engine/StateManager.js?v=4.7.1"></script>
-  <script src="js/engine/UIManager.js?v=4.7.1"></script>
-  <script src="js/engine/GameEngine.js?v=4.7.1"></script>
-  <script src="js/main.js?v=4.7.1"></script>
+  <script src="js/config/Constants.js?v=4.8.0"></script>
+  <script src="js/services/StorageService.js?v=4.8.0"></script>
+  <script src="js/services/AnalyticsService.js?v=4.8.0"></script>
+  <script src="js/audio/AudioManager.js?v=4.8.0"></script>
+  <script src="js/engine/ParticleSystem.js?v=4.8.0"></script>
+  <script src="js/engine/InputManager.js?v=4.8.0"></script>
+  <script src="js/engine/MissionManager.js?v=4.8.0"></script>
+  <script src="js/entities/Node.js?v=4.8.0"></script>
+  <script src="js/entities/EnergyOrb.js?v=4.8.0"></script>
+  <script src="js/entities/Spaceship.js?v=4.8.0"></script>
+  <script src="js/world/WorldManager.js?v=4.8.0"></script>
+  <script src="js/engine/ShopManager.js?v=4.8.0"></script>
+  <script src="js/engine/StateManager.js?v=4.8.0"></script>
+  <script src="js/engine/UIManager.js?v=4.8.0"></script>
+  <script src="js/engine/GameEngine.js?v=4.8.0"></script>
+  <script src="js/main.js?v=4.8.0"></script>
 </body>
 </html>

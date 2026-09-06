@@ -530,15 +530,15 @@ class WorldManager {
     // 1. Bottom Glow Fill (Pre-calculated gradient)
     const gradient = context.createLinearGradient(0, height - glowHeight, 0, height + 50);
     gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    gradient.addColorStop(0.4, theme.voidGlow || 'rgba(239, 68, 68, 0.45)');
-    gradient.addColorStop(1, theme.voidColor || '#ef4444');
+    gradient.addColorStop(0.4, theme.voidGlow || 'rgba(225, 29, 72, 0.45)');
+    gradient.addColorStop(1, theme.voidColor || '#e11d48');
 
     context.fillStyle = gradient;
     context.fillRect(-padX, height - glowHeight, drawWidth, glowHeight + 100);
 
     // 2. High-Performance Multi-Layer Laser Beam (Zero shadowBlur overhead)
     // Wide Outer Aura Line
-    context.strokeStyle = 'rgba(239, 68, 68, 0.28)';
+    context.strokeStyle = 'rgba(225, 29, 72, 0.28)';
     context.lineWidth = 12;
     context.beginPath();
     context.moveTo(-padX, height - 2);
@@ -546,7 +546,7 @@ class WorldManager {
     context.stroke();
 
     // Medium Glow Line
-    context.strokeStyle = 'rgba(239, 68, 68, 0.65)';
+    context.strokeStyle = 'rgba(225, 29, 72, 0.65)';
     context.lineWidth = 5;
     context.beginPath();
     context.moveTo(-padX, height - 2);

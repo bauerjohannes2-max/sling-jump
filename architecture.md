@@ -57,3 +57,27 @@
 3. **Physics & Momentum:** Releasing input triggers `Spaceship.releaseHook`, converting circular angular momentum into directional tangential velocity with combo multipliers.
 4. **World Generation:** As player climbs, `WorldManager.generateUpTo` dynamically populates procedural nodes ahead of the camera based on altitude zone difficulty.
 5. **Score & Persistence:** Altitude meters (`maxAltitudeMeters`) increment relative to start baseline. On game over or purchase, `StorageService` commits state with debounced writes (1500ms delay during active flight; synchronous on game over).
+
+---
+
+## 3. Typography & Visual Standards
+
+- **Two-Font System & Title Branding:**
+  - **Metrics / Numbers:** `'Orbitron', monospace, sans-serif` (`--font-numbers`), configured with tabular numerals (`tabular-nums`) for scores, meters, currencies, combos, and counters.
+  - **General UI / Text:** `'Rajdhani', sans-serif` (`--font-ui`) for labels, buttons, modals, profile names, callouts, and onboarding guides.
+  - **Main Game Title ("SPACE JUMP"):** Modern aerospace dual-bevel logo lockup (`.title-lockup`) using `'Oxanium', sans-serif; 900` with kinetic shear (`transform: skewX(-10deg)`).
+    - `SPACE`: High-brightness white text with letter spacing `0.26em` and extruded bottom shadow `0px 4px 0px #0f172a`.
+    - `JUMP`: Chamfered outer frame (`.casing-frame`) with rose-to-burgundy gradient rim and black drop shadow (`0 6px 0 #000000`), housing inner crimson plate (`.casing-plate`, `#e11d48`) and bold white lettering with dark crimson extruded shadow (`0px 4px 0px #881337`).
+- **Asset Rendering & Currencies:**
+  - Zero generic fallback fonts (`Inter`, `Montserrat`, `Sora`, `Segoe UI`, `Arial` removed).
+  - Main menu currency pill features restored bullion coin (with Rajdhani 'C') and 8-point quantum spark, stripped of text labels ("CREDITS" / "SPARKS") for commercial arcade minimalism.
+  - In-game bullion coin (`EnergyOrb.js`) is 100% visually synchronized with main menu SVG (outer beveled rim, specular ring, dark recessed well, zero blurring halo). Offscreen sprite rasterizer dynamically computes mathematical glyph center via `measureText('C')` ($\Delta y = (\text{actualAscent} - \text{actualDescent}) / 2$) and hooks into `document.fonts.load('700 46px "Rajdhani"')` & `document.fonts.ready` to guarantee perfect discrete raster centering.
+- **Harmonized Title Red Palette (`#e11d48`):**
+  - Project-wide red theme synchronized to the title plate `#e11d48` across CSS variables (`--accent-crimson`, `--danger`, `--btn-crimson-*`), buttons, ship chevrons, mine entities, collision shards, death laser horizon, debrief reticle, and developer dashboard.
+- **Mission Hub Architecture (`#quests-modal`):**
+  - Rigid height geometry (`580px`, `flex: 1; min-height: 0;` scroll area) guarantees absolute stability with zero height shifting across category filter changes (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`).
+  - Solid dark modal base (`#0b0d13` modal fill, `1px solid rgba(255, 255, 255, 0.08)` border) with floating-dock parity fill (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`) applied to `.missions-overview-bar` and `.quest-card`.
+  - Minimalist top-right reward lockup (`.quest-card-reward`, `+ ... C`) with transparent background, zero border box, and full-width progress meter. Enlarged tracked section titles (`13.5px`, bold white) with nowrap protection.
+  - Pending rewards lockup (`.missions-rewards-pending`) aligns Rajdhani text, Orbitron digits, and 14px bullion coin SVG on a unified optical centerline via `inline-flex` and precision top offset.
+
+

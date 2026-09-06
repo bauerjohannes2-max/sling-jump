@@ -3,30 +3,29 @@
    Modern SaaS Dark Theme • Zero Emojis • Linear/Vercel Aesthetic
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap');
 
 :root {
-  --bg-main: #080b10;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-card-hover: rgba(30, 41, 59, 0.75);
-  --bg-subtle: rgba(255, 255, 255, 0.03);
-  --border-card: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(56, 189, 248, 0.4);
+  --bg-main: #06090e;
+  --bg-card: rgba(13, 20, 33, 0.85);
+  --bg-card-hover: rgba(18, 28, 48, 0.95);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(56, 189, 248, 0.35);
   
-  --color-cyan: #38bdf8;
-  --color-cyan-glow: rgba(56, 189, 248, 0.25);
-  --color-emerald: #10b981;
-  --color-amber: #fbbf24;
-  --color-violet: #a855f7;
-  --color-rose: #f43f5e;
+  --color-primary: #38bdf8;
+  --color-accent: #e11d48;
+  --color-gold: #fbbf24;
+  --color-spark: #d946ef;
+  --color-green: #10b981;
+  --color-danger: #e11d48;
   
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --text-faint: #64748b;
   
-  --font-mono-heading: 'Orbitron', sans-serif;
+  --font-mono-heading: 'Orbitron', monospace, sans-serif;
   --font-tracked: 'Rajdhani', sans-serif;
-  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-ui: 'Rajdhani', sans-serif;
 }
 
 * {
@@ -206,7 +205,7 @@ body {
 .dash-btn.danger {
   background: rgba(244, 63, 94, 0.15);
   border-color: rgba(244, 63, 94, 0.35);
-  color: #fca5a5;
+  color: #fda4af;
 }
 
 .dash-btn.danger:hover {

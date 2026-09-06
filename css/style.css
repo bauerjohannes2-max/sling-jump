@@ -4,6 +4,8 @@
    ========================================================================= */
 
 
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Oxanium:wght@800;900&family=Rajdhani:wght@500;600;700&display=swap');
+
 :root {
   /* Void base */
   --void-950: #050810;
@@ -21,23 +23,31 @@
   --premium-deep: #a855f7;
   --currency-gold: #fbbf24;  /* Timer node / Coins */
   --warning: #f59e0b;        /* Bait node */
-  --danger: #ef4444;         /* Mine / Game Over crash state */
+  --danger: #e11d48;         /* Mine / Game Over crash state (Title Carmine Red) */
 
   --text-hero: #ffffff;
   --text-body: #e2e8f0;
   --text-muted: #94a3b8;
 
-  /* Crimson Red Palette (Main Menu & Title Theme) */
-  --accent-crimson: #ff1e42;
-  --accent-crimson-rgb: 255, 30, 66;
-  --accent-crimson-glow: rgba(255, 30, 66, 0.55);
-  --accent-crimson-subtle: rgba(255, 30, 66, 0.12);
-  --btn-crimson-start: #ff1e42;
-  --btn-crimson-end: #b91c1c;
+  /* Title Red Box Palette (Harmonized Aerospace Carmine & Deep Rose) */
+  --accent-crimson: #e11d48;
+  --accent-crimson-rgb: 225, 29, 72;
+  --accent-crimson-glow: rgba(225, 29, 72, 0.55);
+  --accent-crimson-subtle: rgba(225, 29, 72, 0.12);
+  --btn-crimson-start: #e11d48;
+  --btn-crimson-end: #9f1239;
 
-  /* Typography Stacks */
-  --font-display: 'Space Grotesk', 'Chakra Petch', system-ui, sans-serif;
-  --font-body: 'Sora', 'Manrope', -apple-system, sans-serif;
+  /* Game Title Branding: Premium Dynamic Aerospace Oxanium */
+  --font-title: 'Oxanium', sans-serif;
+
+  /* Standard Two-Font Typography System */
+  --font-ui: 'Rajdhani', sans-serif;
+  --font-numbers: 'Orbitron', monospace, sans-serif;
+
+  /* Standard Aliases for project compatibility */
+  --font-display: var(--font-ui);
+  --font-body: var(--font-ui);
+  --font-mono: var(--font-numbers);
 }
 
 * {
@@ -155,7 +165,7 @@ canvas#gameCanvas {
   width: 100%;
   height: 200px;
   pointer-events: none;
-  background: linear-gradient(to top, rgba(239, 68, 68, 0.45) 0%, transparent 100%);
+  background: linear-gradient(to top, rgba(225, 29, 72, 0.45) 0%, transparent 100%);
   opacity: 0;
   transition: opacity 0.15s ease-out;
   z-index: 10;
@@ -204,7 +214,7 @@ canvas#gameCanvas {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: linear-gradient(135deg, #ff1e42 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, var(--btn-crimson-start) 0%, var(--btn-crimson-end) 100%);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 18px;
   padding: 16px 28px;
@@ -276,9 +286,9 @@ canvas#gameCanvas {
 
 .btn-danger {
   padding: 12px 20px;
-  background: rgba(153, 27, 27, 0.4);
-  border: 1px solid rgba(239, 68, 68, 0.5);
-  color: #fca5a5;
+  background: rgba(159, 18, 57, 0.4);
+  border: 1px solid rgba(225, 29, 72, 0.5);
+  color: #fda4af;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -288,7 +298,7 @@ canvas#gameCanvas {
   transition: all 0.18s ease;
 }
 .btn-danger:hover {
-  background: #dc2626;
+  background: #e11d48;
   color: #ffffff;
 }
 
@@ -426,9 +436,9 @@ canvas#gameCanvas {
 .icon-nav-btn:hover {
   color: #ffffff;
   background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 30, 66, 0.55);
+  border-color: rgba(225, 29, 72, 0.55);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.65), 0 0 14px rgba(255, 30, 66, 0.25);
+  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.65), 0 0 14px rgba(225, 29, 72, 0.25);
 }
 
 .top-nav-btn:active,
@@ -477,7 +487,7 @@ canvas#gameCanvas {
   height: 18px;
   padding: 0 4px;
   border-radius: 999px;
-  background: var(--accent-crimson, #ff1e42);
+  background: var(--accent-crimson, #e11d48);
   color: #ffffff;
   font-family: var(--font-mono, monospace);
   font-size: 10px;
@@ -485,7 +495,7 @@ canvas#gameCanvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 12px rgba(255, 30, 66, 0.85), 0 2px 4px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.85), 0 2px 4px rgba(0, 0, 0, 0.6);
   border: 1.5px solid #080b10;
   pointer-events: none;
   z-index: 3;
@@ -495,11 +505,11 @@ canvas#gameCanvas {
 
 @keyframes quest-badge-pulse {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(255, 30, 66, 0.7);
+    box-shadow: 0 0 8px rgba(225, 29, 72, 0.7);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 14px rgba(255, 30, 66, 1);
+    box-shadow: 0 0 14px rgba(225, 29, 72, 1);
     transform: scale(1.08);
   }
 }
@@ -549,8 +559,8 @@ canvas#gameCanvas {
 
 .profile-nav-clean:hover .profile-avatar-wrap,
 .profile-nav-btn:hover .profile-avatar-wrap {
-  border-color: rgba(255, 30, 66, 0.6);
-  box-shadow: 0 0 12px rgba(255, 30, 66, 0.35);
+  border-color: rgba(225, 29, 72, 0.6);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.35);
 }
 
 .profile-avatar-wrap .profile-nav-svg {
@@ -585,10 +595,10 @@ canvas#gameCanvas {
 }
 
 .profile-nav-name {
-  font-family: 'Space Grotesk', system-ui, sans-serif;
-  font-size: 13px;
+  font-family: var(--font-ui);
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.9px;
+  letter-spacing: 1px;
   color: #f8fafc;
   white-space: nowrap;
   min-width: 0;
@@ -662,8 +672,7 @@ canvas#gameCanvas {
 
 .currency-meta {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   line-height: 1;
 }
@@ -805,34 +814,68 @@ canvas#gameCanvas {
   width: 100%;
 }
 
-.brand-hero {
-  text-align: center;
-  margin-bottom: 6px;
-  transform: translateY(-26px);
+.title-lockup {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  transform: skewX(-10deg);
+  margin: 12px 0 16px;
+  user-select: none;
 }
 
-.title-sling {
-  font-family: var(--font-display);
-  font-size: 54px;
+/* SPACE */
+.title-space {
+  font-family: 'Oxanium', sans-serif;
   font-weight: 900;
-  letter-spacing: 12px;
-  text-transform: uppercase;
-  line-height: 0.92;
+  font-size: clamp(38px, 9.5vw, 58px);
+  line-height: 1;
   color: #ffffff;
-  display: block;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.08));
+  letter-spacing: 0.26em;
+  margin-right: -0.26em; /* optical cancel for trailing letter-spacing */
+  margin-bottom: 10px;
+  text-shadow: 0px 4px 0px #0f172a;
 }
 
+/* Outer Casing Frame (4-corner chamfered bevel rim) */
+.casing-frame {
+  display: inline-flex;
+  padding: 2.5px;
+  background: linear-gradient(180deg, #fecdd3 0%, #fda4af 25%, #be123c 70%, #9f1239 100%);
+  clip-path: polygon(
+    16px 0%, calc(100% - 16px) 0%, 
+    100% 16px, 100% calc(100% - 16px), 
+    calc(100% - 16px) 100%, 16px 100%, 
+    0% calc(100% - 16px), 0% 16px
+  );
+  filter: drop-shadow(0 6px 0 #000000);
+}
+
+/* Inner Plate (Narrowed horizontal footprint) */
+.casing-plate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e11d48;
+  padding: clamp(6px, 1.8vw, 10px) clamp(20px, 6vw, 36px);
+  clip-path: polygon(
+    14px 0%, calc(100% - 14px) 0%, 
+    100% 14px, 100% calc(100% - 14px), 
+    calc(100% - 14px) 100%, 14px 100%, 
+    0% calc(100% - 14px), 0% 14px
+  );
+}
+
+/* JUMP */
 .title-jump {
-  font-family: var(--font-display);
-  font-size: 54px;
+  font-family: 'Oxanium', sans-serif;
   font-weight: 900;
-  letter-spacing: 12px;
-  text-transform: uppercase;
-  line-height: 0.95;
-  color: var(--accent-crimson);
-  display: block;
-  text-shadow: 0 0 35px var(--accent-crimson-glow);
+  font-size: clamp(44px, 11vw, 68px);
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: 0.16em;
+  margin-right: -0.16em; /* optical cancel for trailing letter-spacing */
+  transform: translateY(4px); /* optical vertical centering */
+  text-shadow: 0px 4px 0px #881337;
 }
 
 /* Interactive Center Hangar & Slingshot Stage */
@@ -912,9 +955,9 @@ canvas#gameCanvas {
   position: relative;
   width: 12px;
   height: 38px;
-  background: linear-gradient(180deg, #ffffff 0%, #ff5277 24%, #ff1e42 58%, rgba(255, 30, 66, 0) 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #fb7185 24%, #e11d48 58%, rgba(225, 29, 72, 0) 100%);
   border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
-  filter: drop-shadow(0 0 10px #ff1e42) drop-shadow(0 0 24px rgba(255, 30, 66, 0.65));
+  filter: drop-shadow(0 0 10px #e11d48) drop-shadow(0 0 24px rgba(225, 29, 72, 0.65));
   animation: jet-pulse 0.085s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
   transform-origin: top center;
 }
@@ -943,9 +986,9 @@ canvas#gameCanvas {
   transform: translateX(-50%);
   width: 14px;
   height: 7px;
-  background: radial-gradient(ellipse at center, #ffffff 20%, #ff1e42 70%, transparent 100%);
+  background: radial-gradient(ellipse at center, #ffffff 20%, #e11d48 70%, transparent 100%);
   border-radius: 50%;
-  filter: drop-shadow(0 0 8px #ff1e42);
+  filter: drop-shadow(0 0 8px #e11d48);
 }
 
 .plasma-flame.center {
@@ -965,12 +1008,12 @@ canvas#gameCanvas {
   0% {
     height: 32px;
     transform: scaleX(0.9) scaleY(0.92);
-    filter: drop-shadow(0 0 8px #ff1e42) drop-shadow(0 0 18px rgba(255, 30, 66, 0.5));
+    filter: drop-shadow(0 0 8px #e11d48) drop-shadow(0 0 18px rgba(225, 29, 72, 0.5));
   }
   100% {
     height: 48px;
     transform: scaleX(1.1) scaleY(1.08);
-    filter: drop-shadow(0 0 14px #ff1e42) drop-shadow(0 0 32px rgba(255, 30, 66, 0.85));
+    filter: drop-shadow(0 0 14px #e11d48) drop-shadow(0 0 32px rgba(225, 29, 72, 0.85));
   }
 }
 
@@ -1030,7 +1073,7 @@ canvas#gameCanvas {
 .ship-buy-btn.shake {
   animation: buy-btn-shake 0.4s ease-in-out;
   border-color: var(--accent-crimson);
-  box-shadow: 0 0 20px rgba(255, 30, 66, 0.5);
+  box-shadow: 0 0 20px rgba(225, 29, 72, 0.5);
 }
 
 @keyframes buy-btn-shake {
@@ -1100,7 +1143,7 @@ canvas#gameCanvas {
   height: 66px;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(135deg, #ff1e42 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, var(--btn-crimson-start) 0%, var(--btn-crimson-end) 100%);
   color: #ffffff;
   font-family: var(--font-display);
   font-size: 21px;
@@ -1236,13 +1279,8 @@ canvas#gameCanvas {
 }
 
 @media (max-width: 480px) {
-  .title-sling, .title-jump {
-    font-size: 44px;
-    letter-spacing: 9px;
-  }
-  .brand-hero {
-    margin-bottom: 4px;
-    transform: translateY(-20px);
+  .title-lockup {
+    margin: 8px 0 12px;
   }
   .hangar-stage-container {
     width: 280px;
@@ -1494,8 +1532,8 @@ canvas#gameCanvas {
 }
 
 .stat-badge.fps.danger .fps-indicator-dot {
-  background: #ef4444;
-  box-shadow: 0 0 6px #ef4444;
+  background: #e11d48;
+  box-shadow: 0 0 6px #e11d48;
 }
 
 #hud-fps-val,
@@ -1981,14 +2019,14 @@ canvas#gameCanvas {
 }
 
 .debrief-tick.crash {
-  color: #ff2d55;
+  color: #e11d48;
   font-weight: 700;
 }
 
 .debrief-tick.crash i {
-  background: #ff2d55;
+  background: #e11d48;
   width: 24px;
-  box-shadow: 0 0 10px rgba(255, 45, 85, 0.65);
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.65);
 }
 
 .debrief-tick.new-record-tick {
@@ -2041,7 +2079,7 @@ canvas#gameCanvas {
 .debrief-crash-dot {
   opacity: 0;
   transform-origin: 0px 0px;
-  filter: drop-shadow(0 0 6px rgba(255, 30, 66, 0.65));
+  filter: drop-shadow(0 0 6px rgba(225, 29, 72, 0.65));
 }
 
 .play-seq .debrief-crash-dot {
@@ -2085,6 +2123,7 @@ canvas#gameCanvas {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  transform: translateY(-56px);
   gap: 16px;
   min-height: 0;
   padding: 4px 0;
@@ -2096,8 +2135,9 @@ canvas#gameCanvas {
 }
 
 .debrief-label {
-  font-family: var(--font-mono, monospace);
-  font-size: 9.5px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
   letter-spacing: 0.34em;
   color: #8b93b8;
   text-transform: uppercase;
@@ -2107,13 +2147,15 @@ canvas#gameCanvas {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  font-family: var(--font-display);
+  font-family: var(--font-numbers);
   line-height: 1.0;
   margin-top: 4px;
   padding-bottom: 6px;
 }
 
 .debrief-score .debrief-num {
+  font-family: var(--font-numbers);
+  font-variant-numeric: tabular-nums;
   font-size: clamp(68px, 18vw, 94px);
   font-weight: 900;
   letter-spacing: -0.03em;
@@ -2129,7 +2171,7 @@ canvas#gameCanvas {
 }
 
 .debrief-score .debrief-unit {
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 22px;
   color: #38e8ff;
@@ -2194,9 +2236,10 @@ canvas#gameCanvas {
 }
 
 .debrief-loot-val {
-  font-family: var(--font-display, sans-serif);
+  font-family: var(--font-numbers);
+  font-variant-numeric: tabular-nums;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.05em;
   color: #ffffff;
   line-height: 1.2;
@@ -2222,13 +2265,15 @@ canvas#gameCanvas {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  font-family: var(--font-mono, monospace);
-  font-size: 10px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.16em;
   color: #8b93b8;
 }
 
 .debrief-chase-row b {
+  font-family: var(--font-numbers);
   color: var(--currency-gold);
   font-weight: 700;
 }
@@ -2307,15 +2352,17 @@ canvas#gameCanvas {
 }
 
 .debrief-cell .debrief-k {
-  font-family: var(--font-mono, monospace);
-  font-size: 8.5px;
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 700;
   letter-spacing: 0.20em;
   color: rgba(139, 147, 184, 0.75);
   text-transform: uppercase;
 }
 
 .debrief-cell .debrief-v {
-  font-family: var(--font-display);
+  font-family: var(--font-numbers);
+  font-variant-numeric: tabular-nums;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -2324,7 +2371,7 @@ canvas#gameCanvas {
 }
 
 .debrief-cell .debrief-v small {
-  font-family: var(--font-body);
+  font-family: var(--font-ui);
   font-size: 11px;
   color: #8b93b8;
   font-weight: 700;
@@ -2356,15 +2403,17 @@ canvas#gameCanvas {
 }
 
 .debrief-rw .t {
-  font-family: var(--font-display);
+  font-family: var(--font-numbers);
+  font-variant-numeric: tabular-nums;
   font-size: 15px;
   font-weight: 700;
   color: #ffffff;
 }
 
 .debrief-rw .s {
-  font-family: var(--font-mono, monospace);
-  font-size: 8.5px;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
   letter-spacing: 0.16em;
   color: #8b93b8;
 }
@@ -2488,9 +2537,9 @@ canvas#gameCanvas {
 .debrief-btn.retry {
   height: 62px;
   padding: 0 18px;
-  background: linear-gradient(135deg, #ff244c 0%, #dc143c 45%, #9b0b28 100%);
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 45%, #9f1239 100%);
   box-shadow:
-    0 6px 26px rgba(255, 36, 76, 0.42),
+    0 6px 26px rgba(225, 29, 72, 0.42),
     inset 0 1.5px 0 rgba(255, 255, 255, 0.40),
     inset 0 -2.5px 0 rgba(0, 0, 0, 0.35);
   color: #ffffff;
@@ -2505,7 +2554,7 @@ canvas#gameCanvas {
 .debrief-btn.retry:hover {
   transform: translateY(-2px) scale(1.01);
   box-shadow:
-    0 10px 36px rgba(255, 36, 76, 0.60),
+    0 10px 36px rgba(225, 29, 72, 0.60),
     inset 0 1.5px 0 rgba(255, 255, 255, 0.50),
     inset 0 -2.5px 0 rgba(0, 0, 0, 0.35);
 }
@@ -2635,6 +2684,7 @@ canvas#gameCanvas {
 
 @media (max-height: 740px) {
   .debrief-wrap { padding: 16px 16px calc(10px + env(safe-area-inset-bottom, 0px)) 82px; }
+  .debrief-body { transform: translateY(-20px); }
   .debrief-score .debrief-num { font-size: 58px; }
   .debrief-score .debrief-unit { font-size: 18px; margin-top: 0; }
   .debrief-chase { margin-top: 4px; }
@@ -2646,6 +2696,7 @@ canvas#gameCanvas {
 
 @media (max-height: 620px) {
   .debrief-wrap { padding: 12px 12px calc(8px + env(safe-area-inset-bottom, 0px)) 76px; }
+  .debrief-body { transform: translateY(-8px); }
   .debrief-score .debrief-num { font-size: 46px; }
   .debrief-btn.revive { height: 48px; }
   .debrief-btn.retry { height: 46px; }
@@ -2659,12 +2710,13 @@ canvas#gameCanvas {
 }
 
 .quests-scroll-area {
-  max-height: 52vh;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   overscroll-behavior: contain;
-  padding-right: 6px;
+  padding: 4px 6px 16px 2px;
   scrollbar-width: thin;
   scrollbar-color: rgba(56, 189, 248, 0.4) rgba(15, 23, 42, 0.6);
 }
@@ -3239,101 +3291,515 @@ canvas#gameCanvas {
   letter-spacing: 0.5px;
 }
 
-.quests-list {
+/* =========================================================================
+   5b. MISSIONEN / AUFGABEN MODAL (CYBERNETIC REDESIGN)
+   ========================================================================= */
+.missions-modal-card {
+  max-width: 580px;
+  width: 94%;
+  height: 580px;
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-.quest-card {
-  background: rgba(30, 41, 59, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 10px 12px;
-  transition: all 0.18s ease;
-}
-.quest-card.ready-to-claim {
-  border-color: rgba(16, 185, 129, 0.6);
-  background: rgba(16, 185, 129, 0.08);
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.15);
-}
-.quest-card.is-claimed {
-  opacity: 0.45;
+  text-align: left;
+  padding: 22px 18px;
+  background: #0b0d13 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-.quest-card-top {
+.missions-header-lockup {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.missions-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 0 16px rgba(225, 29, 72, 0.25);
+}
+
+/* Global Missions Progress Bar */
+.missions-overview-bar {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.missions-overview-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
-.quest-card-title {
-  font-size: 12px;
-  font-weight: 800;
-  color: #f1f5f9;
-  letter-spacing: 0.3px;
-}
-.quest-card-reward {
-  font-size: 11px;
-  font-weight: 800;
-  color: #fbbf24;
+
+.missions-progress-meta {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 8px;
+}
+
+.missions-overview-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.missions-overview-ratio {
+  font-family: 'Orbitron', monospace;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.missions-rewards-pending {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.missions-rewards-pending .pending-label {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.missions-rewards-pending .pending-val {
+  color: #fbbf24;
+  font-family: 'Orbitron', monospace;
+  font-size: 11.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}
+
+.missions-rewards-pending.has-unclaimed .pending-val {
+  color: #10b981;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.missions-rewards-pending .pending-val .pending-num {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.missions-rewards-pending .pending-val .currency-icon {
+  width: 14px !important;
+  height: 14px !important;
+  vertical-align: middle !important;
+  margin-top: -1px;
+}
+
+.missions-rewards-pending .all-done-badge {
+  color: #10b981;
+  letter-spacing: 1px;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.missions-meter-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.missions-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 60%, #10b981 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+/* Category Filter Tabs */
+.missions-filter-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  background: #0e121b;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.missions-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #94a3b8;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.missions-tab-btn:hover {
+  background: rgba(30, 41, 59, 0.65);
+  color: #ffffff;
+}
+
+.missions-tab-btn.active {
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.28), rgba(15, 23, 42, 0.85));
+  border-color: rgba(225, 29, 72, 0.55);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(225, 29, 72, 0.22);
+}
+
+.tab-count-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.09);
+  color: #cbd5e1;
+}
+
+.missions-tab-btn.active .tab-count-badge {
+  background: rgba(225, 29, 72, 0.4);
+  color: #ffffff;
+}
+
+.tab-alert-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: missionPulseDot 1.6s ease-in-out infinite;
+}
+
+@keyframes missionPulseDot {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.35); opacity: 1; }
+}
+
+/* Section Header & Timers */
+.quest-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  flex: 1;
+}
+
+.section-subtitle {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.reset-timer-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 2.5px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Quests List & Cards */
+.quests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quest-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.quest-card:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.quest-card.ready-to-claim {
+  border-color: rgba(16, 185, 129, 0.55);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(255, 255, 255, 0.035) 100%);
+  animation: readyClaimGlow 2.2s ease-in-out infinite;
+}
+
+@keyframes readyClaimGlow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.2), inset 0 0 12px rgba(16, 185, 129, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(16, 185, 129, 0.35), inset 0 0 18px rgba(16, 185, 129, 0.1);
+  }
+}
+
+.quest-card.is-claimed {
+  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.015);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+/* Card Header: Title on Left, Reward in Top Right */
+.quest-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.quest-card-title {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.quest-card-reward {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Credits display: Clean typography with coin SVG, NO yellow box/border */
+.quest-reward-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: 'Orbitron', monospace;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.5px;
+}
+
+.quest-reward-pill .reward-plus {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.quest-reward-pill .currency-icon {
+  width: 15px;
+  height: 15px;
+  margin-left: 2px;
+}
+
+.quest-claimed-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: 1px;
+}
+
+.quest-claimed-badge .check-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Card Description & Meter */
+.quest-card-desc {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.quest-meter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .quest-bar-bg {
   position: relative;
   width: 100%;
-  height: 16px;
-  background: rgba(15, 23, 42, 0.8);
+  height: 6px;
+  background: rgba(15, 23, 42, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  border-radius: 3px;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-}
-.quest-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #b91c1c, var(--accent-crimson));
-  border-radius: 8px;
-  transition: width 0.25s ease;
-}
-.quest-bar-text {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  font-size: 9.5px;
-  font-weight: 800;
-  font-family: 'Orbitron', monospace;
-  color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-  z-index: 2;
 }
 
+.quest-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.quest-card.ready-to-claim .quest-bar-fill {
+  background: linear-gradient(90deg, #059669, #10b981);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.quest-meter-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Orbitron', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.quest-meter-info .quest-pct-label {
+  color: #38bdf8;
+}
+
+.quest-card.ready-to-claim .quest-meter-info .quest-pct-label {
+  color: #34d399;
+  font-weight: 800;
+}
+
+/* High-Impact Claim Button */
 .btn-claim {
   width: 100%;
-  margin-top: 8px;
-  padding: 8px 12px !important;
-  font-size: 10.5px !important;
+  margin-top: 10px;
+  padding: 10px 14px !important;
+  font-family: var(--font-ui) !important;
+  font-size: 12px !important;
   font-weight: 800 !important;
-  letter-spacing: 1px !important;
-  background: linear-gradient(135deg, var(--success), #059669) !important;
+  letter-spacing: 1.2px !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   border: 1px solid #34d399 !important;
   border-radius: 8px !important;
   color: #ffffff !important;
   cursor: pointer !important;
   text-transform: uppercase;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.18s ease !important;
 }
+
 .btn-claim:hover {
-  background: #047857 !important;
+  background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5) !important;
 }
-.badge-claimed {
-  color: var(--success);
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  font-size: 9px;
-  text-transform: uppercase;
+
+.btn-claim:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.claim-btn-svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.claim-btn-reward {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+/* Responsive Styles */
+@media (max-width: 480px) {
+  .missions-modal-card {
+    height: 560px;
+    max-height: 90vh;
+    padding: 18px 14px;
+  }
+  .section-subtitle {
+    font-size: 13.5px;
+    letter-spacing: 1.5px;
+  }
+  .quest-card-title {
+    font-size: 13px;
+  }
+  .quest-card-desc {
+    font-size: 11.5px;
+  }
+  .quest-reward-pill {
+    font-size: 12.5px;
+  }
+  .btn-claim {
+    font-size: 11.5px !important;
+    padding: 8px 10px !important;
+  }
 }
 
 /* =========================================================================

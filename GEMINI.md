@@ -35,6 +35,11 @@ Guidelines enforced for all agent tasks.
 - **Zero Runtime CPU `shadowBlur`:** Avoid `shadowBlur` in render loops. Use offscreen canvases or vector layers.
 - **Snappy Input:** On slingshot release from slow-mo, snap `timeScale = 1.0` immediately.
 - **DOM Caching:** Cache HUD elements; mutate `textContent` only when values change.
+- **Canvas 2D Optical Glyph Centering:** Never rely on `ctx.textBaseline = 'middle'` to center uppercase letters or standalone glyphs in Canvas 2D; `middle` baseline factors unused descenders and shifts glyph ink upward. Always compute true geometric center via bounding metrics:
+  `drawX = cx + (m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2`
+  `drawY = cy + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2`
+  Always hook offscreen sprite rasterization into `document.fonts.load(...)` and `document.fonts.ready` to re-rasterize immediately upon webfont readiness.
+- **1:1 Vector Asset Parity (Canvas vs. SVG/DOM):** When porting UI/SVG assets (e.g. coins, currencies, icons) into Canvas 2D world collectibles, preserve the exact vector gradients, strokes, and contrast wells. Do not inject artificial radial blur halos or glows that bleed over crisp rim borders unless explicitly requested.
 
 ## 8. Token Efficiency & Map First
 RULE: TOKEN EFFICIENCY & MAP FIRST. Before reading, grepping, or analyzing any .js or .css files for a new task, you MUST read architecture.md to understand the system context. Never dump full JS files into context blindly. You are strictly responsible for keeping architecture.md updated whenever you create a new file, change a core class, or alter the game loop.

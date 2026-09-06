@@ -71,7 +71,7 @@ async function profileGameplay() {
     eng.gameStarted = true;
     
     // Spawn 80 particles
-    eng.particles.spawnShards(eng.player.x, eng.player.y, 40, '#ef4444');
+    eng.particles.spawnShards(eng.player.x, eng.player.y, 40, '#e11d48');
     eng.particles.spawnSparks(eng.player.x, eng.player.y, 40, '#00f0ff');
     eng.particles.spawnFloatingText(eng.player.x, eng.player.y + 40, 'COMBO x5', '#fbbf24', 32, true);
 

@@ -37,76 +37,82 @@ class EnergyOrb {
     ctx1.fill();
     EnergyOrb.cache['CRYSTAL_GLOW'] = c1;
 
-    // 2. Cache Bullion Credit Glow
-    const c2 = document.createElement('canvas');
-    c2.width = 48; c2.height = 48;
-    const ctx2 = c2.getContext('2d');
-    const glow2 = ctx2.createRadialGradient(24, 24, 2, 24, 24, 22);
-    glow2.addColorStop(0, 'rgba(253, 230, 138, 0.90)');
-    glow2.addColorStop(0.4, 'rgba(245, 158, 11, 0.35)');
-    glow2.addColorStop(1, 'rgba(245, 158, 11, 0)');
-    ctx2.fillStyle = glow2;
-    ctx2.beginPath();
-    ctx2.arc(24, 24, 22, 0, Math.PI * 2);
-    ctx2.fill();
-    EnergyOrb.cache['COIN_GLOW'] = c2;
-
     EnergyOrb.buildSprites();
-    if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        EnergyOrb.buildSprites(true);
-      });
+    if (typeof document !== 'undefined' && document.fonts) {
+      if (document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          EnergyOrb.buildSprites(true);
+        });
+      }
+      if (document.fonts.load) {
+        document.fonts.load('700 46px "Rajdhani"').then(() => {
+          EnergyOrb.buildSprites(true);
+        });
+      }
     }
   }
 
   static buildSprites(force = false) {
     if (!EnergyOrb.cache) EnergyOrb.cache = {};
 
-    // 3. Pre-render Aerospace Credits Bullion Coin (48x48)
+    // 3. Pre-render Aerospace Credits Bullion Coin (72x72 supersampled 2x from 36x36 main menu SVG)
     const cCoin = EnergyOrb.cache['CREDIT_SPRITE'] || document.createElement('canvas');
-    cCoin.width = 48; cCoin.height = 48;
+    cCoin.width = 72; cCoin.height = 72;
     const ctxCoin = cCoin.getContext('2d');
-    ctxCoin.clearRect(0, 0, 48, 48);
+    ctxCoin.clearRect(0, 0, 72, 72);
 
-    // Outer Beveled Rim
-    const rimGrad = ctxCoin.createLinearGradient(10, 8, 38, 40);
+    const S = 2.0;
+    const cx = 18 * S;
+    const cy = 18 * S;
+
+    // Outer Beveled Rim (matches main menu #coinRimGrad)
+    const rimGrad = ctxCoin.createLinearGradient(2 * S, 1 * S, 34 * S, 35 * S);
     rimGrad.addColorStop(0, '#fde68a');
     rimGrad.addColorStop(0.35, '#f59e0b');
     rimGrad.addColorStop(1, '#78350f');
     ctxCoin.fillStyle = rimGrad;
     ctxCoin.beginPath();
-    ctxCoin.arc(24, 24, 15.5, 0, Math.PI * 2);
+    ctxCoin.arc(cx, cy, 17.2 * S, 0, Math.PI * 2);
     ctxCoin.fill();
     ctxCoin.strokeStyle = '#260b02';
-    ctxCoin.lineWidth = 0.9;
+    ctxCoin.lineWidth = 0.8 * S;
     ctxCoin.stroke();
 
     // Specular Highlight Inner Ring
     ctxCoin.strokeStyle = 'rgba(254, 240, 138, 0.45)';
-    ctxCoin.lineWidth = 0.6;
+    ctxCoin.lineWidth = 0.5 * S;
     ctxCoin.beginPath();
-    ctxCoin.arc(24, 24, 14.1, 0, Math.PI * 2);
+    ctxCoin.arc(cx, cy, 15.6 * S, 0, Math.PI * 2);
     ctxCoin.stroke();
 
-    // Recessed Dark Contrast Well
-    const wellGrad = ctxCoin.createRadialGradient(24, 24, 2, 24, 24, 12.5);
+    // Recessed Dark Contrast Well (matches main menu #coinWellDepth)
+    const wellGrad = ctxCoin.createRadialGradient(cx, cy, 0, cx, cy, 13.6 * S);
     wellGrad.addColorStop(0, '#5c2409');
     wellGrad.addColorStop(0.85, '#240a02');
     wellGrad.addColorStop(1, '#140501');
     ctxCoin.fillStyle = wellGrad;
     ctxCoin.beginPath();
-    ctxCoin.arc(24, 24, 12.3, 0, Math.PI * 2);
+    ctxCoin.arc(cx, cy, 13.6 * S, 0, Math.PI * 2);
     ctxCoin.fill();
     ctxCoin.strokeStyle = '#1a0601';
-    ctxCoin.lineWidth = 0.75;
+    ctxCoin.lineWidth = 0.75 * S;
     ctxCoin.stroke();
 
-    // Precision Centered Bold 'C'
+    // Precision Centered Rajdhani Bold 'C' (exact font, weight, size, and mathematical optical centering)
     ctxCoin.fillStyle = '#fef08a';
     ctxCoin.textAlign = 'center';
     ctxCoin.textBaseline = 'middle';
-    ctxCoin.font = '700 19px "Rajdhani", sans-serif';
-    ctxCoin.fillText('C', 24, 24.5);
+    ctxCoin.font = `700 ${23 * S}px "Rajdhani", sans-serif`;
+
+    const m = ctxCoin.measureText('C');
+    const drawX = (m && m.actualBoundingBoxLeft !== undefined && m.actualBoundingBoxRight !== undefined)
+      ? cx + (m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2
+      : cx;
+    const drawY = (m && m.actualBoundingBoxAscent !== undefined && m.actualBoundingBoxDescent !== undefined)
+      ? cy + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2
+      : cy + 2.375 * S;
+
+    ctxCoin.fillText('C', drawX, drawY);
     EnergyOrb.cache['CREDIT_SPRITE'] = cCoin;
 
     // 4. Pre-render Aerospace Sparks 8-Point Prismatic Star (56x56)
@@ -217,14 +223,11 @@ class EnergyOrb {
       context.rotate(-this.pulse * 0.35);
 
     } else {
-      // 1. Outer Radiant Glow (Pre-rendered)
-      context.drawImage(EnergyOrb.cache['COIN_GLOW'], -24, -24);
-
       const pulseScale = 1 + Math.sin(this.pulse) * 0.08;
-      const cW = 48 * pulseScale;
-      const cH = 48 * pulseScale;
+      const cW = 36 * pulseScale;
+      const cH = 36 * pulseScale;
 
-      // 2. Pre-rendered Stamped Bullion Credit Coin
+      // Pre-rendered Stamped Bullion Credit Coin (exact main menu visual, synchronized & centered)
       context.drawImage(EnergyOrb.cache['CREDIT_SPRITE'], -cW * 0.5, -cH * 0.5, cW, cH);
     }
 

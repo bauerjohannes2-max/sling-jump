@@ -29,6 +29,8 @@ description: Zero emoji policy, selective visual testing, and token-efficient do
 
 ## 7. 60+ FPS Guardrails
 - Debounce storage writes >= 1500ms during flight. No `{ desynchronized: true }` under DOM. No runtime `shadowBlur`. Cache HUD DOM updates.
+- **Optical Glyph Centering on Canvas:** `textBaseline = 'middle'` does not center uppercase glyphs. Calculate true optical center using $(\text{actualAscent} - \text{actualDescent}) / 2$. Await `document.fonts.load()` & `document.fonts.ready` before final sprite caching.
+- **Canvas-to-SVG Parity:** Canvas collectible sprites must mirror UI SVG definitions 1:1 without unrequested blur halos destroying outer rim stroke contrast.
 
 ## 8. Token Efficiency & Map First
 RULE: TOKEN EFFICIENCY & MAP FIRST. Before reading, grepping, or analyzing any .js or .css files for a new task, you MUST read architecture.md to understand the system context. Never dump full JS files into context blindly. You are strictly responsible for keeping architecture.md updated whenever you create a new file, change a core class, or alter the game loop.

@@ -42,9 +42,9 @@ const CONSTANTS = {
       primary: '#00f0ff',
       secondary: '#38bdf8',
       accent: '#fbbf24',
-      danger: '#ef4444',
-      voidColor: '#ef4444',
-      voidGlow: 'rgba(239, 68, 68, 0.7)',
+      danger: '#e11d48',
+      voidColor: '#e11d48',
+      voidGlow: 'rgba(225, 29, 72, 0.7)',
       voidPlasma: '#1e051e',
       cardBg: 'rgba(15, 23, 42, 0.75)'
     },

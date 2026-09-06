@@ -401,8 +401,8 @@ class GameEngine {
 
   handleNodeBreak(brokenNode) {
     this.triggerScreenShake(5);
-    this.particles.spawnShards(brokenNode.x, brokenNode.y, 35, '#ff3344');
-    this.particles.spawnFloatingText(brokenNode.x, brokenNode.y + 20, 'CRACK!', '#ef4444');
+    this.particles.spawnShards(brokenNode.x, brokenNode.y, 35, '#e11d48');
+    this.particles.spawnFloatingText(brokenNode.x, brokenNode.y + 20, 'CRACK!', '#e11d48');
 
     if (this.player && this.player.hookedNode === brokenNode) {
       this.player.releaseHook(true, this.audio, (s) => this.setSlowMo(s), this.particles);
@@ -414,7 +414,7 @@ class GameEngine {
     this.triggerHitstop(16);
     this.audio.playSfx('sfx_crash');
 
-    this.particles.spawnShards(this.player.x, this.player.y, 35, '#ef4444');
+    this.particles.spawnShards(this.player.x, this.player.y, 35, '#e11d48');
 
     // Target true peak altitude achieved by the pilot (never leave them stranded at the void bottom)
     const baseOrigin = (this.startAltitudeY !== undefined && this.startAltitudeY !== null) ? this.startAltitudeY : 380;
@@ -721,7 +721,7 @@ class GameEngine {
           if (dist < lethalDist) {
             node.isBroken = true;
             this.triggerScreenShake(12);
-            this.particles.spawnShards(node.x, node.y, 45, '#ef4444');
+            this.particles.spawnShards(node.x, node.y, 45, '#e11d48');
             this.particles.spawnSparks(node.x, node.y, 35, '#f97316', 2.5);
             if (this.audio) this.audio.playSfx('sfx_node_shatter');
 
@@ -731,7 +731,7 @@ class GameEngine {
               this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE ZERSTÖRT!', '#10b981', 26, true);
               if (this.audio) this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
             } else if (!this.player.shieldTimer || this.player.shieldTimer <= 0) {
-              this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE DETONIERT!', '#ef4444', 32, true);
+              this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE DETONIERT!', '#e11d48', 32, true);
               this.isDying = true;
               this.triggerGameOver();
             } else {
@@ -823,7 +823,7 @@ class GameEngine {
           if (playerScreenY > this.height - 50 && this.player.vy > 250) {
             this.runNearMisses++;
             this.missions.onNearMiss();
-            this.particles.spawnFloatingText(this.player.x, this.player.y + 25, 'NEAR MISS!', '#ef4444');
+            this.particles.spawnFloatingText(this.player.x, this.player.y + 25, 'NEAR MISS!', '#e11d48');
             this.audio.playSfx('sfx_near_miss');
           }
         } else {
@@ -965,7 +965,7 @@ class GameEngine {
         const playerScreenY = this.height - (this.player.y - this.cameraY);
         this.ctx.save();
         this.ctx.textAlign = 'center';
-        this.ctx.font = '900 12px Montserrat, sans-serif';
+        this.ctx.font = '700 13px "Rajdhani", sans-serif';
         this.ctx.letterSpacing = '1.5px';
         const pulseAlpha = Math.sin(now / 150) * 0.3 + 0.7;
 

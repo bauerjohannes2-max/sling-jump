@@ -1,6 +1,6 @@
 # Sling Jump - Game Systems & Technical Specification Manual
 
-> Live Version: 5.10.0 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
+> Live Version: 5.16.3 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
 
 ---
 
@@ -72,7 +72,7 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **HAZARD_MINE:** Red pulsing spike orb. Lethal on ship collision unless protected by Super-Boost or Revive Shield.
 
 ### 4.2 Collectibles & Currencies
-- **Credits (Common / Utility):** Stamped bullion coins with beveled rim, recessed contrast well, and precision-centered Rajdhani 'C' glyph. Spawn in parabolic flight corridors. Primary currency for hangar unlocks. Value: 1 Credit = +10 score points. Rendered via zero-GC pre-rendered offscreen sprite cache (`EnergyOrb.cache['CREDIT_SPRITE']`, 48x48) with radial glow buffer.
+- **Credits (Common / Utility):** Stamped bullion coins with beveled rim, recessed contrast well, and precision-centered Rajdhani 'C' glyph matching the main menu SVG standard. Spawn in parabolic flight corridors. Primary currency for hangar unlocks. Value: 1 Credit = +10 score points. Rendered via zero-GC pre-rendered offscreen sprite cache (`EnergyOrb.cache['CREDIT_SPRITE']`, 72x72 supersampled 2x from 36x36 SVG standard) with radial glow buffer.
 - **Sparks (Rare / Quantum / Revive):** Faceted 8-point prismatic stars with light refractions, depth shading, nucleus pip, and slow radial rotation, spawning in Zone 6+ (>= 8,000m). Used exclusively for Quantum Revives (cost: 1 Spark). Rendered via pre-rendered offscreen sprite cache (`EnergyOrb.cache['SPARK_SPRITE']`, 56x56) with quantum aura buffer.
 
 ---
@@ -121,13 +121,17 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - If unranked: Displays `#---` with message "Absolviere einen Flug zur Wertung".
   - If ranked: Displays `#${rank}` with verified altitude in meters.
 
-### 7.3 Front-Tab Modal Layering
+### 7.3 Front-Tab Modal Layering & Mission Tab Architecture
 - Secondary overlays (`SETTINGS`, `STATS`, `LEADERBOARD`, `QUESTS`, `TUTORIAL`) render directly before the active main menu (`backdrop-filter: blur(16px)`).
 - Dynamic gameplay nodes are hidden during menu/modal states to preserve background starfield clarity.
+- **Mission Hub Architecture (`#quests-modal`):**
+  - **Fixed Geometric Stability:** Enforces constant card height (`height: 580px; max-height: 88vh`) with `flex: 1; min-height: 0;` on `.quests-scroll-area`. Guarantees zero height-jumping or layout flutter when toggling category filters (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`).
+  - **Floating-Dock Glassmorphism Parity:** Cards (`.quest-card`) and progress hero (`.missions-overview-bar`) match the bottom navigation dock (`background: rgba(255, 255, 255, 0.035)`, `border: 1px solid rgba(255, 255, 255, 0.08)`, `backdrop-filter: blur(16px)`). Left accent bar (`::before`), mission icons, and redundant tags (`TAG` / `WOCHE`) stripped for commercial arcade minimalism.
 
 ### 7.4 Flight Debrief (Death Screen) Trajectory & Crash Reticle
 - **Trajectory Spline Coincidence:** In `UIManager.updateDebriefTrajectory()`, procedural ascent curve applies an envelope $\sin(t \cdot \pi)$ to horizontal sway, guaranteeing that at $t = 1$ the spline coordinate mathematically equals the true crash point $(x_{\text{crash}}, y_{\text{crash}})$.
-- **Tactical Impact Reticle:** Vector marker `#debrief-crash-pos` bound precisely to `endPoint = points[points.length - 1]`. Features high-contrast shockwave, 4 tactical corner pips, crimson outer cross (`#ff1e42`), and glowing white inner cross (`#ffffff`). Origin centered at `0 0` with zero subpixel drift.
+- **Tactical Impact Reticle:** Vector marker `#debrief-crash-pos` bound precisely to `endPoint = points[points.length - 1]`. Features high-contrast shockwave, 4 tactical corner pips, carmine outer cross (`#e11d48`), and glowing white inner cross (`#ffffff`). Origin centered at `0 0` with zero subpixel drift.
+- **Debrief Body Vertical Elevation (`.debrief-body`):** Elevated by `translateY(-56px)` on desktop and tablet displays (with media queries `-20px` at $\le 740\text{px}$ height and `-8px` at $\le 620\text{px}$). Encompasses hero altitude score, chase progress bar, telemetry grid, and loot badges, establishing optical balance with the left trajectory telemetry rail (top tick $y \approx 138\text{px}$).
 
 ---
 
@@ -154,4 +158,42 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - $\ge 90\text{ FPS}$: Cyan (`#38bdf8`)
   - $\ge 55\text{ FPS}$: Emerald (`#10b981`)
   - $\ge 42\text{ FPS}$: Amber (`#fbbf24`)
-  - $< 42\text{ FPS}$: Crimson (`#ef4444`)
+  - $< 42\text{ FPS}$: Carmine (`#e11d48`)
+
+---
+
+## 10. Typography & Visual Rendering Standard
+
+### 10.1 Typography Architecture
+- **Numbers / Metrics / Counters / Currencies / Timers:** `Orbitron:wght@500;700` (`'Orbitron', monospace, sans-serif`). Enforced with `font-variant-numeric: tabular-nums` to eliminate layout jitter.
+- **Text / UI / Menus / Buttons / Profile / Labels:** `Rajdhani:wght@500;600;700` (`'Rajdhani', sans-serif`). Clean geometric sans-serif with tracked uppercase styling.
+- **Main Game Title ("SPACE JUMP"):** Modern aerospace dual-bevel logo lockup (`.title-lockup`) using `Oxanium:wght@800;900` (`'Oxanium', sans-serif`).
+  - Slanted kinetic forward thrust (`transform: skewX(-10deg)`).
+  - `SPACE`: High-brightness white text with letter spacing `0.26em` and extruded bottom shadow `0px 4px 0px #0f172a`.
+  - `JUMP`: Chamfered outer frame (`.casing-frame`) with rose-to-burgundy gradient rim and black drop shadow (`0 6px 0 #000000`), housing inner crimson plate (`.casing-plate`, `#e11d48`) and bold white lettering with dark crimson extruded shadow (`0px 4px 0px #881337`).
+- **Canvas Rendering Synchronization:** All canvas-rendered text and sprites await `document.fonts.ready` before rasterizing offscreen buffers.
+
+### 10.2 Main Menu Currency Pill & Map Collectibles
+- **Main Menu Currencies:** Minimalist lockup below logo displaying bullion Credit coin (featuring Rajdhani 'C') and 8-point quantum Spark star without text labels ("CREDITS" / "SPARKS" stripped) for maximum arcade minimalism.
+- **In-Game Canvas Bullion (`EnergyOrb.js`):** Offscreen sprite rasterizer computes exact optical ink bounding box via `measureText('C')`:
+  $$\text{drawX} = cx + \frac{\text{actualBoundingBoxLeft} - \text{actualBoundingBoxRight}}{2}$$
+  $$\text{drawY} = cy + \frac{\text{actualBoundingBoxAscent} - \text{actualBoundingBoxDescent}}{2}$$
+  Guarantees equal margins across all 4 quadrants inside the in-game gold coin core (within 1.0px discrete raster symmetry). Blurry outer orange glow (`COIN_GLOW`) removed from in-game collectibles to establish 100% visual parity with the crisp, beveled bullion coin in the main menu.
+
+### 10.3 Mission Modal Card Architecture & Dock Parity
+- **Container Styling (`.missions-modal-card`):**
+  - Solid dark obsidian fill: `background: #0b0d13 !important;` (zero background bleed-through, zero glassmorph)
+  - Subtle hairline boundary: `border: 1px solid rgba(255, 255, 255, 0.08) !important;`
+  - Rounded geometry: `border-radius: 24px;`
+  - High-depth aerospace shadow: `box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.1);`
+- **Fixed Height Geometry:** Strict height of `580px` (`max-height: 88vh`) with `display: flex; flex-direction: column;` prevents height jumps between tabs (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`).
+- **Internal Card Hierarchy (`.quest-card`, `.missions-overview-bar`):**
+  - Floating-dock parity fill: `background: rgba(255, 255, 255, 0.035); backdrop-filter: blur(16px);` (exact match to main menu `.floating-dock`)
+  - Hairline border: `border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;`
+  - Category tabs container: `background: #0e121b; border: 1px solid rgba(255, 255, 255, 0.08);`
+  - Header: Left-aligned title (`14px` bold pure white `#ffffff`), top-right reward text (`+ ... C` in `Orbitron:wght@800` gold `#fbbf24` with vector bullion coin).
+  - Clean description (`12.5px`, `#94a3b8`) followed by full-width progress bar and status actions.
+  - Overview Bar Pending Rewards: `.pending-label` and `.pending-val` harmonized via `inline-flex` with centered 14px bullion coin SVG and -1px optical top offset, achieving 100% horizontal centerline parity between Rajdhani label, Orbitron numbers, and credit icon.
+  - Zero emojis across all cards, tabs, and headers.
+
+

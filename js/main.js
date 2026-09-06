@@ -601,6 +601,18 @@
   });
   window.addEventListener('resize', stabilizeViewport);
 
+  // Synchronize sprite caches with typography readiness
+  if (typeof EnergyOrb !== 'undefined' && EnergyOrb.initCache) {
+    EnergyOrb.initCache();
+  }
+  if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      if (typeof EnergyOrb !== 'undefined' && EnergyOrb.buildSprites) {
+        EnergyOrb.buildSprites(true);
+      }
+    });
+  }
+
   // Start System
   bindUIButtons();
   engine.state.changeState(StateManager.STATES.MENU);

@@ -107,7 +107,7 @@ class ParticleSystem {
     p.color = color;
   }
 
-  spawnShards(x, y, count = 20, color = '#ef4444') {
+  spawnShards(x, y, count = 20, color = '#e11d48') {
     for (let i = 0; i < count; i++) {
       const p = this.getFreeParticle();
       const ang = Math.random() * Math.PI * 2;
@@ -327,6 +327,9 @@ class ParticleSystem {
       context.textAlign = 'center';
       context.textBaseline = 'middle';
 
+      const isNumeric = /\d/.test(t.text) || t.text.startsWith('+');
+      const fontFam = isNumeric ? "'Orbitron', monospace, sans-serif" : "'Rajdhani', sans-serif";
+
       if (t.isCombo) {
         const popScale = 1.0 + Math.sin(alpha * Math.PI) * 0.35;
         const px = t.x | 0;
@@ -334,7 +337,7 @@ class ParticleSystem {
         context.scale(popScale, popScale);
 
         const fontSize = t.size || 28;
-        context.font = `900 ${fontSize}px 'Orbitron', 'Inter', sans-serif`;
+        context.font = `700 ${fontSize}px ${fontFam}`;
 
         context.strokeStyle = 'rgba(4, 7, 13, 0.95)';
         context.lineWidth = 6;
@@ -354,7 +357,7 @@ class ParticleSystem {
         if (!isPerf) context.shadowBlur = 0;
       } else {
         const fontSize = t.size || 16;
-        context.font = `800 ${fontSize}px 'Orbitron', 'Inter', sans-serif`;
+        context.font = `700 ${fontSize}px ${fontFam}`;
         context.strokeStyle = 'rgba(4, 7, 13, 0.9)';
         context.lineWidth = 3.5;
         const px = t.x | 0;

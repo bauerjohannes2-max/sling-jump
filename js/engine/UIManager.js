@@ -8,6 +8,26 @@ class UIManager {
   static COIN_SVG = '<svg class="currency-icon coin-icon" viewBox="0 0 36 36" fill="none" style="width:15px;height:15px;vertical-align:middle;display:inline-block;"><circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8"/><circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4"/><circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75"/><text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="\'Rajdhani\', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select:none;">C</text></svg>';
   static CRYSTAL_SVG = '<svg class="currency-icon spark-icon" viewBox="0 0 40 40" fill="none" style="width:14px;height:14px;vertical-align:middle;display:inline-block;"><polygon points="20,2 24,15 38,20 24,25 20,38 16,25 2,20 16,15" fill="url(#sparkCoreGrad)" stroke="#d8b4fe" stroke-width="1" stroke-linejoin="round"/><polygon points="20,2 24,15 20,20" fill="#ffffff" opacity="0.16"/><polygon points="2,20 16,15 20,20" fill="#ffffff" opacity="0.10"/><polygon points="20,38 24,25 20,20" fill="#3b0764" opacity="0.35"/><polygon points="38,20 24,25 20,20" fill="#3b0764" opacity="0.25"/><line x1="24" y1="15" x2="16" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5"/><line x1="16" y1="15" x2="24" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5"/><circle cx="20" cy="20" r="1.6" fill="#f5d0fe"/></svg>';
 
+  static getMissionIcon(type) {
+    switch (type) {
+      case 'altitude_single':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2 2 4 6 4 10l-4 3-4-3c0-4 2-8 4-10z"></path><path d="M8 12l-3 3v2l3-1"></path><path d="M16 12l3 3v2l-3-1"></path><circle cx="12" cy="7" r="1.5" fill="currentColor"></circle><path d="M10 18l2 4 2-4"></path></svg>';
+      case 'altitude_cumulative':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"></circle><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"></ellipse><polyline points="12 9 12 12 14 14"></polyline></svg>';
+      case 'cores_single':
+      case 'cores_cumulative':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="5" stroke-dasharray="2 2"></circle><path d="M12 9v6M9.5 12h5"></path></svg>';
+      case 'boost_single':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2" fill="none"></polygon></svg>';
+      case 'slingshot_cumulative':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="4"></circle><path d="M9 13v6a3 3 0 0 0 6 0V7a4 4 0 0 1 4 4"></path><polyline points="17 9 19 11 21 9"></polyline></svg>';
+      case 'near_miss_cumulative':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><polygon points="12 9 15 12 12 15 9 12" fill="currentColor"></polygon></svg>';
+      default:
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+    }
+  }
+
   constructor(storageService, audioManager, shopManager, missionManager, inputManager) {
     this.storage = storageService;
     this.audio = audioManager;
@@ -91,13 +111,27 @@ class UIManager {
       rankPillBadge: document.getElementById('rank-pill-badge'),
       btnLeaderboardClose: document.getElementById('btn-leaderboard-close'),
 
-      // Challenges & Timers
+      // Challenges, Missions & Timers
       dailyResetTimer: document.getElementById('daily-reset-timer'),
       weeklyResetTimer: document.getElementById('weekly-reset-timer'),
       dailyQuestsList: document.getElementById('daily-quests-list'),
       weeklyQuestsList: document.getElementById('weekly-quests-list'),
       menuQuestsBadge: document.getElementById('menu-quests-badge'),
       btnQuestsClose: document.getElementById('btn-quests-close'),
+      missionsCompletedRatio: document.getElementById('missions-completed-ratio'),
+      missionsRewardsPending: document.getElementById('missions-rewards-pending'),
+      missionsPendingAmount: document.getElementById('missions-pending-amount'),
+      missionsMeterFill: document.getElementById('missions-meter-fill'),
+      tabMissionsAll: document.getElementById('tab-missions-all'),
+      tabMissionsDaily: document.getElementById('tab-missions-daily'),
+      tabMissionsWeekly: document.getElementById('tab-missions-weekly'),
+      badgeCountAll: document.getElementById('badge-count-all'),
+      badgeCountDaily: document.getElementById('badge-count-daily'),
+      badgeCountWeekly: document.getElementById('badge-count-weekly'),
+      dotUnclaimedDaily: document.getElementById('dot-unclaimed-daily'),
+      dotUnclaimedWeekly: document.getElementById('dot-unclaimed-weekly'),
+      sectionDailyQuests: document.getElementById('section-daily-quests'),
+      sectionWeeklyQuests: document.getElementById('section-weekly-quests'),
 
       // Lifetime Stats
       statHighScore: document.getElementById('stat-high-score'),
@@ -139,6 +173,8 @@ class UIManager {
     };
 
     this.activeLeaderboardTab = 'global';
+    this.activeMissionTab = 'all';
+    this.initMissionTabsUI();
     this.initSettingsUI();
     this.updateUserProfileNav();
     window._uiManager = this;
@@ -428,15 +464,22 @@ class UIManager {
     if (!isCoinCollected && coinY > -15 && coinY < h + 15) {
       ctx.save();
       ctx.translate(node1X + orbitRadius, coinY);
-      ctx.shadowColor = '#fbbf24';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = '#fbbf24';
-      ctx.beginPath();
-      ctx.arc(0, 0, 6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
+      if (typeof EnergyOrb !== 'undefined' && EnergyOrb.cache && EnergyOrb.cache['CREDIT_SPRITE']) {
+        if (EnergyOrb.cache['COIN_GLOW']) {
+          ctx.drawImage(EnergyOrb.cache['COIN_GLOW'], -18, -18, 36, 36);
+        }
+        ctx.drawImage(EnergyOrb.cache['CREDIT_SPRITE'], -14, -14, 28, 28);
+      } else {
+        ctx.shadowColor = '#fbbf24';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(0, 0, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
       ctx.restore();
     } else if (time >= 3.4 && time < 4.0) {
       // Coin collection sparkle flash
@@ -444,7 +487,7 @@ class UIManager {
       ctx.save();
       ctx.translate(node1X + orbitRadius, coinY - pFlash * 12);
       ctx.fillStyle = `rgba(251, 191, 36, ${1.0 - pFlash})`;
-      ctx.font = '700 11px Rajdhani, Segoe UI, sans-serif';
+      ctx.font = '700 12px "Orbitron", monospace, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('+1 COIN', 0, 0);
       ctx.restore();
@@ -567,7 +610,7 @@ class UIManager {
       ctx.save();
       ctx.translate(node1X + orbitRadius + 18, (node1BaseY - 10) - fbProgress * 18);
       ctx.fillStyle = `rgba(0, 240, 255, ${Math.max(0, 1.0 - fbProgress)})`;
-      ctx.font = '800 12px Rajdhani, Segoe UI, sans-serif';
+      ctx.font = '700 13px "Rajdhani", sans-serif';
       ctx.shadowColor = '#00f0ff';
       ctx.shadowBlur = 8;
       ctx.fillText('PERFEKT', 0, 0);
@@ -639,7 +682,7 @@ class UIManager {
     ctx.stroke();
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '800 11px Rajdhani, Segoe UI, sans-serif';
+    ctx.font = '700 11px "Orbitron", monospace, sans-serif';
     ctx.textAlign = 'left';
     ctx.letterSpacing = '1px';
     ctx.fillText(`${altitudeDisplay} M`, 18, 25);
@@ -1418,6 +1461,17 @@ class UIManager {
       this.dom.menuQuestsBadge.textContent = `${unclaimed}`;
       this.dom.menuQuestsBadge.style.display = unclaimed > 0 ? 'flex' : 'none';
     }
+
+    const dailies = this.missions.getDailyQuests() || [];
+    const weeklies = this.missions.getWeeklyQuests() || [];
+    const unclaimedDailies = dailies.filter(q => q.isComplete && !q.isClaimed).length;
+    const unclaimedWeeklies = weeklies.filter(q => q.isComplete && !q.isClaimed).length;
+    if (this.dom.dotUnclaimedDaily) {
+      this.dom.dotUnclaimedDaily.style.display = unclaimedDailies > 0 ? 'block' : 'none';
+    }
+    if (this.dom.dotUnclaimedWeekly) {
+      this.dom.dotUnclaimedWeekly.style.display = unclaimedWeeklies > 0 ? 'block' : 'none';
+    }
   }
 
   renderGlobalLeaderboard() {
@@ -1542,6 +1596,45 @@ class UIManager {
     }
   }
 
+  initMissionTabsUI() {
+    const tabs = [
+      { id: 'tab-missions-all', type: 'all' },
+      { id: 'tab-missions-daily', type: 'daily' },
+      { id: 'tab-missions-weekly', type: 'weekly' }
+    ];
+
+    tabs.forEach(({ id, type }) => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          this.activeMissionTab = type;
+          tabs.forEach(t => {
+            const b = document.getElementById(t.id);
+            if (b) b.classList.toggle('active', t.type === type);
+          });
+          this.filterMissionSections();
+        });
+      }
+    });
+  }
+
+  filterMissionSections() {
+    const secDaily = document.getElementById('section-daily-quests');
+    const secWeekly = document.getElementById('section-weekly-quests');
+    if (!secDaily || !secWeekly) return;
+
+    if (this.activeMissionTab === 'daily') {
+      secDaily.style.display = 'block';
+      secWeekly.style.display = 'none';
+    } else if (this.activeMissionTab === 'weekly') {
+      secDaily.style.display = 'none';
+      secWeekly.style.display = 'block';
+    } else {
+      secDaily.style.display = 'block';
+      secWeekly.style.display = 'block';
+    }
+  }
+
   renderChallenges() {
     if (!this.missions) return;
 
@@ -1552,52 +1645,120 @@ class UIManager {
       this.dom.weeklyResetTimer.textContent = `Reset in ${this.missions.getWeeklyTimeRemaining()}`;
     }
 
-    // Daily Quests
+    const dailies = this.missions.getDailyQuests() || [];
+    const weeklies = this.missions.getWeeklyQuests() || [];
+    const allQuests = [...dailies, ...weeklies];
+    const totalCount = allQuests.length;
+    const completedCount = allQuests.filter(q => q.isComplete).length;
+    const claimedCount = allQuests.filter(q => q.isClaimed).length;
+    const unclaimedQuests = allQuests.filter(q => q.isComplete && !q.isClaimed);
+    const unclaimedTotal = unclaimedQuests.length;
+    const unclaimedDailies = dailies.filter(q => q.isComplete && !q.isClaimed).length;
+    const unclaimedWeeklies = weeklies.filter(q => q.isComplete && !q.isClaimed).length;
+    const pendingTotalReward = unclaimedQuests.reduce((sum, q) => sum + (q.reward || 0), 0);
+
+    // Update Overview Header
+    if (this.dom.missionsCompletedRatio) {
+      this.dom.missionsCompletedRatio.textContent = `${completedCount} / ${totalCount}`;
+    }
+    if (this.dom.missionsMeterFill) {
+      const pct = totalCount > 0 ? Math.min(100, Math.round((completedCount / totalCount) * 100)) : 0;
+      this.dom.missionsMeterFill.style.width = `${pct}%`;
+    }
+    if (this.dom.missionsPendingAmount && this.dom.missionsRewardsPending) {
+      if (unclaimedTotal > 0) {
+        this.dom.missionsPendingAmount.innerHTML = `<span class="pending-num">+${pendingTotalReward.toLocaleString('de-DE')}</span>${UIManager.COIN_SVG}`;
+        this.dom.missionsRewardsPending.classList.add('has-unclaimed');
+      } else if (claimedCount === totalCount && totalCount > 0) {
+        this.dom.missionsPendingAmount.innerHTML = '<span class="all-done-badge">ALLE EINGELÖST</span>';
+        this.dom.missionsRewardsPending.classList.remove('has-unclaimed');
+      } else {
+        this.dom.missionsPendingAmount.innerHTML = `<span class="pending-num">0</span>${UIManager.COIN_SVG}`;
+        this.dom.missionsRewardsPending.classList.remove('has-unclaimed');
+      }
+    }
+
+    // Update Tab Count Badges & Notification Dots
+    if (this.dom.badgeCountAll) this.dom.badgeCountAll.textContent = totalCount.toString();
+    if (this.dom.badgeCountDaily) this.dom.badgeCountDaily.textContent = dailies.length.toString();
+    if (this.dom.badgeCountWeekly) this.dom.badgeCountWeekly.textContent = weeklies.length.toString();
+    if (this.dom.dotUnclaimedDaily) this.dom.dotUnclaimedDaily.style.display = unclaimedDailies > 0 ? 'block' : 'none';
+    if (this.dom.dotUnclaimedWeekly) this.dom.dotUnclaimedWeekly.style.display = unclaimedWeeklies > 0 ? 'block' : 'none';
+
+    // Daily Quests List
     if (this.dom.dailyQuestsList) {
       this.dom.dailyQuestsList.innerHTML = '';
-      const dailies = this.missions.getDailyQuests();
-
       dailies.forEach(q => {
         const card = this.createChallengeCard(q);
         this.dom.dailyQuestsList.appendChild(card);
       });
     }
 
-    // Weekly Quests
+    // Weekly Quests List
     if (this.dom.weeklyQuestsList) {
       this.dom.weeklyQuestsList.innerHTML = '';
-      const weeklies = this.missions.getWeeklyQuests();
-
       weeklies.forEach(q => {
         const card = this.createChallengeCard(q);
         this.dom.weeklyQuestsList.appendChild(card);
       });
     }
+
+    this.filterMissionSections();
   }
 
   createChallengeCard(q) {
     const card = document.createElement('div');
     const isReady = q.isComplete && !q.isClaimed;
     card.className = `quest-card ${isReady ? 'ready-to-claim' : ''} ${q.isClaimed ? 'is-claimed' : ''}`;
+    card.setAttribute('data-id', q.id);
 
     const pct = Math.min(100, Math.floor((q.progress / q.target) * 100));
+    const statusDigits = `${q.progress.toLocaleString('de-DE')} / ${q.target.toLocaleString('de-DE')}`;
 
-    const statusText = q.isClaimed
-      ? 'EINGELÖST'
-      : (q.isComplete
-          ? 'FERTIG'
-          : `${q.progress.toLocaleString('de-DE')} / ${q.target.toLocaleString('de-DE')}`);
+    let actionMarkup = '';
+    if (q.isClaimed) {
+      actionMarkup = `
+        <div class="quest-claimed-badge">
+          <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>EINGELÖST</span>
+        </div>
+      `;
+    } else {
+      actionMarkup = `
+        <div class="quest-reward-pill">
+          <span class="reward-plus">+</span>
+          <span class="reward-val">${q.reward.toLocaleString('de-DE')}</span>
+          ${UIManager.COIN_SVG}
+        </div>
+      `;
+    }
 
     card.innerHTML = `
-      <div class="quest-card-top">
-        <span class="quest-card-title">${q.description || q.title}</span>
-        <span class="quest-card-reward">+${q.reward.toLocaleString('de-DE')} ${UIManager.COIN_SVG}</span>
+      <div class="quest-card-header">
+        <span class="quest-card-title">${q.title || q.description}</span>
+        <div class="quest-card-reward">${actionMarkup}</div>
       </div>
-      <div class="quest-bar-bg">
-        <div class="quest-bar-fill" style="width:${pct}%"></div>
-        <div class="quest-bar-text">${statusText}</div>
+      <div class="quest-card-desc">${q.description}</div>
+      <div class="quest-meter-container">
+        <div class="quest-bar-bg">
+          <div class="quest-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="quest-meter-info">
+          <span class="quest-pct-label">${pct}%</span>
+          <span class="quest-bar-text">${statusDigits}</span>
+        </div>
       </div>
-      ${isReady ? `<button class="btn-claim" data-id="${q.id}">BELOHNUNG EINSAMMELN</button>` : ''}
+      ${isReady ? `
+        <button class="btn-claim" data-id="${q.id}" type="button">
+          <svg class="claim-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span class="claim-btn-text">BELOHNUNG EINSAMMELN</span>
+          <span class="claim-btn-reward">+${q.reward.toLocaleString('de-DE')} ${UIManager.COIN_SVG}</span>
+        </button>
+      ` : ''}
     `;
 
     const claimBtn = card.querySelector('.btn-claim');
@@ -1607,6 +1768,7 @@ class UIManager {
         const success = this.missions.claimReward(q.id);
         if (success) {
           this.updateCurrency();
+          this.updateUnclaimedBadges();
           this.renderChallenges();
         }
       });
@@ -1831,7 +1993,7 @@ class UIManager {
     // >= 90: Cyan (#38bdf8) ProMotion / High Refresh
     // >= 55: Emerald (#10b981) Solid target
     // >= 42: Amber (#fbbf24) Hitch warning
-    // < 42: Crimson (#ef4444) Stutter danger
+    // < 42: Carmine (#e11d48) Stutter danger
     let badgeClass = 'stat-badge fps';
     let valColor = '#10b981';
 
@@ -1846,7 +2008,7 @@ class UIManager {
       valColor = '#fbbf24';
     } else {
       badgeClass = 'stat-badge fps danger';
-      valColor = '#ef4444';
+      valColor = '#e11d48';
     }
 
     // Debounced DOM updates with property caching to minimize browser layout churn

@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (v5.10.0 - Clean Hangar, Vector Collectibles & Tactical Death Reticle)  
+> **Status:** Release Candidate (v5.16.5 - Mission Overview & Quest Cards Floating-Dock Background Parity)  
 > **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
@@ -33,9 +33,156 @@
 | **Zone 6: Tiefraum** | 9.000 – 14.000 m | 20% | 2% | 30% | 40% | 8% | ~10% | 240 – 305 px | Dichte Minen, seltene Kristalle (>=8.000m) |
 | **Zone 7: Meister-Kosmos** | 14.000 m+ | 16% | 2% | 30% | 44% | 8% | ~10% | 250 – 320 px | 74% dynamische Knoten, maximale Reach |
 
----
-
 ## 3. Chronologische Release-Historie
+
+### v5.16.5 (06.09.2026) - Mission Overview & Quest Cards Floating-Dock Background Parity
+- **100% Farb- und Materialharmonisierung mit Hauptmenü-Dock (`style.css`):**
+  - Bläulichen Kasten-Hintergrund (`#11141e`) bei `.missions-overview-bar` und `.quest-card` restlos eliminiert.
+  - Exakte Angleichung an `.floating-dock` (`background: rgba(255, 255, 255, 0.035)`, `border: 1px solid rgba(255, 255, 255, 0.08)`, `backdrop-filter: blur(16px)`).
+  - Hover-State (`.quest-card:hover`) auf `rgba(255, 255, 255, 0.055)` kalibriert.
+  - Nahtlose visuelle Konsistenz zwischen Hauptmenü-Navigation und Missionsübersicht ohne Farbbruch.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`node scripts/playwright_runner.js 05`) mit 0 Fehlern validiert (`05_hub_quests.png`, `05b_hub_quests_claimed.png`).
+
+### v5.16.4 (06.09.2026) - Mission Pending Rewards Optical Alignment
+- **Optische Zentrierung von Text, Zahl und Credit-Münze (`style.css`, `UIManager.js`, `index.html`):**
+  - Vertikaler Versatz des Credit-Symbols in der Übersicht (`BELOHNUNG BEREIT: 0 (C)` / `+... (C)`) restlos behoben.
+  - `.pending-label` und `.pending-val` auf `inline-flex; align-items: center; line-height: 1;` harmonisiert.
+  - Zahlenwerte in dedizierte `.pending-num`-Container gekapselt, um Whitespace-Shiftings zu eliminieren.
+  - SVG-Coin-Icon auf 14px dimensioniert und mit optischem -1px Top-Offset exakt auf die horizontale Mittellinie der Orbitron-Ziffern und des Rajdhani-Labels zentriert.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`node scripts/playwright_runner.js 05`) mit 0 Fehlern validiert (`05_hub_quests.png`, `05b_hub_quests_claimed.png`). 100%ige optische Centerline-Synchronisation bestätigt.
+
+### v5.16.3 (06.09.2026) - Mission Tab Solid Dark Background (Dock Parity & Zero Glassmorph)
+- **Beseitigung von Glassmorph-Durchscheinen (`style.css`):**
+  - `backdrop-filter: blur(...)` von `.missions-modal-card`, `.quest-card` und `.missions-overview-bar` entfernt, um unerwünschtes Durchscheinen von Hintergrundelementen (wie Triebwerksflammen, Logo-Halo) zu unterbinden.
+- **Solide Farbharmonie gemäß Hauptmenü-Dock:**
+  - `.missions-modal-card`: Auf solides Tiefschwarz-Obsidian `#0b0d13` mit `border: 1px solid rgba(255, 255, 255, 0.08)` und Schatten `0 24px 64px rgba(0, 0, 0, 0.9)` gesetzt.
+  - `.quest-card` & `.missions-overview-bar`: Solider Charcoal-Kartenhintergrund `#11141e` mit `border: 1px solid rgba(255, 255, 255, 0.08)`, Hover `#161b28`.
+  - `.missions-filter-tabs`: Solides `#0e121b` mit `border: 1px solid rgba(255, 255, 255, 0.08)`.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`node scripts/playwright_runner.js 05`) mit 0 Fehlern validiert (`05_hub_quests.png`, `05b_hub_quests_claimed.png`, `05c_hub_quests_scrolled.png`, `05d_hub_quests_tab_weekly.png`).
+
+### v5.16.2 (06.09.2026) - Mission Tab Modal Frosted Floating-Dock Styling & Design Parity
+- **Frosted Floating-Dock Modal Background (`style.css`):**
+  - Evaluation: Hervorragende Designwahl. Beseitigt den massiven, undurchsichtigen Navy-Kasten und erzeugt nahtlose visuelle Kohärenz mit dem unteren Hauptmenü-Dock (`.floating-dock`).
+  - `.missions-modal-card` auf `background: rgba(255, 255, 255, 0.035) !important;`, `border: 1px solid rgba(255, 255, 255, 0.08) !important;`, `backdrop-filter: blur(20px);` umgestellt.
+  - Exzellenter Kontrast durch dunkles Backdrop-Overlay (`rgba(4, 7, 15, 0.78)`), während Sternenfeld und Partikel subtil durchschimmern.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`node scripts/playwright_runner.js 05`) mit 0 Fehlern erfolgreich validiert (`05_hub_quests.png`, `05b_hub_quests_claimed.png`, `05c_hub_quests_scrolled.png`, `05d_hub_quests_tab_weekly.png`).
+
+### v5.16.1 (06.09.2026) - Mission Box Top-Right Rewards & Typography Legibility Overhaul
+- **Belohnungs-Positionierung oben rechts (`UIManager.js`, `style.css`):**
+  - Restrukturierung des Karten-Kopfs (`.quest-card-header`): Titel linksbündig (`.quest-card-title`), Belohnung (`+ ... C` bzw. `EINGELÖST`) oben rechtsbündig (`.quest-card-reward`).
+  - Gelber Rahmen/Hintergrund um die Credits restlos entfernt (`background: transparent; border: none; padding: 0`).
+  - Darstellung als gestochen scharfe Gold-Typografie (`Orbitron:wght@800`, 13.5px) direkt neben dem Vektor-Coin-SVG.
+- **Lesbarkeit & Schriftgrößen-Upgrade (`style.css`):**
+  - Sektionstitel "TÄGLICHE MISSIONEN" und "WÖCHENTLICHE HERAUSFORDERUNGEN" vergrößert (auf 13.5px, reines Weiß `#ffffff`, Tracked 1px, `white-space: nowrap`), kein Zeilenumbruch mehr.
+  - Kartentitel auf 14px, Missionsbeschreibungen auf 12.5px und Fortschrittsanzeige auf 10.5px angehoben.
+  - Fortschrittsbalken spannt nun elegant über die volle Kartenbreite.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`node scripts/playwright_runner.js 05`) mit 0 Fehlern erfolgreich validiert (`05_hub_quests.png`, `05b_hub_quests_claimed.png`, `05c_hub_quests_scrolled.png`, `05d_hub_quests_tab_weekly.png`).
+
+### v5.16.0 (06.09.2026) - Mission Tab Commercial Redesign & Floating-Dock Parity
+- **Feste modale Höhen-Geometrie (`style.css`):**
+  - Feste Höhe von `580px` (`max-height: 88vh`) auf `.missions-modal-card` etabliert und `.quests-scroll-area` auf flexibles Scrolling (`flex: 1; min-height: 0;`) umgestellt.
+  - Das Modal behält beim Umschalten zwischen Kategorien (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`) eine absolut konstante Größe ohne Layout-Jumps oder Höhenzucken.
+- **Glassmorphic Floating-Dock Ästhetik (`style.css`):**
+  - Missionskarten (`.quest-card`) und Fortschrittsleiste (`.missions-overview-bar`) an das Design des Hauptmenü-Docks angeglichen (`background: rgba(255, 255, 255, 0.035)`, `border: 1px solid rgba(255, 255, 255, 0.08)`, `backdrop-filter: blur(16px)`).
+  - Farblinie am linken Rand (`.quest-card::before`) restlos entfernt für eine beruhigte, minimalistische Kartenoptik.
+- **Typografische & Dekorative Bereinigung (`index.html`, `UIManager.js`):**
+  - Oberzeile `ORBITALE PROTOKOLLE` über dem Titel entfernt.
+  - Icons vor `TÄGLICHE MISSIONEN` und `WÖCHENTLICHE HERAUSFORDERUNGEN` entfernt.
+  - Einzelne Missions-Icons vor den Missionskarten sowie die Kategorie-Badges (`TAG` / `WOCHE`) eliminiert.
+  - Übersichtliche Ausrichtung mit klarem Fokus auf Titel, Beschreibung, Fortschrittsbalken und Belohnung.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`node scripts/playwright_runner.js 05`) mit 0 Fehlern erfolgreich validiert (`05_hub_quests.png`, `05b_hub_quests_claimed.png`, `05c_hub_quests_scrolled.png`, `05d_hub_quests_tab_weekly.png`).
+
+### v5.15.1 (06.09.2026) - Mathematical Optical Centering & Pure Vector Bullion Parity
+- **Mathematische Glyphen-Zentrierung (`EnergyOrb.js`):**
+  - Vertikale Verschiebung des 'C' restlos eliminiert: Dynamische Berechnung aus `measureText('C')` mit $\Delta y = (\text{actualBoundingBoxAscent} - \text{actualBoundingBoxDescent}) / 2$.
+  - Ränder innerhalb der dunklen Kontrastmulde von 9.2px oben / 16.2px unten auf 12.2px oben / 13.2px unten kalibriert (innerhalb von 1 Pixel perfekter diskreter Rastersymmetrie).
+  - Horizontale Zentrierung mit 16.2px / 17.2px perfekt symmetrisch verankert.
+- **100% Visuelle Synchronisation mit dem Hauptmenü:**
+  - Diffuser oranger Glow (`COIN_GLOW`) von In-Game-Collectibles entfernt, wodurch der gestochen scharfe Vektor-Außenrand (`#260b02`), der Gold-Bevel (`#fde68a` $\to$ `#f59e0b` $\to$ `#78350f`) und der Spekular-Glanzring exakt wie im Hauptmenü dargestellt werden.
+  - Asynchroner Font-Listener auf `document.fonts.load('700 46px "Rajdhani"')` erweitert, um sicherzustellen, dass das Canvas-Sprite nach Font-Abschluss sofort mit den finalen Metriken re-gerastert wird.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`01_main_menu.png`, `08_gameplay_hud.png`) mit 0 Fehlern erfolgreich validiert.
+
+### v5.15.0 (06.09.2026) - Universal Main Menu Coin Visual Synchronization
+- **In-Game Map Collectibles (`EnergyOrb.js`):**
+  - Vorgerendertes Zero-GC Canvas-Sprite (`CREDIT_SPRITE`) auf eine exakte 1:1 Vektor-Reproduktion des Hauptmenü-SVG-Standards aktualisiert (72x72 Pixel, 2x Supersampling für gestochen scharfe Retina-Darstellung).
+  - Identische Vektor-Ebenen: Gefaster Goldrand (`#fde68a` $\to$ `#f59e0b` $\to$ `#78350f`), kreisförmiger Spekular-Glanzring (`rgba(254, 240, 138, 0.45)`), vertiefte Kontrastmulde (`#5c2409` $\to$ `#240a02` $\to$ `#140501`) und markantes Rajdhani-700 'C'-Glyph mit exakten Proportionen.
+  - Skalierung auf der Karte: Rendering bei 36px Durchmesser (entsprechend der nativen Menügröße) eingebettet in die sanft pulsierende, warme Gold-Aura (`COIN_GLOW`).
+- **Onboarding-Tutorial Animation (`UIManager.js`):**
+  - Generischen gelben Kreisbogen (`arc(0, 0, 6)`) durch die tatsächlichen vorgerenderten Sprites (`CREDIT_SPRITE` & `COIN_GLOW`) ersetzt.
+- **Projektweite Visuelle Einheit:**
+  - Hauptmenü-Header, Hangar-Kaufbutton, Debriefing-Loot-Chips und in-flight Münzen auf der Karte verwenden nun ausnahmslos dieselbe visuelle Markenidentität.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Suite erfolgreich für Screens 01, 02, 08 und 10 ausgeführt. 0 Konsolenfehler, 0 ungefangene Exceptions.
+
+### v5.14.0 (06.09.2026) - Game-Wide Title Red Carmine Palette Unification
+- **Vollständige Rot-Harmonisierung auf das Titel-Rot (`#e11d48`):**
+  - **CSS-Variablen (`style.css`):**
+    - `--accent-crimson: #e11d48` (RGB: `225, 29, 72`), `--accent-crimson-glow: rgba(225, 29, 72, 0.55)`, `--btn-crimson-start: #e11d48`, `--btn-crimson-end: #9f1239`, `--danger: #e11d48`.
+  - **Buttons & Interaktion:**
+    - `.btn-primary` & `.btn-play-bold`: Harmonischer Karminrot-Verlauf (`#e11d48` bis `#9f1239`) mit passendem Glow.
+    - `.btn-danger`: Karmin-Border (`rgba(225, 29, 72, 0.5)`), sanfter Hintergrund (`rgba(159, 18, 57, 0.4)`), Hover-Fläche (`#e11d48`).
+    - `.debrief-btn.retry`: "NEUSTART"-Button im exakten Farbverlauf (`#f43f5e` $\to$ `#e11d48` $\to$ `#9f1239`) und Rose-Glow (`rgba(225, 29, 72, 0.42)`).
+  - **Partikel & Triebwerke:**
+    - `.plasma-flame`: Triebwerksplume und Nozzle-Flare im Hauptmenü auf `#e11d48` / `#fb7185` umgestellt.
+    - `GameEngine.js` & `ParticleSystem.js`: Kanten-Splitter (`spawnShards`) und Gefahren-Texte (`CRACK!`, `MINE DETONIERT!`, `NEAR MISS!`) einheitlich in `#e11d48`.
+  - **Entitäten & In-Game-Welt:**
+    - `Spaceship.js`: Delta-Pfeil Innen-Chevron und Bug-Speerspitze auf `#e11d48` synchronisiert.
+    - `Node.js`: Weltraum-Minen (Warnkreis `#e11d48`, Hülle `#9f1239`, Spitzen `#fda4af`, Glow `rgba(225, 29, 72, 0.7)`) und Zeituhr-Warnstufen harmonisiert.
+    - `WorldManager.js`: Todeslaser-Horizont am unteren Bildschirmrand auf Karminrot kalibriert.
+  - **UI & Telemetrie:**
+    - Flugdebriefing-Crash-Fadenkreuz (`index.html`), Aufgabenschienen-Füllung (`.quest-bar-fill`), FPS-Stotter-Warnung (`< 42 FPS`) und Dashboard-Farben (`dashboard.css`).
+  - Verifiziert via Playwright Visual Test Suite (Screens 01, 05, 10, 11). 0 Konsolenfehler.
+
+### v5.13.1 (06.09.2026) - Death Screen Layout Elevation & Balanced Telemetry Alignment
+- **Flight Debrief Layout Elevation (`.debrief-body`):**
+  - Vertikaler Offset um -56px nach oben verschoben (`transform: translateY(-56px)`).
+  - Umfasst den gesamten Daten- und Belohnungsblock: `FLUGDISTANZ` (Hero-Score), `REKORDJAGD` (Chase-Progressbar), Telemetrie-Grid (`Grapples`, `Bester Swing`, `Flugzeit`) sowie Währungs-Beutezeile (Credits & Sparks).
+  - Exakte optische Ausrichtung: `FLUGDISTANZ` schließt nun bündig mit der oberen Markierung (`603`) der linken Telemetrie-Schiene ab ($y \approx 138\text{px}$ auf Desktop, $y \approx 160\text{px}$ auf Mobile).
+  - Beseitigt unproportionale Leerräume oberhalb der Action-Buttons (`REVIVE` / `RETRY`) und verhindert visuelle Kompression im unteren Bildschirmdrittel.
+  - Responsive Höhen-Staffelung: `-20px` bei `@media (max-height: 740px)` und `-8px` bei `@media (max-height: 620px)`.
+  - Vollständige Playwright Visual Suite Verifikation für Screen 10 (`10_game_over.png`, `10c_mobile_game_over.png`). 0 Konsolenfehler.
+
+### v5.13.0 (06.09.2026) - SPACE JUMP Aerospace Dual-Bevel Title Design
+- **Neues "SPACE JUMP" Titeldesign (Aerospace Dual-Bevel):**
+  - **Neues HTML & DOM-Lockup:** Semantisches `.title-lockup` Layout mit `.title-space` oben und 4-fach gefastem `.casing-frame` (äußerer Rim) + `.casing-plate` (Innenplatte) für `JUMP`.
+  - **Typografie & Geometrie:**
+    - Google Font `Oxanium:wght@900` mit Vorwärts-Shear (`transform: skewX(-10deg)`).
+    - `SPACE`: Hochweiß (`#ffffff`) mit 0.26em Letter-Spacing (optisch austariert via -0.26em Negativ-Margin) und solidem Extrusionsschatten `0px 4px 0px #0f172a`.
+    - `JUMP`: Gefaster Casing-Frame mit Rose-zu-Burgunder-Farbverlauf (`#fecdd3` bis `#9f1239`), tiefem 6px Drop-Shadow (`0 6px 0 #000000`), vibrierender Karminrot-Innenplatte (`#e11d48`) und solidem Schatten `0px 4px 0px #881337`.
+  - **Responsivität:** `clamp(...)`-Skalierung für viewport-unabhängige Zentrierung ohne Überlauf auf schmalen Bildschirmen (< 360px).
+  - Veraltete diffuse Glow-Filter und `@keyframes titlePulse` sauber entfernt.
+  - Verifiziert gegen Benchmark-Referenzbild auf Desktop und Mobile (390x844). 0 Konsolenfehler.
+
+### v5.12.0 (06.09.2026) - Oxanium Aerospace Title Redesign & Minimalist Currency Pill
+- **Game Title Redesign ("SLING JUMP"):**
+  - **Font Integration:** Google Font `Oxanium:wght@800;900` (`'Oxanium', sans-serif; 900`).
+  - **Kinetische Vorwärtsneigung (Shear):** `transform: skewX(-10deg)` für dynamischen Richtungsschub.
+  - **Typografisches Spacing:** `SLING` (`letter-spacing: 0.18em; font-size: clamp(34px, 8vw, 44px)`), `JUMP` (`letter-spacing: 0.12em; font-size: clamp(48px, 11vw, 60px); line-height: 0.95`).
+  - **Mehrschichtige Shader & Filter:**
+    - `SLING`: Hochweiß (`#f8fafc`) mit eisblauem Multi-Layer Glow (`0 0 1px ... 0 2px 8px ... 0 0 20px`).
+    - `JUMP`: Text-Clipping mit linearem Crimson-Verlauf (`#ff4b72` $\to$ `#e11d48` $\to$ `#9f1239`) und Multi-Drop-Shadow Flare.
+  - **Pulsierende Glow-Animation:** `@keyframes titlePulse` auf dem roten Glühen von `JUMP` (3s ease-in-out infinite).
+- **Hauptmenü Währungs-Visuelles & Textbereinigung:**
+  - **Originales Credit-Visual wiederhergestellt:** Goldene Bullion-Münze mit gefastem Rand, vertiefter Kontrastmulde und präzisem Rajdhani 'C'-Glyphen im Hauptmenü.
+  - **Text-Entfernung ("CREDITS" & "SPARKS"):** Reines minimalistisches Icon + Zahlenwert (`0` & `1`), vollständige Beseitigung störender Text-Labels für puren Arcade-Look.
+  - Vollständige mobile Responsivität verifiziert (390x844). 0 Konsolenfehler.
+
+### v5.11.0 (06.09.2026) - Two-Font Typography Standardization & Precision Coin Centering
+- **Münz-Zentrierung & Rework (Exakt in der Mitte):**
+  - **In-Game Bullion-Münze (`EnergyOrb.js`):** Mathematische Ink-Bounding-Box-Zentrierung via `measureText('C')` (`actualBoundingBoxLeft`, `actualBoundingBoxRight`, `actualBoundingBoxAscent`, `actualBoundingBoxDescent`). Korrektur des 2.65px Tieflagen- und Links-Versatzes auf 100% symmetrische Abstände in allen 4 Quadranten.
+  - **Vektor-Coin SVGs (`index.html`, `UIManager.js`):** Ersatz fehlerhafter `text-anchor`-Versätze durch präzise geometrische Vektorpfade mit mathematisch identischen Randabständen (6.535px horizontal, 5.6px vertikal) in Hauptmenü, Hangar-Kaufbutton, Debriefing-Loot und Quest-Badges.
+- **Projektweites Zwei-Font-System:**
+  - **Orbitron (`Orbitron:wght@500;700`):** Einheitlicher Font für alle Zahlen, Metriken, Zähler, Timer, Währungswerte, Highscores, Ranglisten und Canvas-Zahlenreadouts (`font-variant-numeric: tabular-nums`).
+  - **Rajdhani (`Rajdhani:wght@500;600;700`):** Einheitlicher Font für alle Buchstaben, allgemeinen UI-Elemente, Labels, Menüs, Buttons, Profilnamen und Canvas-Textlabels.
+  - **Strikte Ausnahme für Spieltitel:** `.title-sling` und `.title-jump` behalten unverändert die originale Markenidentität (`'Space Grotesk', 'Chakra Petch', system-ui, sans-serif; 900`).
+  - **Canvas & Font-Readiness:** Synchronisation aller Sprites und Onboarding-Tooltips (`document.fonts.ready`), vollständige Entfernung generischer Fallback-Schriften (`Inter`, `Montserrat`, `Sora`, `Manrope`, `Segoe UI`, `Arial`).
 
 ### v5.10.0 (06.09.2026) - Clean Hangar, Vector Collectibles & Tactical Death Reticle
 - **Hangar-Bühne Bereinigung:** Entfernung der umgebenden Kreisringe (`.orbit-halo`, `.orbit-field`) im Hauptmenü. Freistehende, saubere Schiffssilhouette über den paginierten Navigationspunkten.

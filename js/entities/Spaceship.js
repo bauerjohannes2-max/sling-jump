@@ -362,7 +362,7 @@ class Spaceship {
     const flameFlicker = Math.random() * 3.5;
 
     // Outer Energetic Mantle
-    context.fillStyle = isHooked ? 'rgba(56, 189, 248, 0.88)' : (glowColor || '#ff1e42');
+    context.fillStyle = isHooked ? 'rgba(56, 189, 248, 0.88)' : (glowColor || '#e11d48');
     for (const offset of shipDef.thrusterOffsets) {
       context.beginPath();
       context.moveTo(offset.x - 3.5, offset.y);
@@ -488,7 +488,7 @@ class Spaceship {
         context.stroke();
 
         // Inner crimson chevron
-        context.strokeStyle = '#e63946';
+        context.strokeStyle = '#e11d48';
         context.lineWidth = 1.6;
         context.beginPath();
         context.moveTo(-10, 8);
@@ -497,7 +497,7 @@ class Spaceship {
         context.stroke();
 
         // Red spearhead at nose
-        context.fillStyle = '#e63946';
+        context.fillStyle = '#e11d48';
         context.beginPath();
         context.moveTo(0, -18);
         context.lineTo(3.5, -11);

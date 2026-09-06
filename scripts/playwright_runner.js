@@ -229,6 +229,14 @@ async function runPlaywrightSuite() {
       await captureScreenshot(page, '05c_hub_quests_scrolled.png', 'Quests Weekly Challenges');
     }
 
+    if (shouldCapture('05d_hub_quests_tab_weekly.png')) {
+      console.log('[Playwright] Testing #tab-missions-weekly click...');
+      await page.click('#tab-missions-weekly');
+      await sleep(350);
+      console.log('[Playwright] Capturing 05d_hub_quests_tab_weekly.png');
+      await captureScreenshot(page, '05d_hub_quests_tab_weekly.png', 'Quests Weekly Tab Filter');
+    }
+
     await page.click('#btn-quests-close');
     await sleep(300);
   }
@@ -523,6 +531,7 @@ ${combinedManifest.length > capturedManifest.length ? `\n### Gesamter Screenshot
 
   // 3. Mirror Fresh Screenshots to Brain Artifacts Directory
   const activeBrainDirs = [
+    'C:\\Users\\hannes.bauer\\.gemini\\antigravity\\brain\\f0ece1ad-75f3-43d6-9072-c97d8f9f4074',
     'C:\\Users\\hannes.bauer\\.gemini\\antigravity\\brain\\e8f6557e-b795-4d81-88cc-f699d00b9eb9',
     'C:\\Users\\hannes.bauer\\.gemini\\antigravity\\brain\\b8d7fba0-9f7c-4f2b-85f4-1ec48a8904c7'
   ];

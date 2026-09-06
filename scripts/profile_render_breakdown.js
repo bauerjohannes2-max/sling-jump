@@ -33,7 +33,7 @@ async function profileRenderBreakdown() {
     eng.gameStarted = true;
 
     // Populate particles & nodes
-    eng.particles.spawnShards(eng.player.x, eng.player.y, 50, '#ef4444');
+    eng.particles.spawnShards(eng.player.x, eng.player.y, 50, '#e11d48');
     eng.particles.spawnSparks(eng.player.x, eng.player.y, 50, '#00f0ff');
     eng.particles.spawnFloatingText(eng.player.x, eng.player.y + 40, 'COMBO x5', '#fbbf24', 32, true);
     eng.particles.spawnFloatingText(eng.player.x, eng.player.y + 70, '+50 GOLD', '#fbbf24', 16, false);

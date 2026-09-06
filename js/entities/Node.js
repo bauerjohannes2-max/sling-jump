@@ -141,7 +141,7 @@ class OrbitNode {
       // --- LETHAL SPACE MINE / BOMB ENTITY ---
       const warningRadius = this.radius + 18 + Math.sin(this.pulse) * 3;
       context.save();
-      context.strokeStyle = '#ef4444';
+      context.strokeStyle = '#e11d48';
       context.lineWidth = 1.8;
       context.globalAlpha = 0.55 + Math.sin(this.pulse) * 0.25;
       context.setLineDash([4, 4]);
@@ -151,7 +151,7 @@ class OrbitNode {
       context.restore();
 
       // OPTIMIZATION: Pre-rendered Red Danger Aura
-      context.drawImage(OrbitNode.getCachedGlow('rgba(239, 68, 68, 0.7)'), -36, -36);
+      context.drawImage(OrbitNode.getCachedGlow('rgba(225, 29, 72, 0.7)'), -36, -36);
 
       context.rotate(this.rotation || 0);
 
@@ -159,8 +159,8 @@ class OrbitNode {
       const baseR = this.radius;
       const spikeR = this.radius + 9;
 
-      context.fillStyle = '#991b1b';
-      context.strokeStyle = '#f87171';
+      context.fillStyle = '#9f1239';
+      context.strokeStyle = '#fda4af';
       context.lineWidth = 1.8;
       
       // OPTIMIZATION: Eliminate shadowBlur in Hazard hull drawing
@@ -185,7 +185,7 @@ class OrbitNode {
       context.arc(0, 0, baseR * 0.65, 0, Math.PI * 2);
       context.fill();
 
-      context.fillStyle = '#fca5a5';
+      context.fillStyle = '#fda4af';
       for (let b = 0; b < 3; b++) {
         const bAngle = (b / 3) * Math.PI * 2 + (this.rotation * -0.5);
         context.beginPath();
@@ -209,8 +209,8 @@ class OrbitNode {
     } else if (this.type === 'FRAGILE') {
       const ratio = this.isHooked ? (this.fragileTimer / this.maxFragileDuration) : 0;
       if (this.isHooked) {
-        coreColor = ratio > 0.65 ? '#ef4444' : (ratio > 0.35 ? '#f97316' : '#eab308');
-        glowColor = ratio > 0.65 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(234, 179, 8, 0.55)';
+        coreColor = ratio > 0.65 ? '#e11d48' : (ratio > 0.35 ? '#f97316' : '#eab308');
+        glowColor = ratio > 0.65 ? 'rgba(225, 29, 72, 0.7)' : 'rgba(234, 179, 8, 0.55)';
       } else {
         coreColor = '#eab308';
         glowColor = 'rgba(234, 179, 8, 0.45)';
