@@ -83,6 +83,13 @@
   - Integrated dual-listener architecture: launches `https.createServer(...)` on HTTPS port with an accompanying HTTP-to-HTTPS redirect server (`301 Moved Permanently`) on port 3000.
   - Added `npm run start:https` and `npm run certs` commands to `package.json`, and added `certs/` and `*.pem` to `.gitignore`.
   - Verified with automated 3-part test suite (`test_local_tls.js`) and Playwright visual suite 06 (0 console errors).
+- **Pluggable Cloud Backend Adapter Architecture (`CloudBackend.js`, `StorageService.js`, `index.html`):**
+  - Implemented `BaseCloudAdapter` abstract contract defining uniform persistence operations: `sync(payload)`, `restore(playerId, pwHash)`, `login(playerId, pwHash)`, and `removePassword(playerId, pwHash, token, state)`.
+  - Built `LocalNodeAdapter` as the zero-configuration development default connecting directly to local Node.js endpoints (`/api/player/sync`, `/api/player/restore`, `/api/player/login`).
+  - Implemented `SupabaseAdapter` communicating directly with Supabase PostgREST endpoints (`rest/v1/<tableName>`) using `apikey` and `Authorization: Bearer <key>` headers, enabling serverless static persistence on GitHub Pages.
+  - Built `CloudBackend` factory and registry supporting dynamic provider switching (`CloudBackend.configure('supabase', ...)`), environment auto-detection (`window.SLING_JUMP_CLOUD_CONFIG` or `localStorage`), and test mock injection.
+  - Refactored `StorageService` to route all cloud operations through `this.getCloudBackend()` with clean error handling and debounced writes.
+  - Verified with 5-part automated unit test suite (`test_cloud_backend.js`) + Playwright visual suite 06 (`06b_pilot_profile.png`) with 0 console errors.
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

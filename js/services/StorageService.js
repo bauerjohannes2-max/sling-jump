@@ -2,10 +2,20 @@
  * Sling Jump - StorageService
  * Versioned LocalStorage persistence with corruption safeguards & migration
  */
+let CloudBackendModule = null;
+if (typeof CloudBackend !== 'undefined') {
+  CloudBackendModule = CloudBackend;
+} else if (typeof require !== 'undefined') {
+  try {
+    CloudBackendModule = require('./CloudBackend').CloudBackend;
+  } catch (e) {}
+}
+
 class StorageService {
   constructor() {
     this.key = CONSTANTS.STORAGE_KEY;
     this.data = this.getDefaultState();
+    this._cloudBackend = null;
     this.load();
     this.syncToCloud();
   }
@@ -296,9 +306,27 @@ class StorageService {
     this.syncToCloud();
   }
 
+  getCloudBackend() {
+    if (this._cloudBackend) return this._cloudBackend;
+    if (typeof CloudBackend !== 'undefined' && CloudBackend.getAdapter) {
+      return CloudBackend.getAdapter();
+    }
+    if (typeof CloudBackendModule !== 'undefined' && CloudBackendModule && CloudBackendModule.getAdapter) {
+      return CloudBackendModule.getAdapter();
+    }
+    if (typeof LocalNodeAdapter !== 'undefined') {
+      return new LocalNodeAdapter();
+    }
+    return null;
+  }
+
+  setCloudBackend(backend) {
+    this._cloudBackend = backend;
+  }
+
   syncToCloud() {
     if (this._cloudSyncTimer) return;
-    this._cloudSyncTimer = setTimeout(() => {
+    this._cloudSyncTimer = setTimeout(async () => {
       this._cloudSyncTimer = null;
       try {
         const profile = this.getPlayerProfile();
@@ -327,31 +355,21 @@ class StorageService {
           }
         };
 
-        const headers = { 'Content-Type': 'application/json' };
-        if (profile.sessionToken) {
-          headers['Authorization'] = `Bearer ${profile.sessionToken}`;
-        }
+        const backend = this.getCloudBackend();
+        if (!backend) return;
 
-        if (typeof fetch !== 'undefined' && typeof window !== 'undefined' && window.location && window.location.protocol !== 'file:') {
-          fetch('/api/player/sync', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(syncPayload)
-          }).then(async res => {
-            if (res.status === 401) {
-              if (this.data && this.data.playerProfile) {
-                this.data.playerProfile.sessionToken = null;
-              }
-            } else if (res.ok) {
-              const data = await res.json().catch(() => ({}));
-              if (data && data.sessionToken && this.data && this.data.playerProfile) {
-                this.data.playerProfile.sessionToken = data.sessionToken;
-                try {
-                  localStorage.setItem(this.key, JSON.stringify(this.data));
-                } catch (e) {}
-              }
-            }
-          }).catch(() => {});
+        const res = await backend.sync(syncPayload);
+        if (res && res.tokenExpired) {
+          if (this.data && this.data.playerProfile) {
+            this.data.playerProfile.sessionToken = null;
+          }
+        } else if (res && res.ok) {
+          if (res.sessionToken && this.data && this.data.playerProfile) {
+            this.data.playerProfile.sessionToken = res.sessionToken;
+            try {
+              localStorage.setItem(this.key, JSON.stringify(this.data));
+            } catch (e) {}
+          }
         }
       } catch (e) {}
     }, 800);
@@ -382,35 +400,26 @@ class StorageService {
     }
 
     try {
-      // Send credentials securely via POST body to prevent query-string logging & leaks
-      const res = await fetch('/api/player/restore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          playerId: cleanId,
-          passwordHash: pwHash || null
-        })
-      });
+      const backend = this.getCloudBackend();
+      if (!backend) {
+        return { success: false, message: 'Server nicht erreichbar.' };
+      }
 
-      if (res.status === 403) {
-        const errData = await res.json().catch(() => ({}));
-        if (errData.requiresPassword) {
-          return { success: false, message: 'PASSWORT ERFORDERLICH', requiresPassword: true };
-        }
-        return { success: false, message: errData.error || 'FALSCHES PASSWORT' };
+      const res = await backend.restore(cleanId, pwHash || null);
+      if (res && res.requiresPassword) {
+        return { success: false, message: 'PASSWORT ERFORDERLICH', requiresPassword: true };
       }
-      if (res.status === 429) {
-        const errData = await res.json().catch(() => ({}));
-        return { success: false, message: errData.error || 'ZU VIELE VERSUCHE! BITTE WARTEN.' };
+      if (res && res.locked) {
+        return { success: false, message: res.error || 'ZU VIELE VERSUCHE! BITTE WARTEN.' };
       }
-      if (!res.ok) {
-        return { success: false, message: `Spieler ${cleanId} nicht gefunden.` };
+      if (!res || !res.ok) {
+        return { success: false, message: (res && res.error) || `Spieler ${cleanId} nicht gefunden.` };
       }
-      const data = await res.json();
-      if (data && data.ok && data.player && data.player.state) {
-        this.data = this.migrate(data.player.state);
-        if (data.sessionToken && this.data.playerProfile) {
-          this.data.playerProfile.sessionToken = data.sessionToken;
+
+      if (res.player && res.player.state) {
+        this.data = this.migrate(res.player.state);
+        if (res.sessionToken && this.data.playerProfile) {
+          this.data.playerProfile.sessionToken = res.sessionToken;
         }
         if (pwHash && this.data.playerProfile) {
           this.data.playerProfile.passwordHash = pwHash;
@@ -448,27 +457,15 @@ class StorageService {
   async removePassword() {
     const oldHash = this.data.playerProfile ? this.data.playerProfile.passwordHash : null;
     const oldToken = this.data.playerProfile ? this.data.playerProfile.sessionToken : null;
+    const playerId = this.data.playerProfile ? this.data.playerProfile.playerId : null;
     this.data.playerProfile.passwordHash = null;
     this.data.playerProfile.sessionToken = null;
     this.save();
 
-    if (typeof fetch !== 'undefined' && typeof window !== 'undefined' && window.location && window.location.protocol !== 'file:') {
+    const backend = this.getCloudBackend();
+    if (backend && playerId) {
       try {
-        const headers = { 'Content-Type': 'application/json' };
-        if (oldToken) {
-          headers['Authorization'] = `Bearer ${oldToken}`;
-        }
-        await fetch('/api/player/sync', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            playerId: this.data.playerProfile.playerId,
-            passwordHash: oldHash,
-            sessionToken: oldToken,
-            removePassword: true,
-            state: this.data
-          })
-        });
+        await backend.removePassword(playerId, oldHash, oldToken, this.data);
       } catch (e) {}
     }
 
@@ -496,31 +493,27 @@ class StorageService {
     }
 
     try {
-      const res = await fetch('/api/player/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId: cleanId, passwordHash: pwHash || null })
-      });
-      if (res.status === 403) {
-        return { success: false, message: 'FALSCHES PASSWORT' };
+      const backend = this.getCloudBackend();
+      if (!backend) {
+        return { success: false, message: 'Server nicht erreichbar.' };
       }
-      if (res.status === 429) {
-        const err = await res.json().catch(() => ({}));
-        return { success: false, message: err.error || 'ZU VIELE VERSUCHE! BITTE WARTEN.' };
+
+      const res = await backend.login(cleanId, pwHash || null);
+      if (res && res.locked) {
+        return { success: false, message: res.error || 'ZU VIELE VERSUCHE! BITTE WARTEN.' };
       }
-      if (!res.ok) {
-        return { success: false, message: `Spieler ${cleanId} nicht gefunden.` };
+      if (!res || !res.ok) {
+        return { success: false, message: (res && res.error) || 'FALSCHES PASSWORT' };
       }
-      const data = await res.json();
-      if (data && data.ok && data.sessionToken) {
+      if (res.sessionToken) {
         if (this.data && this.data.playerProfile) {
-          this.data.playerProfile.sessionToken = data.sessionToken;
+          this.data.playerProfile.sessionToken = res.sessionToken;
           if (pwHash) this.data.playerProfile.passwordHash = pwHash;
           try {
             localStorage.setItem(this.key, JSON.stringify(this.data));
           } catch (e) {}
         }
-        return { success: true, sessionToken: data.sessionToken };
+        return { success: true, sessionToken: res.sessionToken };
       }
       return { success: false, message: 'Login unvollständig.' };
     } catch (e) {

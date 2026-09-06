@@ -278,3 +278,22 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   1. Halte den Bildschirm gedrückt, um dich an einem Knoten einzuklinken.
   2. Lasse im richtigen Winkel los, um an Höhe zu gewinnen.
   3. Im 90-Grad-Winkel bekommst du einen extra Boost.
+
+### 10.10 Pluggable Cloud Persistence Architecture (CloudBackend)
+- **Decoupled Persistence Interface (`BaseCloudAdapter`):**
+  - Abstract base defining uniform contract: `sync(payload)`, `restore(playerId, passwordHash)`, `login(playerId, passwordHash)`, `removePassword(playerId, passwordHash, sessionToken, state)`.
+  - Enables seamless cloud infrastructure transitions with zero modifications to gameplay systems, HUD, or engine loops.
+- **Development Provider (`LocalNodeAdapter`):**
+  - Communicates directly with local Node development server (`serve.js`) via `/api/player/sync`, `/api/player/restore`, `/api/player/login`.
+  - Default out-of-the-box provider; maintains 100% backward compatibility for offline and local testing.
+- **Serverless Production Provider (`SupabaseAdapter`):**
+  - Connects directly to Supabase Database via PostgREST endpoints (`rest/v1/player_saves`).
+  - Transmits `apikey` and `Authorization: Bearer <anon_key>` headers with upsert semantics (`on_conflict=player_id`).
+  - Enables zero-server deployment on static hosting (e.g. GitHub Pages) with cloud persistence.
+- **Factory & Runtime Registry (`CloudBackend`):**
+  - Auto-configures active adapter via `window.SLING_JUMP_CLOUD_CONFIG` or `localStorage['sling_jump_cloud_config']`.
+  - Provides runtime configuration and switching via `CloudBackend.configure(type, options)`.
+- **StorageService Delegation:**
+  - `StorageService.getCloudBackend()` resolves the active adapter (or fallback).
+  - `StorageService.setCloudBackend(backend)` allows custom or mock adapter injection.
+  - State sync (`syncToCloud`), profile retrieval (`restoreFromCloud`), authentication (`login`), and credential revocation (`removePassword`) delegate cleanly to the active backend.

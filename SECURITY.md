@@ -135,12 +135,17 @@ This document defines the security architecture and incremental hardening roadma
 
 ---
 
-### [ ] Step 9: Production Backend Adapter (Supabase / Firebase)
-* **Status:** NEXT UP
-* **Goal:** True production-grade global persistence without hosting `serve.js`.
-* **Files to Modify:**
-  * New adapter file `js/services/CloudBackend.js`
+### [x] Step 9: Production Backend Adapter (Supabase / Firebase)
+* **Status:** COMPLETED
+* **Goal:** Decouple cloud persistence from local `serve.js`, enabling seamless migration to Supabase/Firebase for serverless static hosting (GitHub Pages).
+* **Files Modified:**
+  * [`js/services/CloudBackend.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/CloudBackend.js) (NEW), [`js/services/StorageService.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/StorageService.js), [`index.html`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/index.html)
 * **Implementation Details:**
-  1. Implement pluggable storage provider interface in `StorageService`.
-  2. Default to local node server (`serve.js`) in development.
-  3. Support seamless transition to Supabase Database + Auth for production deployment on GitHub Pages.
+  1. Implemented `BaseCloudAdapter` interface specifying `sync(payload)`, `restore(playerId, passwordHash)`, `login(playerId, passwordHash)`, and `removePassword(playerId, passwordHash, sessionToken, state)`.
+  2. Implemented `LocalNodeAdapter` executing fetch requests against `serve.js` endpoints (`/api/player/sync`, `/api/player/restore`, `/api/player/login`) maintaining full backward compatibility with zero manual config in development.
+  3. Implemented `SupabaseAdapter` executing direct PostgREST REST calls against `rest/v1/<tableName>` with `apikey` and `Authorization: Bearer <anonKey>` headers, supporting serverless static deployments.
+  4. Implemented `CloudBackend` singleton factory and registry supporting runtime switching (`CloudBackend.configure('supabase', ...)`), environment config detection (`window.SLING_JUMP_CLOUD_CONFIG` or `localStorage`), and adapter injection.
+  5. Refactored `StorageService` to route all cloud operations (`syncToCloud`, `restoreFromCloud`, `removePassword`, `login`) through `getCloudBackend()`.
+* **Verification:**
+  * Automated tests (`test_cloud_backend.js`): Verified `BaseCloudAdapter` abstract contract, `LocalNodeAdapter` URL normalization, `SupabaseAdapter` auth headers & endpoints, `CloudBackend` registry switching, and mock adapter delegation across all 4 persistence methods with 0 errors.
+  * Playwright visual test `06`: Fresh `06b_pilot_profile.png` verified with 0 console errors.

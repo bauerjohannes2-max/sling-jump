@@ -1,5 +1,5 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 6.9.2026, 22:02:07  
+> **Laufzeit:** 6.9.2026, 22:10:43  
 > **Modus:** Selektiv (`06`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
 > **Frisch erfasste Screenshots in diesem Lauf:** 2  
@@ -8,8 +8,8 @@
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `06_hub_stats.png` | Pilot Stats | 22:02:04 | 155 KB | `6cb08cc9766876a0` |
-| `06b_pilot_profile.png` | Pilot Profile | 22:02:05 | 181 KB | `d66fbfc5435f4305` |
+| `06_hub_stats.png` | Pilot Stats | 22:10:39 | 155 KB | `4a5562344ecf2b27` |
+| `06b_pilot_profile.png` | Pilot Profile | 22:10:41 | 177 KB | `502dd739869bea48` |
 
 
 ### Gesamter Screenshot-Bestand (22 Dateien)
@@ -35,5 +35,5 @@
 | `07_settings.png` | 20:36:57 | 203 KB |
 | `04_hub_leaderboard.png` | 20:48:18 | 201 KB |
 | `13_tutorial_modal.png` | 21:08:48 | 249 KB |
-| `06_hub_stats.png` | 22:02:04 | 155 KB |
-| `06b_pilot_profile.png` | 22:02:05 | 181 KB |
+| `06_hub_stats.png` | 22:10:39 | 155 KB |
+| `06b_pilot_profile.png` | 22:10:41 | 177 KB |
