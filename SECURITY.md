@@ -81,22 +81,24 @@ This document defines the security architecture and incremental hardening roadma
 
 ---
 
-### [ ] Step 6: Collision-Resistant 8-Character Player ID Architecture
-* **Status:** NEXT UP
+### [x] Step 6: Collision-Resistant 8-Character Player ID Architecture
+* **Status:** COMPLETED
 * **Goal:** Increase ID entropy to eliminate birthday collision risks.
-* **Files to Modify:**
+* **Files Modified:**
   * [`js/services/StorageService.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/StorageService.js), [`index.html`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/index.html), [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js)
 * **Implementation Details:**
-  1. Update `StorageService.generateUniqueUserId()` to produce 8 characters with a hyphen: `#XXXX-XXXX` ($30^8 = 6.5 \times 10^{11}$ combinations).
-  2. Adjust HTML input `maxlength` from `7` to `10`.
-  3. Update `ID_REGEX` on server to accept 4 to 10 characters (`/^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ-]{4,10}$/`).
-  4. Preserve full backward compatibility for existing 4-character accounts.
+  1. `StorageService.generateUniqueUserId()` generates 8 characters with a hyphen: `#XXXX-XXXX` from Crockford Base32 characters ($30^8 = 6.5 \times 10^{11}$ combinations).
+  2. Adjusted HTML `#sync-player-id-input` `maxlength` from `7` to `10` and updated placeholder to `#EXGN-8K2P`.
+  3. Updated `ID_REGEX` on server to accept hyphen: `/^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ-]{4,10}$/`.
+  4. Preserved full backward compatibility: `StorageService.migrate()` and server endpoints accept both legacy 4-char (`#XXXX`) and new 8-char (`#XXXX-XXXX`) accounts.
 * **Verification:**
-  * Test generation format, restore with both legacy `#XXXX` and new `#XXXX-XXXX` formats.
+  * Automated tests: 500 ID generations verified matching `#XXXX-XXXX` without collisions, legacy/new migration preserved, server sync & restore validated with 0 errors.
+  * Playwright visual test `06`: Fresh `06b_pilot_profile.png` verified with 0 console errors.
 
 ---
 
 ### [ ] Step 7: Save State Schema Validation & Numeric Bounds Enforcement
+* **Status:** NEXT UP
 * **Goal:** Prevent clients from injecting corrupted or astronomically manipulated save data (e.g. `cores: 1e99`, `NaN`, negative high scores).
 * **Files to Modify:**
   * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js)

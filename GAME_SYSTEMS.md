@@ -151,7 +151,7 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 ### 7.6 Profile Hub Architecture
 - **Outer Shell Parity:** `.profile-modal-card` matches `.settings-modal-card` (`background: #0b0d13 !important; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9);`).
 - **Floating-Dock Glassmorphism Parity:** Internal cards (`.profile-hero-card`, `.profile-edit-card`, `.profile-telemetry-card`) mirror `.floating-dock` (`background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; backdrop-filter: blur(16px);`).
-- **Short User ID Architecture:** Generates 4-character uppercase alphanumeric IDs with hash prefix (`#XXXX`, e.g. `#EXGN`, `#8K2P`), replacing legacy long hash strings. Automatically migrates legacy IDs.
+- **Collision-Resistant 8-Character Player ID Architecture:** Generates 8-character uppercase Crockford Base32 IDs with hyphen and hash prefix (`#XXXX-XXXX`, e.g. `#8K2P-9J7M`, $30^8 \approx 6.5 \times 10^{11}$ combinations) eliminating birthday collision risks while preserving backward compatibility with legacy 4-character accounts (`#XXXX`). Automatically migrates legacy or malformed IDs.
 - **2x Free Name Change Allowance:** Persistent tracking via `profile.nameChanges`. Up to 2 free renames allowed (`MAX_FREE_CHANGES = 2`). Form dynamically reflects remaining quota (`2 KOSTENLOSE ÄNDERUNGEN VERFÜGBAR`, `1 KOSTENLOSE ÄNDERUNG VERFÜGBAR`, `NAME FESTGELEGT (0 ÄNDERUNGEN ÜBRIG)`). Input and submit button disable cleanly upon depletion.
 - **Career Telemetry Card:** 3-column stats panel presenting lifetime Bestleistung, Flüge, and active pilot status.
 
@@ -221,13 +221,13 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **Container & Card Parity (`.profile-modal-card`):**
   - Solid `#0b0d13` base with 24px border radius and `rgba(255, 255, 255, 0.08)` border.
   - Floating-dock internal cards (`rgba(255, 255, 255, 0.035)`, 16px blur) for `.profile-hero-card`, `.profile-edit-card`, and `.profile-sync-card`.
-- **Short User ID Architecture:** 4-character uppercase alphanumeric identifier with hash prefix (`#XXXX`, e.g. `#EXGN`). Automatically generated on initial session start; legacy IDs auto-migrated.
+- **Collision-Resistant 8-Character Player ID Architecture:** 8-character uppercase Crockford Base32 identifier with hyphen and hash prefix (`#XXXX-XXXX`, e.g. `#8K2P-9J7M`, $30^8 \approx 6.5 \times 10^{11}$ combinations). Automatically generated on initial session start; legacy 4-character accounts (`#XXXX`) remain fully supported and restorable.
 - **Name Change Policy:** 2 free name changes (`MAX_FREE_CHANGES = 2`). Notice banner is optically centered vertically and horizontally inside the status box (`display: flex; align-items: center; justify-content: center;`). Form locks upon exhaustion.
 - **Cross-Device Cloud Sync & Recognition:**
   - `POST /api/player/sync`: Ingests and merges player game state in `data/players.json`.
-  - `GET /api/player/:id`: Returns verified cloud state by player ID.
-  - Zero-friction link sharing: Clicking "SPIELSTAND-LINK KOPIEREN" copies `?id=XXXX`. When opened on any browser or mobile device, state is automatically restored on initial page load.
-  - Manual ID load: Players can enter any `#XXXX` code and click "LADEN" to restore progress immediately.
+  - `POST /api/player/restore`: Secure credential verification and state restoration by player ID (`#XXXX-XXXX` or legacy `#XXXX`).
+  - Zero-friction link sharing: Clicking "SPIELSTAND-LINK KOPIEREN" copies `?id=XXXX-XXXX`. When opened on any browser or mobile device, state is automatically restored on initial page load.
+  - Manual ID load: Players can enter any `#XXXX-XXXX` (or legacy `#XXXX`) code and click "LADEN" to restore progress immediately.
 
 ### 10.5 Tutorial Modal Architecture
 - **Commercial Minimalism:** 100% text-driven guide (Alto's Adventure style) replacing legacy video/canvas loops. Zero CPU/GPU animation overhead.

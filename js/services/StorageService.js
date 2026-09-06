@@ -21,11 +21,15 @@ class StorageService {
 
   static generateUniqueUserId() {
     const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-    let code = '';
+    let p1 = '';
+    let p2 = '';
     for (let i = 0; i < 4; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+      p1 += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return '#' + code;
+    for (let i = 0; i < 4; i++) {
+      p2 += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `#${p1}-${p2}`;
   }
 
   getDefaultState() {
@@ -160,8 +164,9 @@ class StorageService {
       merged.leaderboardResetVersion = '4.6.0';
     }
 
-    // Player profile & unique user ID migration (short ID: #XXXX)
-    if (!merged.playerProfile.playerId || typeof merged.playerProfile.playerId !== 'string' || merged.playerProfile.playerId.length > 5 || merged.playerProfile.playerId.startsWith('usr_') || merged.playerProfile.playerId.startsWith('SJ-')) {
+    // Player profile & unique user ID migration (accepts legacy #XXXX and new #XXXX-XXXX)
+    const validIdRegex = /^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}(-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4})?$/;
+    if (!merged.playerProfile.playerId || typeof merged.playerProfile.playerId !== 'string' || !validIdRegex.test(merged.playerProfile.playerId)) {
       merged.playerProfile.playerId = StorageService.generateUniqueUserId();
     }
     if (!merged.playerProfile.pilotName || merged.playerProfile.pilotName === 'Gast-Pilot' || merged.playerProfile.pilotName.startsWith('Pilot') || merged.playerProfile.pilotName.trim() === '') {
@@ -634,3 +639,8 @@ class StorageService {
     }
   }
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = StorageService;
+}
+

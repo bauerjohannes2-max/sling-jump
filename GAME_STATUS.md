@@ -66,6 +66,12 @@
   - `POST /api/player/sync` accepts `Authorization: Bearer <token>` or `payload.sessionToken`. Returns `401 Unauthorized` with `tokenExpired: true` on invalid/expired tokens.
   - Completely eliminated password hash transmission on active flight sync cycles (`StorageService.syncToCloud`). Credentials sent only during login or initial password creation.
   - Verified with 8-part automated integration suite (`test_session_tokens.js`) + Playwright runner 06 (0 console errors).
+- **Collision-Resistant 8-Character Player ID Architecture (`StorageService.js`, `index.html`, `scripts/serve.js`):**
+  - Upgraded player ID generation from 4-character (`#XXXX`) to 8-character Crockford Base32 format with hyphen (`#XXXX-XXXX`, e.g. `#8K2P-9J7M`), yielding $30^8 \approx 6.5 \times 10^{11}$ combinations to eliminate birthday collision risks.
+  - Updated HTML `#sync-player-id-input` `maxlength` to `10` and placeholder to `ID Z.B. #EXGN-8K2P`.
+  - Updated server `ID_REGEX` (`/^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ-]{4,10}$/`) to support hyphens across all player sync, restore, and login endpoints.
+  - Preserved 100% backward compatibility: `StorageService.migrate()` and server endpoints accept both legacy 4-character accounts and new 8-character accounts without resetting user progression.
+  - Verified with automated 500-sample uniqueness test, migration suite, and Playwright runner 06 (`06b_pilot_profile.png`) with 0 console errors.
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

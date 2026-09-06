@@ -80,7 +80,7 @@
   - Minimalist direct category filter navigation (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`) positioned directly below title lockup without redundant progress header bar for maximum vertical space and clarity.
 - **Profile Hub Architecture (`#profile-modal`):**
   - Solid dark modal base (`#0b0d13` modal fill, `1px solid rgba(255, 255, 255, 0.08)` border, `24px` radius) with floating-dock parity fill (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`) across all internal cards (`.profile-hero-card`, `.profile-edit-card`, `.profile-sync-card`).
-  - **Short User ID Architecture:** Generates 4-character uppercase alphanumeric IDs with hash prefix (`#XXXX`, e.g. `#EXGN`, `#8K2P`) replacing legacy long hashes.
+  - **Collision-Resistant 8-Character Player ID Architecture:** Generates 8-character uppercase Crockford Base32 IDs with hyphen and hash prefix (`#XXXX-XXXX`, e.g. `#8K2P-9J7M`, $30^8 \approx 6.5 \times 10^{11}$ combinations) eliminating birthday collision risks while preserving full backward compatibility with legacy 4-character accounts (`#XXXX`).
   - **2x Free Name Change Policy:** Players receive 2 free name changes (`MAX_FREE_CHANGES = 2`) tracked persistently in `StorageService`, with reactive centered status badges ("NOCH 2 NAMENSÄNDERUNGEN VERFÜGBAR") and input locking upon exhaustion.
   - **Cross-Device Cloud Sync Architecture:**
     - Seamless 0-click onboarding: `POST /api/player/sync` and secure `POST /api/player/restore` (with legacy `GET /api/player/:id` fallback) persisted in `data/players.json`.

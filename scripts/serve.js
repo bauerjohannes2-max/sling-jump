@@ -350,7 +350,7 @@ function readJsonBody(req, res, corsOrigin, callback) {
   });
 }
 
-const ID_REGEX = /^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4,10}$/;
+const ID_REGEX = /^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ-]{4,10}$/;
 
 function sanitizeState(state) {
   if (!state || typeof state !== 'object') return {};
