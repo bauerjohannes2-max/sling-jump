@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (v5.16.6 - Updated Daily & Weekly Mission Objectives)  
+> **Status:** Release Candidate (v5.16.7 - Settings Modal Floating-Dock & Mission Parity Redesign)  
 > **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
@@ -34,6 +34,16 @@
 | **Zone 7: Meister-Kosmos** | 14.000 m+ | 16% | 2% | 30% | 44% | 8% | ~10% | 250 – 320 px | 74% dynamische Knoten, maximale Reach |
 
 ## 3. Chronologische Release-Historie
+
+### v5.16.7 (06.09.2026) - Settings Modal Floating-Dock & Mission Parity Redesign
+- **Settings Redesign & Floating-Dock Hintergrund-Angleichung (`style.css`, `index.html`, `UIManager.js`):**
+  - Äußerer Modalkasten (`.settings-modal-card`) an `.missions-modal-card` angeglichen (`background: #0b0d13 !important; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9);`).
+  - Alle Einstellungszeilen (`.setting-row`) 1:1 an `.floating-dock` aus dem Hauptmenü angepasst (`background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; backdrop-filter: blur(16px); padding: 14px 18px;`).
+  - Hover-Effekt mit `rgba(255, 255, 255, 0.055)` und dezentem Lift (`translateY(-1px)`).
+  - Toggles (`.btn-toggle`) mit Crimson-Glow (`AN`) und dezentem Glasmorphismus (`AUS`) harmonisiert.
+  - Buttons (`NACH UPDATES SUCHEN`, `SPIELSTAND ZURÜCKSETZEN`) auf einheitliches modernes Glas-Pill-Design migriert.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`07_settings.png`) mit 0 Konsolenfehlern validiert.
 
 ### v5.16.6 (06.09.2026) - Updated Daily & Weekly Mission Objectives
 - **Neue Missionsziele (kurz, prägnant, commercial minimalism):**

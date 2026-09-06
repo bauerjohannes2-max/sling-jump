@@ -284,10 +284,10 @@ async function runPlaywrightSuite() {
     console.log('[Playwright] Testing Settings and Update Checker...');
     await page.click('#btn-menu-settings');
     await sleep(400);
-    await page.click('#btn-check-update');
-    await sleep(300);
     console.log('[Playwright] Capturing 07_settings.png');
     await captureScreenshot(page, '07_settings.png', 'Settings Modal');
+    await page.click('#btn-check-update');
+    await sleep(300);
     await page.click('#btn-settings-close');
     await sleep(300);
   }

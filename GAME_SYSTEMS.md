@@ -143,6 +143,11 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **Tactical Impact Reticle:** Vector marker `#debrief-crash-pos` bound precisely to `endPoint = points[points.length - 1]`. Features high-contrast shockwave, 4 tactical corner pips, carmine outer cross (`#e11d48`), and glowing white inner cross (`#ffffff`). Origin centered at `0 0` with zero subpixel drift.
 - **Debrief Body Vertical Elevation (`.debrief-body`):** Elevated by `translateY(-56px)` on desktop and tablet displays (with media queries `-20px` at $\le 740\text{px}$ height and `-8px` at $\le 620\text{px}$). Encompasses hero altitude score, chase progress bar, telemetry grid, and loot badges, establishing optical balance with the left trajectory telemetry rail (top tick $y \approx 138\text{px}$).
 
+### 7.5 Settings Modal Architecture
+- **Outer Shell Parity:** `.settings-modal-card` matches `.missions-modal-card` (`background: #0b0d13 !important; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9);`).
+- **Floating-Dock Glassmorphism Parity:** Each setting row (`.setting-row`) mirrors `.floating-dock` (`background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; backdrop-filter: blur(16px); padding: 14px 18px;`).
+- **Toggles & Actions:** `.btn-toggle` switches between active crimson glow (`rgba(225, 29, 72, 0.22)`) and translucent idle glass (`rgba(255, 255, 255, 0.04)`). Action buttons (`.btn-settings-update`, `.btn-settings-danger`) adopt unified glassmorphic pill aesthetics with responsive mobile scaling.
+
 ---
 
 ## 8. Audio System Architecture

@@ -3783,6 +3783,13 @@ canvas#gameCanvas {
     max-height: 90vh;
     padding: 18px 14px;
   }
+  .settings-modal-card {
+    padding: 20px 14px;
+    width: 95%;
+  }
+  .setting-row {
+    padding: 12px 14px;
+  }
   .section-subtitle {
     font-size: 13.5px;
     letter-spacing: 1.5px;
@@ -3803,43 +3810,159 @@ canvas#gameCanvas {
 }
 
 /* =========================================================================
-   6. SETTINGS MODAL
+   6. SETTINGS MODAL (REDESIGNED: FLOATING-DOCK & MISSIONS PARITY)
    ========================================================================= */
+.settings-modal-card {
+  max-width: 460px;
+  width: 92%;
+  padding: 24px 20px;
+  background: #0b0d13 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.1);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.settings-header-lockup {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.settings-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 0 16px rgba(225, 29, 72, 0.25);
+}
+
 .settings-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   margin-bottom: 20px;
   text-align: left;
 }
+
 .setting-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 18px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
+
+.setting-row:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
 .setting-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: #cbd5e1;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #ffffff;
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
-.slider-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 160px;
-}
-.slider-container input[type="range"] {
-  flex: 1;
-  accent-color: var(--action-start);
-}
-.slider-val {
+
+.btn-toggle {
+  min-width: 62px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-family: 'Orbitron', monospace;
   font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #64748b;
+  transition: all 0.18s ease;
+}
+
+.btn-toggle:hover {
+  filter: brightness(1.15);
+}
+
+.settings-button-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-settings-action {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 20px;
+  border-radius: 12px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.18s ease;
+}
+
+.btn-settings-update,
+#btn-check-update.btn-settings-action {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+}
+
+.btn-settings-update:hover,
+#btn-check-update.btn-settings-action:hover {
+  background: rgba(255, 255, 255, 0.065);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-settings-danger,
+#btn-reset-data.btn-settings-action {
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(225, 29, 72, 0.35);
+  color: #fda4af;
+}
+
+.btn-settings-danger:hover,
+#btn-reset-data.btn-settings-action:hover {
+  background: rgba(225, 29, 72, 0.22);
+  border-color: rgba(225, 29, 72, 0.8);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.35);
+  transform: translateY(-1px);
+}
+
+.settings-version-tag {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--action-start);
-  width: 32px;
-  text-align: right;
+  letter-spacing: 1.2px;
+  color: #64748b;
+  margin-top: 14px;
+  text-align: center;
 }
 
 /* =========================================================================

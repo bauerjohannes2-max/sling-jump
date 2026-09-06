@@ -632,34 +632,36 @@
       </div>
     </div>
 
-    <!-- 7. SETTINGS MODAL -->
+    <!-- 7. SETTINGS MODAL (REDESIGNED) -->
     <div class="modal-overlay" id="settings-modal">
-      <div class="modal-card" style="position: relative;">
+      <div class="modal-card hub-card settings-modal-card" style="position: relative;">
         <button class="modal-close-x" id="btn-settings-close" aria-label="Schließen">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <div class="modal-title">EINSTELLUNGEN</div>
+        <div class="settings-header-lockup">
+          <div class="modal-title settings-title">EINSTELLUNGEN</div>
+        </div>
 
         <div class="settings-list">
           <div class="setting-row">
             <span class="setting-label">Audio & Musik</span>
-            <button class="btn-toggle" id="btn-audio-toggle">AN</button>
+            <button class="btn-toggle" id="btn-audio-toggle" type="button">AN</button>
           </div>
           <div class="setting-row">
             <span class="setting-label">FPS-Anzeige</span>
-            <button class="btn-toggle" id="btn-fps-toggle">AUS</button>
+            <button class="btn-toggle" id="btn-fps-toggle" type="button">AUS</button>
           </div>
           <div class="setting-row">
             <span class="setting-label">Performance-Modus</span>
-            <button class="btn-toggle" id="btn-perf-toggle">AUS</button>
+            <button class="btn-toggle" id="btn-perf-toggle" type="button">AUS</button>
           </div>
         </div>
 
-        <div class="modal-button-stack">
-          <button class="btn-secondary" id="btn-check-update">NACH UPDATES SUCHEN</button>
-          <button class="btn-danger" id="btn-reset-data">SPIELSTAND ZURÜCKSETZEN</button>
+        <div class="modal-button-stack settings-button-stack">
+          <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
+          <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag" style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:14px;">SLING JUMP v4.7.1</div>
+        <div class="settings-version-tag">SLING JUMP v5.16.6</div>
       </div>
     </div>
 

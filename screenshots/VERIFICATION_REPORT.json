@@ -1,20 +1,20 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (05e_hub_quests_tab_daily)",
-  "executedAt": "2026-09-06T17:59:36.836Z",
-  "localTimestamp": "6.9.2026, 19:59:36",
+  "mode": "Selective (07_settings)",
+  "executedAt": "2026-09-06T18:09:21.902Z",
+  "localTimestamp": "6.9.2026, 20:09:21",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
   "selectiveScreenshotsCount": 1,
   "totalCatalogScreenshotsCount": 22,
   "freshRunManifest": [
     {
-      "filename": "05e_hub_quests_tab_daily.png",
-      "description": "Quests Daily Tab Filter Scrolled",
-      "sizeKb": 339,
-      "capturedAt": "2026-09-06T17:59:36.000Z",
-      "localTime": "19:59:36",
-      "sha256": "d5e202d979f4b737"
+      "filename": "07_settings.png",
+      "description": "Settings Modal",
+      "sizeKb": 205,
+      "capturedAt": "2026-09-06T18:09:20.648Z",
+      "localTime": "20:09:20",
+      "sha256": "ce454a438a07e1ef"
     }
   ],
   "manifest": [
@@ -49,14 +49,6 @@
       "capturedAt": "2026-09-06T11:13:26.728Z",
       "localTime": "13:13:26",
       "sha256": "394cbb877a5b5c24"
-    },
-    {
-      "filename": "07_settings.png",
-      "description": "Settings Modal",
-      "sizeKb": 242,
-      "capturedAt": "2026-09-06T11:13:36.976Z",
-      "localTime": "13:13:36",
-      "sha256": "af62cf8a144007ee"
     },
     {
       "filename": "02_hangar_skins.png",
@@ -193,6 +185,14 @@
       "capturedAt": "2026-09-06T17:59:36.000Z",
       "localTime": "19:59:36",
       "sha256": "d5e202d979f4b737"
+    },
+    {
+      "filename": "07_settings.png",
+      "description": "Settings Modal",
+      "sizeKb": 205,
+      "capturedAt": "2026-09-06T18:09:20.648Z",
+      "localTime": "20:09:20",
+      "sha256": "ce454a438a07e1ef"
     }
   ]
 }

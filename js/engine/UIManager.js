@@ -1899,9 +1899,9 @@ class UIManager {
       this.dom.btnAudioToggle.style.borderColor = 'var(--accent-crimson)';
       this.dom.btnAudioToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
     } else {
-      this.dom.btnAudioToggle.style.color = '#94a3b8';
-      this.dom.btnAudioToggle.style.background = 'rgba(30, 41, 59, 0.5)';
-      this.dom.btnAudioToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+      this.dom.btnAudioToggle.style.color = '#64748b';
+      this.dom.btnAudioToggle.style.background = 'rgba(255, 255, 255, 0.04)';
+      this.dom.btnAudioToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
       this.dom.btnAudioToggle.style.boxShadow = 'none';
     }
   }
@@ -1930,9 +1930,9 @@ class UIManager {
       this.dom.btnFpsToggle.style.borderColor = 'var(--accent-crimson)';
       this.dom.btnFpsToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
     } else {
-      this.dom.btnFpsToggle.style.color = '#94a3b8';
-      this.dom.btnFpsToggle.style.background = 'rgba(30, 41, 59, 0.5)';
-      this.dom.btnFpsToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+      this.dom.btnFpsToggle.style.color = '#64748b';
+      this.dom.btnFpsToggle.style.background = 'rgba(255, 255, 255, 0.04)';
+      this.dom.btnFpsToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
       this.dom.btnFpsToggle.style.boxShadow = 'none';
     }
   }
@@ -1955,9 +1955,9 @@ class UIManager {
       this.dom.btnPerfToggle.style.borderColor = 'var(--accent-crimson)';
       this.dom.btnPerfToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
     } else {
-      this.dom.btnPerfToggle.style.color = '#94a3b8';
-      this.dom.btnPerfToggle.style.background = 'rgba(30, 41, 59, 0.5)';
-      this.dom.btnPerfToggle.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+      this.dom.btnPerfToggle.style.color = '#64748b';
+      this.dom.btnPerfToggle.style.background = 'rgba(255, 255, 255, 0.04)';
+      this.dom.btnPerfToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
       this.dom.btnPerfToggle.style.boxShadow = 'none';
     }
   }
