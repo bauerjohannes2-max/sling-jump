@@ -1083,36 +1083,37 @@ class UIManager {
     if (statTime) statTime.textContent = data.flightTime || '0:00';
 
     // Interactive Revive Section
+    const currentCrystals = (this.storage && this.storage.data && this.storage.data.hyperCrystals) || 0;
+    const btnRevive = document.getElementById('btn-gameover-revive');
+    const reviveBtnText = document.getElementById('revive-btn-text') || this.dom.reviveBtnText;
     const reviveAltDisplay = document.getElementById('revive-alt-display');
     if (reviveAltDisplay) {
       reviveAltDisplay.textContent = Number(altitude).toLocaleString('de-DE');
     }
 
-    const currentCrystals = (this.storage && this.storage.data && this.storage.data.hyperCrystals) || 0;
-    const btnRevive = document.getElementById('btn-gameover-revive');
     if (btnRevive) {
       if (canRevive && currentCrystals >= 1) {
         btnRevive.disabled = false;
         btnRevive.classList.remove('disabled');
+        if (reviveBtnText) reviveBtnText.textContent = 'ZWEITE CHANCE';
       } else {
         btnRevive.disabled = true;
         btnRevive.classList.add('disabled');
-        if (reviveAltDisplay && !canRevive) {
-          reviveAltDisplay.textContent = 'BEREITS GENUTZT';
-        } else if (reviveAltDisplay && currentCrystals < 1) {
-          reviveAltDisplay.textContent = 'KEINE KRISTALLE (BENÖTIGT 1)';
+        if (reviveBtnText && !canRevive) {
+          reviveBtnText.textContent = 'BEREITS GENUTZT';
+        } else if (reviveBtnText && currentCrystals < 1) {
+          reviveBtnText.textContent = 'KEINE KRISTALLE';
         }
       }
     }
 
     // Configure Interactive Revive Section (Second Chance)
     if (this.dom.reviveBox) {
-      const currentCrystals = this.storage.data.hyperCrystals || 0;
       this.dom.reviveBox.style.display = 'block';
 
       if (canRevive) {
         if (this.dom.reviveBtnText) {
-          this.dom.reviveBtnText.textContent = 'WIEDERBELEBEN';
+          this.dom.reviveBtnText.textContent = 'ZWEITE CHANCE';
         }
         if (this.dom.reviveCostTag) {
           this.dom.reviveCostTag.style.display = 'inline-flex';

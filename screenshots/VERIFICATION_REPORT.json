@@ -1,36 +1,84 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (10)",
-  "executedAt": "2026-09-06T09:23:52.779Z",
-  "localTimestamp": "6.9.2026, 11:23:52",
+  "mode": "Selective (10, 1)",
+  "executedAt": "2026-09-06T09:38:45.296Z",
+  "localTimestamp": "6.9.2026, 11:38:45",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
-  "selectiveScreenshotsCount": 3,
+  "selectiveScreenshotsCount": 9,
   "totalCatalogScreenshotsCount": 20,
   "freshRunManifest": [
     {
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 307,
+      "capturedAt": "2026-09-06T09:38:35.059Z",
+      "localTime": "11:38:35",
+      "sha256": "44dd0c720ed2d6c7"
+    },
+    {
+      "filename": "13_tutorial_modal.png",
+      "description": "Tutorial Controls Guide",
+      "sizeKb": 336,
+      "capturedAt": "2026-09-06T09:38:35.979Z",
+      "localTime": "11:38:35",
+      "sha256": "d66b61394ce2eada"
+    },
+    {
       "filename": "10_game_over.png",
       "description": "Game Over Screen",
-      "sizeKb": 576,
-      "capturedAt": "2026-09-06T09:23:49.941Z",
-      "localTime": "11:23:49",
-      "sha256": "219023573d818308"
+      "sizeKb": 554,
+      "capturedAt": "2026-09-06T09:38:39.378Z",
+      "localTime": "11:38:39",
+      "sha256": "e4e2cd5936da6e8a"
     },
     {
       "filename": "10c_mobile_game_over.png",
       "description": "Mobile Game Over Screen",
-      "sizeKb": 412,
-      "capturedAt": "2026-09-06T09:23:50.842Z",
-      "localTime": "11:23:50",
-      "sha256": "1f75487058a36cd2"
+      "sizeKb": 403,
+      "capturedAt": "2026-09-06T09:38:40.106Z",
+      "localTime": "11:38:40",
+      "sha256": "b530f071c574dd91"
     },
     {
       "filename": "10b_revived_gameplay.png",
       "description": "Revived Gameplay",
-      "sizeKb": 384,
-      "capturedAt": "2026-09-06T09:23:52.225Z",
-      "localTime": "11:23:52",
-      "sha256": "15043b2e687e96c3"
+      "sizeKb": 285,
+      "capturedAt": "2026-09-06T09:38:41.309Z",
+      "localTime": "11:38:41",
+      "sha256": "6d3df43d991f2fb0"
+    },
+    {
+      "filename": "11_mobile_responsive.png",
+      "description": "Mobile Responsive Menu",
+      "sizeKb": 232,
+      "capturedAt": "2026-09-06T09:38:42.174Z",
+      "localTime": "11:38:42",
+      "sha256": "4c3159ab335b4feb"
+    },
+    {
+      "filename": "12_mobile_skins.png",
+      "description": "Mobile Skins Shop",
+      "sizeKb": 23,
+      "capturedAt": "2026-09-06T09:38:42.721Z",
+      "localTime": "11:38:42",
+      "sha256": "12fd7fc1c0efbd61"
+    },
+    {
+      "filename": "14_dashboard_locked.png",
+      "description": "Dashboard Gate Locked",
+      "sizeKb": 48,
+      "capturedAt": "2026-09-06T09:38:43.879Z",
+      "localTime": "11:38:43",
+      "sha256": "a14c99e1fa72c156"
+    },
+    {
+      "filename": "14b_dashboard_unlocked.png",
+      "description": "Dashboard Unlocked",
+      "sizeKb": 241,
+      "capturedAt": "2026-09-06T09:38:44.847Z",
+      "localTime": "11:38:44",
+      "sha256": "cd241dbe8fdff06f"
     }
   ],
   "manifest": [
@@ -107,14 +155,6 @@
       "sha256": "a268bd8d3a6f9455"
     },
     {
-      "filename": "13_tutorial_modal.png",
-      "description": "Tutorial Controls Guide",
-      "sizeKb": 371,
-      "capturedAt": "2026-09-06T08:56:14.384Z",
-      "localTime": "10:56:14",
-      "sha256": "234657bdab90687f"
-    },
-    {
       "filename": "08_gameplay_hud.png",
       "description": "Gameplay HUD & Combo",
       "sizeKb": 321,
@@ -131,68 +171,76 @@
       "sha256": "a6d978b4c9c5b179"
     },
     {
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 307,
+      "capturedAt": "2026-09-06T09:38:35.059Z",
+      "localTime": "11:38:35",
+      "sha256": "44dd0c720ed2d6c7"
+    },
+    {
+      "filename": "13_tutorial_modal.png",
+      "description": "Tutorial Controls Guide",
+      "sizeKb": 336,
+      "capturedAt": "2026-09-06T09:38:35.979Z",
+      "localTime": "11:38:35",
+      "sha256": "d66b61394ce2eada"
+    },
+    {
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 554,
+      "capturedAt": "2026-09-06T09:38:39.378Z",
+      "localTime": "11:38:39",
+      "sha256": "e4e2cd5936da6e8a"
+    },
+    {
+      "filename": "10c_mobile_game_over.png",
+      "description": "Mobile Game Over Screen",
+      "sizeKb": 403,
+      "capturedAt": "2026-09-06T09:38:40.106Z",
+      "localTime": "11:38:40",
+      "sha256": "b530f071c574dd91"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 285,
+      "capturedAt": "2026-09-06T09:38:41.309Z",
+      "localTime": "11:38:41",
+      "sha256": "6d3df43d991f2fb0"
+    },
+    {
+      "filename": "11_mobile_responsive.png",
+      "description": "Mobile Responsive Menu",
+      "sizeKb": 232,
+      "capturedAt": "2026-09-06T09:38:42.174Z",
+      "localTime": "11:38:42",
+      "sha256": "4c3159ab335b4feb"
+    },
+    {
       "filename": "12_mobile_skins.png",
       "description": "Mobile Skins Shop",
-      "sizeKb": 131,
-      "capturedAt": "2026-09-06T08:56:20.504Z",
-      "localTime": "10:56:20",
-      "sha256": "65b9f3f136a50176"
+      "sizeKb": 23,
+      "capturedAt": "2026-09-06T09:38:42.721Z",
+      "localTime": "11:38:42",
+      "sha256": "12fd7fc1c0efbd61"
     },
     {
       "filename": "14_dashboard_locked.png",
       "description": "Dashboard Gate Locked",
       "sizeKb": 48,
-      "capturedAt": "2026-09-06T08:56:21.747Z",
-      "localTime": "10:56:21",
+      "capturedAt": "2026-09-06T09:38:43.879Z",
+      "localTime": "11:38:43",
       "sha256": "a14c99e1fa72c156"
     },
     {
       "filename": "14b_dashboard_unlocked.png",
       "description": "Dashboard Unlocked",
-      "sizeKb": 240,
-      "capturedAt": "2026-09-06T08:56:22.660Z",
-      "localTime": "10:56:22",
-      "sha256": "c5599a76e770a350"
-    },
-    {
-      "filename": "01_main_menu.png",
-      "description": "Main Menu",
-      "sizeKb": 312,
-      "capturedAt": "2026-09-06T09:15:16.792Z",
-      "localTime": "11:15:16",
-      "sha256": "8006b9294a6c874a"
-    },
-    {
-      "filename": "11_mobile_responsive.png",
-      "description": "Mobile Responsive Menu",
-      "sizeKb": 240,
-      "capturedAt": "2026-09-06T09:15:35.175Z",
-      "localTime": "11:15:35",
-      "sha256": "a538d9cf3834a88d"
-    },
-    {
-      "filename": "10_game_over.png",
-      "description": "Game Over Screen",
-      "sizeKb": 576,
-      "capturedAt": "2026-09-06T09:23:49.941Z",
-      "localTime": "11:23:49",
-      "sha256": "219023573d818308"
-    },
-    {
-      "filename": "10c_mobile_game_over.png",
-      "description": "Mobile Game Over Screen",
-      "sizeKb": 412,
-      "capturedAt": "2026-09-06T09:23:50.842Z",
-      "localTime": "11:23:50",
-      "sha256": "1f75487058a36cd2"
-    },
-    {
-      "filename": "10b_revived_gameplay.png",
-      "description": "Revived Gameplay",
-      "sizeKb": 384,
-      "capturedAt": "2026-09-06T09:23:52.225Z",
-      "localTime": "11:23:52",
-      "sha256": "15043b2e687e96c3"
+      "sizeKb": 241,
+      "capturedAt": "2026-09-06T09:38:44.847Z",
+      "localTime": "11:38:44",
+      "sha256": "cd241dbe8fdff06f"
     }
   ]
 }

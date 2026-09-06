@@ -33,14 +33,14 @@ class WorldManager {
 
   initStarfield(width, height) {
     this.stars = [];
-    const numStars = Math.floor((width * height) / 3200);
+    const numStars = Math.floor((width * height) / 5800);
     for (let i = 0; i < numStars; i++) {
       const r = Math.random();
       const layer = r < 0.45 ? 0.20 : (r < 0.80 ? 0.45 : 0.75);
       this.stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.random() * 1.6 + 0.8,
+        size: Math.random() * 1.4 + 0.6,
         layer: layer,
         twinkleSpeed: Math.random() * 1.5 + 0.8,
         baseAlpha: Math.random() * 0.45 + 0.35

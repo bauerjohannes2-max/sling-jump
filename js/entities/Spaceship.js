@@ -591,8 +591,6 @@ class Spaceship {
     context.globalAlpha = Math.min(1.0, alpha);
 
     context.strokeStyle = beamColor;
-    context.shadowColor = beamColor;
-    context.shadowBlur = 10 + (tension * 15) + (pulse * 5);
 
     context.beginPath();
     context.moveTo(this.x, screenY);
@@ -627,8 +625,6 @@ class Spaceship {
     context.save();
     const laserColor = isBoost ? '#10b981' : '#00f0ff';
     context.fillStyle = laserColor;
-    context.shadowColor = laserColor;
-    context.shadowBlur = 10;
 
     for (let step = 0; step < totalSteps; step++) {
       simVy -= CONSTANTS.PHYSICS.GRAVITY * simDt;

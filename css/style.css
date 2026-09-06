@@ -145,19 +145,7 @@ canvas#gameCanvas {
    SCREEN VIGNETTES & OVERLAYS
    ========================================================================= */
 #slowmo-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  box-shadow: inset 0 0 140px rgba(0, 240, 255, 0.25);
-  opacity: 0;
-  transition: opacity 0.15s ease-out;
-  z-index: 10;
-}
-#slowmo-overlay.active {
-  opacity: 1;
+  display: none !important;
 }
 
 #danger-overlay {
@@ -1681,11 +1669,7 @@ canvas#gameCanvas {
    ========================================================================= */
 #gameover-modal.modal-overlay {
   padding: 0;
-  background:
-    radial-gradient(ellipse at 50% 35%, rgba(2, 3, 6, 0.78) 0%, rgba(0, 0, 0, 0.94) 100%),
-    linear-gradient(180deg, rgba(2, 3, 6, 0.90) 0%, rgba(1, 2, 4, 0.94) 50%, rgba(0, 0, 0, 0.98) 100%);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: radial-gradient(ellipse at 50% 35%, rgba(2, 4, 10, 0.72) 0%, rgba(1, 2, 6, 0.90) 100%);
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -1708,12 +1692,49 @@ canvas#gameCanvas {
   flex-direction: column;
 }
 
+/* Cosmic Backdrop Stars in Death Screen */
+.debrief-stars, .debrief-stars2 {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.debrief-stars {
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #ffffff 55%, transparent),
+    radial-gradient(1.2px 1.2px at 78% 9%, #9fd8ff 55%, transparent),
+    radial-gradient(1.5px 1.5px at 33% 44%, #ffffff 55%, transparent),
+    radial-gradient(1px 1px at 61% 62%, #cfe9ff 55%, transparent),
+    radial-gradient(1.2px 1.2px at 88% 38%, #ffffff 55%, transparent),
+    radial-gradient(1.5px 1.5px at 8% 71%, #9fd8ff 55%, transparent),
+    radial-gradient(1px 1px at 47% 86%, #ffffff 55%, transparent),
+    radial-gradient(1.2px 1.2px at 92% 79%, #cfe9ff 55%, transparent);
+  background-size: 430px 620px;
+  opacity: 0.80;
+}
+
+.debrief-stars2 {
+  background-image:
+    radial-gradient(2px 2px at 22% 28%, rgba(56, 232, 255, 0.90) 55%, transparent),
+    radial-gradient(2px 2px at 71% 52%, rgba(56, 232, 255, 0.75) 55%, transparent),
+    radial-gradient(2.5px 2.5px at 84% 88%, rgba(56, 232, 255, 0.85) 55%, transparent),
+    radial-gradient(1.5px 1.5px at 50% 12%, rgba(255, 255, 255, 0.85) 55%, transparent);
+  background-size: 430px 780px;
+  animation: debrief-tw 5s ease-in-out infinite alternate;
+}
+
+@keyframes debrief-tw {
+  from { opacity: 0.40; }
+  to { opacity: 0.95; }
+}
+
 .debrief-vig {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.82) 100%);
-  z-index: 1;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.65) 100%);
+  z-index: 2;
 }
 
 /* Left Telemetry Rail */
@@ -1928,9 +1949,60 @@ canvas#gameCanvas {
   text-shadow: 0 0 16px rgba(56, 232, 255, 0.35);
 }
 
+/* Minimalist Gained Loot Chips (Icons + Count Only) */
+.debrief-loot-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.debrief-loot-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.debrief-loot-chip.gold {
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.09);
+}
+
+.debrief-loot-chip.crystal {
+  border-color: rgba(217, 70, 239, 0.35);
+  background: rgba(217, 70, 239, 0.09);
+}
+
+.debrief-loot-icon {
+  flex: none;
+  display: block;
+}
+
+.debrief-loot-val {
+  font-family: var(--font-display, sans-serif);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.debrief-loot-chip.gold .debrief-loot-val {
+  color: #fde047;
+}
+
+.debrief-loot-chip.crystal .debrief-loot-val {
+  color: #f0abfc;
+}
+
 /* Record Chase Bar */
 .debrief-chase {
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .debrief-chase-row {
@@ -2122,18 +2194,19 @@ canvas#gameCanvas {
 
 /* Revive Button (Second Chance) */
 .debrief-btn.revive {
-  height: 62px;
-  padding: 0 16px 0 14px;
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.25) 0%, rgba(99, 102, 241, 0.18) 50%, rgba(15, 23, 42, 0.65) 100%);
+  height: 58px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.28) 0%, rgba(99, 102, 241, 0.20) 50%, rgba(15, 23, 42, 0.70) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(192, 132, 252, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 4px 20px rgba(147, 51, 234, 0.22);
+    inset 0 0 0 1px rgba(192, 132, 252, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    0 4px 20px rgba(147, 51, 234, 0.25);
   color: #ffffff;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 12px;
+  position: relative;
+  overflow: hidden;
 }
 
 .debrief-btn.revive::before {
@@ -2148,79 +2221,36 @@ canvas#gameCanvas {
 }
 
 .debrief-btn.revive:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.35) 0%, rgba(99, 102, 241, 0.25) 50%, rgba(15, 23, 42, 0.7) 100%);
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.38) 0%, rgba(99, 102, 241, 0.28) 50%, rgba(15, 23, 42, 0.75) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(192, 132, 252, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    0 6px 28px rgba(147, 51, 234, 0.38);
+    inset 0 0 0 1px rgba(192, 132, 252, 0.60),
+    inset 0 1px 0 rgba(255, 255, 255, 0.30),
+    0 6px 28px rgba(147, 51, 234, 0.42);
   transform: translateY(-1.5px);
 }
 
-.debrief-btn.revive .lft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-}
-
-.debrief-btn.revive .ico {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  flex: none;
-  background: rgba(168, 85, 247, 0.18);
-  border: 1px solid rgba(192, 132, 252, 0.40);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #d8b4fe;
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);
-}
-
-.debrief-btn.revive .ico svg {
-  width: 17px;
-  height: 17px;
-}
-
-.debrief-btn.revive .txt-wrap {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-}
-
 .debrief-btn.revive .ttl {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   color: #ffffff;
-  line-height: 1.15;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.debrief-btn.revive .sub {
-  font-family: var(--font-mono, monospace);
-  font-size: 8px;
-  letter-spacing: 0.12em;
-  color: #d8b4fe;
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1;
+  text-align: center;
+  margin: 0 auto;
 }
 
 .debrief-btn.revive .cost {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: 5px;
-  flex: none;
   flex-shrink: 0;
   padding: 5px 9px;
   border-radius: 7px;
-  background: rgba(147, 51, 234, 0.28);
+  background: rgba(147, 51, 234, 0.32);
   border: 1px solid rgba(192, 132, 252, 0.45);
   font-family: var(--font-display);
   font-size: 13px;
@@ -2263,8 +2293,11 @@ canvas#gameCanvas {
     inset 0 -2.5px 0 rgba(0, 0, 0, 0.35);
   color: #ffffff;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
 }
 
 .debrief-btn.retry:hover {
@@ -2279,12 +2312,6 @@ canvas#gameCanvas {
   transform: scale(0.98);
 }
 
-.debrief-btn.retry .btn-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .debrief-btn.retry .btn-icon {
   width: 20px;
   height: 20px;
@@ -2297,18 +2324,6 @@ canvas#gameCanvas {
   font-weight: 900;
   letter-spacing: 0.22em;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-}
-
-.debrief-btn.retry .kbd {
-  font-family: var(--font-mono, monospace);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  padding: 4px 9px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.28);
-  color: rgba(255, 255, 255, 0.95);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
 }
 
 .debrief-btn.retry::after {

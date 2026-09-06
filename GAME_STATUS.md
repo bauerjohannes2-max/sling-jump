@@ -1368,3 +1368,36 @@ blissful-euclid/
    - **Illuminierte Icon-Bubbles:** Jeder Button besitzt eine eigene abgerundete Vektor-Bubble mit Akzentfarben (Tutorial: Cyan/Sky, Skins: Magenta/Purple, Statistiken: Gold/Amber).
    - **Mobile Optimierung:** Automatische Reduzierung der Abstände und Schriftgrößen auf schmalen 390px-Viewports, sodass auch lange Beschriftungen wie `STATISTIKEN` sauber und ohne Randüberlappung sitzen.
 
+---
+
+## 7. Release v5.8.0: Cinematic Death Screen & Grapple Polish Pass
+
+* **Datum:** 06.09.2026
+* **Branch:** `feature/deathscreen-cinematic-polish`
+* **Prüfstatus:** 0 Konsolenfehler, 0 Exceptions, 9 frische Playwright-Screenshots verifiziert, 120.1 FPS Realtime-Benchmark PASSED.
+
+### 7.1 Behobene Kernprobleme & Optimierungen
+1. **Reduzierung der Sternendichte im Hauptmenü (`WorldManager.js`):**
+   - Auf Nutzeranweisung wurde die Sternenanzahl im Hauptmenü-Hintergrund wieder reduziert (Divisor von 3200 auf 5800 erhöht, Sternengrößen moderiert auf 0.6–2.0px).
+   - Ergibt ein ruhiges, elegantes und fokussiertes kosmisches Sternenfeld ohne visuelle Überladung.
+2. **Entfernung des grellen Weichzeichners / Grapple-Blur (`style.css`, `Node.js`, `Spaceship.js`):**
+   - `#slowmo-overlay` komplett deaktiviert (`display: none !important`), wodurch der störende Cyan-Vignetten-Blur beim Einhaken an Kreisen eliminiert wurde.
+   - In `Node.js` wurde die weiche Radial-Glow-Aura während des Einhakens unterdrückt (`if (!this.isHooked)`), und `context.shadowBlur` im aktiven Countdown-Sweep-Gauge entfernt.
+   - In `Spaceship.js` wurde `context.shadowBlur` am Haltestrahl und am Vorhersage-Laser eliminiert (gemäß Regel 8 Zero GPU Blur Invariante).
+3. **Wiedereinführung gesammelter Währungen im Death Screen (`index.html`, `style.css`, `UIManager.js`):**
+   - Münzen und Hyper-Kristalle werden im Death Screen wieder angezeigt, jedoch radikal minimalistisch: **Ausschließlich SVG-Icons und `+X` Zähler** (`#final-orbs`, `#final-crystals`).
+   - Keine störenden Textbeschriftungen wie "MÜNZEN" oder "KRISTALLE".
+   - Platzierung in kompakten Glassmorphism-Pillen (`.debrief-loot-row`) direkt unterhalb der Flugdistanz.
+4. **Wiederherstellung des Sternenfelds im Death Screen (`index.html`, `style.css`):**
+   - Wiedereinführung von `.debrief-stars` und `.debrief-stars2` mit funkelnden 1px–2.5px Sternpunkten und sanfter Animation (`@keyframes debrief-tw`).
+   - `#gameover-modal.modal-overlay` Hintergrund weicher gestaltet und `backdrop-filter: blur(6px)` entfernt, sodass der kosmische Weltraumhintergrund und die Sterne gestochen scharf durchscheinen.
+5. **Neustart-Button zentriert & SPACE entfernt (`index.html`, `style.css`):**
+   - Tastatur-Badge `SPACE` (`.kbd`) restlos entfernt.
+   - Button-Inhalt (Reload-SVG-Icon und Beschriftung `NEUSTART`) perfekt im Zentrum des Buttons ausgerichtet (`justify-content: center; align-items: center; gap: 10px;`).
+6. **Zweite-Chance-Button zentriert & bereinigt (`index.html`, `style.css`, `UIManager.js`):**
+   - Schild-Icon (`.ico`) und Höhen-Untertitel (`ab x meters`) restlos entfernt.
+   - Text auf reines `ZWEITE CHANCE` geändert und in der Buttonmitte zentriert.
+   - Kristall-Kosten-Badge (`#revive-cost-tag`) als kompakte Pille an der rechten Button-Kante positioniert.
+   - `UIManager.js` aktualisiert, um standardmäßig `ZWEITE CHANCE` (bzw. `BEREITS GENUTZT` bei Inaktivität) zu setzen.
+
+

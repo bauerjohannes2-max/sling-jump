@@ -255,9 +255,11 @@ class OrbitNode {
       context.restore();
     }
 
-    // OPTIMIZATION: 2. Outer Soft Aura (Pre-rendered drawn dynamically scaled)
-    const dSize = outerRadius + 14;
-    context.drawImage(OrbitNode.getCachedGlow(glowColor), -dSize, -dSize, dSize * 2, dSize * 2);
+    // OPTIMIZATION: 2. Outer Soft Aura (Pre-rendered drawn dynamically scaled, suppressed when hooked)
+    if (!this.isHooked) {
+      const dSize = outerRadius + 14;
+      context.drawImage(OrbitNode.getCachedGlow(glowColor), -dSize, -dSize, dSize * 2, dSize * 2);
+    }
 
     // 3. Orbit Target Ring
     context.save();
@@ -313,9 +315,7 @@ class OrbitNode {
         // Active Countdown Sweep Gauge
         const progress = Math.max(0, 1 - (this.fragileTimer / this.maxFragileDuration));
         context.strokeStyle = coreColor;
-        context.shadowColor = coreColor;
-        context.shadowBlur = 12;
-        context.lineWidth = 4.2;
+        context.lineWidth = 3.6;
         context.globalAlpha = 1.0;
         context.beginPath();
         context.arc(0, 0, outerRadius + 11, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * progress));

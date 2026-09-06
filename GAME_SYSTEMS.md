@@ -372,6 +372,23 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
   * Aktualisierung auf Cache-Tag `sling-jump-v4.7.1` mit automatischem `self.skipWaiting()` und `clients.claim()`.
   * Lokales Versions-Audit im Browser (`localStorage.sling_jump_installed_version`) invalidiert alte PWA-Caches bei Versionssprüngen sofort.
 
+### 10.14 Cinematic Death Screen & Grapple Polish Pass (v5.8.0)
+* **Sternenfeld-Balancierung:**
+  * Reduzierung der Sternendichte im Hauptmenü auf einen ruhigen, eleganten Wert (Divisor 5800, Sternengrößen 0.6–2.0px).
+* **Entfernung des Grapple-Blurs:**
+  * `#slowmo-overlay` dauerhaft unterdrückt (`display: none !important`), wodurch die periphere Cyan-Vignette beim Einhaken vollständig eliminiert wurde.
+  * Node-Aura (`getCachedGlow`) wird während des Einhakens ausgeblendet.
+  * `shadowBlur` im aktiven Fragile-Sweep-Gauge und am Tether-Haltestrahl entfernt (strikte Einhaltung der 60+ FPS Rule 8 Invariante).
+* **Minimalistische Währungs-Chips im Death Screen:**
+  * Wiedereinführung von Gold-Münzen und Hyper-Kristallen im Game-Over-Screen in puristischer Form: Ausschließlich SVG-Vektor-Icons und `+X`-Zähler (`#final-orbs`, `#final-crystals`).
+  * Vollständige Vermeidung von Wort-Labels wie "MÜNZEN" oder "KRISTALLE".
+* **Sternen-Hintergrund im Death Screen:**
+  * Gestochen scharfes Funkeln durch `.debrief-stars` und `.debrief-stars2`.
+  * Weicherer Gradient-Hintergrund ohne `backdrop-filter: blur(6px)` für direkte optische Parität mit dem Weltraumhintergrund des Spiels.
+* **Action-Button Typografie & Zentrierung:**
+  * `NEUSTART`: Button-Inhalt (Icon + Text) absolut zentriert, `SPACE`-Tastatur-Badge entfernt.
+  * `ZWEITE CHANCE`: Text in der Button-Mitte zentriert, Schild-Icon und "ab x Metern"-Untertitel restlos entfernt. Kristall-Kosten-Badge (`#revive-cost-tag`) als Pille rechts platziert.
+
 ---
 
 ## 11. Standalone Game & Growth Analytics Suite (`dashboard/`)

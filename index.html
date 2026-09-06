@@ -274,6 +274,10 @@
     <!-- 4. GAME OVER MODAL (FLIGHT DEBRIEF REDESIGN) -->
     <div class="modal-overlay gameover-screen-overlay" id="gameover-modal">
       <div class="debrief-container" id="debrief-card">
+        <!-- Cosmic Stars Backdrop -->
+        <div class="debrief-stars"></div>
+        <div class="debrief-stars2"></div>
+
         <!-- Flown Trajectory SVG (Animated) -->
         <svg class="debrief-trace" id="debrief-trace-svg" viewBox="0 0 80 932" preserveAspectRatio="none" fill="none">
           <defs>
@@ -314,6 +318,24 @@
                 <span class="debrief-num" id="final-altitude-val">259</span>
                 <span class="debrief-unit">m</span>
               </div>
+              <div class="debrief-loot-row">
+                <div class="debrief-loot-chip gold" title="Gesammelte Münzen">
+                  <svg class="debrief-loot-icon" viewBox="0 0 24 24" width="13" height="13">
+                    <circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.22)" stroke="#fbbf24" stroke-width="1.6"></circle>
+                    <polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon>
+                    <circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle>
+                  </svg>
+                  <span class="debrief-loot-val" id="final-orbs">+0</span>
+                </div>
+                <div class="debrief-loot-chip crystal" title="Gesammelte Kristalle">
+                  <svg class="debrief-loot-icon" viewBox="0 0 24 24" width="13" height="13">
+                    <polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.25)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon>
+                    <polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon>
+                    <polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon>
+                  </svg>
+                  <span class="debrief-loot-val" id="final-crystals">+0</span>
+                </div>
+              </div>
             </div>
 
             <div class="debrief-chase">
@@ -345,15 +367,7 @@
           <div class="debrief-actions">
             <!-- Revive (Second Chance) -->
             <button class="debrief-btn revive" id="btn-gameover-revive">
-              <div class="lft">
-                <div class="ico">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-                </div>
-                <div class="txt-wrap">
-                  <div class="ttl" id="revive-btn-text">WEITERFLIEGEN</div>
-                  <div class="sub" id="revive-status-text">ZWEITE CHANCE · AB <span id="revive-alt-display">259</span> M</div>
-                </div>
-              </div>
+              <span class="ttl" id="revive-btn-text">ZWEITE CHANCE</span>
               <div class="cost" id="revive-cost-tag">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l7 6-7 14L5 8z"/></svg>
                 <span>1</span>
@@ -362,13 +376,10 @@
 
             <!-- Retry (Primary CTA) -->
             <button class="debrief-btn retry" id="btn-gameover-restart">
-              <div class="btn-left">
-                <svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
-                </svg>
-                <span class="ttl">NEUSTART</span>
-              </div>
-              <div class="kbd">SPACE</div>
+              <svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+              </svg>
+              <span class="ttl">NEUSTART</span>
             </button>
 
             <!-- Secondary Ghost Row -->
