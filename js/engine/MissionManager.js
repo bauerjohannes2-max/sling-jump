@@ -56,7 +56,7 @@ class MissionManager {
     this.storage.data.weeklyResetTimestamp = nextReset;
     const pool = CONSTANTS.WEEKLY_QUEST_POOL || CONSTANTS.QUEST_POOL;
     const shuffled = [...pool].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 2).map(q => q.id);
+    const selected = shuffled.slice(0, 3).map(q => q.id);
 
     this.storage.data.activeWeeklyQuestIds = selected;
 
@@ -209,6 +209,16 @@ class MissionManager {
     for (const quest of this.getAllActiveQuests()) {
       if (quest.type === 'boost_single') {
         this.checkAndProgress(quest.id, this.runBoosts, true);
+      } else if (quest.type === 'boost_cumulative') {
+        this.checkAndProgress(quest.id, 1, false);
+      }
+    }
+  }
+
+  onCombo(comboLevel) {
+    for (const quest of this.getAllActiveQuests()) {
+      if (quest.type === 'combo_single') {
+        this.checkAndProgress(quest.id, comboLevel, true);
       }
     }
   }

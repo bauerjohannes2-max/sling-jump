@@ -1,28 +1,20 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (05_hub_quests, 05b_hub_quests_claimed)",
-  "executedAt": "2026-09-06T17:53:05.651Z",
-  "localTimestamp": "6.9.2026, 19:53:05",
+  "mode": "Selective (05e_hub_quests_tab_daily)",
+  "executedAt": "2026-09-06T17:59:36.836Z",
+  "localTimestamp": "6.9.2026, 19:59:36",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
-  "selectiveScreenshotsCount": 2,
-  "totalCatalogScreenshotsCount": 21,
+  "selectiveScreenshotsCount": 1,
+  "totalCatalogScreenshotsCount": 22,
   "freshRunManifest": [
     {
-      "filename": "05_hub_quests.png",
-      "description": "Quests Active",
-      "sizeKb": 377,
-      "capturedAt": "2026-09-06T17:53:03.961Z",
-      "localTime": "19:53:03",
-      "sha256": "c24d9b2850a4e2cd"
-    },
-    {
-      "filename": "05b_hub_quests_claimed.png",
-      "description": "Quests Claimed",
-      "sizeKb": 288,
-      "capturedAt": "2026-09-06T17:53:04.814Z",
-      "localTime": "19:53:04",
-      "sha256": "88b77999d45753c2"
+      "filename": "05e_hub_quests_tab_daily.png",
+      "description": "Quests Daily Tab Filter Scrolled",
+      "sizeKb": 339,
+      "capturedAt": "2026-09-06T17:59:36.000Z",
+      "localTime": "19:59:36",
+      "sha256": "d5e202d979f4b737"
     }
   ],
   "manifest": [
@@ -163,36 +155,44 @@
       "sha256": "ef93eb3d7c4e3487"
     },
     {
-      "filename": "05c_hub_quests_scrolled.png",
-      "description": "Quests Weekly Challenges",
-      "sizeKb": 197,
-      "capturedAt": "2026-09-06T17:34:38.238Z",
-      "localTime": "19:34:38",
-      "sha256": "1b4242eaf0d6cd56"
-    },
-    {
-      "filename": "05d_hub_quests_tab_weekly.png",
-      "description": "Quests Weekly Tab Filter",
-      "sizeKb": 183,
-      "capturedAt": "2026-09-06T17:34:39.044Z",
-      "localTime": "19:34:39",
-      "sha256": "e890a0bf52a4d935"
-    },
-    {
-      "filename": "05_hub_quests.png",
-      "description": "Quests Active",
-      "sizeKb": 377,
-      "capturedAt": "2026-09-06T17:53:03.961Z",
-      "localTime": "19:53:03",
-      "sha256": "c24d9b2850a4e2cd"
-    },
-    {
       "filename": "05b_hub_quests_claimed.png",
       "description": "Quests Claimed",
       "sizeKb": 288,
       "capturedAt": "2026-09-06T17:53:04.814Z",
       "localTime": "19:53:04",
       "sha256": "88b77999d45753c2"
+    },
+    {
+      "filename": "05_hub_quests.png",
+      "description": "Quests Active",
+      "sizeKb": 378,
+      "capturedAt": "2026-09-06T17:58:29.709Z",
+      "localTime": "19:58:29",
+      "sha256": "220d0372e71c0af6"
+    },
+    {
+      "filename": "05c_hub_quests_scrolled.png",
+      "description": "Quests Weekly Challenges",
+      "sizeKb": 195,
+      "capturedAt": "2026-09-06T17:58:30.476Z",
+      "localTime": "19:58:30",
+      "sha256": "0d85423c252c9f3a"
+    },
+    {
+      "filename": "05d_hub_quests_tab_weekly.png",
+      "description": "Quests Weekly Tab Filter",
+      "sizeKb": 195,
+      "capturedAt": "2026-09-06T17:58:31.253Z",
+      "localTime": "19:58:31",
+      "sha256": "ef2c055211c10b30"
+    },
+    {
+      "filename": "05e_hub_quests_tab_daily.png",
+      "description": "Quests Daily Tab Filter Scrolled",
+      "sizeKb": 339,
+      "capturedAt": "2026-09-06T17:59:36.000Z",
+      "localTime": "19:59:36",
+      "sha256": "d5e202d979f4b737"
     }
   ]
 }

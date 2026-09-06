@@ -49,8 +49,8 @@ class StorageService {
       // Daily & Weekly Mission System
       dailyResetTimestamp: 0,
       weeklyResetTimestamp: 0,
-      activeDailyQuestIds: ['daily_reach_350', 'daily_collect_12', 'daily_boost_3'],
-      activeWeeklyQuestIds: ['weekly_altitude_8000', 'weekly_cores_100'],
+      activeDailyQuestIds: ['daily_reach_3000', 'daily_collect_25', 'daily_boost_5'],
+      activeWeeklyQuestIds: ['weekly_altitude_30k', 'weekly_cores_80', 'weekly_combo_5'],
       claimedQuestIds: [], // Quests whose rewards have been actively claimed
       questProgress: {},
       completedQuestCount: 0,
@@ -136,11 +136,13 @@ class StorageService {
     if (!Array.isArray(merged.notifiedUpgradeIds)) {
       merged.notifiedUpgradeIds = [];
     }
-    if (!Array.isArray(merged.activeDailyQuestIds) || merged.activeDailyQuestIds.length === 0) {
-      merged.activeDailyQuestIds = ['daily_reach_350', 'daily_collect_12', 'daily_boost_3'];
+    const validDailyIds = ['daily_reach_3000', 'daily_collect_25', 'daily_boost_5'];
+    if (!Array.isArray(merged.activeDailyQuestIds) || merged.activeDailyQuestIds.length === 0 || !merged.activeDailyQuestIds.every(id => validDailyIds.includes(id))) {
+      merged.activeDailyQuestIds = ['daily_reach_3000', 'daily_collect_25', 'daily_boost_5'];
     }
-    if (!Array.isArray(merged.activeWeeklyQuestIds) || merged.activeWeeklyQuestIds.length === 0) {
-      merged.activeWeeklyQuestIds = ['weekly_altitude_8000', 'weekly_cores_100'];
+    const validWeeklyIds = ['weekly_altitude_30k', 'weekly_cores_80', 'weekly_combo_5'];
+    if (!Array.isArray(merged.activeWeeklyQuestIds) || merged.activeWeeklyQuestIds.length < 3 || !merged.activeWeeklyQuestIds.every(id => validWeeklyIds.includes(id))) {
+      merged.activeWeeklyQuestIds = ['weekly_altitude_30k', 'weekly_cores_80', 'weekly_combo_5'];
     }
     if (!Array.isArray(merged.claimedQuestIds)) {
       merged.claimedQuestIds = [];

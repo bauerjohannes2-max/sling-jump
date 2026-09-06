@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (v5.16.5 - Mission Overview & Quest Cards Floating-Dock Background Parity)  
+> **Status:** Release Candidate (v5.16.6 - Updated Daily & Weekly Mission Objectives)  
 > **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
@@ -34,6 +34,25 @@
 | **Zone 7: Meister-Kosmos** | 14.000 m+ | 16% | 2% | 30% | 44% | 8% | ~10% | 250 – 320 px | 74% dynamische Knoten, maximale Reach |
 
 ## 3. Chronologische Release-Historie
+
+### v5.16.6 (06.09.2026) - Updated Daily & Weekly Mission Objectives
+- **Neue Missionsziele (kurz, prägnant, commercial minimalism):**
+  - **Täglich (3 Quests):**
+    1. `3.000m in einem Flug` (`altitude_single`, Ziel: 3.000m, Belohnung: 200)
+    2. `25 Münzen sammeln` (`cores_cumulative`, Ziel: 25, Belohnung: 175)
+    3. `5 Katapulte nutzen` (`boost_cumulative`, Ziel: 5, Belohnung: 200)
+  - **Wöchentlich (3 Quests):**
+    1. `30.000m insgesamt` (`altitude_cumulative`, Ziel: 30.000m, Belohnung: 1.500)
+    2. `80 Münzen sammeln` (`cores_cumulative`, Ziel: 80, Belohnung: 1.200)
+    3. `5er-Combo schaffen` (`combo_single`, Ziel: 5, Belohnung: 1.400)
+- **Engine-Erweiterungen (`MissionManager.js`, `GameEngine.js`, `StorageService.js`):**
+  - `onCombo(comboLevel)` in `MissionManager` implementiert und an `GameEngine` Launch-Callback angebunden.
+  - `boost_cumulative` Unterstützung in `onSuperBoostUsed()` für kumulative Katapult-Nutzung hinzugefügt.
+  - `rotateWeeklyQuests` auf 3 simultane Wochen-Herausforderungen skaliert.
+  - Tab-Badges (`ALLE: 6`, `TÄGLICH: 3`, `WÖCHENTLICH: 3`) in `index.html` und `UIManager` synchronisiert.
+  - Schema-Migration in `StorageService` für unterbrechungsfreie Aktualisierung bestehender Spielstände implementiert.
+- **Automatisierte Verifikation:**
+  - Playwright Visual Runner (`05_hub_quests`, `05c_hub_quests_scrolled`, `05d_hub_quests_tab_weekly`, `05e_hub_quests_tab_daily`) mit 0 Konsolenfehlern validiert.
 
 ### v5.16.5 (06.09.2026) - Mission Overview & Quest Cards Floating-Dock Background Parity
 - **100% Farb- und Materialharmonisierung mit Hauptmenü-Dock (`style.css`):**

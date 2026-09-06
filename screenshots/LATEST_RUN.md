@@ -1,18 +1,17 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 6.9.2026, 19:53:05  
-> **Modus:** Selektiv (`05_hub_quests, 05b_hub_quests_claimed`)  
+> **Laufzeit:** 6.9.2026, 19:59:36  
+> **Modus:** Selektiv (`05e_hub_quests_tab_daily`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
-> **Frisch erfasste Screenshots in diesem Lauf:** 2  
+> **Frisch erfasste Screenshots in diesem Lauf:** 1  
 > **Garantierte Frische:** Alle unten aufgeführten Dateien wurden in diesem Testlauf frisch erzeugt.
 
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `05_hub_quests.png` | Quests Active | 19:53:03 | 377 KB | `c24d9b2850a4e2cd` |
-| `05b_hub_quests_claimed.png` | Quests Claimed | 19:53:04 | 288 KB | `88b77999d45753c2` |
+| `05e_hub_quests_tab_daily.png` | Quests Daily Tab Filter Scrolled | 19:59:36 | 339 KB | `d5e202d979f4b737` |
 
 
-### Gesamter Screenshot-Bestand (21 Dateien)
+### Gesamter Screenshot-Bestand (22 Dateien)
 | Datei | Letzte Erfassung | Dateigröße |
 | :--- | :--- | :--- |
 | `06_hub_stats.png` | 23:45:04 | 269 KB |
@@ -32,7 +31,8 @@
 | `12_mobile_skins.png` | 19:10:41 | 22 KB |
 | `14_dashboard_locked.png` | 19:10:43 | 45 KB |
 | `14b_dashboard_unlocked.png` | 19:10:44 | 202 KB |
-| `05c_hub_quests_scrolled.png` | 19:34:38 | 197 KB |
-| `05d_hub_quests_tab_weekly.png` | 19:34:39 | 183 KB |
-| `05_hub_quests.png` | 19:53:03 | 377 KB |
 | `05b_hub_quests_claimed.png` | 19:53:04 | 288 KB |
+| `05_hub_quests.png` | 19:58:29 | 378 KB |
+| `05c_hub_quests_scrolled.png` | 19:58:30 | 195 KB |
+| `05d_hub_quests_tab_weekly.png` | 19:58:31 | 195 KB |
+| `05e_hub_quests_tab_daily.png` | 19:59:36 | 339 KB |

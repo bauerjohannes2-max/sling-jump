@@ -136,97 +136,61 @@ const CONSTANTS = {
   // Tägliche Aufgaben (Dailies - 24h Reset)
   DAILY_QUEST_POOL: [
     {
-      id: 'daily_reach_350',
+      id: 'daily_reach_3000',
       title: 'HÖHEN-SPRINT',
-      description: '600m in einem Flug',
-      target: 600,
+      description: '3.000m in einem Flug',
+      target: 3000,
       type: 'altitude_single',
-      reward: 150,
-      category: 'daily'
-    },
-    {
-      id: 'daily_collect_12',
-      title: 'MÜNZ-SAMMLER',
-      description: '16 Münzen sammeln',
-      target: 16,
-      type: 'cores_single',
-      reward: 175,
-      category: 'daily'
-    },
-    {
-      id: 'daily_boost_3',
-      title: 'SUPER-BOOST',
-      description: '5 Katapulte nutzen',
-      target: 5,
-      type: 'boost_single',
       reward: 200,
       category: 'daily'
     },
     {
-      id: 'daily_slingshots_20',
-      title: 'FLUG-TRAINING',
-      description: '45 Sprünge ausführen',
-      target: 45,
-      type: 'slingshot_cumulative',
+      id: 'daily_collect_25',
+      title: 'MÜNZ-SAMMLER',
+      description: '25 Münzen sammeln',
+      target: 25,
+      type: 'cores_cumulative',
       reward: 175,
       category: 'daily'
     },
     {
-      id: 'daily_near_miss_3',
-      title: 'KNAPPE RETTUNG',
-      description: '5x vor Abgrund retten',
+      id: 'daily_boost_5',
+      title: 'SUPER-BOOST',
+      description: '5 Katapulte nutzen',
       target: 5,
-      type: 'near_miss_cumulative',
-      reward: 225,
+      type: 'boost_cumulative',
+      reward: 200,
       category: 'daily'
     }
   ],
 
-  // Wöchentliche Herausforderungen (Weeklies - 7 Tage Reset: ~2-2.5h aktive Spielzeit nötig)
+  // Wöchentliche Herausforderungen (Weeklies - 7 Tage Reset)
   WEEKLY_QUEST_POOL: [
     {
-      id: 'weekly_altitude_150k',
-      title: 'KOSMISCHER MARATHON',
-      description: '150.000m Gesamtdistanz',
-      target: 150000,
+      id: 'weekly_altitude_30k',
+      title: 'DISTANZ-MARATHON',
+      description: '30.000m insgesamt',
+      target: 30000,
       type: 'altitude_cumulative',
       reward: 1500,
       category: 'weekly'
     },
     {
-      id: 'weekly_cores_800',
+      id: 'weekly_cores_80',
       title: 'SCHATZKAMMER',
-      description: '800 Münzen sammeln',
-      target: 800,
+      description: '80 Münzen sammeln',
+      target: 80,
       type: 'cores_cumulative',
+      reward: 1200,
+      category: 'weekly'
+    },
+    {
+      id: 'weekly_combo_5',
+      title: 'COMBO-MEISTER',
+      description: '5er-Combo schaffen',
+      target: 5,
+      type: 'combo_single',
       reward: 1400,
-      category: 'weekly'
-    },
-    {
-      id: 'weekly_slingshots_1500',
-      title: 'ORBITAL-MEISTER',
-      description: '1.500 Sprünge ausführen',
-      target: 1500,
-      type: 'slingshot_cumulative',
-      reward: 1600,
-      category: 'weekly'
-    },
-    {
-      id: 'weekly_reach_8000_single',
-      title: 'EXOSPHÄREN-VORSTOSS',
-      description: '8.000m in einem Flug',
-      target: 8000,
-      type: 'altitude_single',
-      reward: 2000,
-      category: 'weekly'
-    },
-    {
-      id: 'weekly_near_miss_60',
-      title: 'REFLEX-AKROBAT',
-      description: '60 knappe Rettungen',
-      target: 60,
-      type: 'near_miss_cumulative',
-      reward: 1500,
       category: 'weekly'
     }
   ],

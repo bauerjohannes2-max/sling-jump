@@ -381,6 +381,7 @@ class GameEngine {
               this.triggerScreenShake(Math.min(4, this.slingshotCombo - 2));
             }
             this.storage.updateBestCombo(this.slingshotCombo);
+            if (this.missions) this.missions.onCombo(this.slingshotCombo);
           } else {
             // Normal release resets combo - smooth flight with zero shake
             this.slingshotCombo = 0;

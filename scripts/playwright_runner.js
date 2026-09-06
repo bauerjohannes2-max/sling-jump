@@ -123,8 +123,8 @@ async function runPlaywrightSuite() {
   // Set 1 unclaimed quest so the new separated badge counter is verified on the main menu
   await page.evaluate(() => {
     if (window._gameEngine) {
-      window._gameEngine.storage.data.questProgress['daily_reach_350'] = 600;
-      window._gameEngine.storage.data.activeDailyQuestIds = ['daily_reach_350', 'daily_collect_12', 'daily_boost_3'];
+      window._gameEngine.storage.data.questProgress['daily_reach_3000'] = 3000;
+      window._gameEngine.storage.data.activeDailyQuestIds = ['daily_reach_3000', 'daily_collect_25', 'daily_boost_5'];
       window._gameEngine.storage.data.claimedQuestIds = [];
       window._gameEngine.storage.save();
       window._gameEngine.ui.updateUnclaimedBadges();
@@ -185,13 +185,13 @@ async function runPlaywrightSuite() {
   }
 
   // 5. Aufgaben (Direct Quests Button)
-  if (shouldCapture('05_hub_quests.png') || shouldCapture('05b_hub_quests_claimed.png') || shouldCapture('05c_hub_quests_scrolled.png')) {
+  if (shouldCapture('05_hub_quests.png') || shouldCapture('05b_hub_quests_claimed.png') || shouldCapture('05c_hub_quests_scrolled.png') || shouldCapture('05d_hub_quests_tab_weekly.png') || shouldCapture('05e_hub_quests_tab_daily.png')) {
     console.log('[Playwright] Preparing ready-to-claim quest...');
     await page.evaluate(() => {
       if (window._gameEngine) {
-        window._gameEngine.storage.data.questProgress['daily_reach_350'] = 600;
-        window._gameEngine.storage.data.questProgress['daily_collect_12'] = 16;
-        window._gameEngine.storage.data.activeDailyQuestIds = ['daily_reach_350', 'daily_collect_12', 'daily_boost_3'];
+        window._gameEngine.storage.data.questProgress['daily_reach_3000'] = 3000;
+        window._gameEngine.storage.data.questProgress['daily_collect_25'] = 25;
+        window._gameEngine.storage.data.activeDailyQuestIds = ['daily_reach_3000', 'daily_collect_25', 'daily_boost_5'];
         window._gameEngine.storage.data.claimedQuestIds = [];
         window._gameEngine.storage.save();
         window._gameEngine.ui.updateUnclaimedBadges();
@@ -235,6 +235,19 @@ async function runPlaywrightSuite() {
       await sleep(350);
       console.log('[Playwright] Capturing 05d_hub_quests_tab_weekly.png');
       await captureScreenshot(page, '05d_hub_quests_tab_weekly.png', 'Quests Weekly Tab Filter');
+    }
+
+    if (shouldCapture('05e_hub_quests_tab_daily.png')) {
+      console.log('[Playwright] Testing #tab-missions-daily click...');
+      await page.click('#tab-missions-daily');
+      await sleep(200);
+      await page.evaluate(() => {
+        const scrollArea = document.querySelector('.quests-scroll-area');
+        if (scrollArea) scrollArea.scrollTop = 120;
+      });
+      await sleep(250);
+      console.log('[Playwright] Capturing 05e_hub_quests_tab_daily.png');
+      await captureScreenshot(page, '05e_hub_quests_tab_daily.png', 'Quests Daily Tab Filter Scrolled');
     }
 
     await page.click('#btn-quests-close');

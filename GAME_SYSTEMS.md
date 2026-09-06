@@ -87,8 +87,18 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **Themes:** `deep_space` (default), `cyber_grid`, `solar_flare`.
 
 ### 5.2 Quests (Missions)
-- **Daily Quests:** 3 active per 24h reset cycle (e.g. reach 350m, collect 12 credits, perform 3 boosts). Reward: 15–30 Credits.
-- **Weekly Quests:** 2 active per 7-day reset cycle (e.g. 8,000m cumulative altitude, 100 credits). Reward: 75–150 Credits + 1 Spark.
+- **Daily Quests (3 active per 24h cycle):**
+  1. `3.000m in einem Flug` (`altitude_single`, target: 3000, reward: 200 Credits)
+  2. `25 Münzen sammeln` (`cores_cumulative`, target: 25, reward: 175 Credits)
+  3. `5 Katapulte nutzen` (`boost_cumulative`, target: 5, reward: 200 Credits)
+- **Weekly Quests (3 active per 7-day cycle):**
+  1. `30.000m insgesamt` (`altitude_cumulative`, target: 30000, reward: 1500 Credits)
+  2. `80 Münzen sammeln` (`cores_cumulative`, target: 80, reward: 1200 Credits)
+  3. `5er-Combo schaffen` (`combo_single`, target: 5, reward: 1400 Credits)
+- **Tracking Engines:**
+  - `MissionManager.onCombo(comboLevel)` hooked directly into `GameEngine.js` launch callback.
+  - `MissionManager.onSuperBoostUsed()` tracks both single-run and cumulative catapult launches.
+  - `MissionManager.onRunFinished(totalAltitude)` accumulates lifetime meters into weekly marathon objectives.
 
 ---
 
