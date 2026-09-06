@@ -11,13 +11,21 @@
     "dev_j7xqu5w1fmtolsspd": 2,
     "dev_cd5n7qafrmtolgc8r": 10
   },
-  "totalRuns": 30,
-  "todayRuns": 7,
+  "totalRuns": 31,
+  "todayRuns": 8,
   "currentDate": "2026-09-06",
   "recordAltitude": 12163,
-  "totalAltitude": 54496,
-  "totalCoins": 237,
+  "totalAltitude": 55292,
+  "totalCoins": 241,
   "recentRuns": [
+    {
+      "timestamp": "2026-09-06T09:00:38.399Z",
+      "altitude": 796,
+      "coins": 4,
+      "shipId": "dart",
+      "duration": 16,
+      "isNewRecord": false
+    },
     {
       "timestamp": "2026-09-06T08:56:40.138Z",
       "altitude": 45,
@@ -248,14 +256,6 @@
       "coins": 7,
       "shipId": "dart",
       "duration": 37,
-      "isNewRecord": true
-    },
-    {
-      "timestamp": "2026-09-03T15:55:48.592Z",
-      "altitude": 725,
-      "coins": 0,
-      "shipId": "dart",
-      "duration": 16,
       "isNewRecord": true
     }
   ]
