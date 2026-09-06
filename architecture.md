@@ -85,10 +85,10 @@
   - **Cross-Device Cloud Sync Architecture:**
     - Seamless 0-click onboarding: `POST /api/player/sync` and secure `POST /api/player/restore` (with legacy `GET /api/player/:id` fallback) persisted in `data/players.json`.
     - One-click shareable link (`?id=XXXX`) auto-loads user profile across browsers and devices on boot.
-    - Manual 4-character ID transfer input with immediate local state restore and reactive UI reload.
     - **Hardened Authentication & Sync Protection:** Enforces strict password validation with `crypto.timingSafeEqual` before allowing save state overwrites on `POST /api/player/sync`. Credentials in restore requests are transmitted securely via `POST /api/player/restore` JSON body rather than cleartext URL query parameters. Backward compatible — unprotected accounts sync freely.
     - **Rate Limiting & Brute-Force Lockout Defense:** In-memory rate limiting throttles API endpoints to 60 req/min per IP, and enforces a 60-second lockout after 5 consecutive failed password attempts (`HTTP 429 Too Many Requests` with `Retry-After: 60`). Prevents automated enumeration of the 4-character ID space and credential dictionary attacks.
     - **CORS & Input Hardening:** Enforces strict origin whitelist (`localhost`, LAN subnets, GitHub Pages) rejecting untrusted origins with 403, limits request payloads to 100KB (`413 Payload Too Large`), validates Player ID format via regex, and sanitizes prototype-polluting keys (`__proto__`, `constructor`) from player states.
+    - **Server-Side PBKDF2 Cryptographic Salting:** Derives password verification hashes on the server via `crypto.pbkdf2Sync(clientHash, salt, 100000, 32, 'sha256')` with unique 16-byte random salts per account. Server stores `{ salt, derivedHash }` in `data/players.json`, neutralizing rainbow tables against leaked client SHA-256 hashes. Transparently verifies and upgrades legacy unsalted accounts on successful auth.
 - **Tutorial Modal Architecture (`#tutorial-modal`):**
   - Commercial arcade minimalism (Alto's Adventure style) with solid `#0b0d13` base and floating-dock parity cards.
   - 100% text-driven guide (zero video, zero runtime canvas animation loops) with 3 monochrome step cards:

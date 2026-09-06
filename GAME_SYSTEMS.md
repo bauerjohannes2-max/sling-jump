@@ -260,6 +260,11 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - Enforces 100KB body limit (`MAX_BODY_BYTES = 100 * 1024`) returning `413 Payload Too Large` to prevent memory exhaustion DoS.
   - Player ID syntax enforced via regex (`/^#[2-9A-HJ-NP-Z]{4,10}$/`) rejecting malicious formats with `400 Bad Request`.
   - Prototype pollution protection (`sanitizeState()`) strips dangerous keys (`__proto__`, `constructor`, `prototype`).
+- **Server-Side PBKDF2 Cryptographic Salting & Key Derivation:**
+  - Key derivation function: `crypto.pbkdf2Sync(clientHash, salt, 100000, 32, 'sha256')`.
+  - Account salt: Unique cryptographically random 16-byte hex salt (`crypto.randomBytes(16).toString('hex')`) per account.
+  - Stored format: Stores `{ salt, derivedHash }` in `playersStore[rawId].passwordHash`. Identical passwords produce distinct salts and derived hashes, rendering rainbow tables completely ineffective against stolen database records.
+  - Transparent upgrade: Existing legacy records containing raw SHA-256 strings without a salt are automatically upgraded to the salted PBKDF2 format upon successful authentication during sync or restore.
 - **UI:** Profile sync card shows password status badge, set/remove buttons. Load section includes password input field.
 
 ### 10.9 Tutorial Modal Text

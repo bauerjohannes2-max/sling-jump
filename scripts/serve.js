@@ -90,6 +90,11 @@ function loadPlayers() {
 
 let playersStore = loadPlayers();
 
+function reloadPlayers() {
+  playersStore = loadPlayers();
+  return playersStore;
+}
+
 function savePlayers() {
   try {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -114,6 +119,53 @@ function safeCompareHashes(a, b) {
   const bufB = Buffer.from(b, 'utf8');
   if (bufA.length !== bufB.length) return false;
   return crypto.timingSafeEqual(bufA, bufB);
+}
+
+// Server-Side PBKDF2 Password Key Derivation & Salting
+const PBKDF2_ITERATIONS = 100000;
+const PBKDF2_KEYLEN = 32;
+const PBKDF2_DIGEST = 'sha256';
+
+function derivePasswordKey(clientHash, salt) {
+  if (!clientHash || !salt) return null;
+  return crypto.pbkdf2Sync(clientHash, salt, PBKDF2_ITERATIONS, PBKDF2_KEYLEN, PBKDF2_DIGEST).toString('hex');
+}
+
+function createSaltedPassword(clientHash) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derivedHash = derivePasswordKey(clientHash, salt);
+  return { salt, derivedHash };
+}
+
+function hasPassword(record) {
+  if (!record || !record.passwordHash) return false;
+  if (typeof record.passwordHash === 'object' && record.passwordHash.derivedHash) return true;
+  if (typeof record.passwordHash === 'string' && record.passwordHash.trim().length > 0) return true;
+  return false;
+}
+
+function verifyPassword(storedPasswordHash, clientPwHash) {
+  if (!storedPasswordHash) {
+    return { valid: true, requiresPassword: false, needsUpgrade: false };
+  }
+  if (!clientPwHash) {
+    return { valid: false, requiresPassword: true, reason: 'MISSING_PASSWORD' };
+  }
+
+  // Salted PBKDF2 format: { salt, derivedHash }
+  if (typeof storedPasswordHash === 'object' && storedPasswordHash.salt && storedPasswordHash.derivedHash) {
+    const computed = derivePasswordKey(clientPwHash, storedPasswordHash.salt);
+    const valid = safeCompareHashes(storedPasswordHash.derivedHash, computed);
+    return { valid, requiresPassword: true, needsUpgrade: false };
+  }
+
+  // Legacy format: raw SHA-256 string without salt
+  if (typeof storedPasswordHash === 'string' && storedPasswordHash.trim().length > 0) {
+    const valid = safeCompareHashes(storedPasswordHash.trim(), clientPwHash);
+    return { valid, requiresPassword: true, needsUpgrade: true };
+  }
+
+  return { valid: true, requiresPassword: false, needsUpgrade: false };
 }
 
 // In-Memory Rate Limiting & Brute-Force Protection
@@ -324,8 +376,9 @@ function createServer() {
         const existing = playersStore[rawId];
 
         // If record exists with a password, enforce authentication before overwriting
-        if (existing && existing.passwordHash) {
-          if (!clientPwHash || !safeCompareHashes(existing.passwordHash, clientPwHash)) {
+        if (existing && hasPassword(existing)) {
+          const authResult = verifyPassword(existing.passwordHash, clientPwHash);
+          if (!authResult.valid) {
             recordAuthFailure(authKey, 5, 60000);
             res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
             res.end(JSON.stringify({ error: 'FALSCHES PASSWORT', requiresPassword: true }));
@@ -336,9 +389,23 @@ function createServer() {
         recordAuthSuccess(authKey);
 
         // Support explicit password removal if requested and authenticated
-        const finalPasswordHash = payload.removePassword
-          ? null
-          : (clientPwHash || (existing && existing.passwordHash) || null);
+        let finalPasswordHash = null;
+        if (payload.removePassword) {
+          finalPasswordHash = null;
+        } else if (clientPwHash) {
+          if (existing && existing.passwordHash && typeof existing.passwordHash === 'object' && existing.passwordHash.salt && existing.passwordHash.derivedHash) {
+            const computed = derivePasswordKey(clientPwHash, existing.passwordHash.salt);
+            if (safeCompareHashes(existing.passwordHash.derivedHash, computed)) {
+              finalPasswordHash = existing.passwordHash;
+            } else {
+              finalPasswordHash = createSaltedPassword(clientPwHash);
+            }
+          } else {
+            finalPasswordHash = createSaltedPassword(clientPwHash);
+          }
+        } else if (existing && hasPassword(existing)) {
+          finalPasswordHash = existing.passwordHash;
+        }
 
         playersStore[rawId] = {
           playerId: rawId,
@@ -357,7 +424,7 @@ function createServer() {
           ok: true,
           playerId: rawId,
           updatedAt: playersStore[rawId].updatedAt,
-          hasPassword: !!playersStore[rawId].passwordHash
+          hasPassword: hasPassword(playersStore[rawId])
         }));
       });
       return;
@@ -406,12 +473,18 @@ function createServer() {
           return;
         }
 
-        if (record.passwordHash) {
-          if (!clientPwHash || !safeCompareHashes(record.passwordHash, clientPwHash)) {
+        if (hasPassword(record)) {
+          const authResult = verifyPassword(record.passwordHash, clientPwHash);
+          if (!authResult.valid) {
             recordAuthFailure(authKey, 5, 60000);
             res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
             res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
             return;
+          }
+          // Transparent upgrade of legacy unsalted records upon successful authentication
+          if (authResult.needsUpgrade && clientPwHash) {
+            record.passwordHash = createSaltedPassword(clientPwHash);
+            savePlayers();
           }
         }
 
@@ -465,15 +538,23 @@ function createServer() {
       const record = playersStore[rawId];
       if (record) {
         // Validate password if record is password-protected
-        if (record.passwordHash && (!clientPw || !safeCompareHashes(record.passwordHash, clientPw))) {
-          recordAuthFailure(authKey, 5, 60000);
-          res.writeHead(403, {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Access-Control-Allow-Origin': corsOrigin || '*',
-            'Vary': 'Origin'
-          });
-          res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
-          return;
+        if (hasPassword(record)) {
+          const authResult = verifyPassword(record.passwordHash, clientPw);
+          if (!authResult.valid) {
+            recordAuthFailure(authKey, 5, 60000);
+            res.writeHead(403, {
+              'Content-Type': 'application/json; charset=utf-8',
+              'Access-Control-Allow-Origin': corsOrigin || '*',
+              'Vary': 'Origin'
+            });
+            res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
+            return;
+          }
+          // Transparent upgrade of legacy unsalted records upon successful authentication
+          if (authResult.needsUpgrade && clientPw) {
+            record.passwordHash = createSaltedPassword(clientPw);
+            savePlayers();
+          }
         }
 
         recordAuthSuccess(authKey);
@@ -675,4 +756,13 @@ if (require.main === module) {
   startServer();
 }
 
-module.exports = { startServer, getLocalIpAddress };
+module.exports = {
+  createServer,
+  startServer,
+  getLocalIpAddress,
+  reloadPlayers,
+  derivePasswordKey,
+  createSaltedPassword,
+  verifyPassword,
+  hasPassword
+};

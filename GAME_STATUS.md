@@ -55,6 +55,11 @@
   - Enforces 100KB request body limit returning `413 Payload Too Large` to prevent memory exhaustion DoS.
   - Regex validation on Player ID format (`/^#[2-9A-HJ-NP-Z]{4,10}$/`) blocks injection attempts with 400 Bad Request.
   - Sanitizes prototype-polluting properties (`__proto__`, `constructor`) from incoming state objects.
+- **Server-Side PBKDF2 Cryptographic Salting (`scripts/serve.js`):**
+  - Migrated server-side storage in `playersStore[rawId].passwordHash` to salted PBKDF2 derivations (`100000` iterations, 32 bytes, sha256).
+  - Generates unique 16-byte random salts per account (`crypto.randomBytes(16)`), ensuring identical passwords yield distinct stored hashes and rainbow tables are neutralized.
+  - Transparent backward compatibility: legacy unsalted records (raw string hashes) verify correctly and are automatically upgraded to PBKDF2 upon successful authentication on sync or restore.
+  - Verified with 7-part automated unit & integration test suite (`test_pbkdf2_auth.js`) + Playwright runner 06 (0 console errors).
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

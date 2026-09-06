@@ -18,7 +18,7 @@ This document defines the security architecture and incremental hardening roadma
 - [x] **Step 1: Auth Bypass Patch & POST Restore Migration** (Completed - Commit `5a0763e`)
 - [x] **Step 2: In-Memory Rate Limiting & Brute-Force Lockout** (Completed - Commit `a4d6ab0`)
 - [x] **Step 3: CORS Whitelisting, 100KB Body Ceiling & Prototype Sanitization** (Completed - Commit `17345e8`)
-- [ ] **Step 4: Server-Side Cryptographic Salt & Key Derivation (PBKDF2)**
+- [x] **Step 4: Server-Side Cryptographic Salt & Key Derivation (PBKDF2)** (Completed)
 - [ ] **Step 5: Ephemeral Session Tokens (Eliminate Per-Request Credential Transmission)**
 - [ ] **Step 6: Collision-Resistant 8-Character Player ID Architecture**
 - [ ] **Step 7: Save State Schema Validation & Numeric Bounds Enforcement**
@@ -59,23 +59,18 @@ This document defines the security architecture and incremental hardening roadma
 
 ---
 
-### [ ] Step 4: Server-Side Cryptographic Salt & Key Derivation (PBKDF2)
-* **Status:** NEXT UP
-* **Problem:** Server stores raw client SHA-256 in `data/players.json`. If leaked, rainbow tables can precompute passwords.
-* **Goal:** Store only slow, salted key derivations on the server.
-* **Files to Modify:**
-  * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js)
-* **Implementation Details:**
-  1. For new or updated passwords, generate 16-byte random salt: `const salt = crypto.randomBytes(16).toString('hex');`
-  2. Derive password key using standard PBKDF2: `crypto.pbkdf2Sync(clientHash, salt, 100000, 32, 'sha256').toString('hex')`
-  3. In `playersStore[rawId]`, store `{ salt, derivedHash }` instead of raw `passwordHash`.
-  4. **Backward Compatibility:** If an existing record has `passwordHash` (string) without `salt`, verify against the raw hash. Upon successful authentication, transparently upgrade the record to the salted PBKDF2 format.
-* **Verification:**
-  * Automated test: Verify new accounts get unique salts, identical passwords produce distinct stored hashes, and legacy unsalted records auto-upgrade seamlessly.
+### [x] Step 4: Server-Side Cryptographic Salt & Key Derivation (PBKDF2)
+* **Status:** COMPLETED
+* **Accomplished:**
+  * Server now derives slow, salted password hashes via `crypto.pbkdf2Sync(clientHash, salt, 100000, 32, 'sha256')`.
+  * Generates cryptographically secure 16-byte random salts per account (`crypto.randomBytes(16).toString('hex')`).
+  * Stores `{ salt, derivedHash }` in `playersStore[rawId].passwordHash` instead of clear/unsalted client hashes. Identical passwords produce completely distinct salts and derived hashes.
+  * Preserves full backward compatibility: legacy records with raw string hashes are verified and transparently upgraded to PBKDF2 on successful authentication during sync or restore.
 
 ---
 
 ### [ ] Step 5: Ephemeral Session Tokens (Eliminate Per-Request Password Hashes)
+* **Status:** NEXT UP
 * **Goal:** Stop transmitting password hashes on active periodic syncs (`saveDeferred` every few seconds).
 * **Files to Modify:**
   * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js), [`js/services/StorageService.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/StorageService.js)
