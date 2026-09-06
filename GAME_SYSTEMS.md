@@ -146,8 +146,9 @@ Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen tägliche
 * **3. GPU-Compositor Entlastung (`css/style.css`):**
   * Beseitigung aller `backdrop-filter: blur(14px)` und `blur(10px)` Anweisungen von permanent über dem 60 FPS Canvas eingeblendeten HUD-Elementen (`.score-container`, `#btn-hud-pause`, `.hud-tutorial-tip`).
   * Ersatz durch opake Glasfarben (`rgba(15, 23, 42, 0.88)`), wodurch teure GPU Texture-Readbacks und Gaussian-Blur Passes pro Frame entfallen.
-* **4. Gebatchte Canvas-Renderläufe (`WorldManager.js`):**
-  * **Dual-Pass Starfield:** 200–500 Sterne werden ebenenweise in zwei Durchläufen per gebatchtem `fillRect()` gezeichnet (`context.fill()`), statt hunderter einzelner `beginPath()`, `arc()` und `globalAlpha` State-Wechsel.
+* **4. Gebatchte Canvas-Renderläufe & Kinetisches Sternenfeld (`WorldManager.js`):**
+  * **Dual-Pass Kinetisches Sternenfeld (v5.7.0):** 3-Ebenen-Parallaxensystem (Layer 0.20, 0.45 und 0.75). Sterne werden in zwei optimierten Passes gezeichnet: Pass A für sanfte Hintergrund-Mikrosterne (Radius 1.0px, weiß/silber, Alpha 0.40–0.90) und Pass B für leuchtende Mittel- und Vordergrund-Himmelskörper (Radius 1.4–2.4px, weiß/cyan, Alpha 0.65–1.0) samt 4-Punkt-Kreuz-Glints.
+  * **Reine Top-to-Bottom Kinematik:** Horizontaler Drift (`driftX`) ist vollständig eliminiert (`finalX = star.x`). In Menüs treibt `cameraY += 34 * rawDt` das Sternenfeld vertikal von oben nach unten, nahtlos umlaufend über `(star.y + cameraY * star.layer) % height`.
   * **Gebatchte Warp-Streifen:** Alle Hyperspace-Partikel werden in einem einzigen zusammengesetzten Pfad gezeichnet.
   * **Entfernung von `shadowBlur: 18`:** An der unteren Todesgrenze (`drawBottomDeathBoundary`) durch mehrstufige kontraststarke Linienzüge ersetzt.
 * **5. Quantisierter Partikel- & Glow-Cache (`ParticleSystem.js`, `Node.js`, `EnergyOrb.js`):**

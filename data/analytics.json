@@ -1,5 +1,5 @@
 {
-  "totalVisits": 52,
+  "totalVisits": 53,
   "uniqueDevices": {
     "dev_lw4pn7cacmtlpezo2": 6,
     "dev_kqm0lbdr5mtokkmi0": 21,
@@ -9,15 +9,39 @@
     "dev_dcnitoprwmtolpsob": 2,
     "dev_fkkcyiamhmtolr251": 2,
     "dev_j7xqu5w1fmtolsspd": 2,
-    "dev_cd5n7qafrmtolgc8r": 13
+    "dev_cd5n7qafrmtolgc8r": 14
   },
-  "totalRuns": 37,
-  "todayRuns": 14,
+  "totalRuns": 40,
+  "todayRuns": 17,
   "currentDate": "2026-09-06",
   "recordAltitude": 12163,
-  "totalAltitude": 61246,
-  "totalCoins": 272,
+  "totalAltitude": 63093,
+  "totalCoins": 287,
   "recentRuns": [
+    {
+      "timestamp": "2026-09-06T09:15:49.153Z",
+      "altitude": 45,
+      "coins": 1,
+      "shipId": "dart",
+      "duration": 2,
+      "isNewRecord": false
+    },
+    {
+      "timestamp": "2026-09-06T09:15:37.298Z",
+      "altitude": 44,
+      "coins": 0,
+      "shipId": "dart",
+      "duration": 2,
+      "isNewRecord": false
+    },
+    {
+      "timestamp": "2026-09-06T09:14:56.604Z",
+      "altitude": 1758,
+      "coins": 14,
+      "shipId": "dart",
+      "duration": 31,
+      "isNewRecord": false
+    },
     {
       "timestamp": "2026-09-06T09:06:35.906Z",
       "altitude": 2069,
@@ -232,30 +256,6 @@
       "coins": 3,
       "shipId": "dart",
       "duration": 41,
-      "isNewRecord": false
-    },
-    {
-      "timestamp": "2026-09-03T16:22:33.584Z",
-      "altitude": 2955,
-      "coins": 7,
-      "shipId": "dart",
-      "duration": 44,
-      "isNewRecord": true
-    },
-    {
-      "timestamp": "2026-09-03T16:19:30.277Z",
-      "altitude": 1942,
-      "coins": 5,
-      "shipId": "dart",
-      "duration": 26,
-      "isNewRecord": false
-    },
-    {
-      "timestamp": "2026-09-03T16:16:29.846Z",
-      "altitude": 226,
-      "coins": 1,
-      "shipId": "dart",
-      "duration": 7,
       "isNewRecord": false
     }
   ]

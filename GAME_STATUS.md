@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (RC57 - v5.6.0 - Cinematic Flight Debrief Overhaul: Dynamic Trajectory Ascent, Shockwave Impact Beacon, Edge-to-Edge Container Fit, Red Shimmer Elimination & Fluid Death Slow-Mo Transition)  
+> **Status:** Release Candidate (RC58 - v5.7.0 - Main Menu Background Kinetic Starfield Reimplementation: Top-to-Bottom Parallax Drift, Transparent Overlay Hygiene, High-Fidelity Circular Stars & 4-Point Glints)  
 > **Permanenter Live-Link (24/7 weltweit):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Letzte Aktualisierung:** 06.09.2026  
@@ -56,7 +56,26 @@ Der Performance-Modus (`performanceMode`) wurde speziell für mobile Browser, ä
 
 ## 2. Chronologischer Versions- & Entwicklungsverlauf (Historische Dokumentation)
 
-### v5.6.0 (06.09.2026) - Cinematic Flight Debrief Overhaul: Dynamic Trajectory Ascent, Shockwave Impact Beacon, Edge-to-Edge Container Fit, Red Shimmer Elimination & Fluid Death Slow-Mo Transition
+### v5.7.0 (06.09.2026) - Main Menu Background Kinetic Starfield Reimplementation: Top-to-Bottom Parallax Drift, Transparent Overlay Hygiene, High-Fidelity Circular Stars & 4-Point Glints
+* **1. Reimplementierung der Hauptmenü-Hintergrund-Sterne (`style.css`):**
+  * Das Overlay `#menu-overlay.state-overlay` besaß zuvor `background: rgba(2, 3, 7, 0.95)`, welches 95% des Canvas-Lichts blockierte und das Sternenfeld im Hauptmenü unsichtbar machte.
+  * Hintergrund auf `background: transparent;` umgestellt, sodass der tiefe kosmische Canvas-Hintergrund mit seinen schwebenden Sternen unmittelbar und brillant hinter den Menü-Karten, dem schwebenden Schiff und den Buttons hindurchscheint.
+* **2. Reiner Top-to-Bottom Schwebe-Drift ohne horizontale Ablenkung (`WorldManager.js`):**
+  * Sämtliche horizontalen Drift-Vektoren (`driftX`) in Pass A, Pass B und Hyperspace-Warp entfernt (`finalX = star.x;`).
+  * Die Sterne driften nun mit stetiger vertikaler Parallaxe (`starY = (star.y + cameraY * star.layer) % height`) rein von oben nach unten durch das Blickfeld und wickeln nahtlos am oberen Bildschirmrand wieder ein.
+* **3. 3-Stufen-Parallaxen-Tiefe & Rundpunkt-Rendering (`WorldManager.js`):**
+  * Sternenfeld auf 3 Tiefenebenen erweitert:
+    - Ebene 1 (Layer 0.20, 45%): Zarte Hintergrund-Mikrosterne (Radius 1.0px, sanftes Glitzern 0.40–0.90 Alpha).
+    - Ebene 2 (Layer 0.45, 35%): Kristallklare Mittelgrund-Sterne (Radius 1.4–2.0px, 0.65–1.0 Alpha).
+    - Ebene 3 (Layer 0.75, 20%): Leuchtende Vordergrund-Himmelskörper mit lebendigen 4-Punkt-Kreuz-Glints (`star.size >= 1.5 && (i & 3) === 0`) und Neon-Cyan-Farbtupfern.
+  * Kantige eckige 1px/2px-Rechtecke durch hochpräzise weiche Canvas-Kreise (`context.arc()`) ersetzt.
+* **4. Fortlaufender Menü-Kameradrift über alle Menü-Modale (`GameEngine.js`):**
+  * Die Schwebegeschwindigkeit wurde auf geschmeidige 34 px/s kalibriert.
+  * Der Ambient-Drift greift nun einheitlich über alle Menü-Modi (`MENU`, `SETTINGS`, `STATS`, `LEADERBOARD`, `QUESTS`, `SHOP`), sodass der Sternenhimmel auch beim Durchstöbern von Statistiken oder der Bestenliste lebendig im Hintergrund fließt.
+  * Beim Zustandswechsel zurück zu `MENU` werden `player = null` und `gameStarted = false` sauber bereinigt.
+* **5. Verifikation & Performance:**
+  * Selective Playwright Visual Test Suite (`01_main_menu.png`, `11_mobile_responsive.png`) mit 0 Konsolenfehlern und 0 Ausnahmen bestanden.
+  * Real-Time Gameplay FPS Benchmark: 120.1 FPS im Durchschnitt, 0.26 ms JS-Frame-Budget (Ziel <= 5.0 ms), 0 Hitches > 25 ms.
 * **1. Sequenzierte Trajektorie-Aufstiegsanimation ("at first the line should come up to where you died and then the rest should come"):**
   * Entkoppelte Staging-Phasen: Nach dem Spielertod zeichnet sich zunächst ausschließlich die Trajektorie-Linie (`stroke-dashoffset`) in einer 850ms weichen Bézier-Bewegung von der Basis (000 m) bis zur exakten Absturzhöhe hoch.
   * Sobald die Linie den Absturzpunkt erreicht, detoniert der Absturz-Bake-Leuchtpunkt mit einem radialen Schockwellen-Impuls (`debrief-shockwave-pulse`).

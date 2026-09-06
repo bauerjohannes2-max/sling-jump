@@ -1,20 +1,20 @@
 {
   "suite": "Sling Jump Automated Playwright Visual Verification",
-  "mode": "Selective (01)",
-  "executedAt": "2026-09-06T09:13:51.687Z",
-  "localTimestamp": "6.9.2026, 11:13:51",
+  "mode": "Selective (11)",
+  "executedAt": "2026-09-06T09:15:35.618Z",
+  "localTimestamp": "6.9.2026, 11:15:35",
   "consoleErrorsCount": 0,
   "consoleErrors": [],
   "selectiveScreenshotsCount": 1,
   "totalCatalogScreenshotsCount": 20,
   "freshRunManifest": [
     {
-      "filename": "01_main_menu.png",
-      "description": "Main Menu",
-      "sizeKb": 310,
-      "capturedAt": "2026-09-06T09:13:51.239Z",
-      "localTime": "11:13:51",
-      "sha256": "e3b7dfe010fe131a"
+      "filename": "11_mobile_responsive.png",
+      "description": "Mobile Responsive Menu",
+      "sizeKb": 240,
+      "capturedAt": "2026-09-06T09:15:35.175Z",
+      "localTime": "11:15:35",
+      "sha256": "a538d9cf3834a88d"
     }
   ],
   "manifest": [
@@ -139,14 +139,6 @@
       "sha256": "c5599a76e770a350"
     },
     {
-      "filename": "11_mobile_responsive.png",
-      "description": "Mobile Responsive Menu",
-      "sizeKb": 185,
-      "capturedAt": "2026-09-06T09:08:23.538Z",
-      "localTime": "11:08:23",
-      "sha256": "028aa8822d91f8f2"
-    },
-    {
       "filename": "10_game_over.png",
       "description": "Game Over Screen",
       "sizeKb": 687,
@@ -173,10 +165,18 @@
     {
       "filename": "01_main_menu.png",
       "description": "Main Menu",
-      "sizeKb": 310,
-      "capturedAt": "2026-09-06T09:13:51.239Z",
-      "localTime": "11:13:51",
-      "sha256": "e3b7dfe010fe131a"
+      "sizeKb": 312,
+      "capturedAt": "2026-09-06T09:15:16.792Z",
+      "localTime": "11:15:16",
+      "sha256": "8006b9294a6c874a"
+    },
+    {
+      "filename": "11_mobile_responsive.png",
+      "description": "Mobile Responsive Menu",
+      "sizeKb": 240,
+      "capturedAt": "2026-09-06T09:15:35.175Z",
+      "localTime": "11:15:35",
+      "sha256": "a538d9cf3834a88d"
     }
   ]
 }

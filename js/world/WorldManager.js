@@ -33,17 +33,17 @@ class WorldManager {
 
   initStarfield(width, height) {
     this.stars = [];
-    const numStars = Math.floor((width * height) / 4000);
+    const numStars = Math.floor((width * height) / 3200);
     for (let i = 0; i < numStars; i++) {
       const r = Math.random();
       const layer = r < 0.45 ? 0.20 : (r < 0.80 ? 0.45 : 0.75);
       this.stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.random() * 1.6 + 0.6,
+        size: Math.random() * 1.6 + 0.8,
         layer: layer,
         twinkleSpeed: Math.random() * 1.5 + 0.8,
-        baseAlpha: Math.random() * 0.5 + 0.25
+        baseAlpha: Math.random() * 0.45 + 0.35
       });
     }
   }
@@ -485,9 +485,9 @@ class WorldManager {
         const finalY = starY < 0 ? starY + height : starY;
         const finalX = star.x;
         const twinkle = Math.sin(now * 0.0018 * star.twinkleSpeed + star.x) * 0.15;
-        context.globalAlpha = Math.max(0.35, Math.min(0.85, star.baseAlpha + twinkle));
+        context.globalAlpha = Math.max(0.40, Math.min(0.90, star.baseAlpha + twinkle));
         context.beginPath();
-        context.arc(finalX, finalY, Math.max(0.8, star.size * 0.75), 0, Math.PI * 2);
+        context.arc(finalX, finalY, Math.max(1.0, star.size * 0.8), 0, Math.PI * 2);
         context.fill();
       }
 
@@ -499,17 +499,17 @@ class WorldManager {
         const finalY = starY < 0 ? starY + height : starY;
         const finalX = star.x;
         const twinkle = Math.sin(now * 0.0022 * star.twinkleSpeed + star.x) * 0.25;
-        context.globalAlpha = Math.max(0.55, Math.min(1.0, star.baseAlpha + twinkle + 0.2));
+        context.globalAlpha = Math.max(0.65, Math.min(1.0, star.baseAlpha + twinkle + 0.25));
 
         context.fillStyle = (i % 3 === 0) ? (theme.primary || '#00f0ff') : '#ffffff';
         context.beginPath();
-        context.arc(finalX, finalY, Math.max(1.2, star.size), 0, Math.PI * 2);
+        context.arc(finalX, finalY, Math.max(1.4, star.size), 0, Math.PI * 2);
         context.fill();
 
         // Subtle cross-glint on radiant stars (zero allocations)
-        if (star.size >= 1.6 && (i & 3) === 0) {
-          context.fillRect((finalX - 3) | 0, finalY | 0, 7, 1);
-          context.fillRect(finalX | 0, (finalY - 3) | 0, 1, 7);
+        if (star.size >= 1.5 && (i & 3) === 0) {
+          context.fillRect((finalX - 3) | 0, (finalY - 0.5) | 0, 7, 1);
+          context.fillRect((finalX - 0.5) | 0, (finalY - 3) | 0, 1, 7);
         }
       }
       context.globalAlpha = 1.0;
