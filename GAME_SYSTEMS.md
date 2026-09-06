@@ -251,6 +251,10 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **Timing-Safe Sync Verification:** `POST /api/player/sync` checks if the existing record is password-protected. If protected, incoming `passwordHash` is strictly required and compared via `crypto.timingSafeEqual`. Omitting the hash or supplying an invalid hash returns 403 `FALSCHES PASSWORT` and rejects state overwrite.
 - **Authenticated Password Removal:** Removing a password requires an authenticated sync payload (`removePassword: true` with valid `passwordHash`), ensuring unauthorized callers cannot strip protection.
 - **Secure Restore Endpoint:** `restoreFromCloud(id, password)` issues `POST /api/player/restore` with JSON body `{ playerId, passwordHash }`. Eliminates credential exposure in URL query strings and server access logs.
+- **In-Memory Rate Limiting & Brute-Force Lockout:** Protects `/api/player/sync` and `/api/player/restore` against automated attacks:
+  - Global IP threshold: Max 60 requests per 60-second window per IP.
+  - Brute-force threshold: Max 5 consecutive failed authentication attempts per `IP:PlayerId`. Exceeding this triggers an immediate 60-second lockout returning `HTTP 429 Too Many Requests` with a standard `Retry-After: 60` header and remaining cooldown countdown.
+  - Successful authentication immediately resets the failure counter.
 - **UI:** Profile sync card shows password status badge, set/remove buttons. Load section includes password input field.
 
 ### 10.9 Tutorial Modal Text

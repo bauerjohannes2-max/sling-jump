@@ -116,6 +116,71 @@ function safeCompareHashes(a, b) {
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
+// In-Memory Rate Limiting & Brute-Force Protection
+const ipRateLimitStore = new Map(); // ip -> { count, resetTime }
+const authLockoutStore = new Map(); // key (ip:playerId) -> { failures, lockoutUntil }
+
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) return forwarded.split(',')[0].trim();
+  return req.socket ? req.socket.remoteAddress : '127.0.0.1';
+}
+
+function checkIpRateLimit(ip, maxRequests = 60, windowMs = 60000) {
+  const now = Date.now();
+  let record = ipRateLimitStore.get(ip);
+  if (!record || now > record.resetTime) {
+    record = { count: 1, resetTime: now + windowMs };
+    ipRateLimitStore.set(ip, record);
+    return { limited: false };
+  }
+  record.count += 1;
+  if (record.count > maxRequests) {
+    const retryAfter = Math.max(1, Math.ceil((record.resetTime - now) / 1000));
+    return { limited: true, retryAfter };
+  }
+  return { limited: false };
+}
+
+function checkAuthLockout(key) {
+  const now = Date.now();
+  const record = authLockoutStore.get(key);
+  if (record && record.lockoutUntil > now) {
+    const retryAfter = Math.max(1, Math.ceil((record.lockoutUntil - now) / 1000));
+    return { locked: true, retryAfter };
+  }
+  return { locked: false };
+}
+
+function recordAuthFailure(key, maxFailures = 5, lockoutMs = 60000) {
+  const now = Date.now();
+  let record = authLockoutStore.get(key);
+  if (!record || (record.lockoutUntil && record.lockoutUntil < now)) {
+    record = { failures: 1, lockoutUntil: 0 };
+  } else {
+    record.failures += 1;
+  }
+  if (record.failures >= maxFailures) {
+    record.lockoutUntil = now + lockoutMs;
+  }
+  authLockoutStore.set(key, record);
+}
+
+function recordAuthSuccess(key) {
+  authLockoutStore.delete(key);
+}
+
+const rateLimitCleanupInterval = setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of ipRateLimitStore.entries()) {
+    if (now > v.resetTime) ipRateLimitStore.delete(k);
+  }
+  for (const [k, v] of authLockoutStore.entries()) {
+    if (v.lockoutUntil && now > v.lockoutUntil) authLockoutStore.delete(k);
+  }
+}, 300000);
+if (rateLimitCleanupInterval.unref) rateLimitCleanupInterval.unref();
+
 function createServer() {
   return http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
@@ -129,6 +194,25 @@ function createServer() {
       });
       res.end();
       return;
+    }
+
+    // Rate limit check on API endpoints
+    const clientIp = getClientIp(req);
+    if (reqUrl.startsWith('/api/player/')) {
+      const ipLimit = checkIpRateLimit(clientIp, 60, 60000);
+      if (ipLimit.limited) {
+        res.writeHead(429, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Retry-After': String(ipLimit.retryAfter)
+        });
+        res.end(JSON.stringify({
+          ok: false,
+          error: `ZU VIELE ANFRAGEN. BITTE ${ipLimit.retryAfter} SEKUNDEN WARTEN.`,
+          retryAfter: ipLimit.retryAfter
+        }));
+        return;
+      }
     }
 
     // API: Player Cloud Sync (POST)
@@ -146,6 +230,22 @@ function createServer() {
           }
           if (!rawId.startsWith('#')) rawId = '#' + rawId;
 
+          const authKey = `${clientIp}:${rawId}`;
+          const lockCheck = checkAuthLockout(authKey);
+          if (lockCheck.locked) {
+            res.writeHead(429, {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Retry-After': String(lockCheck.retryAfter)
+            });
+            res.end(JSON.stringify({
+              ok: false,
+              error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
+              retryAfter: lockCheck.retryAfter
+            }));
+            return;
+          }
+
           // Password handling: client sends pre-hashed SHA-256
           const clientPwHash = (payload.passwordHash || '').trim() || null;
           const existing = playersStore[rawId];
@@ -153,11 +253,14 @@ function createServer() {
           // If record exists with a password, enforce authentication before overwriting
           if (existing && existing.passwordHash) {
             if (!clientPwHash || !safeCompareHashes(existing.passwordHash, clientPwHash)) {
+              recordAuthFailure(authKey, 5, 60000);
               res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
               res.end(JSON.stringify({ error: 'FALSCHES PASSWORT', requiresPassword: true }));
               return;
             }
           }
+
+          recordAuthSuccess(authKey);
 
           // Support explicit password removal if requested and authenticated
           const finalPasswordHash = payload.removePassword
@@ -205,6 +308,22 @@ function createServer() {
           }
           if (!rawId.startsWith('#')) rawId = '#' + rawId;
 
+          const authKey = `${clientIp}:${rawId}`;
+          const lockCheck = checkAuthLockout(authKey);
+          if (lockCheck.locked) {
+            res.writeHead(429, {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Retry-After': String(lockCheck.retryAfter)
+            });
+            res.end(JSON.stringify({
+              ok: false,
+              error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
+              retryAfter: lockCheck.retryAfter
+            }));
+            return;
+          }
+
           const clientPwHash = (payload.passwordHash || '').trim() || null;
           const record = playersStore[rawId];
 
@@ -216,11 +335,14 @@ function createServer() {
 
           if (record.passwordHash) {
             if (!clientPwHash || !safeCompareHashes(record.passwordHash, clientPwHash)) {
+              recordAuthFailure(authKey, 5, 60000);
               res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
               res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
               return;
             }
           }
+
+          recordAuthSuccess(authKey);
 
           res.writeHead(200, {
             'Content-Type': 'application/json; charset=utf-8',
@@ -241,6 +363,22 @@ function createServer() {
       let rawId = decodeURIComponent(reqUrl.replace('/api/player/', '')).trim().toUpperCase();
       if (!rawId.startsWith('#')) rawId = '#' + rawId;
 
+      const authKey = `${clientIp}:${rawId}`;
+      const lockCheck = checkAuthLockout(authKey);
+      if (lockCheck.locked) {
+        res.writeHead(429, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+          'Retry-After': String(lockCheck.retryAfter)
+        });
+        res.end(JSON.stringify({
+          ok: false,
+          error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
+          retryAfter: lockCheck.retryAfter
+        }));
+        return;
+      }
+
       // Parse password hash from query string
       const fullUrl = req.url;
       const qIdx = fullUrl.indexOf('?');
@@ -251,6 +389,7 @@ function createServer() {
       if (record) {
         // Validate password if record is password-protected
         if (record.passwordHash && (!clientPw || !safeCompareHashes(record.passwordHash, clientPw))) {
+          recordAuthFailure(authKey, 5, 60000);
           res.writeHead(403, {
             'Content-Type': 'application/json; charset=utf-8',
             'Access-Control-Allow-Origin': '*'
@@ -258,6 +397,9 @@ function createServer() {
           res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
           return;
         }
+
+        recordAuthSuccess(authKey);
+
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
           'Access-Control-Allow-Origin': '*',

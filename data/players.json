@@ -1,16 +1,7 @@
 {
-  "#TEST": {
-    "playerId": "#TEST",
-    "updatedAt": "2026-09-06T18:36:32.319Z",
-    "state": {
-      "cores": 50,
-      "highScore": 1200,
-      "pilotName": "TestPilot"
-    }
-  },
   "#ZKJJ": {
     "playerId": "#ZKJJ",
-    "updatedAt": "2026-09-06T19:16:43.010Z",
+    "updatedAt": "2026-09-06T19:18:32.161Z",
     "state": {
       "cores": 0,
       "hyperCrystals": 1,
@@ -67,6 +58,14 @@
         "performanceMode": false,
         "showFps": false
       }
+    }
+  },
+  "#RLTEST": {
+    "playerId": "#RLTEST",
+    "updatedAt": "2026-09-06T19:20:08.958Z",
+    "passwordHash": "valid_password_hash_xyz",
+    "state": {
+      "coins": 100
     }
   }
 }

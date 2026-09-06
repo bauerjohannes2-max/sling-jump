@@ -46,6 +46,10 @@
   - Constant-time hash comparison using `crypto.timingSafeEqual` prevents timing side-channel attacks.
   - Replaced query-param restore (`GET /api/player/:id?pw=hash`) with secure `POST /api/player/restore` JSON body transmission, eliminating hash leakage into URL logs.
   - Validated with 9 automated security test cases covering bypass attempts, invalid hashes, constant-time checks, and authenticated removal.
+- **Rate Limiting & Brute-Force Lockout Defense (`scripts/serve.js`, `StorageService.js`):**
+  - In-memory rate limiting throttles API endpoints to 60 req/min per IP to block ID enumeration and scrapers.
+  - Brute-force lockout triggers after 5 failed authentication attempts per IP+account, enforcing a 60-second cooldown (`HTTP 429 Too Many Requests` with `Retry-After: 60`).
+  - Client handles 429 responses with user-facing countdown toast guidance.
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

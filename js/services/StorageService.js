@@ -370,6 +370,10 @@ class StorageService {
         }
         return { success: false, message: errData.error || 'FALSCHES PASSWORT' };
       }
+      if (res.status === 429) {
+        const errData = await res.json().catch(() => ({}));
+        return { success: false, message: errData.error || 'ZU VIELE VERSUCHE! BITTE WARTEN.' };
+      }
       if (!res.ok) {
         return { success: false, message: `Spieler ${cleanId} nicht gefunden.` };
       }
