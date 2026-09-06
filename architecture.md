@@ -76,8 +76,8 @@
   - Project-wide red theme synchronized to the title plate `#e11d48` across CSS variables (`--accent-crimson`, `--danger`, `--btn-crimson-*`), buttons, ship chevrons, mine entities, collision shards, death laser horizon, debrief reticle, and developer dashboard.
 - **Mission Hub Architecture (`#quests-modal`):**
   - Rigid height geometry (`580px`, `flex: 1; min-height: 0;` scroll area) guarantees absolute stability with zero height shifting across category filter changes (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`).
-  - Solid dark modal base (`#0b0d13` modal fill, `1px solid rgba(255, 255, 255, 0.08)` border) with floating-dock parity fill (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`) applied to `.missions-overview-bar` and `.quest-card`.
+  - Solid dark modal base (`#0b0d13` modal fill, `1px solid rgba(255, 255, 255, 0.08)` border) with floating-dock parity fill (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`) applied to `.quest-card`.
+  - Minimalist direct category filter navigation (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`) positioned directly below title lockup without redundant progress header bar for maximum vertical space and clarity.
   - Minimalist top-right reward lockup (`.quest-card-reward`, `+ ... C`) with transparent background, zero border box, and full-width progress meter. Enlarged tracked section titles (`13.5px`, bold white) with nowrap protection.
-  - Pending rewards lockup (`.missions-rewards-pending`) aligns Rajdhani text, Orbitron digits, and 14px bullion coin SVG on a unified optical centerline via `inline-flex` and precision top offset.
 
 

@@ -1,6 +1,6 @@
 # Sling Jump - Game Systems & Technical Specification Manual
 
-> Live Version: 5.16.7 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
+> Live Version: 5.16.8 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
 
 ---
 
@@ -136,7 +136,7 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - Dynamic gameplay nodes are hidden during menu/modal states to preserve background starfield clarity.
 - **Mission Hub Architecture (`#quests-modal`):**
   - **Fixed Geometric Stability:** Enforces constant card height (`height: 580px; max-height: 88vh`) with `flex: 1; min-height: 0;` on `.quests-scroll-area`. Guarantees zero height-jumping or layout flutter when toggling category filters (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`).
-  - **Floating-Dock Glassmorphism Parity:** Cards (`.quest-card`) and progress hero (`.missions-overview-bar`) match the bottom navigation dock (`background: rgba(255, 255, 255, 0.035)`, `border: 1px solid rgba(255, 255, 255, 0.08)`, `backdrop-filter: blur(16px)`). Left accent bar (`::before`), mission icons, and redundant tags (`TAG` / `WOCHE`) stripped for commercial arcade minimalism.
+  - **Floating-Dock Glassmorphism Parity:** Mission cards (`.quest-card`) match the bottom navigation dock (`background: rgba(255, 255, 255, 0.035)`, `border: 1px solid rgba(255, 255, 255, 0.08)`, `backdrop-filter: blur(16px)`). Left accent bar (`::before`), mission icons, and redundant tags (`TAG` / `WOCHE`) stripped for commercial arcade minimalism. Redundant top overview banner removed to maximize vertical space for quest objectives.
 
 ### 7.4 Flight Debrief (Death Screen) Trajectory & Crash Reticle
 - **Trajectory Spline Coincidence:** In `UIManager.updateDebriefTrajectory()`, procedural ascent curve applies an envelope $\sin(t \cdot \pi)$ to horizontal sway, guaranteeing that at $t = 1$ the spline coordinate mathematically equals the true crash point $(x_{\text{crash}}, y_{\text{crash}})$.
@@ -202,13 +202,12 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - Rounded geometry: `border-radius: 24px;`
   - High-depth aerospace shadow: `box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.1);`
 - **Fixed Height Geometry:** Strict height of `580px` (`max-height: 88vh`) with `display: flex; flex-direction: column;` prevents height jumps between tabs (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`).
-- **Internal Card Hierarchy (`.quest-card`, `.missions-overview-bar`):**
+- **Internal Card Hierarchy (`.quest-card`):**
   - Floating-dock parity fill: `background: rgba(255, 255, 255, 0.035); backdrop-filter: blur(16px);` (exact match to main menu `.floating-dock`)
   - Hairline border: `border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;`
   - Category tabs container: `background: #0e121b; border: 1px solid rgba(255, 255, 255, 0.08);`
   - Header: Left-aligned title (`14px` bold pure white `#ffffff`), top-right reward text (`+ ... C` in `Orbitron:wght@800` gold `#fbbf24` with vector bullion coin).
   - Clean description (`12.5px`, `#94a3b8`) followed by full-width progress bar and status actions.
-  - Overview Bar Pending Rewards: `.pending-label` and `.pending-val` harmonized via `inline-flex` with centered 14px bullion coin SVG and -1px optical top offset, achieving 100% horizontal centerline parity between Rajdhani label, Orbitron numbers, and credit icon.
   - Zero emojis across all cards, tabs, and headers.
 
 

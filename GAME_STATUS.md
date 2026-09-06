@@ -1,6 +1,6 @@
 # Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (v5.16.7 - Settings Modal Floating-Dock & Mission Parity Redesign)  
+> **Status:** Release Candidate (v5.16.8 - Mission Modal Minimalist Header & Overview Box Removal)  
 > **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
 > **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
@@ -267,6 +267,11 @@
 - **Dynamisches Rank-Overlay:** Erst nach Absolvierung des ersten Flugs mit erzielten Metern (`bestAltitude > 0`) erscheint das goldene Rang-Badge (`#${rank}`).
 - **Entfernung FPS-Playwright-Runner:** `scripts/benchmark_fps.js` und `scripts/stress_test_gameplay.js` sowie `08b_gameplay_fps_hud.png` und `package.json` `"test:fps"` restlos entfernt zur Maximierung der Token-Effizienz.
 - **Komprimierung aller Markdown-Dateien:** Sämtliche `.md`-Dokumente auf dichte, token-effiziente Fakten komprimiert (-75% Token-Last).
+
+### v5.16.8 (06.09.2026) - Mission Modal Streamlining & Overview Header Removal
+- **Missions-Header Bereinigung:** Obere Übersicht-Box (`#missions-overview-bar` mit "ABGESCHLOSSEN 0/6" & Belohnungsanzeige) vollständig aus HTML, CSS und JS-DOM entfernt.
+- **Maximaler Fokus & Vertikaler Freiraum:** Direkter Übergang vom Titel `MISSIONEN` auf die Kategorien-Tabs (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`), mehr Platz für Missionskarten ohne Scroll-Gedränge.
+- **Codebase-Hygiene:** Verwaiste CSS-Klassen und ungenutzte DOM-Cache-Bindings in `UIManager.js` restlos bereinigt.
 
 ### v5.16.7 (06.09.2026) - Version Single Source of Truth & Settings Parity
 - **Versions-Synchronisation:** `CONSTANTS.VERSION`, `package.json`, `version.json`, `sw.js`, `index.html` und `GAME_SYSTEMS.md` auf einheitliche Release-Version `5.16.7` gehoben.

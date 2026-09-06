@@ -118,10 +118,6 @@ class UIManager {
       weeklyQuestsList: document.getElementById('weekly-quests-list'),
       menuQuestsBadge: document.getElementById('menu-quests-badge'),
       btnQuestsClose: document.getElementById('btn-quests-close'),
-      missionsCompletedRatio: document.getElementById('missions-completed-ratio'),
-      missionsRewardsPending: document.getElementById('missions-rewards-pending'),
-      missionsPendingAmount: document.getElementById('missions-pending-amount'),
-      missionsMeterFill: document.getElementById('missions-meter-fill'),
       tabMissionsAll: document.getElementById('tab-missions-all'),
       tabMissionsDaily: document.getElementById('tab-missions-daily'),
       tabMissionsWeekly: document.getElementById('tab-missions-weekly'),
@@ -1655,29 +1651,6 @@ class UIManager {
     const unclaimedTotal = unclaimedQuests.length;
     const unclaimedDailies = dailies.filter(q => q.isComplete && !q.isClaimed).length;
     const unclaimedWeeklies = weeklies.filter(q => q.isComplete && !q.isClaimed).length;
-    const pendingTotalReward = unclaimedQuests.reduce((sum, q) => sum + (q.reward || 0), 0);
-
-    // Update Overview Header
-    if (this.dom.missionsCompletedRatio) {
-      this.dom.missionsCompletedRatio.textContent = `${completedCount} / ${totalCount}`;
-    }
-    if (this.dom.missionsMeterFill) {
-      const pct = totalCount > 0 ? Math.min(100, Math.round((completedCount / totalCount) * 100)) : 0;
-      this.dom.missionsMeterFill.style.width = `${pct}%`;
-    }
-    if (this.dom.missionsPendingAmount && this.dom.missionsRewardsPending) {
-      if (unclaimedTotal > 0) {
-        this.dom.missionsPendingAmount.innerHTML = `<span class="pending-num">+${pendingTotalReward.toLocaleString('de-DE')}</span>${UIManager.COIN_SVG}`;
-        this.dom.missionsRewardsPending.classList.add('has-unclaimed');
-      } else if (claimedCount === totalCount && totalCount > 0) {
-        this.dom.missionsPendingAmount.innerHTML = '<span class="all-done-badge">ALLE EINGELÖST</span>';
-        this.dom.missionsRewardsPending.classList.remove('has-unclaimed');
-      } else {
-        this.dom.missionsPendingAmount.innerHTML = `<span class="pending-num">0</span>${UIManager.COIN_SVG}`;
-        this.dom.missionsRewardsPending.classList.remove('has-unclaimed');
-      }
-    }
-
     // Update Tab Count Badges & Notification Dots
     if (this.dom.badgeCountAll) this.dom.badgeCountAll.textContent = totalCount.toString();
     if (this.dom.badgeCountDaily) this.dom.badgeCountDaily.textContent = dailies.length.toString();
