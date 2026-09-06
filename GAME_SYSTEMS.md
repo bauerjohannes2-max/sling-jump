@@ -1,642 +1,157 @@
-# SLING JUMP - VOLLSTÄNDIGES SYSTEM- & SPIEL-HANDBUCH (INTERNE REFERENZ)
+# Sling Jump - Game Systems & Technical Specification Manual
 
-Dokumentationsstand: Version 5.5.0  
-Aktualisiert am: 06. September 2026  
-Status: Produktion & QA-verifiziert (100% Playwright Freshness, 60+ FPS Benchmark & 0 Konsolenfehler)  
-Permanenter Live-Link: [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)  
-Repository: [https://github.com/bauerjohannes2-max/sling-jump](https://github.com/bauerjohannes2-max/sling-jump)
+> Live Version: 5.10.0 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
 
 ---
 
-## 1. SPIELKONZEPT & KERN-LOOP
+## 1. Core Loop & Input Mechanics
 
-* **Genre:** Physikalischer Endless Orbital Catapult Climber (Arcade / Skill-basiert).
-* **Ziel:** Mit einem Raumschiff durch gezieltes Einhaken an Himmelsknoten immer höher in den Weltraum zu klettern und dem aufsteigenden roten Gravitations-Abgrund zu entkommen.
-* **Score-Philosophie:** Die erreichte Höhe in Metern (`m`) ist der alleinige Hauptwert (Hero Score).
-* **Zwei-Währungs-Ökonomie:**
-  1. **Münzen (`cores` / Orbs):** Reguläre In-Game Währung, sammelbar in Formationen im All oder als Quest-Belohnungen. Dient zum Freischalten von Raumschiffen und Schweifen im Hangar.
-  2. **Hyper-Kristalle (`CRYSTAL`):** Extrem seltene violett-pinke Währung (ultra-seltene 0.25% Spawn-Chance ab 8.000m Tiefe mit 6.000px Mindestabstand). Dient zur sofortigen **Quanten-Wiederbelebung** nach einem Absturz.
+### 1.1 Game Loop Flow
+1. **Idle/Menu:** Ambient starfield drift (34 px/s vertical parallax).
+2. **Launch:** Player taps `START` -> Ship launches upward from platform.
+3. **Grapple Hook:** Tap & hold -> Ship casts tether to nearest valid anchor node within reach (`radius <= 285px`).
+4. **Slow-Motion Orbit:** Slow-mo (`timeScale = 0.35`) activates during hold. Ship enters circular orbit (`orbitRadius = 65px`, `orbitSpeed = 420 px/s`). Audio low-pass ducks to 650 Hz.
+5. **Slingshot Release:** Tap release -> Tether snaps, `timeScale` snaps instantly to `1.0` (zero-latency launch). Tangential velocity vectors:
+   $$v_x = \cos(\theta) \cdot v_{\text{impulse}}, \quad v_y = \sin(\theta) \cdot v_{\text{impulse}}$$
+6. **Ascent & Void Hazard:** Screen scrolls upward. Red Void rises from bottom. Missing an anchor or hitting the Void triggers Game Over.
 
----
-
-## 2. STEUERUNG & PHYSIK-MECHANIKEN
-
-### 2.1 Einhaken (Grapple Hook) & Schwereloser Orbit
-* **Aktion:** Bildschirm / Maustaste gedrückt halten (Touch / Pointerdown / Leertaste).
-* **Tetherless Grappling (Freier Orbit):**
-  * Auf Nutzerwunsch wurde der visuelle Haltestrahl zwischen Raumschiff und Knoten komplett entfernt.
-  * Das Schiff geht beim Einhaken in einen freien, ungestörten kreisförmigen Orbit um den Zielknoten über.
-  * Lineare Geschwindigkeiten werden beim Einhaken sofort auf null gesetzt (`vx = 0, vy = 0`), sodass Sterne im Hintergrund punktförmig bleiben.
-* **Fadenkreuz & Zielerfassung:**
-  * Das nächste erreichbare Objekt innerhalb der Reichweite (`HOOK_RANGE = 160px`) wird mit einem zirkulären Lock-On-Fadenkreuz markiert.
-  * **Ausschluss:** Tödliche Weltraum-Minen (`HAZARD`) werden niemals anvisiert.
-
-### 2.2 Loslassen & Katapult-Abschuss (Slingshot Release)
-* **Aktion:** Loslassen des Bildschirms / Taste.
-* **Funktionsweise:**
-  * Das Schiff löst sich tangential aus dem Orbit und übernimmt die Fliehkraft als lineare Fluggeschwindigkeit (`vx`, `vy`).
-  * Normaler Sprung: Gewährt einen Basis-Aufwärtsschub (`+80 vy`), sofern die Flugbahn nach oben gerichtet ist.
+### 1.2 Mathematical Reach Solver
+- **Catch Radius:** 285 px.
+- **Node Spacing:** 160 px (Zone 1) to 320 px (Zone 7). Minimum buffer > 140 px guarantees 100% mathematical solvability on any generated seed.
 
 ---
 
-## 3. COMBO-SYSTEM & DYNAMISCHE GESCHWINDIGKEITS-SKALIERUNG
+## 2. Apex Combos & Dynamic Speed Scaling
 
-* **Steilsprung-Bedingung (Verschärfter 90°-Präzisionswinkel):**
-  * Der Abschusswinkel muss extrem präzise vertikal nach oben gerichtet sein (`tangentY >= 0.995`, Winkeltoleranz ca. ±5,7° zur idealen Senkrechten).
-* **Direkte ökonomische Belohnung:**
-  * Jeder erfolgreiche 90°-Katapultwurf schüttet unmittelbar **Bonus-Gold** auf das Spielerkonto aus:
-  * Formel: `Bonus-Gold = Combo-Level` (z.B. +1 Münze bei Stufe 1 bis +10 Münzen bei Stufe 10).
-  * Sofortige Score-Gutschrift: `Bonus-Punkte = 100 * Combo-Level`.
-* **Ausbalancierte Geschwindigkeits-Skalierung (Kontrollierte Tempokurve):**
-  * Moderater, kontrollierter Tempobonus von +3% pro Stufe bis maximal **+30% Tempo**:
+### 2.1 90° Vertical Slingshot Precision
+- Releases within $\pm 15^\circ$ of pure vertical upward flight ($\theta \in [-105^\circ, -75^\circ]$) trigger **PERFEKT / 90° SLINGSHOT**.
+- Increments `slingshotCombo` by +1 up to Combo x10.
+- Releases outside the apex window reset the combo counter to 0.
 
-| Combo-Stufe | HUD-Kennzeichnung | Tempo-Multiplikator | Min Orbit-Speed | Max Orbit-Speed | Vertikaler Zusatz-Impuls | Gravitationswiderstand | Sofort-Belohnung |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **0** | Basisflug | **1.00x** | 720 px/s | 1.250 px/s | +0 px/s | 100% Natürliche Gravitation | 0 |
-| **1** | PERFEKT 90° (+3% TEMPO) | **1.03x** | 741 px/s | 1.287 px/s | +25 px/s | 100% Natürliche Gravitation | +1 Gold / +100 Pkt |
-| **2** | COMBO x2 (+6% TEMPO) | **1.06x** | 763 px/s | 1.325 px/s | +45 px/s | 100% Natürliche Gravitation | +2 Gold / +200 Pkt |
-| **3** | COMBO x3 (+9% TEMPO) | **1.09x** | 784 px/s | 1.362 px/s | +65 px/s | 100% Natürliche Gravitation | +3 Gold / +300 Pkt |
-| **4** | COMBO x4 (+12% TEMPO) | **1.12x** | 806 px/s | 1.400 px/s | +85 px/s | 100% Natürliche Gravitation | +4 Gold / +400 Pkt |
-| **5** | HYPER x5 (+15% TEMPO) | **1.15x** | 828 px/s | 1.437 px/s | +105 px/s | 100% Natürliche Gravitation | +5 Gold / +500 Pkt |
-
----
-
-## 4. SCHWIERIGKEITS- & PROGRESSIONS-MATRIX (HÖHENZONEN & KREIS-VERTEILUNG)
-
-Die prozedurale Generierung (`WorldManager.js`) skaliert die Schwierigkeit dynamisch entlang von 7 Zonen. Gaps wurden erweitert und Standard-Knoten reduziert:
-
-| Zone | Höhenbereich | Standard (%) | Super-Boost (%) | Beweglich (%) | Zeituhr / Fragil (%) | Köder / Fissur (%) | Weltraum-Mine / Bombe (Lethal) | Min/Max Lücke | Mechanische Charakteristik |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Zone 1: Kalibrierung** | 0 m – 250 m | 90% | 0% | 10% | 0% | 0% | 0% | 160 – 205 px | Solide Basis mit 10% Pendelknoten und sauberem Freiraum. |
-| **Zone 2: Erdorbit & Dynamik** | 250 m – 750 m | 65% | 5% | 22% | 8% | 0% | 0% | 175 – 225 px | Reduzierte Standard-Kreise, 22% Pendel und 8% frühe Zeituhr-Knoten. |
-| **Zone 3: Stratosphäre** | 750 m – 2.000 m | 44% | 5% | 28% | 20% | 3% | 0% | 195 – 250 px | Taktische Zeituhr- (20%) und Pendelknoten (28%) fordern präzises Timing. |
-| **Zone 4: Mesosphäre** | 2.000 m – 5.000 m | 34% | 4% | 30% | 26% | 6% | 0% | 215 – 270 px | Weite Sprünge, 30% Pendel und 26% Fragile Knoten. |
-| **Zone 5: Thermosphäre** | 5.000 m – 9.000 m | 26% | 3% | 30% | 34% | 7% | **~6% Korridor** | 230 – 290 px | Hohes Tempo gefordert; 34% Zeituhr, Minen ab 5.000m. |
-| **Zone 6: Tiefraum-Gefahren** | 9.000 m – 14.000 m | 20% | **2.0%** | 30% | 40% | 8% | **~10% Korridor** | 240 – 305 px | 40% Zeituhr, 30% Pendel, Minen-Dichte (~10%), seltene Kristalle ab 8.000m. |
-| **Zone 7: Meister-Kosmos** | 14.000 m+ | 16% | **2.0%** | 30% | 44% | 8% | **~10% Korridor** | 250 – 320 px | Reines Meisterfeld: 74% dynamische Knoten bei maximalen Sprungdistanzen. |
-
-### Detailbeschreibung aller 6 Entitäten
-1. **STANDARD (Cyan `#00f0ff`):** Solider, dauerhafter Orbit-Anker.
-2. **SUPER-BOOST (Grün `#10b981`):** Erhöht den Katapult-Schub auf das 1,85-fache, erzeugt Warp-Streifen und verleiht temporäre Immunität gegen Weltraum-Minen. **Cooldown-Sperre:** Nach jedem Super-Boost müssen mindestens 8 reguläre Knoten generiert werden (`nodesSinceLastBoost >= 8`), bevor erneut ein Boost spawnen kann. Ab 10.000m auf 1.0% bzw. 0.8% gedrosselt.
-3. **BEWEGLICH (Violett `#c084fc`):** Schwingt horizontal im Pendelmodus (`moveRange` bis 100px).
-4. **ZEITUHR / FRAGIL (Gold `#eab308`):** Besitzt 12 radiale Uhren-Ticks. Nach dem Einhaken tickt die Uhr ab (~0,8s). Bricht bei Ablauf mit Scherbenregen ab!
-5. **KÖDER / FISSUR (Orange `#f97316`):** Brittle Trap mit Fissur-Linien. Bricht beim Einhaken sofort entzwei; bietet keinen Halt.
-6. **BOMBE / WELTRAUM-MINE (`HAZARD` / Crimson `#ef4444`):**
-   * Spawnt ab 10.000m Höhe als tödliches Hindernis im Flugkorridor (moderat skaliert: 7% bis 10%).
-   * Design: 8 rotierende messerscharfe Stacheln, dunkler Kern mit 3-Flügel-Warnsymbol, gestrichelte rote Gefahrenzone.
-   * Nicht einhakbar (vom Fadenkreuz ausgeschlossen).
-   * Bei regulärer Berührung: Sofortige gewaltige Detonation und Game Over ("MINE DETONIERT!").
-   * **Super-Boost Schild-Durchbruch:** Schlägt das Schiff während eines aktiven Super-Boosts (`isSuperBoosting`) auf eine Mine ein, zerschellt die Mine schadlos in einer smaragdgrünen Schockwelle ("MINE ZERSTÖRT!"). Der Pilot fliegt ungebremst weiter!
+### 2.2 Combo Tier Multiplier Matrix
+| Combo Tier | Speed Multiplier | Velocity Impulse Bonus | State / Visual FX |
+| :---: | :---: | :---: | :--- |
+| **Combo 1** | 1.00x | +0 px/s | Base flight, clean trail |
+| **Combo 2** | 1.10x | +70 px/s | Cyan glow pulse |
+| **Combo 3** | 1.20x | +140 px/s | Purple energetic particles |
+| **Combo 4** | 1.30x | +210 px/s | Dynamic floating text |
+| **Combo 5** | 1.42x | +280 px/s | **Hyper State** (Screen shake + chromatic trail) |
+| **Combo 6** | 1.50x | +330 px/s | Dual particle jets |
+| **Combo 7** | 1.60x | +380 px/s | Neon saturation boost |
+| **Combo 8** | 1.70x | +430 px/s | High-frequency wake |
+| **Combo 9** | 1.85x | +500 px/s | Near-hyperspace aura |
+| **Combo 10** | 2.00x | +600 px/s | **Apex Hyperdrive** (Double base impulse) |
 
 ---
 
-## 2b. ORBIT- & KATAPULT-DYNAMIK
-* **Gravitations-Bindung:**
-  * Das Raumschiff bindet sich rein visuell über eine transparente Gravitationskraft an Himmelsknoten. Es gibt keine sichtbare Hakenleine mehr, was ein aufgeräumtes, elegantes Gesamtbild erzeugt.
-* **Präziser Katapultwinkel (90° Steilsprung):**
-  * Ein perfekter senkrechter Katapultsprung (`PERFEKTER 90° SPRUNG!`) wird nur ausgelöst, wenn die Tangente der Flugbahn exakt nach oben zeigt (`tangentY >= 0.985`, Winkeltoleranz unter ±10°).
-  * Belohnung: Sofortiger Vertikalschub (`launchSpeed *= 1.35`) und schwebender Bonustext.
-* **Combo-System & Floating Texts:**
-  * Aneinandergereihte Katapultflüge ohne Bodenkontakt bauen einen Multiplikator auf (Combo x2, x3, etc.).
-  * Schwebende Texte sind hierarchisch getrennt, sodass Combo-Badges und 90°-Texte sich niemals überlagern.
+## 3. World Generation & 7-Zone Difficulty Matrix
+
+Procedural generation (`WorldManager.js`) scales density, node types, and lethal hazards across 7 altitude zones:
+
+| Zone | Altitude Range | Standard | Super-Boost | Moving | Fragile | Decoy | Hazard Mine | Gap Range | Challenge Profile |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Zone 1: Kalibrierung** | 0 – 250 m | 90% | 0% | 10% | 0% | 0% | 0% | 160 – 205 px | Wide gaps, gentle pendulum motion |
+| **Zone 2: Erdorbit** | 250 – 750 m | 65% | 5% | 22% | 8% | 0% | 0% | 175 – 225 px | Early fragile nodes introduced |
+| **Zone 3: Stratosphäre** | 750 – 2,000 m | 44% | 5% | 28% | 20% | 3% | 0% | 195 – 250 px | Tactical clock timers & decoys |
+| **Zone 4: Mesosphäre** | 2,000 – 5,000 m | 34% | 4% | 30% | 26% | 6% | 0% | 215 – 270 px | Wide leaps, active pendulums |
+| **Zone 5: Thermosphäre** | 5,000 – 9,000 m | 26% | 3% | 30% | 34% | 7% | ~6% | 230 – 290 px | High speed, space mines appear |
+| **Zone 6: Tiefraum** | 9,000 – 14,000 m | 20% | 2% | 30% | 40% | 8% | ~10% | 240 – 305 px | Dense mines, rare crystals (>=8,000m) |
+| **Zone 7: Meister-Kosmos** | 14,000 m+ | 16% | 2% | 30% | 44% | 8% | ~10% | 250 – 320 px | 74% dynamic nodes, maximum reach |
 
 ---
 
-## 3. PROGRESSIVE WELTEN-GENERIERUNG & KREIS-TYPEN
+## 4. Entity Taxonomy & Behavioral Mechanics
 
-Die Welt skaliert entlang von 7 Zonen (0m bis 15.000m+). Im späteren Spielverlauf machen dynamische Knoten 62% des Feldes aus:
+### 4.1 Node Types
+- **STANDARD (Anchor):** Solid cyan vector node. Permanent tether anchor.
+- **SUPER_BOOST:** Magenta node. Grants 1.45x launch velocity impulse + 2.0s hazard mine immunity.
+- **MOVING:** Horizontal sine wave oscillation:
+  $$x(t) = x_0 + \sin(t \cdot \omega) \cdot A, \quad \omega \in [1.2, 2.4], \; A \in [45, 90]\text{px}$$
+- **FRAGILE (Zeituhr):** 1.5s radial collapsing countdown ring. Shatters into shards on expiry or launch.
+- **FISSURE / DECOY:** Glitched amber node. Shatters immediately upon grapple contact; requires instant recovery jump.
+- **HAZARD_MINE:** Red pulsing spike orb. Lethal on ship collision unless protected by Super-Boost or Revive Shield.
 
-1. **STANDARD (Cyan):** Statischer Knoten, unbegrenzt stabil.
-2. **SUPER-BOOST (Grün):** Mit rotierenden Aufwärtspfeilen; verleiht beim Lösen massiven Zusatzturbo.
-3. **BEWEGLICH (Violett):** Pendelt horizontal hin und her; erfordert präzises Vorhalten beim Einhaken.
-4. **ZEITUHR / FRAGIL (Gold):** Tickernder Countdown-Ring; zerbricht nach 1,8 Sekunden Orbitdauer.
-5. **KÖDER-FALLE (Orange):** Instabile Fissuren-Textur; zerbricht unmittelbar beim Einhakversuch.
-6. **WELTRAUM-MINE (Crimson-Rot, ab 10.000m):** Tödliches Hindernis mit 8 rotierenden Stacheln. Nicht einhakbar; sofortige Detonation und Spielende bei Berührung!
-
----
-
-## 4. HERAUSFORDERUNGS-SYSTEM (DAILIES & WEEKLIES)
-
-Das Questsystem (`MissionManager.js`) trennt streng zwischen schnellen täglichen Aufgaben und anspruchsvollen Wochen-Zielen:
-
-* **Tägliche Aufgaben (24h Reset):** Konzipiert für 5–10 Minuten tägliche Spielzeit (z.B. 600m Einzelflug, 16 Münzen, 5 Katapulte).
-* **Wöchentliche Herausforderungen (7-Tage Reset):** Mathematisch austariert auf **ca. 2,0 bis 2,5 Stunden aktive Spielzeit** über die Woche verteilt:
-
-| Wöchentliche Herausforderung | Zielwert | Typischer Durchschnitt | Benötigte Runs | Errechnete Spielzeit | Rationale |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **Kosmischer Marathon** | **150.000 m** | ~2.000 m / Run | ~75 Runs | **~131 Min. (~2,2 Std.)** | ~11 Runs täglich über 7 Tage. |
-| **Orbital-Meister** | **1.500 Sprünge** | ~22 Sprünge / Run | ~68 Runs | **~120 Min. (~2,0 Std.)** | ~10 Runs täglich über 7 Tage. |
-| **Schatzkammer** | **800 Münzen** | ~10 Münzen / Run | ~80 Runs | **~140 Min. (~2,3 Std.)** | ~11 Runs täglich über 7 Tage. |
-| **Exosphären-Vorstoss** | **8.000 m** (Einzelflug) | Elite-Skill | 30–50 Versuche | **~60–90 Min. (~1,2 Std.)** | Meisterung aller Zonen 1 bis 5. |
-| **Reflex-Akrobat** | **60 Knappe Rettungen** | ~0,8 Rettungen / Run | ~75 Runs | **~131 Min. (~2,2 Std.)** | Intensives Risikospiel vor dem Abgrund. |
+### 4.2 Collectibles & Currencies
+- **Credits (Common / Utility):** Stamped bullion coins with beveled rim, recessed contrast well, and precision-centered Rajdhani 'C' glyph. Spawn in parabolic flight corridors. Primary currency for hangar unlocks. Value: 1 Credit = +10 score points. Rendered via zero-GC pre-rendered offscreen sprite cache (`EnergyOrb.cache['CREDIT_SPRITE']`, 48x48) with radial glow buffer.
+- **Sparks (Rare / Quantum / Revive):** Faceted 8-point prismatic stars with light refractions, depth shading, nucleus pip, and slow radial rotation, spawning in Zone 6+ (>= 8,000m). Used exclusively for Quantum Revives (cost: 1 Spark). Rendered via pre-rendered offscreen sprite cache (`EnergyOrb.cache['SPARK_SPRITE']`, 56x56) with quantum aura buffer.
 
 ---
 
-## 5. SYSTEM-PERFORMANZ & INHÄRENTE HARDWARE-EFFIZIENZ (ZERO-STUTTER 60 FPS ARCHITEKTUR)
+## 5. Economy, Hangar & Quest Progression
 
-* **Standardmäßig hochperformant ohne manuelle Schalter:**
-  * Das Spiel läuft standardmäßig volloptimiert mit einer Zielbildrate von 60/120 FPS auf allen Desktop- und Mobilplattformen.
-* **1. Hitstop-Elimination (Beseitigung künstlicher Frame-Freezes):**
-  * Frühere Versionen nutzten `hitstopTimer > 0` im `GameEngine.update()`, um bei jedem Münzensammeln, Slingshot-Start, Boost und Höhenrekord die Physik für 35–100ms anzuhalten. Dies erzeugte wahrnehmbares Ruckeln und Eingabeverzögerungen.
-  * In v4.6.2 ist Hitstop für sämtliche Routine-Ereignisse restlos entfernt.
-  * Einziger verbleibender Hitstop ist der Game-Over-Crash, gedeckelt auf maximal 16ms (1 Frame) für einen knackigen Aufprall ohne wahrnehmbare Stockung.
-* **2. Debounced Storage I/O (`StorageService.js`):**
-  * `addCores()` und `addHyperCrystals()` nutzen `this.saveDeferred(1500)` statt synchroner `localStorage.setItem()` Schreibzugriffe im laufenden Frame.
-  * Synchrones Speichern (`this.save()`) erfolgt ausschließlich bei echten Zustandsgrenzen: Game Over, Wiederbelebung, Quest-Belohnungsanspruch oder Skin-Kauf im Hangar.
-* **3. GPU-Compositor Entlastung (`css/style.css`):**
-  * Beseitigung aller `backdrop-filter: blur(14px)` und `blur(10px)` Anweisungen von permanent über dem 60 FPS Canvas eingeblendeten HUD-Elementen (`.score-container`, `#btn-hud-pause`, `.hud-tutorial-tip`).
-  * Ersatz durch opake Glasfarben (`rgba(15, 23, 42, 0.88)`), wodurch teure GPU Texture-Readbacks und Gaussian-Blur Passes pro Frame entfallen.
-* **4. Gebatchte Canvas-Renderläufe & Kinetisches Sternenfeld (`WorldManager.js`):**
-  * **Dual-Pass Kinetisches Sternenfeld (v5.7.0):** 3-Ebenen-Parallaxensystem (Layer 0.20, 0.45 und 0.75). Sterne werden in zwei optimierten Passes gezeichnet: Pass A für sanfte Hintergrund-Mikrosterne (Radius 1.0px, weiß/silber, Alpha 0.40–0.90) und Pass B für leuchtende Mittel- und Vordergrund-Himmelskörper (Radius 1.4–2.4px, weiß/cyan, Alpha 0.65–1.0) samt 4-Punkt-Kreuz-Glints.
-  * **Reine Top-to-Bottom Kinematik:** Horizontaler Drift (`driftX`) ist vollständig eliminiert (`finalX = star.x`). In Menüs treibt `cameraY += 34 * rawDt` das Sternenfeld vertikal von oben nach unten, nahtlos umlaufend über `(star.y + cameraY * star.layer) % height`.
-  * **Gebatchte Warp-Streifen:** Alle Hyperspace-Partikel werden in einem einzigen zusammengesetzten Pfad gezeichnet.
-  * **Entfernung von `shadowBlur: 18`:** An der unteren Todesgrenze (`drawBottomDeathBoundary`) durch mehrstufige kontraststarke Linienzüge ersetzt.
-* **5. Quantisierter Partikel- & Glow-Cache (`ParticleSystem.js`, `Node.js`, `EnergyOrb.js`):**
-  * `ParticleSystem.getGlow()` quantisiert HSL-Farbstrings, um unbegrenzte Off-Screen Canvas-Allokationen zu verhindern.
-  * `OrbitNode.getCachedGlow()` und `OrbitNode.getCachedCore()` nutzen statische Lookup-Caches.
-  * Die 12 Zeituhr-Ticks auf fragilen Knoten werden in einen einzigen Pfadstroke gebatcht.
-  * `EnergyOrb` ersetzt trigonometrische 8-Eck Berechnungen durch native `context.arc()` Aufrufe.
-* **6. Zero-Allocation Hot Loops & Ringpuffer:**
-  * Vorallozierter 400-Partikel Ringpuffer verhindert GC-Spikes während des Flugs.
-  * Reverse-Array Iteration und In-Place Array Compaction (`WorldManager.js`, `GameEngine.js`) statt rechenintensiver `.filter()` oder Garbage Collector Belastungen.
+### 5.1 Progression Assets
+- **Ships:**
+  - `dart` (Delta Dart): Default starter vessel. High agility.
+  - `phoenix` (Phönix): Premium vector skin. Unlocked for 250 Credits.
+- **Trails:** `neon_cyan` (starter), `crimson_flame`, `violet_plasma`.
+- **Themes:** `deep_space` (default), `cyber_grid`, `solar_flare`.
+
+### 5.2 Quests (Missions)
+- **Daily Quests:** 3 active per 24h reset cycle (e.g. reach 350m, collect 12 credits, perform 3 boosts). Reward: 15–30 Credits.
+- **Weekly Quests:** 2 active per 7-day reset cycle (e.g. 8,000m cumulative altitude, 100 credits). Reward: 75–150 Credits + 1 Spark.
 
 ---
 
-## 6. WIEDERBELEBUNGS-SYSTEM (QUANTUM REVIVE) & HYPER-KRISTALLE
+## 6. Quantum Revive Engine
 
-* **Garantierter Peak-Altitude Checkpoint & Sichtbarkeits-Garantie:**
-  * **Verankerung am wahren Höhen-Peak (`triggerGameOver`):** Nach einem Void-Absturz orientiert sich die Engine nicht am Absturzort, sondern mathematisch strikt an der erreichten Höchstmarke: $\text{peakY} = \max(380, \text{maxAltitudeMeters} / 0.125)$. Der Pilot verliert somit niemals seinen Höhengewinn.
-  * **Weitsichtige Kamera-Positionierung (`revivePlayer`):** Beim Wiederbeleben wird `this.cameraY = targetAnchor.y - this.height * 0.58` gesetzt. Dadurch befindet sich der Anker im oberen Mittelfeld bei 42% der Bildschirmhöhe (`screenY = 430px`). Es verbleibt ein 58%-Sicherheitskorridor nach unten – die rote Void ist meilenweit entfernt.
-  * **Sicherheits-Perimeter & Desintegration:** Sämtliche Minen (`HAZARD`) und Trümmer im Umkreis von 320px um den Respawn-Anker werden restlos desintegriert.
-  * **Direktes, unfehlbares Einhaken:** Das Raumschiff wird sofort und verlässlich im Orbit arretiert (`isHooked = true`, `hookedNode = targetAnchor`, `orbitRadius = 65`, `orbitSpeed = 420 px/s`, `vx = 0`, `vy = 0`, Aufwärtsorbit).
-  * **Garantierte 3-Stufen Aufstiegsleiter:** Über dem Respawn-Anker werden automatisch drei verlässliche `STANDARD`-Knoten (+155px, +310px, +465px) generiert, um einen fairen, barrierefreien Aufstieg sicherzustellen.
-* **Quanten-Sicherheitsnetz (Automatisches Trampolin):**
-  * Gerät der Pilot während der 4-Sekunden-Schutzphase in die Nähe der unteren Todesgrenze (`player.y <= cameraY + 60`), löst ein automatischer Quanten-Rückstoß aus: $\text{vy} = \max(540, |\text{vy}| + 220)$ samt Schockwelle, violettem Funkenregen und Textanzeige "QUANTEN-RÜCKSTOSS!". Ein Void-Tod ist während des Schildes physikalisch unmöglich.
-* **Absprung-Sicherheit (`Spaceship.releaseHook`):**
-  * Während des 4,0s-Quantenschilds erzwingt jeder Katapultsprung eine garantierte Mindest-Aufwärtsgeschwindigkeit von `vy >= 320 px/s`. Ein versehentliches Schießen nach unten in den Abgrund wird zuverlässig unterbunden.
-* **Kosten:** 1 Hyper-Kristall (1x pro Run nutzbar).
+### 6.1 Mechanics
+- On death with $\ge 1$ Spark: Player can trigger **ZWEITE CHANCE**.
+- Consumes 1 Spark (`storage.data.hyperCrystals -= 1`).
+- **Safe Repositioning:** Camera smoothly centers above death void:
+  $$\text{cameraY} = \text{targetAnchor.y} - \text{viewportHeight} \cdot 0.58$$
+- **Instant Hook:** Spaceship is automatically locked into upward orbit on the nearest safe anchor:
+  $$\text{orbitRadius} = 65\text{px}, \quad \text{orbitSpeed} = 420\text{px/s}, \quad v_x = 0, \; v_y = 0$$
+- **Invulnerability Shield:** 2.5s golden kinetic barrier protects against space mines and immediate re-fall.
 
 ---
 
-## 7. MENÜ-STRUKTUR, MODALS & MINIMALISTISCHES DESIGN-SYSTEM
+## 7. UI, Leaderboard & Dock Architecture
 
-* **Globale Design-Regel: Kommerzieller Minimalismus ("Weniger ist mehr"):**
-  * Keine überladenen Texte, keine bürokratischen Bezeichnungen, kein visueller Ballast.
-* **Fokussiertes Login- & Profil-Modal (`#profile-modal`):**
-  * Rein auf Spieleridentität und Login fokussiert: Avatar, Namenseingabefeld, `SPEICHERN` und `SCHLIESSEN`.
-  * Sämtliche redundanten Highscore- und Flugzähler wurden entfernt (diese verbleiben in der Bestenliste und den Statistiken).
-* **Minimalistisches Game-Over-Modal (`#gameover-modal`):**
-  * **Matte, unaufdringliche Obsidian-Ästhetik:** Störende neonblaue Leuchteffekte, Sci-Fi-Eckwinkel und dicke Kapsel-Hintergründe wurden vollständig entfernt.
-  * **Bereinigte Typografie:** Redundante Labels wie "FLUG-BERICHT" und "ERREICHTE HÖHE" getilgt.
-  * **Kristallklare Höhen-Ziffer:** Das erreichte Ergebnis wird mit 68px in gestochen scharfem Reinweiß (`#ffffff`) ohne weichgezeichneten Scheinwerfer-Glow dargestellt, ergänzt um die dezente Einheit `m` in gedämpftem Slate.
-  * **Highscore statt Bestleistung:** Neutrale, ungerahmte Darstellung als `HIGHSCORE: X m` in edlen Grautönen.
-  * **Transparente Belohnungen:** Münzen und Hyper-Kristalle stehen nahtlos und ungerahmt mit ihren Vektor-Icons im Raum.
-  * **Kompakter Wiederbeleben-Subtext:** Zeigt einzig die essenzielle Information `1x pro Flug` ohne Floskeln.
-* **Aufgaben-Modal mit Touch- & Maus-Scrolling (`#quests-modal`):**
-  * Container `.quests-scroll-area` mit voller Touch-Unterstützung (`touch-action: pan-y`, `-webkit-overflow-scrolling: touch`) und zirkulären Cyan-Scrollbars.
-  * Ermöglicht unterbrechungsfreies Scrollen bis zu den wöchentlichen Herausforderungen.
-* **Eigenständige Dashboard-Begleit-App (`dashboard.html`):**
-  * Vollwertige PWA (`manifest-dashboard.json`) mit mobiler Standalone-Unterstützung.
-  * Bietet die vollständige Telemetrie-Übersicht (Live-Spieler, Unique Devices, Runden heute, Rekorde, Runden-Historie).
-  * Prominenter, neonblau leuchtender Button **"SPIELEN"** führt jederzeit direkt ins Spiel.
-  * Eigenständige URL für Homescreen-Installation ohne redundante Menü-Buttons im Spiel.
-  * **Live-Link:** [https://bauerjohannes2-max.github.io/sling-jump/dashboard.html](https://bauerjohannes2-max.github.io/sling-jump/dashboard.html)
-* **Bereinigtes Einstellungs-Menü & Statischer Update-Checker:**
-  * Überflüssige Buttons ("ANLEITUNG & STEUERUNG", "SPIELER-DASHBOARD") entfernt.
-  * Statische `version.json` mit automatischem Cache-Purge und Sofort-Reload bei Version-Diskrepanz.
-* **AAA App-Icon, Favicon & Cache-Architektur:**
-  * Root `favicon.ico` für native Browseranfragen direkt im Rootverzeichnis hinterlegt.
-  * Versionierte Link-Parameter (`?v=3.33.0`) durchbrechen Browser-Cache-Tunneling.
-  * Multi-Plattform-Icons: `assets/icon-512.png`, `assets/icon-192.png`, `assets/favicon.png` und `assets/icon.svg`.
-  * **Network-First für Kern-Code:** `sw.js` liefert HTML, JS und CSS online stets netzwerk-aktuell aus.
-* **Cyberpunk Game-Over Screen Redesign:**
-  * Cyberpunk-Rahmen (`.gameover-cyber-frame`) mit 4 filigranen Eck-Brackets (`.cyber-bracket`) in Neon-Cyan.
-  * Hero Altitude Score mit 60px Ziffern (`#38bdf8`) und deutscher Zahlenformatierung (`toLocaleString('de-DE')`).
-  * Rekord-Kapsel mit Pokal-Icon und animiertem goldenem Badge.
-  * Smaragdgrüner Primärbutton (`.btn-replay-emerald`) mit SVG-Replay-Icon für schnellen Neustart.
-* **Engine Hardening & Zero-Allocation Render-Loops:**
-  * Fester 24-Punkte-Ringpuffer für Motion-Trails eliminiert Objekt-Allokationen im 60/120 FPS Frame-Loop.
-  * O(1) zyklische Cursor-Zeiger für Partikel- und Text-Pools.
-  * Throttled/Deferred Storage-Speicherung via `saveDeferred()` verhindert E/A-Ruckler während des Steigflugs.
-  * `rawDt`-Begrenzung auf 0.033s (30 FPS Minimalrate) verhindert Durchtunneln von Knoten bei Tab-Aufwachphasen.
-* **Strict Zero Emoji Policy:**
-  * Ausschließlich minimalistische SVG-Vektoricons und scharfe Canvas-Geometrie.
+### 7.1 Leaderboard Dock Icon & Dynamic Overlay
+- **Dock Button (`#btn-menu-leaderboard`):** Minimalist SVG trophy icon in the bottom floating dock.
+- **Unranked State (`bestAltitude <= 0`):**
+  - **No overlay:** `#rank-pill-badge` is hidden (`display: none;`). The trophy icon is completely clean without any `#` badge.
+- **Ranked State (`bestAltitude > 0`):**
+  - Once the player completes their first flight and achieves meters, `UIManager.getPlayerRankNumber()` calculates placement against the deduplicated Global Top-100.
+  - `#rank-pill-badge` dynamically appears as a glowing gold pill displaying `#${rank}` (e.g. `#1`, `#42`).
+
+### 7.2 Leaderboard Modal
+- Accessible via dock button. Displays Global Top-100 contender runs (deduplicated: 1 entry per pilot).
+- Sticky player card at bottom:
+  - If unranked: Displays `#---` with message "Absolviere einen Flug zur Wertung".
+  - If ranked: Displays `#${rank}` with verified altitude in meters.
+
+### 7.3 Front-Tab Modal Layering
+- Secondary overlays (`SETTINGS`, `STATS`, `LEADERBOARD`, `QUESTS`, `TUTORIAL`) render directly before the active main menu (`backdrop-filter: blur(16px)`).
+- Dynamic gameplay nodes are hidden during menu/modal states to preserve background starfield clarity.
+
+### 7.4 Flight Debrief (Death Screen) Trajectory & Crash Reticle
+- **Trajectory Spline Coincidence:** In `UIManager.updateDebriefTrajectory()`, procedural ascent curve applies an envelope $\sin(t \cdot \pi)$ to horizontal sway, guaranteeing that at $t = 1$ the spline coordinate mathematically equals the true crash point $(x_{\text{crash}}, y_{\text{crash}})$.
+- **Tactical Impact Reticle:** Vector marker `#debrief-crash-pos` bound precisely to `endPoint = points[points.length - 1]`. Features high-contrast shockwave, 4 tactical corner pips, crimson outer cross (`#ff1e42`), and glowing white inner cross (`#ffffff`). Origin centered at `0 0` with zero subpixel drift.
 
 ---
 
-## 8. MINIMALISTISCHES TUTORIAL-SYSTEM (1-FOLIEN GUIDE)
+## 8. Audio System Architecture
 
-* **Elegante 1-Folien-Architektur:**
-  * Die überladene zweite Folie wurde restlos gestrichen.
-  * Die Steuerung wird dem Spieler kompakt, ruhig und visuell selbsterklärend präsentiert.
-* **Ruhige, verlangsamte Canvas-Animation:**
-  * Auf 5,8 Sekunden gestreckter Animationszyklus (`#tut-sling-canvas` mit responsivem `aspect-ratio: 360 / 160`).
-  * Schiff fliegt an, kreist in aller Ruhe um den Anker und katapultiert sich in Blickrichtung nach oben.
-* **Klare, minimalistische Farbgebung & Sprache:**
-  * Keine aggressiven Orangetöne mehr; reinweißes und cyanfarbenes Design.
-  * Einfache, intuitive Formulierung ohne technische Winkelangaben:
-    * *GEDRÜCKT HALTEN:* Halte den Bildschirm gedrückt, um dich am Kreis einzuhaken und Schwung aufzubauen.
-    * *LOSLASSEN:* Im gewünschten Moment loslassen, um in Blickrichtung nach vorne katapultiert zu werden.
-* **Direktstart:**
-  * Großer Primärbutton **SPIELEN** startet ohne Umwege die Runde.
+- **Engine (`AudioManager.js`):** Dual-tier Web Audio API structure.
+  - **Tier 1 (Decoded Buffers):** `bgm_menu.mp3` (95 BPM), `bgm_gameplay.mp3` (128 BPM), `bgm_gameover.mp3` (80 BPM). Low-pass ducking filter (650 Hz in slow-mo). Pitch-ramp multipliers on combo chains.
+  - **Tier 2 (Synthesizer Fallback):** Real-time multi-oscillator Web Audio synthesis if sound files fail to load or offline.
 
 ---
 
-## 9. PERMANENTE 24/7 BEREITSTELLUNG & HOSTING
+## 9. Engine Performance & Hardware Guardrails
 
-* **Permanenter Live-Link Spiel (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/](https://bauerjohannes2-max.github.io/sling-jump/)
-* **Permanenter Live-Link Dashboard (24/7 weltweit):** [https://bauerjohannes2-max.github.io/sling-jump/dashboard.html](https://bauerjohannes2-max.github.io/sling-jump/dashboard.html)
-* **Hosting:** GitHub Pages Edge CDN mit weltweitem Caching und HTTPS.
-* **Offline-Unterstützung:** Service Worker (`sw.js`, Cache `sling-jump-v3.34.0`) cacht alle Kern-Assets für Offline-Spielbarkeit.
+### 9.1 Zero GC Frame Budget
+- Pre-allocated Float32Array and typed buffers for particles and telemetry. Zero heap allocations inside `requestAnimationFrame`.
+- Average JS execution budget: $\le 0.5\text{ms}$ per frame (out of $16.6\text{ms}$).
 
----
+### 9.2 Debounced Persistence
+- In-flight events (coin pickups, combos, altitudes) debounce storage writes by $\ge 1500\text{ms}$ (`saveDeferred`).
+- Synchronous `localStorage.setItem()` writes are strictly limited to Game Over, revive, or shop transactions.
 
-## 10. SPIELER-IDENTITÄT, PROFIL-SYSTEM & TELEMETRIE-ANALYTICS
-
-### 10.1 Automatische & Bequeme Gamer-Profile (`StorageService.js`)
-* **Keine bürokratische Pilot-Terminologie:** Veraltete Pilot- und Gast-Begriffe ("Gast-Pilot", "Pilot-1") wurden vollständig durch coole, moderne Gaming-Tags ersetzt.
-* **Algorithmische Namens-Generierung (`generateRandomGamerTag`):**
-  * Kombiniert 20 futuristische Präfixe (`Neon`, `Shadow`, `Cyber`, `Nova`, `Vortex`, `Apex`, `Turbo`, `Ghost`, `Pixel`, `Quantum`, `Blaze`, `Frost`, `Cosmic`, etc.) mit 16 markanten Substantiven (`Viper`, `Runner`, `Blade`, `Wolf`, `Hawk`, `Falcon`, `Fox`, `Knight`, `Striker`, `Drifter`, etc.) und einer 2-stelligen Zahl (`10` bis `99`).
-  * Beispiele: `NeonViper42`, `ShadowWolf58`, `CyberBlade17`, `NovaStrike99`.
-* **Persistente Spieler-ID (`generateUniqueUserId`):**
-  * Eindeutiger Identifikator im Format `usr_[timestamp36][random36]` (z. B. `usr_mtmx77qn2tz252`).
-  * Bleibt dauerhaft im lokalen Speicher verankert und überlebt Versions-Updates.
-* **Nahtlose Migration & Sofortige Registrierung:**
-  * Jeder Spieler ist ab dem allerersten Start automatisch registriert (`registered: true`).
-  * Bestehende Speicherstände mit Alt-Namen werden beim ersten Laden automatisch auf moderne Gamer-Tags und eindeutige IDs migriert.
-
-### 10.2 Visuelles Feedback für den Login-Status (`index.html`, `style.css`)
-* **Header-Profil-Pille (`#btn-menu-profile`):**
-  * **Pulsierender Online-Indikator:** Grüner Leuchtpunkt (`.profile-status-dot`, `#10b981`) mit weicher 2.2s Atmungs-Animation (`@keyframes profile-pulse-dot`) signalisiert eindeutig die aktive Session.
-  * **Aktiver Name im Header:** Gamer-Tag wird direkt auf dem Navigations-Button im Hauptmenü angezeigt (`.profile-nav-name`).
-  * **Responsive Truncation:** Passt sich auf mobilen Bildschirmen automatisch an, ohne das Layout zu sprengen.
-
-### 10.3 Profil-Modal & Strikte 1x Namensänderung (`#profile-modal`, `UIManager.js`, `StorageService.js`)
-* **Hero Gamer Tag & ID-Badge:** Großformatige Orbitron-Darstellung und dezente Monospace-Badge (`ID: usr_...`).
-* **Entfernung überflüssiger Elemente:**
-  * Das redundante "• AKTIV"-Badge wurde restlos entfernt.
-  * Der Zufallswürfel-Button (`#btn-profile-random`) wurde entfernt, um das Profil-UI auf das Wesentliche zu reduzieren.
-* **1x Namensänderungs-Schutz:**
-  * Spieler starten mit einem automatisch generierten Gaming-Tag und können ihren Namen genau einmal anpassen (`nameChanges: 0`).
-  * Sobald der Name 1x gespeichert wurde (`nameChanges >= 1`), wird das Textfeld gesperrt (`disabled`), der Speichern-Button ausgeblendet und der Status-Hinweis `NAME FESTGELEGT (1x GEÄNDERT)` eingeblendet.
-* **Strikte Zero-Emoji-Garantie:** Nur scharfe SVG-Vektoricons und moderne Typografie.
-
-### 10.4 Telemetrie & Monetarisierungs-Analytics (`AnalyticsService.js`)
-* **Automatischer Identitäts-Payload:**
-  * Jedes Tracking-Ereignis (`sendEvent`) extrahiert automatisch `userId` und `gamerTag` aus dem Profil.
-  * Schema:
-  ```json
-  {
-    "event": "run_completed",
-    "version": "v3.35.0",
-    "deviceId": "dev_4k9x...",
-    "sessionId": "sess_8m2b...",
-    "userId": "usr_mtmx77qn2tz252",
-    "gamerTag": "NeonViper88",
-    "data": { "altitude": 490, "coins": 0, "durationSeconds": 14 },
-    "clientTime": "2026-09-04T12:18:49.000Z"
-  }
-  ```
-* **Relevanz für Monetarisierung & Live-Ops:**
-  * Präzise Bestimmung von Daily Active Users (DAU) und Monthly Active Users (MAU).
-  * Exakte Kohorten- und Retention-Messung pro Spieler ohne Datenschutz-Verstöße.
-  * Grundlage für zielgerichtetes Balancing und zukünftige Monetarisierungs-Optimierungen.
-
-### 10.5 Globales Leaderboard mit strikter Highscore-Deduplizierung (`UIManager.js`, `Constants.js`, `StorageService.js`)
-* **Reines globales Leaderboard (Global Top 100):**
-  * Das Leaderboard konzentriert sich zu 100% auf die weltweite Rangliste ohne ablenkende Reiter oder lokale Tabs.
-  * **Genau ein Eintrag pro Spieler (Highscore-Prinzip):** Jeder Spieler erscheint mit maximal einem einzigen Eintrag in der Bestenliste – exakt seiner persönlichen Bestleistung. Mehrfache Flüge desselben Spielers werden automatisch aggregiert, sodass ausschließlich der höchste Rekord gewertet wird.
-  * **Minimalistische, kopfzeilenfreie Rangliste:** Keine störenden Spaltenüberschriften (`RANG`, `PILOT`, `METER` entfernt). Die visuelle Anordnung ist durch Kartendesign und Typografie selbsterklärend.
-  * **GLOBAL (TOP 100):**
-    * Präsentiert die weltweite Rangliste aller einzigartigen Piloten mit bis zu 100 Einträgen.
-    * Der eigene Rekord (`highScore`) wird mit dem Spieler-Namen und `(DU)`-Badge dynamisch in die weltweite Liste einsortiert.
-    * Sticky Player-Banner berechnet den globalen Rang (z.B. `#1`) und die persönliche Bestleistung.
-
-### 10.6 Authentisches Steuerungs-Tutorial (`index.html`, `UIManager.js`)
-* **Minimalistischer Header:** Redundante Subtitel entfernt; die Modal-Kopfzeile trägt einzig den klaren Titel `STEUERUNG`.
-* **Einheitliche Typografie:** Alle Erklärungstexte unter dem Canvas sind farblich konsistent im klaren Slate-Weiß (`#e2e8f0`) formatiert.
-* **Authentische Live-Gameplay-Simulation (60 FPS Canvas):**
-  * Echter leuchtender Haltestrahl (cyanfarbener Laser-Tether `#00f0ff`) verbindet Schiff und Knoten während des Orbits.
-  * Vertikales Kamera-Tracking: Beim 90°-Katapultstart scrollt die Welt flüssig nach unten, während das Schiff nach oben beschleunigt.
-  * Schwebende Münzen (`+1 COIN`) mit Sammeleffekt und Funkenpartikeln im Flugkorridor.
-  * Dynamisches In-Game Mini-HUD mit Live-Höhenanzeige (`ALT: 28M -> 114M`) und `PERFEKT`-Feedback-Badge.
-
-### 10.7 Deaktivierte Fullscreen-API & Reines 100dvh Viewport-Locking (`main.js`, `style.css`)
-* **Vollständige Eliminierung von Android-Sicherheitstoasts:**
-  * Durch die dauerhafte Deaktivierung des JavaScript-Aufrufs `requestFullscreen()` in Browser-Tabs wird der native Chromium-Sicherheitshinweis (`"<domain> – zum Beenden des Vollbildmodus: von oben ziehen"`) restlos unterbunden.
-  * **100dvh Viewport-Lock & Scroll-Stabilisierung:** `body, html` und `#game-container` nutzen `100dvh` und `overscroll-behavior: none`. Eine passive `stabilizeViewport()`-Routine hält die Scroll-Position bei `load`, `orientationchange` und `resize` nahtlos auf `(0, 0)`.
-  * **Echtes Vollbild ohne Toasts via PWA-Installation:** Bei Installation auf den Startbildschirm ("Zum Startbildschirm hinzufügen" / PWA) öffnet Android Chrome das Spiel als Standalone-WebAPK automatisch im nativen Vollbildmodus – vollständig ohne Browserleisten und ohne jegliche Sicherheitstoasts.
-
-### 10.8 Globaler Top-Right 'X' Modal Close Standard (`index.html`, `style.css`)
-* **Beseitigung aller unteren Schließen-Buttons:** Alle redundanten "SCHLIESSEN"-Buttons am unteren Rand von Modals wurden vollständig durch minimalistische Vektor-Icons (`.modal-close-x`) in der oberen rechten Ecke ersetzt.
-
-### 10.9 Minimalistische währungsfreie UI-Badges (Zero-Background Currency)
-* **Reine Vektor-Symbole & Typografie:**
-  * Entfernung aller klobigen Pillen-Hintergründe (`background: none`, `border: none`, `padding: 0`).
-  * Nur das scharfe Vektor-Icon und die leuchtende Zahl sind sichtbar.
-
-### 10.10 Kristall-Icon im Wiederbeleben-Button & Kuratierte Top-5 Statistiken
-* **Game Over Revive-Button:**
-  * Das Textwort `"KRISTALL"` wurde komplett durch das minimalistische SVG-Vektor-Icon (`1 <svg class="crystal-icon">`) ersetzt.
-  * Kein Überschreiben des Button-Texts mit `"0 KRISTALLE (WERBUNG BALD)"` – der Button bleibt stets bei `"WIEDERBELEBEN"` mit klarem Inaktiv-Zustand und informativer Status-Subline.
-* **Kuratierte Top-5 Statistiken:**
-  * Überfrachtete 10-Karten-Statistik auf 5 Kern-Metriken reduziert: Persönlicher Rekord (Hero-Karte), Geflogene Distanz, Gespielte Runden, Beste Combo, Gesammelte Coins.
-
-### 10.11 Frühere Schwierigkeits-Progression & Tiefraum-Gefahren
-* **Frühe Pendelknoten:** Bereits ab 250m Höhe (Zone 2) treten bewegliche Pendelknoten (15%) auf.
-* **Frühe Zeituhr-Knoten:** Bereits ab 750m Höhe (Zone 3) erscheinen Countdown-Knoten (14%).
-* **Frühe Weltraum-Minen:** Tödliche Minen spawnen bereits ab 5.000m (vorher erst ab 10.000m).
-### 10.12 Death Screen & Main Menu Vector Polish (v4.7.0)
-* **Death Screen (Game Over Modal):**
-  * **Radiante Hero-Score Typografie:** `.hero-altitude-val` nutzt ultra-hohes Kontrast-Weiß (`#ffffff !important`) mit radialem Neonglow (`text-shadow: 0 0 24px rgba(56, 189, 248, 0.4)` bzw. Gold-Glow bei Bestleistungen). Der Chromium/Blink-Clipping-Bug (schwarze Ziffern durch `-webkit-background-clip: text` mit `text-shadow`) ist restlos beseitigt.
-  * **Status-Header-Hierarchie:** Dynamischer Status-Header mit `.flight-ended-indicator` (`FLUG BEENDET`) für Standard-Flüge und leuchtendem `.new-record-indicator` (`★ NEUER REKORD`) bei neuen Bestleistungen.
-  * **High-Impact Action Buttons:** Replay-Button (`.btn-replay`) mit lebendigem Cyan-Verlauf und Drop-Shadow. Wiederbeleben-CTA mit dezentem Kristall-Magenta-Gradienten und Status-Subline.
-  * **Modernisierte Belohnungs-Chips:** Münzen und Hyper-Kristalle in abgerundeten Glassmorphism-Pills mit themenspezifischen Vektor-Icons.
-* **Main Menu Hintergrund (Atmosphärischer Raum & Parallax-Gitter):**
-  * **Zero-GC Tiefen-Gradient:** Gecachter vertikaler Farbverlauf vom kosmischen Indigo-Schimmer zum tiefen Void-Schwarz.
-  * **Parallax Cyber-Grid:** Zartes architektonisches Vektorgitter (`theme.gridColor`), das synchron mit der Kamera scrollt.
-  * **Atmosphärische Nebulae:** Zwei großflächige, sanft atmende Radial-Nebel-Auren (Cyan & Magenta) für tiefe Dreidimensionalität.
-  * **Radiante Vektor-Sterne:** Dezent strahlende 4-Punkt-Glanzlichter auf helleren Sternen.
-  * **CSS-Radial-Vignette:** `#menu-overlay` fokussiert das Auge cinematisch auf Spieltitel und Aktions-Buttons.
-* **Main Menu Buttons (Tutorial, Skins, Statistiken):**
-  * **Fehlerfreie Farb-Variablen:** `:root`-Definitionen von `--action-start` und Semantik-Farben von zirkulären Referenzen befreit.
-  * **Illuminierte Icon-Bubbles:** Jeder Button besitzt eine zentrierte runde Vektor-Icon-Bubble mit akzentuierter Farbgebung (Tutorial: Sky-Cyan `#38bdf8`, Skins: Kristall-Magenta `#d946ef`, Statistiken: Gold-Bernstein `#fbbf24`).
-  * **Mobile-Responsive:** Automatisch optimierte Paddings und Skalierung auf 390px-Displays für perfekten Textfluss ohne Überlappungen.
-
-### 10.13 Live Dynamic High-Precision FPS Telemetry & Cache Invalidation (v4.7.1)
-* **Dynamische Echtzeit-Framerate-Messung:**
-  * Rolling-Window Delta-Time Telemetrie (4-Frame Gleitkomma-Puffer) mit Mikrosekunden-Präzision (`59.9 FPS`, `60.0 FPS`, `60.1 FPS`, Frametimes `16.6ms`, `16.7ms`).
-  * Nahtlose Umschaltung zwischen statischem 60-FPS-Fallback und kontinuierlicher Live-Telemetrie bei laufendem Game Loop.
-  * Main Menu FPS Pill (`#menu-fps-badge`) mit `white-space: nowrap` und fester Positionierung unterhalb des Quest-Icons.
-* **Aggressives Service Worker Cache-Busting:**
-  * Aktualisierung auf Cache-Tag `sling-jump-v4.7.1` mit automatischem `self.skipWaiting()` und `clients.claim()`.
-  * Lokales Versions-Audit im Browser (`localStorage.sling_jump_installed_version`) invalidiert alte PWA-Caches bei Versionssprüngen sofort.
-
-### 10.14 Cinematic Death Screen & Grapple Polish Pass (v5.8.0)
-* **Sternenfeld-Balancierung:**
-  * Reduzierung der Sternendichte im Hauptmenü auf einen ruhigen, eleganten Wert (Divisor 5800, Sternengrößen 0.6–2.0px).
-* **Entfernung des Grapple-Blurs:**
-  * `#slowmo-overlay` dauerhaft unterdrückt (`display: none !important`), wodurch die periphere Cyan-Vignette beim Einhaken vollständig eliminiert wurde.
-  * Node-Aura (`getCachedGlow`) wird während des Einhakens ausgeblendet.
-  * `shadowBlur` im aktiven Fragile-Sweep-Gauge und am Tether-Haltestrahl entfernt (strikte Einhaltung der 60+ FPS Rule 8 Invariante).
-* **Minimalistische Währungs-Chips im Death Screen:**
-  * Wiedereinführung von Gold-Münzen und Hyper-Kristallen im Game-Over-Screen in puristischer Form: Ausschließlich SVG-Vektor-Icons und `+X`-Zähler (`#final-orbs`, `#final-crystals`).
-  * Vollständige Vermeidung von Wort-Labels wie "MÜNZEN" oder "KRISTALLE".
-* **Sternen-Hintergrund im Death Screen:**
-  * Gestochen scharfes Funkeln durch `.debrief-stars` und `.debrief-stars2`.
-  * Weicherer Gradient-Hintergrund ohne `backdrop-filter: blur(6px)` für direkte optische Parität mit dem Weltraumhintergrund des Spiels.
-* **Action-Button Typografie & Zentrierung:**
-  * `NEUSTART`: Button-Inhalt (Icon + Text) absolut zentriert, `SPACE`-Tastatur-Badge entfernt.
-  * `ZWEITE CHANCE`: Text in der Button-Mitte zentriert, Schild-Icon und "ab x Metern"-Untertitel restlos entfernt. Kristall-Kosten-Badge (`#revive-cost-tag`) als Pille rechts platziert.
-
----
-
-## 11. Standalone Game & Growth Analytics Suite (`dashboard/`)
-
-### 11.1 Entkoppelte Multi-App-Architektur
-* **Vollständige Trennung von Spiel und Analyse:**
-  * Das Dashboard ist eine vollständig autark lauffähige Single-Page-Application in `dashboard/`, die über eine eigene PWA-Konfiguration (`dashboard/manifest.json`), ein modulares SaaS-Design (`dashboard/css/dashboard.css`) und entkoppelte Kontrollskripte verfügt.
-  * **Zero-Coupling Multi-Agent Hygiene:** Keine Code-Abhängigkeit zur Spiel-Physik, Engine-Loops oder den UI-Managern des Hauptspiels. Das Spiel sendet lediglich passive JSON-Telemetrie via HTTP POST (`/api/telemetry`).
-  * **Dedizierter Backend-Server (`dashboard/server.js`):** Unabhängiger Node.js Server auf Port 3001 (`npm run serve:dashboard`) mit REST-Routen (`/api/analytics/summary`, `/api/analytics/events`, etc.).
-
-### 11.2 Sechs Analytische Dimensionen
-1. **Übersicht (Executive Dashboard):**
-   * Live-Puls (aktive Sitzungen in den letzten 45s).
-   * Aggregierte Kennzahlen: Unique Geräte, Tagesrunden, Allzeit-Rekordhöhe, kumulierte Münzen.
-   * 7-Tage-Aktivitätsverlauf über responsive SVG-Flächengraphen.
-2. **Marketing & Vertrieb (Acquisition & Virality):**
-   * **UTM-Attribution:** Erfassung und Aggregation von Kampagnen (`utm_source`: TikTok, Reddit, Discord, Twitter, QR-Flyer, Poki, Itch.io).
-   * **Multi-Step Conversion Funnel:** `Impression / Web-Aufruf` &rarr; `Spielstart` &rarr; `1. Slingshot-Sprung` &rarr; `PWA-Installation` &rarr; `D1-Retention`.
-   * **Virality K-Faktor:** Tracking von Score-Shares (WhatsApp, Link-Kopien) zur Bestimmung organischen Wachstums.
-3. **Gameplay-Balancing & Churn-Heatmap:**
-   * **Höhenzonen-Dropoff-Analyse:** Exakte Häufigkeitsverteilung von Piloten-Abstürzen über alle 7 Höhenzonen (0–500m Kalibrierung bis 15.000m+ Meister-Kosmos).
-   * **Schiff-Performance-Matrix:** Pick-Rate, mittlere Überlebenshöhe und Münz-Ausbeute pro Raumschiff.
-   * **Todesursachen-Taxonomie:** Missglücktes Einrasten (Void-Fall), Zeituhr-Timeout (Fragile Node), Raumminen-Kollision, Pendelhindernis.
-4. **Virtuelle Ökonomie & Upgrades:**
-   * **Faucet vs. Sink Gleichgewicht:** Vergleich von erwirtschafteten Münzen (Sterne, Quests) zu ausgegebenen Münzen (Hangar-Käufe, Wiederbelebungen).
-   * **Freischaltungs-Progressionskurve:** Prozentualer Schiffs-Besitz über die Gesamt-Spielerbasis.
-5. **System-Gesundheit & Hardware-Diagnostik:**
-   * Plattform- und Betriebssystem-Breakdown (iOS, Android, Windows, macOS).
-   * Mittlere Bildrate (FPS) über alle Hardware-Klassen.
-   * Adoptionsrate des Leistungs-Modus (Performance-Mode) zur Batterieschonung.
-   * Fehlerprotokollierung für clientseitige JavaScript-Fehler (0 kritische Fehler garantiert).
-6. **Live Event-Explorer & BI-Datenexport:**
-   * Filterbarer Echtzeit-Eventstream aller Ereignisse (`session_start`, `run_completed`, `share_score`, `pwa_install`).
-   * 1-Klick-Export als CSV für Tabellenkalkulationen (Excel, Google Sheets, Python).
-   * Vollständiger JSON-Datensatz-Dump und Clipboard-Kopierer.
-
-### 11.3 Synthetischer Benchmark-Generator & SVG-Visualisierungen
-* **520+ Benchmark-Sitzungen (`mock-data.js`):**
-  * Statistisch kalibrierter Datensatz erlaubt sofortige visuelle Inspektion aller Trichter und Heatmaps auch ohne Server-Verbindung oder im Offline-Modus.
-  * Umschaltbar über die Schaltfläche `[ WECHSELN ]` in der Kopfleiste.
-* **Reine SVG-Visualisierungs-Engine (`charts.js`):**
-  * Null externe Abhängigkeiten (Zero-Dependency), keine schweren Drittanbieter-Bibliotheken, gestochen scharfe Vektoren, barrierefreie Skalierbarkeit.
-
----
-
-## 12. AUDIO-ENGINE & PROZEDURALES SOUNDSYSTEM (GOOGLE LYRIA INTEGRATION)
-
-### 12.1 Zweistufige Audio-Architektur (`AudioManager.js`)
-* **Stufe 1 – Hochauflösende Asset-Puffer (`assets/audio/`):**
-  * Asynchrones Preloading via `fetch` & `decodeAudioData`.
-  * Dynamisches 1.5s Exponential-Crossfading zwischen Musiktiteln (`bgm_menu`, `bgm_gameplay`, `bgm_gameover`).
-  * **Bullet-Time Dynamic Low-Pass Ducking:** Biquad-Tiefpassfilter senkt die Grenzfrequenz bei Zeitlupe auf 650 Hz ab und öffnet sie beim Katapultstart blitzartig auf 20.000 Hz.
-  * **Core Combo Pitch Ramp:** Aufeinanderfolgende Energiekerne innerhalb von 1.4s steigern die Tonhöhe um `+1 Halbton` pro Kern (bis zu 8x Multiplikator).
-* **Stufe 2 – Prozeduraler Web Audio Synthesizer (Zero-Asset Failsafe):**
-  * Fällt bei fehlenden Dateien, langsamen Verbindungen oder Offline-Nutzung nahtlos auf reine Oszillatoren zurück (`playProceduralAmbient` / `playProceduralSfx`).
-  * Mehrstimmige warme analoge Akkorde (Grundton, Quinte, Oktave) mit subtilem LFO-Filter-Sweep für cineastischen Synthwave-Klang ohne Ladezeiten.
-
-### 12.2 Google Lyria 3.5 & MusicFX Integrations-Pipeline
-* Vollständiges Prompt-Handbuch in [`AUDIO_GUIDE.md`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/AUDIO_GUIDE.md).
-* Menü-Theme: 95 BPM Ambient Synthwave (A-Moll).
-* Gameplay-Theme: 128 BPM Energetischer Driving Synthwave mit druckvollem Basslauf (D-Moll).
-* Game-Over: 80 BPM Tragischer cineastischer Ausklang mit tiefem Raum-Hall.
-* 7 Soundeffekte für Grapple-Lock, Slingshot-Boost, Kern-Pickup, Sternen-Shatter, Near-Miss, Crash und UI-Click.
-
-### 12.3 Benutzeroberfläche & Autoplay-Schutz
-* Interaktiver `[ AN ]` / `[ AUS ]` Umschalter im Einstellungs-Menü (`#btn-audio-toggle`).
-* Benutzergesten-Freischaltung: Sanftes Entsperren des `AudioContext` bei erstem Klick/Touch (`pointerdown`, `keydown`).
-
----
-## 13. ECHTZEIT-TELEMETRIE, ZERO-GC FPS-RINGPUFFER & BENCHMARK-HARNESS
-
-### 13.1 Allokationsfreier Ringpuffer & Reaktive Live-Telemetrie (`GameEngine.js`)
-* **Struktur:** `this.fpsCounter` nutzt ein typisiertes `Float32Array(30)` als Ringpuffer (`deltaHead = (deltaHead + 1) % 30`).
-* **Zero-Allocation Invariante:** Weder beim Einfügen noch bei der Mittelwertbildung werden neue Objekte oder Arrays im Render-Loop alloziiert. Garbage Collection-Pausen während des Fluges sind ausgeschlossen.
-* **Reaktive 4-Frame Rolling Telemetry (160ms Intervall):**
-  * Alle 160ms berechnet die Engine den Durchschnitt der jüngsten 4 Frame-Deltas (`avgDt`), die Echtzeit-Momentan-FPS (`1000 / avgDt`) und den Min-FPS-Wert des Intervalls.
-  * Durch das 160ms-Fenster und die 1-Dezimalstellen-Präzision (`59.9 FPS`, `60.0 FPS`, `60.1 FPS` / `16.6ms`, `16.7ms`) bildet die Anzeige die authentische Taktung des Browsers und Hardware-Frame-Pacings in Echtzeit dynamisch ab.
-* **Dynamische Performance-Farbabstufung:**
-  * $\ge 90\text{ FPS}$: Elektrisches Cyan (`#38bdf8`) für ProMotion / 90Hz, 120Hz & 144Hz Displays.
-  * $\ge 55\text{ FPS}$: Smaragdgrün (`#10b981`) für das stabile 60 FPS Ziel.
-  * $\ge 42\text{ FPS}$: Bernstein (`#fbbf24`) bei temporären Mikrorucklern.
-  * $< 42\text{ FPS}$: Rubinrot (`#ef4444`) bei kritischem Frame-Drop.
-* **Multi-Screen Telemetrie-Architektur:**
-  * **In-Game HUD-Badge (`#hud-fps-badge`):** Gestochen scharf im Score-Header neben dem Höhenrekord.
-  * **Hauptmenü-Badge (`#menu-fps-badge`):** Vertikal unter dem Aufgaben-Icon (`.menu-top-left-col`) mit `white-space: nowrap`.
-  * **Herzschlag-Puls:** Ein sanfter CSS-Puls (`fps-pulse 1.3s`) auf dem Indikator-Punkt visualisiert die aktive Messung.
-  * Gesteuert über den Schalter **FPS-ANZEIGE** (`#btn-fps-toggle`) in den Einstellungen (standardmäßig auf `AN`).
-
-### 13.2 Asynchrone Persistenz & Entkopplung (`MissionManager.js` & `StorageService.js`)
-* **Debounced Storage (1500ms Delay):**
-  * Routine-Ereignisse während des Flugs (Münzen einsammeln, Boost auslösen, 90°-Steilsprünge, Near-Miss) schreiben niemals synchron in `localStorage.setItem()`.
-  * Stattdessen wird `saveDeferred(1500)` getriggert, was Festplatten-I/O bündelt und Frame-Drops restlos eliminiert.
-* **Synchrone Persistenz:**
-  * Erfolgt ausschließlich bei definitiven Spielzustands-Wechseln: Game-Over-Absturz, Quanten-Wiederbelebung oder Käufe im Hangar.
-
-### 13.3 Katapult-Ansprechverhalten (Zero-Latency Launch)
-* Beim Lösen der Klinke (`triggerActionUp`) wird `timeScale` sofort auf `1.0` gesetzt.
-* Beseitigt die frühere 300ms träge Interpolation und verleiht dem Raumschiff einen unmittelbaren, direkten Arcade-Katapult-Impuls.
-
-### 13.4 Automatisierte Real-Time Gameplay FPS Benchmark-Suite (`scripts/benchmark_fps.js` & `npm run test:fps`)
-* **Warmup-Phase (1.5 Sekunden):** Stabilisierung von State-Transitions, Audio-Context und Initialisierung vor Messbeginn.
-* **Autopilot-Flug (8.0 Sekunden):** Deterministische Simulation aktiver Gameplay-Schleifen (Slingshots, Partikel-Spawns, Münzkollisionen).
-* **Telemetrie-Invariante:** Stoppt Messung vor Screenshot-I/O, um Messwerte nicht durch Festplattenzugriffe zu verfälschen.
-* **Prüft strikte Gütekriterien:**
-  1. Durchschnittliche FPS $\ge 55.0$ (60+ FPS Ziel).
-  2. Mittlere JS-Rechenzeit pro Frame $\le 5.0\text{ ms}$ (Budget: $16.6\text{ ms}$).
-  3. Maximale JS-Rechenzeit pro Frame $\le 14.0\text{ ms}$.
-  4. Hitches $> 50\text{ ms} = 0$.
-  5. 0 Konsolenfehler und 0 unbehandelte Exceptions.
-* Speichert detaillierten Audit-Report in `screenshots/FPS_BENCHMARK.json` und erfasst Live-Screenshot `screenshots/08b_gameplay_fps_hud.png`.
-
-## 14. BOLD CRIMSON RED HAUPTMENÜ-SYSTEM, DELTA DART & HARMONISIERTE HANGAR-BÜHNE (v5.3.0)
-
-### 14.1 Crimson Red Theme & Typografie-Hierarchie
-* **Design-Tokens (`css/style.css`):**
-  * `--accent-crimson: #ff1e42` (Primäres Karminrot)
-  * `--accent-crimson-rgb: 255, 30, 66`
-  * `--accent-crimson-glow: rgba(255, 30, 66, 0.55)`
-* **Dominanter Wordmark-Hero (54px Display):**
-  * `.center-stage` auf `margin: 4px 0 auto 0;` gestrafft, `.brand-hero` auf `transform: translateY(-26px); margin-bottom: 6px;` angehoben.
-  * `SLING`: Hochkontrastiges, klares Weiß (`#ffffff`) mit 54px Größe und 12px Letter-Spacing (Mobile: 44px, 9px Spacing).
-  * `JUMP`: Elektrisierendes Karminrot mit intensiver Neon-Aura (`text-shadow: 0 0 35px var(--accent-crimson-glow)`).
-* **Launch-CTA (`.btn-play-bold`):**
-  * 66px hoher Primär-Button mit abgerundeten Ecken (20px), hochauflösendem Farbverlauf (`#ff1e42` nach `#b91c1c`) und animiertem Schräg-Glanzlicht (`light-swipe 3s`).
-  * Triggert bei Start 180ms Abschuss-Impuls (`scale(1.4)`, Translation nach oben) mit haptischem Feedback (16ms) vor Zustandswechsel.
-
-### 14.2 Harmonisierte Hangar-Bühne & Pfeillose Direktauswahl
-* **Proportionale Geometrie-Harmonisierung:**
-  * Hangar-Container: **320x300px** (Desktop) bzw. **280x260px** (Mobile).
-  * Äußerer Halo (`.orbit-halo`): **280x280px** (Desktop) bzw. **245x245px** (Mobile) mit 34s Rotation.
-  * Inneres Gravitationsfeld (`.orbit-field`): **195x195px** (Desktop) bzw. **170x170px** (Mobile) mit 22s Gegenrotation.
-  * Raumschiff (`.hero-centered-ship` & `#ship-svg`): **140x140px Container mit 125px SVG** (Desktop) bzw. **120px Container mit 105px SVG** (Mobile).
-* **Pfeillose Interaktion & Stille Selektion:**
-  * Keine störenden Pfeile links und rechts mehr im Hangar.
-  * Umschaltung erfolgt barrierefrei durch Klick/Tap auf das Raumschiff (`#ship-unit`), native Wischgesten ($35\text{px}$ Schwellenwert) oder Klick auf die Kapsel-Punkte (`#dot-0`, `#dot-1`).
-  * Aktives Schiff wird durch pulsierende karminrote Pille hervorgehoben.
-  * Kein störendes Text-Banner am oberen Bildschirmrand beim Durchschalten.
-
-### 14.3 Skin-System: Delta Dart & Phönix
-* **Skin 1: DELTA PFEIL (`dart`):**
-  * Basierend auf maßgeschneiderter Delta-Abfangjäger-Geometrie: Tiefdunkler Rumpf (`#0c1220`) mit markanter weißer Außenkontur, inneres Crimson-Chevron entlang der Flügelkanten, roter Speerkopf an der Bugspitze, vertikaler roter Kiel/Rückgrat, zentraler Cyan-Reaktorring mit massivem weißem Kern.
-  * Triebwerk: Zentrierter einzelner Plasma-Jet (`single-thruster`) mit pulsendem Farbverlauf.
-  * Vollständig synchronisiert in Hangar-SVG und in-flight 2D-Canvas (`renderShipModel`).
-* **Skin 2: PHÖNIX (`phoenix`):**
-  * Symmetrischer Doppel-Klingen-Flügler mit energetisierter Crimson-Innenstruktur und symmetrischen Zwillings-Plasmatriebwerken.
-
-### 14.4 Rasterfreier Kosmos & Vertikales Sternenfeld
-* **Elimination des Hintergrund-Gitters:**
-  * Das prozedurale Cyber-Grid wurde vollständig aus `WorldManager.js` entfernt. Das Weltall wirkt rein, organisch und tiefenschwarz.
-  * `gridColor` aus allen 4 Farbthemen entfernt.
-* **Beruhigte Sternen-Dynamik:**
-  * Schräge Translationsberechnungen (`driftX`) entfernt. Sterne bewegen sich rein vertikal synchron mit dem Kameraschub.
-  * 5px Pixel-Kreuze durch feine, funkelnde Mikro-Dots mit sanfter Sinus-Alpha-Pulsierung ersetzt.
-
-### 14.5 Persistentes Rang-Badge (#42) & Unverwechselbare Trophäe
-* **Echtzeit-Rang-Trophäe (`#btn-menu-leaderboard`):**
-  * Echter Siegerpokal mit geschwungenen Griffen, Sockel und Schaft – optisch sofort von der 3-Balken-Statistik (`#btn-menu-stats`) differenziert.
-  * Pinned Gold-Pille (`#42` oder berechneter Spieler-Rang aus den Top-100) direkt an der Trophäe.
-  * Macht den eigenen Rang sofort sichtbar, ohne dass der Spieler die Bestenliste aufrufen muss.
-
----
-
-## 15. FRONT-TAB MODAL-ARCHITEKTUR & UI-STIL-VEREINHEITLICHUNG (v5.1.0)
-
-### 15.1 Front-Tab Layering & Canvas-Isolierung
-* **Persistenter Menü-Hintergrund:**
-  * Wenn sekundäre Modals geöffnet werden (`SETTINGS`, `STATS`, `LEADERBOARD`, `QUESTS`, `TUTORIAL`), bleibt das Hauptmenü (`#menu-overlay`) mit der Klasse `.visible` im Hintergrund aktiv und sichtbar.
-  * Modals fungieren als hochkontrastige **Front-Tabs** direkt vor dem Hauptmenü mit semi-transparentem Backdrop (`background: rgba(3, 7, 18, 0.58)`) und Tiefen-Weichzeichner (`backdrop-filter: blur(16px)`).
-  * Wenn Einstellungen aus dem Pause-Zustand geöffnet werden, bleibt das pausierte HUD und Pause-Overlay im Hintergrund erhalten.
-* **Unterdrückung von Gameplay-Knoten im Menü:**
-  * In `GameEngine.render()` wird das Zeichnen von dynamischen Gameplay-Knoten und Orbs unterdrückt, solange sich das Spiel in Menü- oder Modal-Zuständen befindet (`MENU`, `SETTINGS`, `STATS`, `LEADERBOARD`, `QUESTS`).
-  * Dadurch bleibt der 2D-Canvas ein ruhiges, ungestörtes Sternenfeld ohne unerwünschte Hintergrund-Artefakte oder -Sprünge.
-
-### 15.2 Neon Crimson & Void Black Design-Harmonisierung
-* **Karten & Container:**
-  * Alle Modal-Karten (`.modal-card`) nutzen einen tiefschwarzen Verlauf (`rgba(8, 14, 28, 0.94)` auf `rgba(4, 8, 18, 0.98)`), subtile 1px Rahmen mit Karminrot-Glow (`rgba(255, 30, 66, 0.22)`) und weiche Schatten.
-  * Interaktive Schalter (`#btn-audio-toggle`, `#btn-fps-toggle`) wechseln im aktiven Zustand auf karminrote Ränder (`#ff1e42`) mit passendem Glow.
-  * Primäre Schaltflächen (`.btn-primary`) nutzen den markanten Farbverlauf (`#ff1e42` zu `#b91c1c`) mit sanfter Atemanimation (`crimson-breathe 2.8s`).
-
-### 15.3 Architektur-Entschlackung & Zero-Dead-Code Invariante
-* **Entfernung des Legacy Shop-Modals:**
-  * Das historische `#shop-modal` wurde vollständig aus dem DOM und CSS entfernt.
-  * Sämtliche Shop-spezifischen Event-Listener in `main.js` wurden bereinigt.
-  * Das Schiffs-Browsing und die Auswahl finden exklusiv und nativ über das zentrierte Hauptmenü-Karussell statt.
-* **Statische Währungs-Kapsel:**
-  * Das Währungs-Pill im Menü-Header (`#menu-currency-pill`) ist ein reines Status-Display (Münzen und Kristalle). Klicks lösen keine unerwünschten Modals oder Navigationen mehr aus.
-
----
-
-## 16. FLIGHT DEBRIEF DEATH SCREEN & SKIN 2 PROGRESSIONS-ÖKONOMIE (v5.4.0)
-
-### 16.1 Flight Debrief (Architektur & Sequenzierung)
-* **Vollbild-Arcade-Passform & Kosmische Hintergrund-Parität:**
-  * Der Death Screen (`.debrief-container`) füllt `#game-container` nahtlos zu 100% aus (`width: 100%; height: 100%; border-radius: 0;`).
-  * Sämtliche künstlichen bläulichen Gradienten (`#070a14`), synthetische CSS-Sternenpunkte (`.debrief-stars`) und Scanlines (`.debrief-scan`) wurden restlos entfernt.
-  * Das Modal `#gameover-modal.modal-overlay` liegt als tiefschwarze Kosmos-Vignette (`rgba(2, 3, 6, 0.78)` bis `rgba(0, 0, 0, 0.94)`) mit dezentem `backdrop-filter: blur(6px)` über dem Canvas, sodass das reale Spiel-Canvas mit seinen originalen Sternen und Nodes unmittelbar als Hintergrund sichtbar bleibt – identisch zum Gameplay und spürbar dunkler.
-* **Fokussierter Minimalismus (Zero Clutter):**
-  * Status-Stempel (`SIGNAL VERLOREN`) und Währungszeile (`MÜNZEN`, `KRISTALLE`) wurden entfernt, um der Held-Flugdistanz und dem Rekordfortschritt uneingeschränkte Priorität zu geben.
-* **Sequenzierte Staging-Phasen (Line First, Then Rest):**
-  1. **Phase 1: Trajektorie-Aufstieg (0.0s – 0.85s):** Die Flugbahn-Linie (`#debrief-trace-path`) zeichnet sich via `stroke-dashoffset` organisch geschwungen von der Startbasis (000 m) bis zur exakten Absturzhöhe hoch.
-  2. **Phase 2: Crash-Detonation & Schockwelle (0.82s):** Sobald die Linie ankommt, detoniert der Crash-Leuchtpunkt mit einem expandierenden Radar-Schockwellenring (`debrief-shockwave-pulse`).
-  3. **Phase 3: Synchroner Höhenzähler (0.80s – 1.45s):** Die Flugdistanz (`#final-altitude-val`) zählt exakt ab dem Eintreffen der Linie live von 0 auf die erreichte Meterzahl hoch.
-  4. **Phase 4: Kaskadierende Debrief-Module (0.85s – 1.25s):**
-     - Flugdistanz-Hero-Block bei 0.85s.
-     - Rekordjagd-Leiste & Füllbalken bei 0.94s / 1.00s (Gold-Badge bei `NEUER REKORD!`).
-     - Telemetrie-Modulbox (`GRAPPLES`, `BESTER SWING`, `FLUGZEIT`) bei 1.04s.
-     - Action-Buttons (`WEITERFLIEGEN`, `NEUSTART`, `MENÜ`, `RANG`, `TEILEN`) bei 1.15s.
-* **High-End Button-Architektur:**
-  * **WEITERFLIEGEN:** Cyber-Glas mit violett-blauem Gradienten, Quantum-Schild-Vektor in Glas-Badge, entkoppelter Typografie ("WEITERFLIEGEN" + "ZWEITE CHANCE · AB [ALT] M") und Kristall-Kosten-Chip.
-  * **NEUSTART:** High-Impact Arcade-Crimson-Rot (`#ff244c`), kreisförmiges Reload-Icon links, fette tracked Typografie, und klares `SPACE`-Desktop-Kürzel.
-* **Geteilter 80px-Koordinatenraum:**
-  * Trajektorie-SVG (`viewBox="0 0 80 932"`) und linke Telemetrie-Schiene (`width: 80px`) nutzen identische Skalierung: Der Absturz-Marker (`tick-row-crash`) liegt exakt auf derselben Pixel-Höhe wie das Zentrum der Absturz-Bake.
-
-### 16.2 Progression: Gesperrter Phönix-Skin mit 500 Münzen Kauf
-* **Stealth-Vorschau (Gesperrt):**
-  * Vor dem Kauf bleibt das 2. Raumschiff (`phoenix`) geheim: Eine dunkle Silhouette mit gelber Zielmatrix und dezentem Puls-Glow wird gerendert, ohne Triebwerksflammen oder Innengeometrie zu verraten.
-* **Kauf-Schaltfläche (`#btn-buy-ship`):**
-  * Zeigt `KAUFEN 500 [MÜNZE]`.
-  * Bei Klick wird geprüft, ob `storage.data.cores >= 500`:
-    - **Erfolg:** 500 Münzen werden abgebucht, der Skin freigeschaltet (`unlockShip('phoenix')`), das Schiff enthüllt und der Sound-Jingle ausgelöst.
-    - **Nicht genügend Münzen:** Button führt eine visuelle Rüttelanimation (`ship-btn-shake`) mit rotem Rahmen aus.
-
-### 16.3 Stille Belohnungseinlösung bei Quests
-* **Befreiung von störenden Toasts:**
-  * Klick auf `BELOHNUNG EINSAMMELN` im Quest-Hub löst keinen Bildschirm-Toast mehr aus.
-  * Der Button wechselt geräuschlos und direkt auf `EINGELÖST`, Münzen werden gebucht und das Währungs-Display im Header zählt auf.
-
----
-
-## 17. STERNENFELD-DRIFT, SCHWIERIGKEITS-TUNING & HOVER-FEUER (v5.5.0)
-
-### 17.1 Lebendiges Sternenfeld mit Parallax-Drift
-* **Sanfte X-Drift:** Sterne bewegen sich mit horizontalem Offset (`driftX = now * 0.005 * star.layer`), was auch im Menü und ruhigen Phasen organische Tiefe erzeugt.
-* **Dual-Pass Rendering:**
-  * Pass A: Subtile weiße Hintergrund-Sterne (`#ffffff`, Alpha 0.55).
-  * Pass B: Leuchtende Primär-Neonsterne (`theme.primary || '#00f0ff'`) mit pulsierendem Funkeln und 4-Punkt-Kreuz-Glints bei prominenten Sternen.
-* **Tiefschwarzer Kosmos:** Keine störenden Nebel-Verwaschungen; pechschwarzer Hintergrund (`#020306` bis `#000000`).
-
-### 17.2 Knoten-Dichte & Schwierigkeits-Balance
-* **75% Reduktion von Doppel-Knoten (Forks):** `forkProbability` auf 0.03–0.05 minimiert.
-* **20%–25% erweiterte Sprunglücken:** Höhere vertikale Abstände zwischen den Ankern verlangen bewusstes, getimtes Katapultieren statt hektischem Dauer-Klicken.
-* **Weniger monotone Standard-Knoten:** Reduktion von statischen Standard-Kreisen zugunsten von leichten Pendelknoten ab Zone 1 und taktischen Fragile-Knoten ab Zone 2.
-
-### 17.3 Schwebendes Schiff & Zweistufiges Plasmafeuer
-* **Sinus-Bobbing im Hauptmenü:** Schiff und Triebwerksfeuer schweben gemeinsam vertikal ($\pm 8\text{px}$) in einer 3.2s Sinusschleife.
-* **Mehrschichtiges Plasmafeuer:**
-  * Menü: Tropfenförmiger Rumpfstrahl mit ultra-heißem weißen Ionenkern (`::after`), leuchtendem Crimson-Mantel, Düsen-Flare-Ring (`::before`) und 85ms-Flicker.
-  * In-Game: Zweistufiges Canvas-Triebwerk mit weißem Hochtemperatur-Kern und äußerer Flamme mit geschwindigkeitsabhängiger Längenskalierung.
-
-
-
+### 9.3 In-Game Telemetry Counter
+- `Float32Array(30)` rolling delta ring buffer. Updates every 160ms with dynamic color grading:
+  - $\ge 90\text{ FPS}$: Cyan (`#38bdf8`)
+  - $\ge 55\text{ FPS}$: Emerald (`#10b981`)
+  - $\ge 42\text{ FPS}$: Amber (`#fbbf24`)
+  - $< 42\text{ FPS}$: Crimson (`#ef4444`)

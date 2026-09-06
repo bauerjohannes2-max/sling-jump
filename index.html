@@ -16,6 +16,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Sling Jump">
   <meta name="format-detection" content="telephone=no">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=4.7.1">
   <script>
     (function() {
@@ -44,6 +47,32 @@
 <body tabindex="0">
 
   <div id="game-container" tabindex="0">
+    <!-- Shared Vector Currency Definitions -->
+    <svg width="0" height="0" style="position: absolute; pointer-events: none;">
+      <defs>
+        <!-- Credits Outer Rim Gradient -->
+        <linearGradient id="coinRimGrad" x1="2" y1="1" x2="34" y2="35" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#fde68a" />
+          <stop offset="35%" stop-color="#f59e0b" />
+          <stop offset="100%" stop-color="#78350f" />
+        </linearGradient>
+
+        <!-- Credits Recessed Well Depth -->
+        <radialGradient id="coinWellDepth" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#5c2409" />
+          <stop offset="85%" stop-color="#240a02" />
+          <stop offset="100%" stop-color="#140501" />
+        </radialGradient>
+
+        <!-- Sparks Prismatic Core Gradient -->
+        <radialGradient id="sparkCoreGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#e879f9" />
+          <stop offset="50%" stop-color="#9333ea" />
+          <stop offset="100%" stop-color="#581c87" />
+        </radialGradient>
+      </defs>
+    </svg>
+
     <!-- Master 2D Physics Canvas -->
     <canvas id="gameCanvas"></canvas>
     
@@ -54,55 +83,46 @@
 
     <!-- 1. MAIN MENU OVERLAY -->
     <div class="state-overlay visible theme-crimson" id="menu-overlay">
-      <!-- 1. TOP HEADER BAR: Profile | Currencies | Quests & Settings -->
+      <!-- 1. TOP HEADER BAR: Profile | Currencies & Actions -->
       <header class="menu-top-bar">
-        <!-- Player Profile Capsule -->
-        <button class="icon-nav-btn profile-nav-btn" id="btn-menu-profile" aria-label="Profil" title="Spielerprofil">
-          <span class="profile-status-dot" title="Online"></span>
-          <svg class="icon-svg profile-nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <!-- Player Profile (Clean borderless avatar + callsign) -->
+        <button class="profile-nav-clean" id="btn-menu-profile" aria-label="Profil" title="Spielerprofil">
+          <div class="profile-avatar-wrap">
+            <svg class="icon-svg profile-nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 2a5 5 0 0 1 5 5v3a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"></path>
+              <path d="M20 21v-1a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6v1"></path>
+            </svg>
+            <span class="profile-status-dot" title="Online"></span>
+          </div>
           <span class="profile-nav-name" id="menu-profile-name">SPIELER</span>
         </button>
 
-        <!-- Centered Currency Capsule (Gold Cores & Void Crystals) -->
-        <div class="currency-group currency-capsule" id="menu-currency-pill" title="Währungen">
-          <div class="currency-chip gold" title="Gold-Kerne">
-            <span class="icon">
-              <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;">
-                <circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle>
-                <polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon>
-                <circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle>
-              </svg>
-            </span>
-            <span class="value" id="menu-currency-val">0</span>
-          </div>
-          <div class="currency-chip crystal" title="Void-Kristalle">
-            <span class="icon">
-              <svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;">
-                <polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon>
-                <polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon>
-                <polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon>
-              </svg>
-            </span>
-            <span class="value" id="menu-crystals-val">1</span>
-          </div>
-        </div>
-
-        <!-- Right Action Controls (Quests with alert pip, Settings) -->
+        <!-- Right Action Controls (Quests & Settings) -->
         <div class="menu-top-right-group">
-          <!-- Hidden/Compact FPS pill if enabled -->
+          <button class="top-nav-btn icon-action-btn" id="btn-menu-quests" aria-label="Aufgaben" title="Missionen">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9"></circle>
+              <circle cx="12" cy="12" r="4"></circle>
+              <line x1="12" y1="2" x2="12" y2="5"></line>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+              <line x1="2" y1="12" x2="5" y2="12"></line>
+              <line x1="19" y1="12" x2="22" y2="12"></line>
+            </svg>
+            <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
+          </button>
+          <button class="top-nav-btn icon-action-btn" id="btn-menu-settings" aria-label="Einstellungen" title="Einstellungen">
+            <svg class="icon-svg settings-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="3.2"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+
+          <!-- Hidden/Compact Floating FPS pill if enabled -->
           <div class="stat-badge fps menu-fps-pill" id="menu-fps-badge" style="display: none;">
             <span class="fps-indicator-dot"></span>
             <span id="menu-fps-val">60.0 FPS</span>
             <span id="menu-fps-dt">16.6ms</span>
           </div>
-
-          <button class="icon-nav-btn" id="btn-menu-quests" aria-label="Aufgaben" title="Missionen">
-            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <span class="nav-alert-dot" id="menu-quests-badge" style="display:none;"></span>
-          </button>
-          <button class="icon-nav-btn" id="btn-menu-settings" aria-label="Einstellungen" title="Einstellungen">
-            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          </button>
         </div>
       </header>
 
@@ -116,12 +136,56 @@
           <span class="title-jump">JUMP</span>
         </div>
 
+        <!-- Clean, Frameless Currencies Centered Beneath Logo -->
+        <div class="currency-group currency-clean" id="menu-currency-pill" title="Währungen">
+          <div class="currency-item gold" title="Credits">
+            <span class="icon">
+              <svg class="currency-icon coin-icon" viewBox="0 0 36 36" fill="none">
+                <!-- Outer Beveled Rim -->
+                <circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8" />
+                <circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4" />
+                
+                <!-- Recessed Dark Contrast Well -->
+                <circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75" />
+                
+                <!-- Precision Centered Rajdhani Bold 'C' -->
+                <text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="'Rajdhani', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select: none;">C</text>
+              </svg>
+            </span>
+            <div class="currency-meta">
+              <span class="value currency-value credits-val" id="menu-currency-val">0</span>
+              <span class="currency-label credits-lbl">CREDITS</span>
+            </div>
+          </div>
+          <div class="currency-item crystal" title="Sparks">
+            <span class="icon">
+              <svg class="currency-icon spark-icon" viewBox="0 0 40 40" fill="none">
+                <!-- 8-Point Geometry -->
+                <polygon points="20,2 24,15 38,20 24,25 20,38 16,25 2,20 16,15" fill="url(#sparkCoreGrad)" stroke="#d8b4fe" stroke-width="1" stroke-linejoin="round" />
+                
+                <!-- Top Refractions -->
+                <polygon points="20,2 24,15 20,20" fill="#ffffff" opacity="0.16" />
+                <polygon points="2,20 16,15 20,20" fill="#ffffff" opacity="0.10" />
+                
+                <!-- Bottom Depth Shading -->
+                <polygon points="20,38 24,25 20,20" fill="#3b0764" opacity="0.35" />
+                <polygon points="38,20 24,25 20,20" fill="#3b0764" opacity="0.25" />
+                
+                <!-- Laser Cleave Lines & Nucleus Pip -->
+                <line x1="24" y1="15" x2="16" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5" />
+                <line x1="16" y1="15" x2="24" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5" />
+                <circle cx="20" cy="20" r="1.6" fill="#f5d0fe" />
+              </svg>
+            </span>
+            <div class="currency-meta">
+              <span class="value currency-value sparks-val" id="menu-crystals-val">1</span>
+              <span class="currency-label sparks-lbl">SPARKS</span>
+            </div>
+          </div>
+        </div>
+
         <!-- The Interactive Centerpiece: Centered Ship with Swiping -->
         <div class="hangar-stage-container" id="hangar-stage">
-          <!-- Outer Orbital Halos -->
-          <div class="orbit-halo"></div>
-          <div class="orbit-field"></div>
-
           <!-- THE SHIP COMPLETELY IN THE CENTER -->
           <div class="hero-centered-ship" id="ship-unit" title="Klicken zum Wechseln">
             <div class="hero-ship-inner" id="hero-ship-inner">
@@ -138,9 +202,9 @@
           </div>
 
           <!-- Interactive Buy Button for Locked Skins (e.g. Skin 2) -->
-          <button class="ship-buy-btn" id="btn-buy-ship" style="display: none;" title="Raumschiff mit Münzen freischalten">
+          <button class="ship-buy-btn" id="btn-buy-ship" style="display: none;" title="Raumschiff mit Credits freischalten">
             <span class="buy-label">KAUFEN</span>
-            <span class="buy-price">500 <svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:13px;height:13px;vertical-align:middle;margin-left:2px;"><circle cx="12" cy="12" r="9.5" fill="none" stroke="#fbbf24" stroke-width="2"></circle><polygon points="12,6 16.5,12 12,18 7.5,12" fill="#fbbf24"></polygon></svg></span>
+            <span class="buy-price">500 <svg class="currency-icon coin-icon" viewBox="0 0 36 36" fill="none" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-left:3px;"><circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8" /><circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4" /><circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75" /><text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="'Rajdhani', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select: none;">C</text></svg></span>
           </button>
         </div>
 
@@ -176,10 +240,10 @@
             <span>STATS</span>
           </button>
 
-          <!-- Rank (with persistent #42 badge) -->
+          <!-- Rank (Rank badge overlay appears only once first flight completed) -->
           <button class="dock-btn" id="btn-menu-leaderboard" title="Bestenliste">
             <div class="dock-icon-wrap">
-              <span class="rank-badge-chip" id="rank-pill-badge">#42</span>
+              <span class="rank-badge-chip unranked" id="rank-pill-badge" style="display: none;"></span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M8 21h8"></path>
                 <path d="M12 17v4"></path>
@@ -291,11 +355,18 @@
             d="M 24 890 C 38 780, 16 640, 36 500 C 48 400, 26 340, 34 280"/>
           <g id="debrief-crash-pos" transform="translate(34, 280)">
             <g class="debrief-crash-dot" id="debrief-crash-dot">
-              <circle class="debrief-shockwave" cx="0" cy="0" r="10" fill="none" stroke="#ff2d55" stroke-width="2"/>
-              <circle cx="0" cy="0" r="14" fill="rgba(255,45,85,.18)"/>
-              <circle cx="0" cy="0" r="7.5" fill="none" stroke="#ff2d55" stroke-width="2"/>
-              <circle cx="0" cy="0" r="2.8" fill="#fff"/>
-              <path d="M -8 -8 L 8 8 M 8 -8 L -8 8" stroke="rgba(255,45,85,.85)" stroke-width="1.8"/>
+              <!-- Expanding Shockwave Ring -->
+              <circle class="debrief-shockwave" cx="0" cy="0" r="12" fill="none" stroke="#ff2d55" stroke-width="2"/>
+              <!-- Tactical High-Contrast Dark Disc -->
+              <circle cx="0" cy="0" r="11" fill="rgba(8, 3, 9, 0.88)" stroke="#ff2d55" stroke-width="1.2" stroke-opacity="0.6"/>
+              <!-- Tactical Corner Reticle Pips -->
+              <path d="M -9 -6.5 V -9 H -6.5 M 6.5 -9 H 9 V -6.5 M 9 6.5 V 9 H 6.5 M -6.5 9 H -9 V 6.5" fill="none" stroke="rgba(255, 45, 85, 0.75)" stroke-width="1" stroke-linecap="square"/>
+              <!-- Bold Crimson Impact X -->
+              <path d="M -6 -6 L 6 6 M 6 -6 L -6 6" stroke="#ff1e42" stroke-width="3.2" stroke-linecap="round"/>
+              <!-- Luminous White Core X -->
+              <path d="M -6 -6 L 6 6 M 6 -6 L -6 6" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+              <!-- Center Impact Pinpoint -->
+              <circle cx="0" cy="0" r="1.4" fill="#ffffff"/>
             </g>
           </g>
         </svg>
@@ -317,24 +388,6 @@
               <div class="debrief-score" id="final-altitude">
                 <span class="debrief-num" id="final-altitude-val">259</span>
                 <span class="debrief-unit">m</span>
-              </div>
-              <div class="debrief-loot-row">
-                <div class="debrief-loot-chip gold" title="Gesammelte Münzen">
-                  <svg class="debrief-loot-icon" viewBox="0 0 24 24" width="13" height="13">
-                    <circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.22)" stroke="#fbbf24" stroke-width="1.6"></circle>
-                    <polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon>
-                    <circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle>
-                  </svg>
-                  <span class="debrief-loot-val" id="final-orbs">+0</span>
-                </div>
-                <div class="debrief-loot-chip crystal" title="Gesammelte Kristalle">
-                  <svg class="debrief-loot-icon" viewBox="0 0 24 24" width="13" height="13">
-                    <polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.25)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon>
-                    <polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon>
-                    <polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon>
-                  </svg>
-                  <span class="debrief-loot-val" id="final-crystals">+0</span>
-                </div>
               </div>
             </div>
 
@@ -361,6 +414,39 @@
                 <div class="debrief-v" id="debrief-stat-time">0:41</div>
               </div>
             </div>
+
+            <!-- In-Flight Loot (Credits & Sparks) below Telemetry -->
+            <div class="debrief-loot-row">
+              <div class="debrief-loot-chip gold" title="Gesammelte Credits">
+                <svg class="currency-icon coin-icon debrief-loot-icon" viewBox="0 0 36 36" fill="none">
+                  <!-- Outer Beveled Rim -->
+                  <circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8" />
+                  <circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4" />
+                  <!-- Recessed Dark Contrast Well -->
+                  <circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75" />
+                  <!-- Precision Centered Rajdhani Bold 'C' -->
+                  <text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="'Rajdhani', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select: none;">C</text>
+                </svg>
+                <span class="debrief-loot-val" id="final-orbs">+0</span>
+              </div>
+              <div class="debrief-loot-chip crystal" title="Gesammelte Sparks">
+                <svg class="currency-icon spark-icon debrief-loot-icon" viewBox="0 0 40 40" fill="none">
+                  <!-- 8-Point Geometry -->
+                  <polygon points="20,2 24,15 38,20 24,25 20,38 16,25 2,20 16,15" fill="url(#sparkCoreGrad)" stroke="#d8b4fe" stroke-width="1" stroke-linejoin="round" />
+                  <!-- Top Refractions -->
+                  <polygon points="20,2 24,15 20,20" fill="#ffffff" opacity="0.16" />
+                  <polygon points="2,20 16,15 20,20" fill="#ffffff" opacity="0.10" />
+                  <!-- Bottom Depth Shading -->
+                  <polygon points="20,38 24,25 20,20" fill="#3b0764" opacity="0.35" />
+                  <polygon points="38,20 24,25 20,20" fill="#3b0764" opacity="0.25" />
+                  <!-- Laser Cleave Lines & Nucleus Pip -->
+                  <line x1="24" y1="15" x2="16" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5" />
+                  <line x1="16" y1="15" x2="24" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5" />
+                  <circle cx="20" cy="20" r="1.6" fill="#f5d0fe" />
+                </svg>
+                <span class="debrief-loot-val" id="final-crystals">+0</span>
+              </div>
+            </div>
           </div>
 
           <!-- Actions -->
@@ -369,7 +455,16 @@
             <button class="debrief-btn revive" id="btn-gameover-revive">
               <span class="ttl" id="revive-btn-text">ZWEITE CHANCE</span>
               <div class="cost" id="revive-cost-tag">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l7 6-7 14L5 8z"/></svg>
+                <svg class="currency-icon spark-icon" viewBox="0 0 40 40" fill="none" style="width: 14px; height: 14px;">
+                  <polygon points="20,2 24,15 38,20 24,25 20,38 16,25 2,20 16,15" fill="url(#sparkCoreGrad)" stroke="#d8b4fe" stroke-width="1" stroke-linejoin="round" />
+                  <polygon points="20,2 24,15 20,20" fill="#ffffff" opacity="0.16" />
+                  <polygon points="2,20 16,15 20,20" fill="#ffffff" opacity="0.10" />
+                  <polygon points="20,38 24,25 20,20" fill="#3b0764" opacity="0.35" />
+                  <polygon points="38,20 24,25 20,20" fill="#3b0764" opacity="0.25" />
+                  <line x1="24" y1="15" x2="16" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5" />
+                  <line x1="16" y1="15" x2="24" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5" />
+                  <circle cx="20" cy="20" r="1.6" fill="#f5d0fe" />
+                </svg>
                 <span>1</span>
               </div>
             </button>

@@ -373,180 +373,393 @@ canvas#gameCanvas {
   align-items: center;
   z-index: 10;
   margin-bottom: auto;
+  gap: 16px;
 }
 
 .menu-top-right-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+  position: relative;
 }
 
-/* Currency Capsule & Tappable Chips */
-.currency-group.currency-capsule {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px;
+/* Floating Non-Intrusive FPS Micro-Badge */
+.stat-badge.fps.menu-fps-pill {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  margin: 0;
+  padding: 3px 8px;
+  font-size: 10px;
   border-radius: 999px;
-  background: var(--glass-fill, rgba(15, 23, 42, 0.75));
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.12));
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  cursor: default;
-  margin: 2px 0 4px 0;
-  z-index: 10;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-.currency-chip {
+/* Base Top Navigation Interactive Control */
+.top-nav-btn,
+.icon-nav-btn {
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-.currency-chip .value {
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--text-hero, #ffffff);
-}
-.currency-chip.gold .icon {
-  color: var(--currency-gold, #fbbf24);
-  display: flex;
-  align-items: center;
-}
-.currency-chip.crystal .icon {
-  color: var(--premium, #d946ef);
-  display: flex;
-  align-items: center;
-}
-
-.icon-nav-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: #1e293b; /* Solid opaque Slate 800 - no translucency */
-  border: 1.5px solid #334155;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  color: #f8fafc; /* Crisp solid high contrast */
+  color: #f1f5f9;
   cursor: pointer;
   position: relative;
-  transition: all 0.15s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
+.top-nav-btn:hover,
 .icon-nav-btn:hover {
   color: #ffffff;
-  background: #334155;
-  border-color: var(--action-start);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 30, 66, 0.55);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 12px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.65), 0 0 14px rgba(255, 30, 66, 0.25);
 }
 
+.top-nav-btn:active,
+.icon-nav-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Action Icon Buttons (Quests & Settings) */
+.icon-action-btn,
+.icon-nav-btn:not(.profile-nav-btn) {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+}
+
+.top-nav-btn .icon-svg,
 .icon-nav-btn .icon-svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 1.9;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.15s ease;
 }
 
+/* Settings smooth gear spin on hover */
+.top-nav-btn#btn-menu-settings:hover .icon-svg,
+.icon-nav-btn#btn-menu-settings:hover .icon-svg {
+  transform: rotate(45deg);
+  color: #ffffff;
+}
+
+/* Missions target reticle hover micro-pulse */
+.top-nav-btn#btn-menu-quests:hover .icon-svg,
+.icon-nav-btn#btn-menu-quests:hover .icon-svg {
+  transform: scale(1.08);
+  color: #ffffff;
+}
+
+/* Quests Unclaimed Alert Notification Pip */
 .nav-alert-dot {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border-radius: 10px;
-  background: var(--success);
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent-crimson, #ff1e42);
   color: #ffffff;
-  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
   font-weight: 900;
-  font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.65), 0 2px 5px rgba(0, 0, 0, 0.4);
-  border: 2px solid #0f172a;
+  box-shadow: 0 0 12px rgba(255, 30, 66, 0.85), 0 2px 4px rgba(0, 0, 0, 0.6);
+  border: 1.5px solid #080b10;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
   box-sizing: border-box;
+  animation: quest-badge-pulse 2s infinite ease-in-out;
 }
 
-/* User Profile Header Pill */
-.icon-nav-btn.profile-nav-btn {
-  width: auto;
-  min-width: 44px;
-  height: 44px;
-  padding: 0 14px 0 10px;
-  gap: 8px;
-  border-radius: 999px;
-  background: #1e293b;
-  border: 1.5px solid #334155;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+@keyframes quest-badge-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 30, 66, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(255, 30, 66, 1);
+    transform: scale(1.08);
+  }
 }
 
-.icon-nav-btn.profile-nav-btn:hover {
-  border-color: var(--action-start);
-  background: #334155;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 12px rgba(56, 189, 248, 0.25);
+/* Player Profile (Borderless, clean avatar + callsign) */
+.profile-nav-clean,
+.profile-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  min-width: 0;
+  flex: 0 1 auto;
+  max-width: calc(100% - 106px);
+}
+
+.profile-nav-clean:hover,
+.profile-nav-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.profile-nav-clean:active,
+.profile-nav-btn:active {
+  transform: scale(0.96);
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.profile-nav-clean:hover .profile-avatar-wrap,
+.profile-nav-btn:hover .profile-avatar-wrap {
+  border-color: rgba(255, 30, 66, 0.6);
+  box-shadow: 0 0 12px rgba(255, 30, 66, 0.35);
+}
+
+.profile-avatar-wrap .profile-nav-svg {
+  width: 17px;
+  height: 17px;
+  stroke: #e2e8f0;
 }
 
 .profile-status-dot {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 8px var(--success);
+  background: #10b981;
+  border: 1.5px solid #080b10;
+  box-shadow: 0 0 6px #10b981;
   flex-shrink: 0;
   animation: profile-pulse-dot 2.2s infinite ease-in-out;
 }
 
 @keyframes profile-pulse-dot {
   0%, 100% {
-    box-shadow: 0 0 6px var(--success), 0 0 2px var(--success);
+    box-shadow: 0 0 5px #10b981, 0 0 2px #10b981;
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 12px #34d399, 0 0 4px var(--success);
+    box-shadow: 0 0 10px #34d399, 0 0 3px #10b981;
     transform: scale(1.15);
   }
 }
 
-.profile-nav-svg {
-  width: 17px;
-  height: 17px;
-  stroke: #94a3b8;
+.profile-nav-name {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  color: #f8fafc;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+/* Clean, Frameless Currencies (Zero Outer Boxes) */
+.currency-group.currency-clean {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  cursor: default;
   flex-shrink: 0;
 }
 
-.profile-nav-name {
-  font-family: 'Orbitron', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: #f8fafc;
-  white-space: nowrap;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.currency-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
-@media (max-width: 480px) {
-  .icon-nav-btn.profile-nav-btn {
-    padding: 0 8px;
+.currency-item .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sizing & Optics */
+.currency-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Scaled to 27px to optically balance the spark star's diagonal reach */
+.coin-icon {
+  width: 27px;
+  height: 27px;
+}
+
+.spark-icon {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 0 5px rgba(217, 70, 239, 0.28));
+}
+
+.currency-item .icon-svg {
+  width: 19px;
+  height: 19px;
+}
+
+.currency-item.gold .icon {
+  color: var(--currency-gold, #fbbf24);
+}
+
+.currency-item.crystal .icon {
+  color: var(--premium, #d946ef);
+}
+
+.currency-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Typography & Colors */
+.currency-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.currency-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  margin-top: 2px;
+  line-height: 1;
+}
+
+.credits-val { color: #fbbf24; }
+.credits-lbl { color: #b45309; }
+.sparks-val { 
+  color: #f8fafc; 
+  text-shadow: 0 0 6px rgba(217, 70, 239, 0.4); 
+}
+.sparks-lbl { color: #c026d3; }
+
+.currency-item .value {
+  font-variant-numeric: tabular-nums;
+  font-family: 'Orbitron', var(--font-mono, monospace);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Header Hairline Separator */
+.top-bar-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 440px) {
+  .menu-top-bar {
+    gap: 12px;
+  }
+  .menu-top-right-group {
     gap: 6px;
   }
+  .profile-nav-clean,
+  .profile-nav-btn {
+    max-width: calc(100% - 94px);
+  }
+  .profile-avatar-wrap {
+    width: 30px;
+    height: 30px;
+  }
+  .profile-avatar-wrap .profile-nav-svg {
+    width: 15px;
+    height: 15px;
+  }
   .profile-nav-name {
-    max-width: 75px;
-    font-size: 10px;
+    font-size: 12px;
+  }
+  .currency-item {
+    gap: 6px;
+  }
+  .currency-item .coin-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .currency-item .spark-icon {
+    width: 21px;
+    height: 21px;
+  }
+  .currency-item .currency-value {
+    font-size: 14px;
+  }
+  .currency-item .currency-label {
+    font-size: 7.5px;
+  }
+  .icon-action-btn,
+  .icon-nav-btn:not(.profile-nav-btn) {
+    width: 38px;
+    height: 38px;
+  }
+  .top-nav-btn,
+  .icon-nav-btn {
+    height: 38px;
   }
   .menu-buttons {
     width: 94%;
@@ -627,41 +840,12 @@ canvas#gameCanvas {
   position: relative;
   width: 320px;
   height: 300px;
+  margin-top: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   touch-action: pan-y;
-}
-
-/* Celestial Gravity Wave Rings */
-.orbit-halo {
-  position: absolute;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  border: 1px dashed rgba(var(--accent-crimson-rgb), 0.28);
-  animation: spin-cw 34s linear infinite;
-}
-
-.orbit-field {
-  position: absolute;
-  width: 195px;
-  height: 195px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(var(--accent-crimson-rgb), 0.3);
-  box-shadow: 0 0 35px rgba(var(--accent-crimson-rgb), 0.12);
-  animation: spin-ccw 22s linear infinite;
-}
-
-@keyframes spin-cw {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes spin-ccw {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
 }
 
 /* THE SHIP COMPLETELY IN THE CENTER */
@@ -1027,7 +1211,7 @@ canvas#gameCanvas {
   filter: drop-shadow(0 0 8px var(--accent-crimson));
 }
 
-/* Always-Visible Rank Badge (#42) */
+/* Always-Visible Rank Badge */
 .rank-badge-chip,
 .dock-rank-chip {
   position: absolute;
@@ -1043,6 +1227,12 @@ canvas#gameCanvas {
   letter-spacing: 0.5px;
   box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
   line-height: 1.1;
+  transition: all 0.2s ease;
+}
+
+.rank-badge-chip.unranked,
+.dock-rank-chip.unranked {
+  display: none !important;
 }
 
 @media (max-width: 480px) {
@@ -1057,14 +1247,7 @@ canvas#gameCanvas {
   .hangar-stage-container {
     width: 280px;
     height: 260px;
-  }
-  .orbit-halo {
-    width: 245px;
-    height: 245px;
-  }
-  .orbit-field {
-    width: 170px;
-    height: 170px;
+    margin-top: 18px;
   }
   .hero-centered-ship {
     width: 120px;
@@ -1847,7 +2030,7 @@ canvas#gameCanvas {
 }
 
 .play-seq .debrief-trace-path {
-  animation: debrief-draw 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: debrief-draw 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes debrief-draw {
@@ -1857,12 +2040,12 @@ canvas#gameCanvas {
 
 .debrief-crash-dot {
   opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
+  transform-origin: 0px 0px;
+  filter: drop-shadow(0 0 6px rgba(255, 30, 66, 0.65));
 }
 
 .play-seq .debrief-crash-dot {
-  animation: debrief-pop 0.4s 0.82s cubic-bezier(0.18, 1.4, 0.35, 1) both;
+  animation: debrief-pop 0.45s 1.55s cubic-bezier(0.18, 1.4, 0.35, 1) both;
 }
 
 .debrief-shockwave {
@@ -1870,7 +2053,7 @@ canvas#gameCanvas {
 }
 
 .play-seq .debrief-shockwave {
-  animation: debrief-shockwave-pulse 0.8s 0.82s cubic-bezier(0.15, 0.85, 0.35, 1) both;
+  animation: debrief-shockwave-pulse 1.0s 1.55s cubic-bezier(0.15, 0.85, 0.35, 1) both;
 }
 
 @keyframes debrief-pop {
@@ -1879,8 +2062,8 @@ canvas#gameCanvas {
 }
 
 @keyframes debrief-shockwave-pulse {
-  0% { r: 4px; opacity: 0.95; stroke-width: 3px; }
-  100% { r: 28px; opacity: 0; stroke-width: 0.5px; }
+  0% { r: 6px; opacity: 0.95; stroke-width: 3px; }
+  100% { r: 26px; opacity: 0; stroke-width: 0.5px; }
 }
 
 /* Main Debrief Content Wrap */
@@ -1922,22 +2105,27 @@ canvas#gameCanvas {
 
 .debrief-score {
   display: flex;
-  align-items: flex-start;
+  align-items: baseline;
   gap: 6px;
   font-family: var(--font-display);
-  line-height: 0.82;
+  line-height: 1.0;
   margin-top: 4px;
+  padding-bottom: 6px;
 }
 
 .debrief-score .debrief-num {
   font-size: clamp(68px, 18vw, 94px);
   font-weight: 900;
   letter-spacing: -0.03em;
+  line-height: 1.02;
+  padding-bottom: 8px;
   background: linear-gradient(180deg, #ffffff 25%, #a9b6e8 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   filter: drop-shadow(0 8px 30px rgba(160, 190, 255, 0.22));
+  display: inline-block;
+  overflow: visible;
 }
 
 .debrief-score .debrief-unit {
@@ -1945,51 +2133,76 @@ canvas#gameCanvas {
   font-weight: 700;
   font-size: 22px;
   color: #38e8ff;
-  margin-top: 10px;
+  margin-top: 0;
   text-shadow: 0 0 16px rgba(56, 232, 255, 0.35);
 }
 
-/* Minimalist Gained Loot Chips (Icons + Count Only) */
+/* Minimalist Gained Loot (No Circle/Pill Container - Icons + Values Only) */
 .debrief-loot-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 16px;
+  margin-top: 4px;
 }
 
 .debrief-loot-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px 4px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  gap: 7px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .debrief-loot-chip.gold {
-  border-color: rgba(251, 191, 36, 0.35);
-  background: rgba(251, 191, 36, 0.09);
+  border: none;
+  background: none;
+  box-shadow: none;
 }
 
 .debrief-loot-chip.crystal {
-  border-color: rgba(217, 70, 239, 0.35);
-  background: rgba(217, 70, 239, 0.09);
+  border: none;
+  background: none;
+  box-shadow: none;
 }
 
 .debrief-loot-icon {
+  width: 15px;
+  height: 15px;
   flex: none;
   display: block;
 }
 
+.debrief-loot-chip .coin-icon.debrief-loot-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.debrief-loot-chip .spark-icon.debrief-loot-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.debrief-loot-chip.gold .debrief-loot-icon {
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.45));
+}
+
+.debrief-loot-chip.crystal .debrief-loot-icon {
+  filter: drop-shadow(0 0 6px rgba(217, 70, 239, 0.45));
+}
+
 .debrief-loot-val {
   font-family: var(--font-display, sans-serif);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: #ffffff;
-  line-height: 1;
+  line-height: 1.2;
+  display: inline-block;
+  padding-left: 2px;
+  overflow: visible;
 }
 
 .debrief-loot-chip.gold .debrief-loot-val {
@@ -2192,15 +2405,15 @@ canvas#gameCanvas {
   transform: scale(0.985);
 }
 
-/* Revive Button (Second Chance) */
+/* Revive Button (Second Chance) - Clean Unified Cyber CTA */
 .debrief-btn.revive {
   height: 58px;
   padding: 0 18px;
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.28) 0%, rgba(99, 102, 241, 0.20) 50%, rgba(15, 23, 42, 0.70) 100%);
+  background: linear-gradient(180deg, rgba(46, 32, 74, 0.88) 0%, rgba(26, 18, 48, 0.95) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(192, 132, 252, 0.40),
-    inset 0 1px 0 rgba(255, 255, 255, 0.20),
-    0 4px 20px rgba(147, 51, 234, 0.25);
+    inset 0 0 0 1px rgba(168, 85, 247, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 18px rgba(0, 0, 0, 0.35);
   color: #ffffff;
   display: flex;
   justify-content: center;
@@ -2209,23 +2422,12 @@ canvas#gameCanvas {
   overflow: hidden;
 }
 
-.debrief-btn.revive::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3.5px;
-  background: linear-gradient(180deg, #c084fc 0%, #818cf8 100%);
-  box-shadow: 0 0 12px rgba(192, 132, 252, 0.85);
-}
-
 .debrief-btn.revive:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.38) 0%, rgba(99, 102, 241, 0.28) 50%, rgba(15, 23, 42, 0.75) 100%);
+  background: linear-gradient(180deg, rgba(62, 42, 98, 0.92) 0%, rgba(36, 24, 66, 0.98) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(192, 132, 252, 0.60),
-    inset 0 1px 0 rgba(255, 255, 255, 0.30),
-    0 6px 28px rgba(147, 51, 234, 0.42);
+    inset 0 0 0 1px rgba(192, 132, 252, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 6px 22px rgba(147, 51, 234, 0.25);
   transform: translateY(-1.5px);
 }
 
@@ -2378,31 +2580,36 @@ canvas#gameCanvas {
   height: 15px;
 }
 
-/* Sequenced Staggered Entry Animation (Starts after line finishes) */
+/* Sequenced Staggered Entry Animation (Row by Row after Trajectory Finishes) */
 .play-seq .debrief-scoreblock {
-  animation: debrief-up 0.5s 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: debrief-row-in 0.65s 1.60s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .play-seq .debrief-chase {
-  animation: debrief-up 0.5s 0.94s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: debrief-row-in 0.65s 2.30s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .play-seq .debrief-bar span {
-  animation: debrief-fill 0.9s 1.00s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: debrief-fill 0.9s 2.50s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .play-seq .debrief-telemetry {
-  animation: debrief-up 0.5s 1.04s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: debrief-row-in 0.65s 2.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.play-seq .debrief-loot-row {
+  animation: debrief-row-in 0.60s 3.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .play-seq .debrief-actions {
-  animation: debrief-up 0.55s 1.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: debrief-row-in 0.70s 4.10s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Fallback visibility for non-sequenced runs / instantaneous testing */
 .debrief-container:not(.play-seq) .debrief-scoreblock,
 .debrief-container:not(.play-seq) .debrief-chase,
 .debrief-container:not(.play-seq) .debrief-telemetry,
+.debrief-container:not(.play-seq) .debrief-loot-row,
 .debrief-container:not(.play-seq) .debrief-actions {
   opacity: 1;
   transform: none;
@@ -2415,15 +2622,21 @@ canvas#gameCanvas {
   transform: scale(1);
 }
 
-@keyframes debrief-up {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: none; }
+@keyframes debrief-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (max-height: 740px) {
   .debrief-wrap { padding: 16px 16px calc(10px + env(safe-area-inset-bottom, 0px)) 82px; }
   .debrief-score .debrief-num { font-size: 58px; }
-  .debrief-score .debrief-unit { font-size: 18px; margin-top: 8px; }
+  .debrief-score .debrief-unit { font-size: 18px; margin-top: 0; }
   .debrief-chase { margin-top: 4px; }
   .debrief-telemetry { margin-top: 6px; }
   .debrief-btn.revive { height: 54px; }

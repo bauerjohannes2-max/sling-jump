@@ -1,44 +1,34 @@
 ---
 trigger: always_on
-description: Mandatory zero emoji policy, Playwright automated testing, and continuous documentation rules
+description: Zero emoji policy, selective visual testing, and token-efficient documentation
 ---
 
-# Workflow Standards: Zero Emojis, Playwright Testing & Continuous Documentation
+# Workflow Standards
 
-## 1. Strict Zero Emoji Policy
-* Never use emojis in any UI, button, modal, HUD, toast, code, or documentation.
-* Use only minimalist SVG icons, sharp Canvas rendering, and modern typography.
+## 1. Zero Emoji Policy
+- Never use emojis anywhere. Minimalist SVG icons, crisp Canvas geometry, modern typography only.
 
-## 2. Selective & Fresh Playwright Automated Visual Testing (Token-Optimiert)
-* **Selective Test Execution:** Execute Playwright selectively (`node scripts/playwright_runner.js <screen>`). Capture ONLY the screenshots affected by the current edit. Never dump all 18 screenshots on routine changes.
-* Full regression suite (`--all`) is reserved exclusively for major release candidates.
-* **Strict Freshness Guarantee:** Under no circumstances rely on old or cached screenshots for the tested screen. Every targeted screenshot must be freshly generated during the current test run with current `CreationTime` and `LastWriteTime` timestamps (neutralizing Windows NTFS tunneling) and output `screenshots/LATEST_RUN.md` with SHA-256 hashes.
-* Verify 0 console errors and inspect generated screenshots in `screenshots/` to confirm layout integrity, contrast, and alignment.
+## 2. Selective Visual Testing
+- Target specific screens only: `node scripts/playwright_runner.js <screen>`. Full suite reserved for milestones.
+- Fresh timestamps required (neutralize NTFS tunneling). Output `screenshots/LATEST_RUN.md` with SHA-256. 0 console errors.
 
-## 3. Continuous Cumulative Project Documentation (`GAME_STATUS.md` & `GAME_SYSTEMS.md`)
-* Maintain `GAME_STATUS.md` in the project root as the definitive, cumulative, append-only changelog and release history. Never delete past versions.
-* Maintain `GAME_SYSTEMS.md` as the authoritative, up-to-date manual of all game systems, mechanics, physics equations, performance modes, and entities. Keep it fully synchronized with the latest version at all times.
+## 3. Project Documentation
+- `GAME_STATUS.md`: Definitive cumulative changelog. Dense and token-efficient.
+- `GAME_SYSTEMS.md`: Live specification of formulas, mechanics, and entities.
 
-## 4. Adaptive Planning & Step-by-Step Execution (Token-Optimiert)
-* **Major Overhauls & New Systems:** Formulate structured `implementation_plan.md` with step-by-step checklist.
-* **Routine Tweaks, Fixes & Micro-Edits:** Skip `implementation_plan.md` completely. Implement directly and atomically to conserve tokens.
+## 4. Adaptive Planning
+- Major features: `implementation_plan.md` checklist.
+- Routine tweaks: Implement directly to conserve tokens.
 
-## 5. Strict Commercial Minimalism & Industry Best-Practice UI (Weniger ist mehr)
-* **Always follow the proven UX/UI standards of mobile bestsellers and top-grossing arcade games** (e.g. Subway Surfers, Crossy Road, Alto's Adventure, Brawl Stars):
-  * **Keep it simple, punchy, and minimalistic:** Eliminate visual clutter, excessive subtitles, micro-metadata, redundant counters, and wall-of-text explanations.
-  * **No bureaucratic terminology:** Never use overcomplicated or bureaucratic naming (e.g. use clean 'PROFIL' instead of 'Piloten-Lizenz').
-  * **Generous whitespace & clear visual hierarchy:** Bold tracked typography, clean cards, high contrast, and direct action buttons.
+## 5. Commercial Minimalism
+- Simple, punchy, minimal (Alto's Adventure style).
+- Tracked typography, high contrast, clean cards, no bureaucratic terms.
 
-## 6. Automated Token & Context Optimization (Maximale Token-Effizienz)
-* Read files using targeted line slices (`StartLine`, `EndLine`), never full-file dumps.
-* Use `replace_file_content` with minimal surgical diff blocks.
-* Delegate broad searches and log discovery to `research` subagents.
-* Use telegraphic Caveman communication (zero fluff, zero filler).
+## 6. Token Optimization
+- Target line ranges in `view_file`. Surgical edits via `replace_file_content`. Caveman brevity.
 
-## 7. 60+ FPS Engine Guardrails & Automated FPS Testing
-* **Debounced Storage:** No synchronous disk/storage writes during active gameplay (minimum 1500ms debounce).
-* **Compositor Hygiene:** Never use `{ desynchronized: true }` on 2D canvas underneath DOM elements.
-* **Zero CPU `shadowBlur`:** Pre-render glowing particles or use layered vector geometry.
-* **DOM Caching:** Cache DOM values in HUD updates; never re-query or mutate unchanged `textContent`.
-* **Automated FPS Benchmark:** Run `npm run test:fps` for performance verification. Ensure warmup period (1.5s), stop telemetry before screenshots, and verify JS frame budget <= 5.0ms.
+## 7. 60+ FPS Guardrails
+- Debounce storage writes >= 1500ms during flight. No `{ desynchronized: true }` under DOM. No runtime `shadowBlur`. Cache HUD DOM updates.
 
+## 8. Token Efficiency & Map First
+RULE: TOKEN EFFICIENCY & MAP FIRST. Before reading, grepping, or analyzing any .js or .css files for a new task, you MUST read architecture.md to understand the system context. Never dump full JS files into context blindly. You are strictly responsible for keeping architecture.md updated whenever you create a new file, change a core class, or alter the game loop.

@@ -672,7 +672,7 @@
       filter: drop-shadow(0 0 8px var(--accent-primary));
     }
 
-    /* Always-Visible Rank Badge (#42) */
+    /* Always-Visible Rank Badge */
     .dock-rank-chip {
       position: absolute;
       top: -4px;
@@ -687,6 +687,11 @@
       letter-spacing: 0.5px;
       box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
       line-height: 1.1;
+      transition: all 0.2s ease;
+    }
+
+    .dock-rank-chip.unranked {
+      display: none !important;
     }
 
     /* Minimal Toast */
@@ -857,12 +862,12 @@
             <span>STATS</span>
           </button>
 
-          <!-- Rank with ALWAYS-VISIBLE #42 BADGE -->
-          <button class="dock-btn" onclick="triggerToast('DEIN RANG: #42')">
+          <!-- Rank with persistent rank badge -->
+          <button class="dock-btn" onclick="triggerToast('DEIN RANG: #---')">
             <div class="dock-icon-wrap">
               <svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1M17 6h3a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1"></path></svg>
               <!-- Prominent Player Rank Chip -->
-              <span class="dock-rank-chip">#42</span>
+              <span class="dock-rank-chip unranked">#---</span>
             </div>
             <span>RANK</span>
           </button>

@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '4.7.1',
+  VERSION: '5.10.0',
   STORAGE_KEY: 'sling_jump_save_v2',
 
   // Physics & Mechanics
@@ -17,7 +17,6 @@ const CONSTANTS = {
     BOOST_MULTIPLIER: 2.8,
     FRAGILE_DURATION: 0.90,
     DEATH_BUFFER_PX: 4,
-    HITSTOP_DURATION_MS: 40,
     METERS_PER_PIXEL: 0.125,
     // Razor-sharp 90-degree launch threshold (tangentY >= 0.995 is within ~5.7 deg of pure vertical)
     PERFECT_LAUNCH_THRESHOLD: 0.995,
@@ -29,10 +28,7 @@ const CONSTANTS = {
 
   // Scoring & Currency
   SCORE: {
-    PARTICLE_VALUE: 50,
-    QUEST_REWARD: 150,
-    NEAR_MISS_BONUS: 75,
-    TUTORIAL_REWARD: 50
+    PARTICLE_VALUE: 50
   },
 
   // 4 Farbwelten (Universe Themes)
@@ -234,9 +230,6 @@ const CONSTANTS = {
       category: 'weekly'
     }
   ],
-
-  // Globales Arcade Leaderboard (Reine Echtzeit-Daten, null Dummy-Daten)
-  GLOBAL_LEADERBOARD_TOP: [],
 
   // Allgemeine Aufgaben-Pool (Fallback)
   QUEST_POOL: [

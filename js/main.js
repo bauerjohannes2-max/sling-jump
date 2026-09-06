@@ -37,6 +37,16 @@
       }
     };
 
+    const onBtn = (id, handler) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('click', (e) => {
+          clickSfx();
+          handler(e);
+        });
+      }
+    };
+
     // --- MAIN MENU BUTTONS ---
     const btnMenuPlay = document.getElementById('btn-menu-play');
     if (btnMenuPlay) {
@@ -58,96 +68,20 @@
       });
     }
 
-    const btnMenuTutorial = document.getElementById('btn-menu-tutorial');
-    if (btnMenuTutorial) {
-      btnMenuTutorial.addEventListener('click', () => {
-        clickSfx();
-        ui.openTutorialModal(1);
-      });
-    }
-
-    const btnTutNext = document.getElementById('btn-tut-next');
-    if (btnTutNext) {
-      btnTutNext.addEventListener('click', () => {
-        clickSfx();
-        ui.showTutorialSlide(2);
-      });
-    }
-
-    const btnTutBack = document.getElementById('btn-tut-back');
-    if (btnTutBack) {
-      btnTutBack.addEventListener('click', () => {
-        clickSfx();
-        ui.showTutorialSlide(1);
-      });
-    }
-
-    const btnTutPlay = document.getElementById('btn-tut-play');
-    if (btnTutPlay) {
-      btnTutPlay.addEventListener('click', () => {
-        clickSfx();
-        ui.closeTutorialModal();
-        state.changeState(StateManager.STATES.PLAYING);
-      });
-    }
-
-    const btnTutClose1 = document.getElementById('btn-tut-close-1');
-    if (btnTutClose1) {
-      btnTutClose1.addEventListener('click', () => {
-        clickSfx();
-        ui.closeTutorialModal();
-      });
-    }
+    onBtn('btn-menu-tutorial', () => ui.openTutorialModal(1));
+    onBtn('btn-tut-play', () => {
+      ui.closeTutorialModal();
+      state.changeState(StateManager.STATES.PLAYING);
+    });
+    onBtn('btn-tut-close-1', () => ui.closeTutorialModal());
 
     // Currency capsule is purely informational (no modal opens on click)
-
-    const btnMenuLeaderboard = document.getElementById('btn-menu-leaderboard');
-    if (btnMenuLeaderboard) {
-      btnMenuLeaderboard.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.LEADERBOARD);
-      });
-    }
-
-    const btnMenuQuests = document.getElementById('btn-menu-quests');
-    if (btnMenuQuests) {
-      btnMenuQuests.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.QUESTS);
-      });
-    }
-
-    const btnMenuStats = document.getElementById('btn-menu-stats');
-    if (btnMenuStats) {
-      btnMenuStats.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.STATS);
-      });
-    }
-
-    const btnMenuSettings = document.getElementById('btn-menu-settings');
-    if (btnMenuSettings) {
-      btnMenuSettings.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.SETTINGS);
-      });
-    }
-
-    const btnMenuProfile = document.getElementById('btn-menu-profile');
-    if (btnMenuProfile) {
-      btnMenuProfile.addEventListener('click', () => {
-        clickSfx();
-        ui.openProfileModal();
-      });
-    }
-
-    const btnProfileClose = document.getElementById('btn-profile-close');
-    if (btnProfileClose) {
-      btnProfileClose.addEventListener('click', () => {
-        clickSfx();
-        ui.closeProfileModal();
-      });
-    }
+    onBtn('btn-menu-leaderboard', () => state.changeState(StateManager.STATES.LEADERBOARD));
+    onBtn('btn-menu-quests', () => state.changeState(StateManager.STATES.QUESTS));
+    onBtn('btn-menu-stats', () => state.changeState(StateManager.STATES.STATS));
+    onBtn('btn-menu-settings', () => state.changeState(StateManager.STATES.SETTINGS));
+    onBtn('btn-menu-profile', () => ui.openProfileModal());
+    onBtn('btn-profile-close', () => ui.closeProfileModal());
 
     // --- QUICK TOAST NOTIFICATION ---
     let toastTimeout;
@@ -196,15 +130,7 @@
 
     function isShipUnlocked(shipId) {
       if (shipId === 'dart') return true;
-      if (typeof engine !== 'undefined' && engine && engine.storage) {
-        return engine.storage.isShipUnlocked(shipId);
-      }
-      try {
-        const saved = JSON.parse(localStorage.getItem('sling_jump_save_v1'));
-        return Array.isArray(saved?.unlockedShips) && saved.unlockedShips.includes(shipId);
-      } catch (e) {
-        return false;
-      }
+      return (engine && engine.storage) ? engine.storage.isShipUnlocked(shipId) : false;
     }
 
     const menuShips = [
@@ -366,80 +292,24 @@
     renderMenuShip();
 
     // --- HUD BUTTONS ---
-    const btnHudPause = document.getElementById('btn-hud-pause');
-    if (btnHudPause) {
-      btnHudPause.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.PAUSED);
-      });
-    }
+    onBtn('btn-hud-pause', () => state.changeState(StateManager.STATES.PAUSED));
 
     // --- PAUSE MODAL BUTTONS ---
-    const btnPauseResume = document.getElementById('btn-pause-resume');
-    if (btnPauseResume) {
-      btnPauseResume.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.PLAYING);
-      });
-    }
-
-    const btnPauseRestart = document.getElementById('btn-pause-restart');
-    if (btnPauseRestart) {
-      btnPauseRestart.addEventListener('click', () => {
-        clickSfx();
-        engine.startNewRun();
-      });
-    }
-
-    const btnPauseSettings = document.getElementById('btn-pause-settings');
-    if (btnPauseSettings) {
-      btnPauseSettings.addEventListener('click', () => {
-        clickSfx();
-        if (ui.dom.settingsModal) ui.dom.settingsModal.classList.add('visible');
-      });
-    }
-
-    const btnPauseQuit = document.getElementById('btn-pause-quit');
-    if (btnPauseQuit) {
-      btnPauseQuit.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.MENU);
-      });
-    }
+    onBtn('btn-pause-resume', () => state.changeState(StateManager.STATES.PLAYING));
+    onBtn('btn-pause-restart', () => engine.startNewRun());
+    onBtn('btn-pause-settings', () => {
+      if (ui.dom.settingsModal) ui.dom.settingsModal.classList.add('visible');
+    });
+    onBtn('btn-pause-quit', () => state.changeState(StateManager.STATES.MENU));
 
     // --- GAME OVER BUTTONS ---
-    const btnGameOverRevive = document.getElementById('btn-gameover-revive');
-    if (btnGameOverRevive) {
-      btnGameOverRevive.addEventListener('click', () => {
-        clickSfx();
-        engine.revivePlayer();
-      });
-    }
-
-    const btnGameOverRestart = document.getElementById('btn-gameover-restart');
-    if (btnGameOverRestart) {
-      btnGameOverRestart.addEventListener('click', () => {
-        clickSfx();
-        hapticTick(12);
-        engine.startNewRun();
-      });
-    }
-
-    const btnGameOverMenu = document.getElementById('btn-gameover-menu');
-    if (btnGameOverMenu) {
-      btnGameOverMenu.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.MENU);
-      });
-    }
-
-    const btnGameOverLeaderboard = document.getElementById('btn-gameover-leaderboard');
-    if (btnGameOverLeaderboard) {
-      btnGameOverLeaderboard.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.LEADERBOARD);
-      });
-    }
+    onBtn('btn-gameover-revive', () => engine.revivePlayer());
+    onBtn('btn-gameover-restart', () => {
+      hapticTick(12);
+      engine.startNewRun();
+    });
+    onBtn('btn-gameover-menu', () => state.changeState(StateManager.STATES.MENU));
+    onBtn('btn-gameover-leaderboard', () => state.changeState(StateManager.STATES.LEADERBOARD));
 
     const btnGameOverShare = document.getElementById('btn-gameover-share');
     if (btnGameOverShare) {
@@ -465,85 +335,33 @@
     }
 
     // --- DEDICATED MODAL CLOSE BUTTONS ---
-    const btnQuestsClose = document.getElementById('btn-quests-close');
-    if (btnQuestsClose) {
-      btnQuestsClose.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.MENU);
-      });
-    }
-
-    const btnLeaderboardClose = document.getElementById('btn-leaderboard-close');
-    if (btnLeaderboardClose) {
-      btnLeaderboardClose.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.MENU);
-      });
-    }
-
-
-    const btnStatsClose = document.getElementById('btn-stats-close');
-    if (btnStatsClose) {
-      btnStatsClose.addEventListener('click', () => {
-        clickSfx();
-        state.changeState(StateManager.STATES.MENU);
-      });
-    }
+    onBtn('btn-quests-close', () => state.changeState(StateManager.STATES.MENU));
+    onBtn('btn-leaderboard-close', () => state.changeState(StateManager.STATES.MENU));
+    onBtn('btn-stats-close', () => state.changeState(StateManager.STATES.MENU));
 
     // --- SETTINGS MODAL BUTTONS ---
-    const btnOpenTutorial = document.getElementById('btn-open-tutorial');
-    if (btnOpenTutorial) {
-      btnOpenTutorial.addEventListener('click', () => {
-        clickSfx();
-        if (ui.dom.settingsModal) ui.dom.settingsModal.classList.remove('visible');
-        ui.openTutorialModal(1);
-      });
-    }
+    onBtn('btn-open-tutorial', () => {
+      if (ui.dom.settingsModal) ui.dom.settingsModal.classList.remove('visible');
+      ui.openTutorialModal(1);
+    });
+    onBtn('btn-settings-close', () => state.returnToPrevious());
+    onBtn('btn-check-update', () => checkServerVersion(true));
+    onBtn('btn-reset-data', () => {
+      if (ui.dom.confirmModal) ui.dom.confirmModal.classList.add('visible');
+    });
 
-    const btnSettingsClose = document.getElementById('btn-settings-close');
-    if (btnSettingsClose) {
-      btnSettingsClose.addEventListener('click', () => {
-        clickSfx();
-        state.returnToPrevious();
-      });
-    }
+    onBtn('btn-confirm-yes', () => {
+      engine.storage.resetAll();
+      engine.world.setTheme('deep_space');
+      ui.initSettingsUI();
+      if (ui.dom.confirmModal) ui.dom.confirmModal.classList.remove('visible');
+      if (ui.dom.settingsModal) ui.dom.settingsModal.classList.remove('visible');
+      state.changeState(StateManager.STATES.MENU);
+    });
 
-    const btnCheckUpdate = document.getElementById('btn-check-update');
-    if (btnCheckUpdate) {
-      btnCheckUpdate.addEventListener('click', () => {
-        clickSfx();
-        checkServerVersion(true);
-      });
-    }
-
-    const btnResetData = document.getElementById('btn-reset-data');
-    if (btnResetData) {
-      btnResetData.addEventListener('click', () => {
-        clickSfx();
-        if (ui.dom.confirmModal) ui.dom.confirmModal.classList.add('visible');
-      });
-    }
-
-    const btnConfirmYes = document.getElementById('btn-confirm-yes');
-    if (btnConfirmYes) {
-      btnConfirmYes.addEventListener('click', () => {
-        clickSfx();
-        engine.storage.resetAll();
-        engine.world.setTheme('deep_space');
-        ui.initSettingsUI();
-        if (ui.dom.confirmModal) ui.dom.confirmModal.classList.remove('visible');
-        if (ui.dom.settingsModal) ui.dom.settingsModal.classList.remove('visible');
-        state.changeState(StateManager.STATES.MENU);
-      });
-    }
-
-    const btnConfirmNo = document.getElementById('btn-confirm-no');
-    if (btnConfirmNo) {
-      btnConfirmNo.addEventListener('click', () => {
-        clickSfx();
-        if (ui.dom.confirmModal) ui.dom.confirmModal.classList.remove('visible');
-      });
-    }
+    onBtn('btn-confirm-no', () => {
+      if (ui.dom.confirmModal) ui.dom.confirmModal.classList.remove('visible');
+    });
 
     // --- PWA INSTALLATION & BANNER LOGIC ---
     let deferredPrompt = null;

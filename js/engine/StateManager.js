@@ -23,10 +23,6 @@ class StateManager {
     this.onStateChange = onStateChangeCallback;
   }
 
-  getState() {
-    return this.currentState;
-  }
-
   is(state) {
     return this.currentState === state;
   }

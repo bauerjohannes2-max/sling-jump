@@ -5,8 +5,8 @@
  * STRICT RULE: No Emojis - Pure Minimalist Vector UI & SVG Icons.
  */
 class UIManager {
-  static COIN_SVG = '<svg class="icon-svg coin-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;display:inline-block;"><circle cx="12" cy="12" r="9.5" fill="rgba(251,191,36,0.18)" stroke="#fbbf24" stroke-width="1.6"></circle><polygon points="12,5.5 17.5,12 12,18.5 6.5,12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.2"></polygon><circle cx="12" cy="12" r="1.5" fill="#fbbf24"></circle></svg>';
-  static CRYSTAL_SVG = '<svg class="icon-svg crystal-icon" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:middle;display:inline-block;"><polygon points="12,2 20,8 17,21 7,21 4,8" fill="rgba(217,70,239,0.22)" stroke="#d946ef" stroke-width="1.6" stroke-linejoin="round"></polygon><polygon points="12,2 17,21 7,21" fill="none" stroke="#f43f5e" stroke-width="1"></polygon><polygon points="12,6 16,10 12,18 8,10" fill="#ffffff" stroke="#d946ef" stroke-width="1"></polygon></svg>';
+  static COIN_SVG = '<svg class="currency-icon coin-icon" viewBox="0 0 36 36" fill="none" style="width:15px;height:15px;vertical-align:middle;display:inline-block;"><circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8"/><circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4"/><circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75"/><text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="\'Rajdhani\', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select:none;">C</text></svg>';
+  static CRYSTAL_SVG = '<svg class="currency-icon spark-icon" viewBox="0 0 40 40" fill="none" style="width:14px;height:14px;vertical-align:middle;display:inline-block;"><polygon points="20,2 24,15 38,20 24,25 20,38 16,25 2,20 16,15" fill="url(#sparkCoreGrad)" stroke="#d8b4fe" stroke-width="1" stroke-linejoin="round"/><polygon points="20,2 24,15 20,20" fill="#ffffff" opacity="0.16"/><polygon points="2,20 16,15 20,20" fill="#ffffff" opacity="0.10"/><polygon points="20,38 24,25 20,20" fill="#3b0764" opacity="0.35"/><polygon points="38,20 24,25 20,20" fill="#3b0764" opacity="0.25"/><line x1="24" y1="15" x2="16" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5"/><line x1="16" y1="15" x2="24" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5"/><circle cx="20" cy="20" r="1.6" fill="#f5d0fe"/></svg>';
 
   constructor(storageService, audioManager, shopManager, missionManager, inputManager) {
     this.storage = storageService;
@@ -79,7 +79,6 @@ class UIManager {
       shopGrid: document.getElementById('shop-grid'),
       shopItemTitle: document.getElementById('shop-item-title'),
       shopItemDesc: document.getElementById('shop-item-desc'),
-      shopActionBtn: document.getElementById('shop-action-btn'),
       hangarCanvas: document.getElementById('hangar-preview-canvas'),
 
       // Global & Local Leaderboard
@@ -276,10 +275,6 @@ class UIManager {
     if (!this.dom.tutorialModal) return;
     this.dom.tutorialModal.classList.remove('visible');
     this.stopTutorialAnimation();
-  }
-
-  showTutorialSlide(slideNumber = 1) {
-    this.activeTutorialSlide = 1;
   }
 
   startTutorialAnimation() {
@@ -747,13 +742,6 @@ class UIManager {
     if (this.dom.profileModal) this.dom.profileModal.classList.remove('visible');
   }
 
-  rerollProfileName(e) {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }
-
   saveProfile(e) {
     if (e) e.preventDefault();
     const inputEl = document.getElementById('profile-name-input');
@@ -824,9 +812,12 @@ class UIManager {
     }
   }
 
-  showComboBadge(text, color = '#fbbf24') {
-    // Top-of-screen combo badge removed per user feedback.
-    // Combo / Perfect text displays directly at the release point on the player.
+  showComboBadge(text, color = '#a855f7') {
+    if (this.dom.hudComboBadge) {
+      this.dom.hudComboBadge.textContent = text;
+      this.dom.hudComboBadge.style.color = color;
+      this.dom.hudComboBadge.style.display = 'block';
+    }
   }
 
   hideComboBadge() {
@@ -865,11 +856,6 @@ class UIManager {
       this.dom.recordBanner.classList.add('show');
       setTimeout(() => this.dom.recordBanner.classList.remove('show'), 3200);
     }
-  }
-
-  showQuestToast(quest) {
-    // User requested: No pop-up when getting coins / completing tasks
-    this.updateActiveHUDQuest();
   }
 
   updateActiveHUDQuest() {
@@ -929,9 +915,10 @@ class UIManager {
     for (let i = 0; i <= steps; i++) {
       const t = i / steps;
       const py = Math.round(baseY + t * (crashY - baseY));
-      // Organic slingshot curvature within rail bounds
-      const wave = Math.sin(t * Math.PI * 2.2 + (altitude % 5)) * 10;
-      const px = Math.round(26 + wave + (t * (crashX - 26)));
+      // Organic slingshot curvature within rail bounds, dampened at endpoints
+      const envelope = Math.sin(t * Math.PI);
+      const wave = Math.sin(t * Math.PI * 2.2 + (altitude % 5)) * 10 * envelope;
+      const px = Math.round(26 + (t * (crashX - 26)) + wave);
       points.push({ x: px, y: py });
     }
 
@@ -958,16 +945,17 @@ class UIManager {
       tracePath.style.strokeDashoffset = `${length}`;
     }
 
-    // Position crash beacon position group directly at (crashX, crashY)
+    // Position crash beacon group exactly on top of the terminal point of the trajectory line
+    const endPoint = points[points.length - 1];
     const crashPos = document.getElementById('debrief-crash-pos');
-    if (crashPos) {
-      crashPos.setAttribute('transform', `translate(${crashX}, ${crashY})`);
+    if (crashPos && endPoint) {
+      crashPos.setAttribute('transform', `translate(${endPoint.x}, ${endPoint.y})`);
     }
 
     // Position rail ticks so crash tick aligns horizontally with crash dot
     // ViewBox height is 932
-    if (tickRowCrash) {
-      const crashPct = ((crashY / 932) * 100).toFixed(2);
+    if (tickRowCrash && endPoint) {
+      const crashPct = ((endPoint.y / 932) * 100).toFixed(2);
       tickRowCrash.style.top = `${crashPct}%`;
     }
 
@@ -1028,21 +1016,21 @@ class UIManager {
       }, delay);
     };
 
-    // Hero Altitude Display (Counts up right when the trajectory line reaches crash beacon ~800ms)
+    // Hero Altitude Display (Counts up right when the trajectory line reaches crash beacon ~1600ms)
     const altVal = document.getElementById('final-altitude-val');
     if (altVal) {
       altVal.textContent = '0';
-      animateCountUp(altVal, altitude, 650, 800, '');
+      animateCountUp(altVal, altitude, 850, 1700, '');
     } else if (this.dom.finalAltitude) {
       const heroValClass = isNewRecord ? 'hero-altitude-val new-record' : 'hero-altitude-val';
       this.dom.finalAltitude.innerHTML = `<span class="${heroValClass}">${Number(altitude).toLocaleString('de-DE')}</span><span class="hero-altitude-unit">m</span>`;
     }
 
-    // Currency Count-up (Starts when rewards card cascades in ~1150ms)
+    // Currency Count-up (Starts when in-flight loot row appears ~3650ms)
     const finalOrbsEl = document.getElementById('final-orbs') || this.dom.finalOrbs;
     const finalCrystalsEl = document.getElementById('final-crystals') || this.dom.finalCrystals;
-    if (finalOrbsEl) animateCountUp(finalOrbsEl, cores, 500, 1150, '+');
-    if (finalCrystalsEl) animateCountUp(finalCrystalsEl, crystals, 500, 1150, '+');
+    if (finalOrbsEl) animateCountUp(finalOrbsEl, cores, 600, 3650, '+');
+    if (finalCrystalsEl) animateCountUp(finalCrystalsEl, crystals, 600, 3650, '+');
 
     // Record Chase Bar & Gap
     const finalBest = document.getElementById('final-best');
@@ -1059,7 +1047,7 @@ class UIManager {
       barFill.style.width = '0%';
       setTimeout(() => {
         barFill.style.width = `${pct}%`;
-      }, 1000);
+      }, 2550);
     }
     if (gapText) {
       if (isNewRecord || altitude >= highScore) {
@@ -1102,7 +1090,7 @@ class UIManager {
         if (reviveBtnText && !canRevive) {
           reviveBtnText.textContent = 'BEREITS GENUTZT';
         } else if (reviveBtnText && currentCrystals < 1) {
-          reviveBtnText.textContent = 'KEINE KRISTALLE';
+          reviveBtnText.textContent = 'KEINE SPARKS';
         }
       }
     }
@@ -1131,7 +1119,7 @@ class UIManager {
             this.dom.btnGameOverRevive.disabled = true;
           }
           if (this.dom.reviveStatusText) {
-            this.dom.reviveStatusText.textContent = 'Finde seltene Kristalle im Tiefraum!';
+            this.dom.reviveStatusText.textContent = 'Finde seltene Sparks im Tiefraum!';
           }
         }
       } else {
@@ -1164,21 +1152,20 @@ class UIManager {
     }
 
     const currentStars = this.storage.data.cores;
-    const notified = this.storage.data.notifiedUpgradeIds || [];
 
     // Collect all locked items the player can now afford
     const candidates = [];
 
     // 1. Ships
     for (const ship of CONSTANTS.SHIPS) {
-      if (ship.cost > 0 && currentStars >= ship.cost && !this.shop.isUnlocked('ships', ship.id) && !notified.includes(ship.id)) {
+      if (ship.cost > 0 && currentStars >= ship.cost && !this.shop.isUnlocked('ships', ship.id) && !this.storage.isUpgradeNotified(ship.id)) {
         candidates.push({ ...ship, category: 'ships', catLabel: 'Raumschiff' });
       }
     }
 
     // 2. Trails
     for (const trail of CONSTANTS.TRAILS) {
-      if (trail.cost > 0 && currentStars >= trail.cost && !this.shop.isUnlocked('trails', trail.id) && !notified.includes(trail.id)) {
+      if (trail.cost > 0 && currentStars >= trail.cost && !this.shop.isUnlocked('trails', trail.id) && !this.storage.isUpgradeNotified(trail.id)) {
         candidates.push({ ...trail, category: 'trails', catLabel: 'Schweif' });
       }
     }
@@ -1329,45 +1316,6 @@ class UIManager {
 
     const isUnlocked = this.shop.isUnlocked(tabKey, item.id);
     const isEquipped = this.shop.isEquipped(tabKey, item.id);
-
-    if (this.dom.shopActionBtn) {
-      if (isEquipped) {
-        this.dom.shopActionBtn.textContent = 'AKTIV AUSGERÜSTET';
-        this.dom.shopActionBtn.disabled = true;
-        this.dom.shopActionBtn.className = 'btn-secondary active-equipped';
-      } else if (isUnlocked) {
-        this.dom.shopActionBtn.textContent = 'AUSRÜSTEN';
-        this.dom.shopActionBtn.disabled = false;
-        this.dom.shopActionBtn.className = 'btn-primary';
-      } else {
-        const canAfford = this.storage.data.cores >= item.cost;
-        this.dom.shopActionBtn.innerHTML = `KAUFEN (${item.cost} ${UIManager.COIN_SVG})`;
-        this.dom.shopActionBtn.disabled = !canAfford;
-        this.dom.shopActionBtn.className = canAfford ? 'btn-gold' : 'btn-disabled';
-      }
-    }
-  }
-
-  handleShopAction() {
-    if (!this.selectedShopItem) return;
-    const tabKey = this.activeShopTab;
-    const item = this.selectedShopItem;
-
-    if (this.shop.isUnlocked(tabKey, item.id)) {
-      this.shop.equipItem(tabKey, item.id);
-      if (tabKey === 'ships') this.previewShipId = item.id;
-      if (tabKey === 'trails') this.previewTrailId = item.id;
-      if (tabKey === 'themes') this.previewThemeId = item.id;
-      this.openHangarTab(tabKey);
-    } else {
-      const res = this.shop.buyItem(tabKey, item.id);
-      if (res.success) {
-        if (tabKey === 'ships') this.previewShipId = item.id;
-        if (tabKey === 'trails') this.previewTrailId = item.id;
-        if (tabKey === 'themes') this.previewThemeId = item.id;
-        this.openHangarTab(tabKey);
-      }
-    }
   }
 
   /* =========================================================================
@@ -1404,16 +1352,54 @@ class UIManager {
     this.updateMenuRank();
   }
 
+  getPlayerRankNumber() {
+    const bestAltitude = (this.storage && this.storage.data && this.storage.data.highScore) || 0;
+    if (bestAltitude <= 0) return null;
+
+    const profile = (this.storage && this.storage.getPlayerProfile) ? this.storage.getPlayerProfile() : {};
+    const playerName = profile.pilotName || 'Player';
+
+    const playerBestMap = new Map();
+    const storedRuns = ((this.storage && this.storage.data && this.storage.data.leaderboard) || []).map(r => ({
+      name: r.name || playerName,
+      altitude: r.altitude || 0,
+      isPlayer: (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')))
+    }));
+
+    storedRuns.push({
+      name: playerName,
+      altitude: bestAltitude,
+      isPlayer: true
+    });
+
+    storedRuns.forEach(r => {
+      const key = r.isPlayer ? '__CURRENT_PLAYER__' : (r.name ? r.name.trim() : 'Contender');
+      const existing = playerBestMap.get(key);
+      if (!existing || r.altitude > existing.altitude) {
+        playerBestMap.set(key, {
+          altitude: r.altitude,
+          isPlayer: r.isPlayer
+        });
+      }
+    });
+
+    const displayList = Array.from(playerBestMap.values());
+    displayList.sort((a, b) => b.altitude - a.altitude);
+    const fullRank = displayList.findIndex(e => e.isPlayer) + 1;
+    return fullRank > 0 ? fullRank : null;
+  }
+
   updateMenuRank() {
     if (!this.dom.rankPillBadge) return;
-    const bestAltitude = (this.storage && this.storage.data && this.storage.data.highScore) || 0;
-    if (bestAltitude > 0) {
-      const storedRuns = (this.storage.data.leaderboard || []).filter(r => r && r.altitude);
-      const higherCount = storedRuns.filter(r => (r.altitude || 0) > bestAltitude).length;
-      const rank = higherCount + 1;
+    const rank = this.getPlayerRankNumber();
+    if (rank) {
       this.dom.rankPillBadge.textContent = `#${rank}`;
+      this.dom.rankPillBadge.style.display = '';
+      this.dom.rankPillBadge.classList.remove('unranked');
     } else {
-      this.dom.rankPillBadge.textContent = '#42';
+      this.dom.rankPillBadge.textContent = '';
+      this.dom.rankPillBadge.style.display = 'none';
+      this.dom.rankPillBadge.classList.add('unranked');
     }
   }
 
@@ -1432,10 +1418,6 @@ class UIManager {
       this.dom.menuQuestsBadge.textContent = `${unclaimed}`;
       this.dom.menuQuestsBadge.style.display = unclaimed > 0 ? 'flex' : 'none';
     }
-  }
-
-  switchLeaderboardTab() {
-    this.renderLeaderboard();
   }
 
   renderGlobalLeaderboard() {
@@ -1546,8 +1528,17 @@ class UIManager {
     if (this.dom.playerRankDelta) {
       this.dom.playerRankDelta.textContent = deltaDisplay;
     }
-    if (this.dom.rankPillBadge && rankDisplay) {
-      this.dom.rankPillBadge.textContent = rankDisplay;
+    if (this.dom.rankPillBadge) {
+      const isRanked = Boolean(playerEntry || (bestAltitude > 0 && displayList.some(e => e.isPlayer)));
+      if (isRanked && rankDisplay && rankDisplay !== '#---') {
+        this.dom.rankPillBadge.textContent = rankDisplay;
+        this.dom.rankPillBadge.style.display = '';
+        this.dom.rankPillBadge.classList.remove('unranked');
+      } else {
+        this.dom.rankPillBadge.textContent = '';
+        this.dom.rankPillBadge.style.display = 'none';
+        this.dom.rankPillBadge.classList.add('unranked');
+      }
     }
   }
 

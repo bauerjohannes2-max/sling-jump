@@ -335,21 +335,23 @@ class StorageService {
       isNewHighScore = true;
     }
 
-    // Add to Flight Records (Top 100 runs sorted by altitude)
-    const profile = this.getPlayerProfile();
-    const region = StorageService.getPlayerRegion();
-    const entry = {
-      altitude: altitude,
-      name: profile.pilotName || 'Player',
-      country: region.code,
-      countryName: region.name,
-      timestamp: Date.now()
-    };
+    // Add to Flight Records (Top 100 runs sorted by altitude, only for completed climbs)
+    if (altitude > 0) {
+      const profile = this.getPlayerProfile();
+      const region = StorageService.getPlayerRegion();
+      const entry = {
+        altitude: altitude,
+        name: profile.pilotName || 'Player',
+        country: region.code,
+        countryName: region.name,
+        timestamp: Date.now()
+      };
 
-    this.data.leaderboard.push(entry);
-    this.data.leaderboard.sort((a, b) => b.altitude - a.altitude);
-    if (this.data.leaderboard.length > 100) {
-      this.data.leaderboard = this.data.leaderboard.slice(0, 100);
+      this.data.leaderboard.push(entry);
+      this.data.leaderboard.sort((a, b) => b.altitude - a.altitude);
+      if (this.data.leaderboard.length > 100) {
+        this.data.leaderboard = this.data.leaderboard.slice(0, 100);
+      }
     }
 
     this.save();

@@ -43,6 +43,7 @@ class GameEngine {
     this.tutorialPhase = 0;
     this.tutorialFrozen = false;
     this.maxAltitudeMeters = 0;
+    this.startAltitudeY = 0;
     this.runCores = 0;
     this.runSlingshots = 0;
     this.runBestSwingMeters = 0;
@@ -216,6 +217,7 @@ class GameEngine {
     this.player.orbitSpeed = 440;
     this.player.orbitDirection = 1;
     startNode.isHooked = true;
+    this.startAltitudeY = startNode.y + this.player.orbitRadius;
 
     this.cameraY = startNode.y - this.height * 0.50;
 
@@ -267,6 +269,7 @@ class GameEngine {
     this.player.orbitSpeed = 460; // Calm, manageable starting entry speed
     this.player.orbitDirection = 1;
     startNode.isHooked = true;
+    this.startAltitudeY = startNode.y + this.player.orbitRadius;
 
     // Center camera so the player is positioned in the middle of the screen (50% viewport height)
     this.cameraY = startNode.y - this.height * 0.50;
@@ -414,7 +417,8 @@ class GameEngine {
     this.particles.spawnShards(this.player.x, this.player.y, 35, '#ef4444');
 
     // Target true peak altitude achieved by the pilot (never leave them stranded at the void bottom)
-    const peakY = Math.max(380, Math.floor(this.maxAltitudeMeters / CONSTANTS.PHYSICS.METERS_PER_PIXEL));
+    const baseOrigin = (this.startAltitudeY !== undefined && this.startAltitudeY !== null) ? this.startAltitudeY : 380;
+    const peakY = Math.max(baseOrigin, Math.floor(baseOrigin + this.maxAltitudeMeters / CONSTANTS.PHYSICS.METERS_PER_PIXEL));
 
     // Find closest valid anchor to peakY
     const safeCandidates = this.world.nodes.filter(n =>
@@ -492,7 +496,8 @@ class GameEngine {
     this.isDying = false;
 
     // Restore altitude and checkpoint at pilot's peak height
-    const peakY = Math.max(380, Math.floor(this.maxAltitudeMeters / CONSTANTS.PHYSICS.METERS_PER_PIXEL));
+    const baseOrigin = (this.startAltitudeY !== undefined && this.startAltitudeY !== null) ? this.startAltitudeY : 380;
+    const peakY = Math.max(baseOrigin, Math.floor(baseOrigin + this.maxAltitudeMeters / CONSTANTS.PHYSICS.METERS_PER_PIXEL));
     const cp = this.reviveCheckpoint || {
       cameraY: peakY - this.height * 0.58,
       maxAltitudeMeters: this.maxAltitudeMeters,
@@ -583,7 +588,8 @@ class GameEngine {
       if (!hasNodeInStep) {
         const stepY = targetAnchor.y + step * 155;
         const stepX = Math.max(90, Math.min(this.width - 90, lastLadderX + (step % 2 === 0 ? 110 : -110)));
-        const ladderNode = new OrbitNode(stepX, stepY, 'STANDARD', this.width, stepY * CONSTANTS.PHYSICS.METERS_PER_PIXEL);
+        const stepAltitude = Math.max(0, Math.floor((stepY - (this.startAltitudeY || 0)) * CONSTANTS.PHYSICS.METERS_PER_PIXEL));
+        const ladderNode = new OrbitNode(stepX, stepY, 'STANDARD', this.width, stepAltitude);
         this.world.nodes.push(ladderNode);
         lastLadderX = stepX;
       }
@@ -755,7 +761,7 @@ class GameEngine {
               this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
               this.triggerScreenShake(3);
 
-              this.particles.spawnFloatingText(orb.x, orb.y + 25, '+1 KRISTALL!', '#d946ef', 28, true);
+              this.particles.spawnFloatingText(orb.x, orb.y + 25, '+1 SPARK!', '#d946ef', 28, true);
               this.particles.spawnShards(orb.x, orb.y, 25, '#d946ef');
               this.particles.spawnSparks(orb.x, orb.y, 20, '#f43f5e', 1.8);
             } else {
@@ -793,7 +799,8 @@ class GameEngine {
         }
 
         // Altitude Score
-        const currentMeters = Math.max(0, Math.floor(this.player.y * CONSTANTS.PHYSICS.METERS_PER_PIXEL));
+        const baseOrigin = (this.startAltitudeY !== undefined && this.startAltitudeY !== null) ? this.startAltitudeY : 0;
+        const currentMeters = Math.max(0, Math.floor((this.player.y - baseOrigin) * CONSTANTS.PHYSICS.METERS_PER_PIXEL));
         if (currentMeters > this.maxAltitudeMeters) {
           this.maxAltitudeMeters = currentMeters;
           this.missions.onAltitudeUpdate(this.maxAltitudeMeters, this.player.hookedNode && this.player.hookedNode.type === 'FRAGILE');

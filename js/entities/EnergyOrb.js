@@ -22,33 +22,172 @@ class EnergyOrb {
     if (EnergyOrb.cache) return;
     EnergyOrb.cache = {};
 
-    // Cache Crystal Glow
+    // 1. Cache Prismatic Spark Glow
     const c1 = document.createElement('canvas');
     c1.width = 64; c1.height = 64;
     const ctx1 = c1.getContext('2d');
-    const glow1 = ctx1.createRadialGradient(32, 32, 1, 32, 32, 30);
-    glow1.addColorStop(0, 'rgba(217, 70, 239, 0.9)');
-    glow1.addColorStop(0.4, 'rgba(192, 132, 252, 0.35)');
-    glow1.addColorStop(1, 'rgba(217, 70, 239, 0)');
+    const glow1 = ctx1.createRadialGradient(32, 32, 2, 32, 32, 30);
+    glow1.addColorStop(0, 'rgba(232, 121, 249, 0.95)');
+    glow1.addColorStop(0.35, 'rgba(147, 51, 234, 0.50)');
+    glow1.addColorStop(0.7, 'rgba(88, 28, 135, 0.20)');
+    glow1.addColorStop(1, 'rgba(88, 28, 135, 0)');
     ctx1.fillStyle = glow1;
     ctx1.beginPath();
     ctx1.arc(32, 32, 30, 0, Math.PI * 2);
     ctx1.fill();
     EnergyOrb.cache['CRYSTAL_GLOW'] = c1;
 
-    // Cache Coin Glow
+    // 2. Cache Bullion Credit Glow
     const c2 = document.createElement('canvas');
     c2.width = 48; c2.height = 48;
     const ctx2 = c2.getContext('2d');
-    const glow2 = ctx2.createRadialGradient(24, 24, 1, 24, 24, 22);
-    glow2.addColorStop(0, 'rgba(251, 191, 36, 0.85)');
-    glow2.addColorStop(0.5, 'rgba(245, 158, 11, 0.25)');
-    glow2.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    const glow2 = ctx2.createRadialGradient(24, 24, 2, 24, 24, 22);
+    glow2.addColorStop(0, 'rgba(253, 230, 138, 0.90)');
+    glow2.addColorStop(0.4, 'rgba(245, 158, 11, 0.35)');
+    glow2.addColorStop(1, 'rgba(245, 158, 11, 0)');
     ctx2.fillStyle = glow2;
     ctx2.beginPath();
     ctx2.arc(24, 24, 22, 0, Math.PI * 2);
     ctx2.fill();
     EnergyOrb.cache['COIN_GLOW'] = c2;
+
+    EnergyOrb.buildSprites();
+    if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        EnergyOrb.buildSprites(true);
+      });
+    }
+  }
+
+  static buildSprites(force = false) {
+    if (!EnergyOrb.cache) EnergyOrb.cache = {};
+
+    // 3. Pre-render Aerospace Credits Bullion Coin (48x48)
+    const cCoin = EnergyOrb.cache['CREDIT_SPRITE'] || document.createElement('canvas');
+    cCoin.width = 48; cCoin.height = 48;
+    const ctxCoin = cCoin.getContext('2d');
+    ctxCoin.clearRect(0, 0, 48, 48);
+
+    // Outer Beveled Rim
+    const rimGrad = ctxCoin.createLinearGradient(10, 8, 38, 40);
+    rimGrad.addColorStop(0, '#fde68a');
+    rimGrad.addColorStop(0.35, '#f59e0b');
+    rimGrad.addColorStop(1, '#78350f');
+    ctxCoin.fillStyle = rimGrad;
+    ctxCoin.beginPath();
+    ctxCoin.arc(24, 24, 15.5, 0, Math.PI * 2);
+    ctxCoin.fill();
+    ctxCoin.strokeStyle = '#260b02';
+    ctxCoin.lineWidth = 0.9;
+    ctxCoin.stroke();
+
+    // Specular Highlight Inner Ring
+    ctxCoin.strokeStyle = 'rgba(254, 240, 138, 0.45)';
+    ctxCoin.lineWidth = 0.6;
+    ctxCoin.beginPath();
+    ctxCoin.arc(24, 24, 14.1, 0, Math.PI * 2);
+    ctxCoin.stroke();
+
+    // Recessed Dark Contrast Well
+    const wellGrad = ctxCoin.createRadialGradient(24, 24, 2, 24, 24, 12.5);
+    wellGrad.addColorStop(0, '#5c2409');
+    wellGrad.addColorStop(0.85, '#240a02');
+    wellGrad.addColorStop(1, '#140501');
+    ctxCoin.fillStyle = wellGrad;
+    ctxCoin.beginPath();
+    ctxCoin.arc(24, 24, 12.3, 0, Math.PI * 2);
+    ctxCoin.fill();
+    ctxCoin.strokeStyle = '#1a0601';
+    ctxCoin.lineWidth = 0.75;
+    ctxCoin.stroke();
+
+    // Precision Centered Bold 'C'
+    ctxCoin.fillStyle = '#fef08a';
+    ctxCoin.textAlign = 'center';
+    ctxCoin.textBaseline = 'middle';
+    ctxCoin.font = '700 19px "Rajdhani", sans-serif';
+    ctxCoin.fillText('C', 24, 24.5);
+    EnergyOrb.cache['CREDIT_SPRITE'] = cCoin;
+
+    // 4. Pre-render Aerospace Sparks 8-Point Prismatic Star (56x56)
+    const cSpark = EnergyOrb.cache['SPARK_SPRITE'] || document.createElement('canvas');
+    cSpark.width = 56; cSpark.height = 56;
+    const ctxSpark = cSpark.getContext('2d');
+    ctxSpark.clearRect(0, 0, 56, 56);
+
+    // 8-Point Star Polygon
+    const starGrad = ctxSpark.createRadialGradient(28, 28, 2, 28, 28, 24);
+    starGrad.addColorStop(0, '#e879f9');
+    starGrad.addColorStop(0.5, '#9333ea');
+    starGrad.addColorStop(1, '#581c87');
+    ctxSpark.fillStyle = starGrad;
+    ctxSpark.strokeStyle = '#d8b4fe';
+    ctxSpark.lineWidth = 1.1;
+    ctxSpark.lineJoin = 'round';
+    ctxSpark.beginPath();
+    ctxSpark.moveTo(28, 5);   // top tip
+    ctxSpark.lineTo(33, 22);  // top-right shoulder
+    ctxSpark.lineTo(51, 28);  // right tip
+    ctxSpark.lineTo(33, 34);  // bottom-right shoulder
+    ctxSpark.lineTo(28, 51);  // bottom tip
+    ctxSpark.lineTo(23, 34);  // bottom-left shoulder
+    ctxSpark.lineTo(5, 28);   // left tip
+    ctxSpark.lineTo(23, 22);  // top-left shoulder
+    ctxSpark.closePath();
+    ctxSpark.fill();
+    ctxSpark.stroke();
+
+    // Top Specular Refractions
+    ctxSpark.fillStyle = 'rgba(255, 255, 255, 0.22)';
+    ctxSpark.beginPath();
+    ctxSpark.moveTo(28, 5);
+    ctxSpark.lineTo(33, 22);
+    ctxSpark.lineTo(28, 28);
+    ctxSpark.closePath();
+    ctxSpark.fill();
+
+    ctxSpark.fillStyle = 'rgba(255, 255, 255, 0.14)';
+    ctxSpark.beginPath();
+    ctxSpark.moveTo(5, 28);
+    ctxSpark.lineTo(23, 22);
+    ctxSpark.lineTo(28, 28);
+    ctxSpark.closePath();
+    ctxSpark.fill();
+
+    // Bottom Depth Shading
+    ctxSpark.fillStyle = 'rgba(59, 7, 100, 0.45)';
+    ctxSpark.beginPath();
+    ctxSpark.moveTo(28, 51);
+    ctxSpark.lineTo(33, 34);
+    ctxSpark.lineTo(28, 28);
+    ctxSpark.closePath();
+    ctxSpark.fill();
+
+    ctxSpark.fillStyle = 'rgba(59, 7, 100, 0.32)';
+    ctxSpark.beginPath();
+    ctxSpark.moveTo(51, 28);
+    ctxSpark.lineTo(33, 34);
+    ctxSpark.lineTo(28, 28);
+    ctxSpark.closePath();
+    ctxSpark.fill();
+
+    // Laser Cleave Lines
+    ctxSpark.strokeStyle = 'rgba(245, 208, 254, 0.55)';
+    ctxSpark.lineWidth = 0.8;
+    ctxSpark.beginPath();
+    ctxSpark.moveTo(33, 22);
+    ctxSpark.lineTo(23, 34);
+    ctxSpark.moveTo(23, 22);
+    ctxSpark.lineTo(33, 34);
+    ctxSpark.stroke();
+
+    // Core Nucleus Pip
+    ctxSpark.fillStyle = '#f5d0fe';
+    ctxSpark.beginPath();
+    ctxSpark.arc(28, 28, 2.0, 0, Math.PI * 2);
+    ctxSpark.fill();
+
+    EnergyOrb.cache['SPARK_SPRITE'] = cSpark;
   }
 
   draw(context, camY, height, theme = null) {
@@ -70,93 +209,23 @@ class EnergyOrb {
       // 1. High-Intensity Quantum Aura (Pre-rendered)
       context.drawImage(EnergyOrb.cache['CRYSTAL_GLOW'], -32, -32);
 
-      // 2. Rotating Radiant Diamond Rays
-      context.rotate(this.pulse * 0.6);
-      context.strokeStyle = 'rgba(244, 63, 94, 0.7)';
-      context.lineWidth = 1.4;
-      for (let i = 0; i < 4; i++) {
-        context.beginPath();
-        context.moveTo(0, -18 * pulseScale);
-        context.lineTo(0, 18 * pulseScale);
-        context.stroke();
-        context.rotate(Math.PI / 4);
-      }
-      // Reverse rotate from loop (4 * PI/4 = PI)
-      context.rotate(-Math.PI);
-      context.rotate(-this.pulse * 0.6);
-
-      // 3. Faceted Outer Quantum Diamond
-      const w1 = 9 * pulseScale;
-      const h1 = 14 * pulseScale;
-      context.fillStyle = 'rgba(217, 70, 239, 0.35)';
-      context.strokeStyle = '#d946ef';
-      context.lineWidth = 2.0;
-
-      context.beginPath();
-      context.moveTo(0, -h1);
-      context.lineTo(w1, 0);
-      context.lineTo(0, h1);
-      context.lineTo(-w1, 0);
-      context.closePath();
-      context.fill();
-      context.stroke();
-
-      // 4. Inner Brilliant White Core Prism
-      const w2 = 4.5 * pulseScale;
-      const h2 = 8.0 * pulseScale;
-      context.fillStyle = '#ffffff';
-      context.strokeStyle = '#f43f5e';
-      context.lineWidth = 1.2;
-
-      context.beginPath();
-      context.moveTo(0, -h2);
-      context.lineTo(w2, 0);
-      context.lineTo(0, h2);
-      context.lineTo(-w2, 0);
-      context.closePath();
-      context.fill();
-      context.stroke();
-
-      // 5. Center Pulsing Star Spark (Replaced arc with fillRect)
-      context.fillStyle = '#f43f5e';
-      context.fillRect(-2, -2, 4, 4);
+      // 2. Slow Radiant 8-Point Prismatic Star
+      context.rotate(this.pulse * 0.35);
+      const sW = 56 * pulseScale;
+      const sH = 56 * pulseScale;
+      context.drawImage(EnergyOrb.cache['SPARK_SPRITE'], -sW * 0.5, -sH * 0.5, sW, sH);
+      context.rotate(-this.pulse * 0.35);
 
     } else {
-      const coreColor = theme ? theme.accent : '#fbbf24';
-
       // 1. Outer Radiant Glow (Pre-rendered)
       context.drawImage(EnergyOrb.cache['COIN_GLOW'], -24, -24);
 
       const pulseScale = 1 + Math.sin(this.pulse) * 0.08;
-      const coinR = 10 * pulseScale;
+      const cW = 48 * pulseScale;
+      const cH = 48 * pulseScale;
 
-      // 2. Outer Golden Coin Ring (Native arc)
-      context.fillStyle = 'rgba(251, 191, 36, 0.22)';
-      context.strokeStyle = coreColor;
-      context.lineWidth = 1.8;
-      context.beginPath();
-      context.arc(0, 0, coinR, 0, Math.PI * 2);
-      context.fill();
-      context.stroke();
-
-      // 3. Inner Faceted Vector Diamond
-      const dW = 5.5 * pulseScale;
-      const dH = 7.0 * pulseScale;
-      context.fillStyle = '#ffffff';
-      context.strokeStyle = '#f59e0b';
-      context.lineWidth = 1.2;
-      context.beginPath();
-      context.moveTo(0, -dH);
-      context.lineTo(dW, 0);
-      context.lineTo(0, dH);
-      context.lineTo(-dW, 0);
-      context.closePath();
-      context.fill();
-      context.stroke();
-
-      // 4. Center Core Spark Dot (Replaced arc with fillRect)
-      context.fillStyle = coreColor;
-      context.fillRect(-2, -2, 4, 4);
+      // 2. Pre-rendered Stamped Bullion Credit Coin
+      context.drawImage(EnergyOrb.cache['CREDIT_SPRITE'], -cW * 0.5, -cH * 0.5, cW, cH);
     }
 
     context.translate(-px, -screenY);

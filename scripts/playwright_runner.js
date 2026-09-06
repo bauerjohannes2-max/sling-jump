@@ -135,6 +135,13 @@ async function runPlaywrightSuite() {
   // 1. Main Menu
   if (shouldCapture('01_main_menu.png')) {
     console.log('[Playwright] Capturing 01_main_menu.png');
+    const badgeVisible = await page.$eval('#rank-pill-badge', el => {
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetWidth > 0;
+    });
+    if (badgeVisible) {
+      consoleErrors.push('FAIL: #rank-pill-badge is visible on leaderboard icon before player has played a game!');
+    }
     await captureScreenshot(page, '01_main_menu.png', 'Main Menu');
   }
 
@@ -275,8 +282,8 @@ async function runPlaywrightSuite() {
     await sleep(300);
   }
 
-  // Gameplay Flow: 08, 08b, 09, 10, 10b, 10c
-  const needsGameplay = shouldCapture('08_gameplay_hud.png') || shouldCapture('08b_gameplay_fps_hud.png') || shouldCapture('09_pause_modal.png') || shouldCapture('10_game_over.png') || shouldCapture('10b_revived_gameplay.png') || shouldCapture('10c_mobile_game_over.png');
+  // Gameplay Flow: 08, 09, 10, 10b, 10c
+  const needsGameplay = shouldCapture('08_gameplay_hud.png') || shouldCapture('09_pause_modal.png') || shouldCapture('10_game_over.png') || shouldCapture('10b_revived_gameplay.png') || shouldCapture('10c_mobile_game_over.png');
   if (needsGameplay) {
     console.log('[Playwright] Starting gameplay session...');
     await page.evaluate(() => {
@@ -286,7 +293,7 @@ async function runPlaywrightSuite() {
     });
     await sleep(500);
 
-    // 8. Gameplay HUD & 8b. FPS Telemetry
+    // 8. Gameplay HUD
     if (shouldCapture('08_gameplay_hud.png')) {
       console.log('[Playwright] Triggering Minimalist Combo x3 visual & Hazard Mine...');
       await page.evaluate(() => {
@@ -296,6 +303,8 @@ async function runPlaywrightSuite() {
           window._gameEngine.ui.showComboBadge('COMBO x3', '#a855f7');
           const hazardNode = new OrbitNode(window._gameEngine.width * 0.75, window._gameEngine.player.y + 130, 'HAZARD', window._gameEngine.width, 10200);
           window._gameEngine.world.nodes.push(hazardNode);
+          window._gameEngine.world.energyOrbs.push(new EnergyOrb(window._gameEngine.player.x - 90, window._gameEngine.player.y + 100, 'COIN'));
+          window._gameEngine.world.energyOrbs.push(new EnergyOrb(window._gameEngine.player.x + 90, window._gameEngine.player.y + 100, 'CRYSTAL'));
         }
       });
       await sleep(200);
@@ -303,12 +312,7 @@ async function runPlaywrightSuite() {
       await captureScreenshot(page, '08_gameplay_hud.png', 'Gameplay HUD & Combo');
     }
 
-    if (shouldCapture('08b_gameplay_fps_hud.png')) {
-      console.log('[Playwright] Capturing 08b_gameplay_fps_hud.png (Live Real-Time Telemetry HUD)');
-      await captureScreenshot(page, '08b_gameplay_fps_hud.png', 'Live FPS Telemetry HUD');
-    }
-
-    if (shouldCapture('08_gameplay_hud.png') || shouldCapture('08b_gameplay_fps_hud.png')) {
+    if (shouldCapture('08_gameplay_hud.png')) {
 
       // Boost immunity check
       const boostImmunityResult = await page.evaluate(() => {
@@ -365,7 +369,7 @@ async function runPlaywrightSuite() {
         if (window._gameEngine) {
           const eng = window._gameEngine;
           const targetMeters = 482;
-          const peakY = targetMeters / 0.125;
+          const peakY = (eng.startAltitudeY || 0) + targetMeters / 0.125;
           eng.maxAltitudeMeters = targetMeters;
           eng.cameraY = peakY - eng.height * 0.50;
           eng.storage.data.hyperCrystals = 5;
@@ -375,7 +379,7 @@ async function runPlaywrightSuite() {
           eng.triggerGameOver();
         }
       });
-      await sleep(2100);
+      await sleep(5300);
       if (shouldCapture('10_game_over.png')) {
         console.log('[Playwright] Capturing 10_game_over.png');
         await captureScreenshot(page, '10_game_over.png', 'Game Over Screen');

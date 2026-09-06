@@ -57,6 +57,7 @@ class WorldManager {
 
     // 1. Fully Procedural Start (Randomized initial node around viewport center)
     const startY = Math.max(320, Math.floor(height * 0.48));
+    this.startY = startY;
     const randomStartOffsetX = (Math.random() - 0.5) * 80;
     const startX = Math.max(80, Math.min(width - 80, width / 2 + randomStartOffsetX));
 
@@ -75,8 +76,9 @@ class WorldManager {
   }
 
   generateUpTo(targetY, width, cameraY) {
+    const baseOriginY = (this.startY !== undefined && this.startY !== null) ? this.startY : 0;
     while (this.highestGeneratedY < targetY) {
-      const altitude = this.highestGeneratedY * CONSTANTS.PHYSICS.METERS_PER_PIXEL;
+      const altitude = Math.max(0, (this.highestGeneratedY - baseOriginY) * CONSTANTS.PHYSICS.METERS_PER_PIXEL);
 
       // 1. EARLIER & PROGRESSIVE DIFFICULTY SCALING CURVE
       let minGap, maxGap;
@@ -324,7 +326,8 @@ class WorldManager {
     const dy = newNode.y - prevNode.y;
 
     // 1. Ultra-Rare Hyper-Kristall Spawn (Ultra-rare: 0.25% chance above 8,000m deep space altitude)
-    const currentAltitudeMeters = this.lastNodeY * (CONSTANTS.PHYSICS.METERS_PER_PIXEL || 0.125);
+    const baseOriginY = (this.startY !== undefined && this.startY !== null) ? this.startY : 0;
+    const currentAltitudeMeters = Math.max(0, (this.lastNodeY - baseOriginY) * (CONSTANTS.PHYSICS.METERS_PER_PIXEL || 0.125));
     const hasNearbyCrystal = this.energyOrbs.some(o => o.type === 'CRYSTAL' && Math.abs(o.y - this.lastNodeY) < 6000);
     if (currentAltitudeMeters >= 8000 && !hasNearbyCrystal && Math.random() < 0.0025) {
       const crystalX = Math.random() * (width - 140) + 70;

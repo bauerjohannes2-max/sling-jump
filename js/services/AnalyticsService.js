@@ -89,14 +89,6 @@ class AnalyticsService {
     this.recordLocalHistory(payload);
   }
 
-  trackSkinEquip(type, id) {
-    this.sendEvent('skin_equip', {
-      type,
-      id,
-      timestamp: Date.now()
-    });
-  }
-
   sendEvent(eventName, eventData = {}) {
     let userId = 'usr_anonymous';
     let gamerTag = 'Player';
@@ -155,15 +147,6 @@ class AnalyticsService {
       if (list.length > 50) list.length = 50;
       localStorage.setItem('sling_local_runs', JSON.stringify(list));
     } catch (e) {}
-  }
-
-  getLocalHistory() {
-    try {
-      const stored = localStorage.getItem('sling_local_runs');
-      return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-      return [];
-    }
   }
 }
 

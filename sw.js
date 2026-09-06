@@ -1,9 +1,9 @@
 /**
  * Sling Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 4.7.1
+ * Version: 5.10.0
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'sling-jump-v4.7.1';
+const CACHE_NAME = 'sling-jump-v5.10.0';
 
 const PRECACHE_ASSETS = [
   './',
