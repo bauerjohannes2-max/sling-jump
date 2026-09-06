@@ -352,13 +352,112 @@ function readJsonBody(req, res, corsOrigin, callback) {
 
 const ID_REGEX = /^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ-]{4,10}$/;
 
+let APP_CONSTANTS = null;
+try {
+  APP_CONSTANTS = require(path.join(ROOT_DIR, 'js', 'config', 'Constants.js'));
+} catch (e) {
+  APP_CONSTANTS = null;
+}
+
+const VALID_SHIPS = (APP_CONSTANTS && Array.isArray(APP_CONSTANTS.SHIPS) && APP_CONSTANTS.SHIPS.length > 0)
+  ? APP_CONSTANTS.SHIPS.map(s => s.id)
+  : ['dart', 'phoenix'];
+
+const VALID_TRAILS = (APP_CONSTANTS && Array.isArray(APP_CONSTANTS.TRAILS) && APP_CONSTANTS.TRAILS.length > 0)
+  ? APP_CONSTANTS.TRAILS.map(t => t.id)
+  : ['neon_cyan'];
+
+const VALID_THEMES = (APP_CONSTANTS && Array.isArray(APP_CONSTANTS.THEMES) && APP_CONSTANTS.THEMES.length > 0)
+  ? APP_CONSTANTS.THEMES.map(t => t.id)
+  : ['deep_space', 'cyberpunk', 'solar_flare', 'monolith_dark'];
+
+const SCHEMA_BOUNDS = {
+  MAX_HIGH_SCORE: 500000,
+  MAX_CORES: 1000000,
+  MAX_HYPER_CRYSTALS: 1000,
+  MAX_STAT_VALUE: 100000000,
+  MAX_COMBO: 100
+};
+
+function clampInt(val, min, max, defaultVal = 0) {
+  if (typeof val !== 'number' || !Number.isFinite(val) || isNaN(val)) {
+    return defaultVal;
+  }
+  return Math.max(min, Math.min(max, Math.floor(val)));
+}
+
 function sanitizeState(state) {
-  if (!state || typeof state !== 'object') return {};
+  if (!state || typeof state !== 'object' || Array.isArray(state)) return {};
   const clean = {};
   for (const [k, v] of Object.entries(state)) {
     if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
     clean[k] = v;
   }
+
+  // 1. Numeric bounds enforcement
+  if ('highScore' in clean) {
+    clean.highScore = clampInt(clean.highScore, 0, SCHEMA_BOUNDS.MAX_HIGH_SCORE, 0);
+  }
+  if ('cores' in clean) {
+    clean.cores = clampInt(clean.cores, 0, SCHEMA_BOUNDS.MAX_CORES, 0);
+  }
+  if ('hyperCrystals' in clean) {
+    clean.hyperCrystals = clampInt(clean.hyperCrystals, 0, SCHEMA_BOUNDS.MAX_HYPER_CRYSTALS, 1);
+  }
+
+  // 2. Equipment catalog validation
+  if ('selectedShip' in clean) {
+    clean.selectedShip = VALID_SHIPS.includes(clean.selectedShip) ? clean.selectedShip : (VALID_SHIPS[0] || 'dart');
+  }
+  if ('selectedTrail' in clean) {
+    clean.selectedTrail = VALID_TRAILS.includes(clean.selectedTrail) ? clean.selectedTrail : (VALID_TRAILS[0] || 'neon_cyan');
+  }
+  if ('selectedTheme' in clean) {
+    clean.selectedTheme = VALID_THEMES.includes(clean.selectedTheme) ? clean.selectedTheme : (VALID_THEMES[0] || 'deep_space');
+  }
+
+  if (Array.isArray(clean.unlockedShips)) {
+    clean.unlockedShips = clean.unlockedShips.filter(id => typeof id === 'string' && VALID_SHIPS.includes(id));
+    if (!clean.unlockedShips.includes(VALID_SHIPS[0])) clean.unlockedShips.unshift(VALID_SHIPS[0]);
+  }
+  if (Array.isArray(clean.unlockedTrails)) {
+    clean.unlockedTrails = clean.unlockedTrails.filter(id => typeof id === 'string' && VALID_TRAILS.includes(id));
+    if (!clean.unlockedTrails.includes(VALID_TRAILS[0])) clean.unlockedTrails.unshift(VALID_TRAILS[0]);
+  }
+  if (Array.isArray(clean.unlockedThemes)) {
+    clean.unlockedThemes = clean.unlockedThemes.filter(id => typeof id === 'string' && VALID_THEMES.includes(id));
+    if (!clean.unlockedThemes.includes(VALID_THEMES[0])) clean.unlockedThemes.unshift(VALID_THEMES[0]);
+  }
+
+  // 3. Sub-object sanitization (stats, playerProfile)
+  if (clean.stats && typeof clean.stats === 'object' && !Array.isArray(clean.stats)) {
+    const cleanStats = {};
+    for (const [sk, sv] of Object.entries(clean.stats)) {
+      if (sk === '__proto__' || sk === 'constructor' || sk === 'prototype') continue;
+      if (sk === 'bestCombo') {
+        cleanStats[sk] = clampInt(sv, 0, SCHEMA_BOUNDS.MAX_COMBO, 0);
+      } else if (typeof sv === 'number') {
+        cleanStats[sk] = clampInt(sv, 0, SCHEMA_BOUNDS.MAX_STAT_VALUE, 0);
+      } else {
+        cleanStats[sk] = sv;
+      }
+    }
+    clean.stats = cleanStats;
+  }
+
+  if (clean.playerProfile && typeof clean.playerProfile === 'object' && !Array.isArray(clean.playerProfile)) {
+    const cleanProfile = {};
+    for (const [pk, pv] of Object.entries(clean.playerProfile)) {
+      if (pk === '__proto__' || pk === 'constructor' || pk === 'prototype') continue;
+      if (pk === 'nameChanges') {
+        cleanProfile[pk] = clampInt(pv, 0, 10, 0);
+      } else {
+        cleanProfile[pk] = pv;
+      }
+    }
+    clean.playerProfile = cleanProfile;
+  }
+
   return clean;
 }
 
@@ -947,5 +1046,7 @@ module.exports = {
   reloadSessions,
   createSessionToken,
   validateSessionToken,
-  revokePlayerSessions
+  revokePlayerSessions,
+  sanitizeState,
+  SCHEMA_BOUNDS
 };

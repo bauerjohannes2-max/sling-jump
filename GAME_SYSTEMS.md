@@ -224,7 +224,7 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
 - **Collision-Resistant 8-Character Player ID Architecture:** 8-character uppercase Crockford Base32 identifier with hyphen and hash prefix (`#XXXX-XXXX`, e.g. `#8K2P-9J7M`, $30^8 \approx 6.5 \times 10^{11}$ combinations). Automatically generated on initial session start; legacy 4-character accounts (`#XXXX`) remain fully supported and restorable.
 - **Name Change Policy:** 2 free name changes (`MAX_FREE_CHANGES = 2`). Notice banner is optically centered vertically and horizontally inside the status box (`display: flex; align-items: center; justify-content: center;`). Form locks upon exhaustion.
 - **Cross-Device Cloud Sync & Recognition:**
-  - `POST /api/player/sync`: Ingests and merges player game state in `data/players.json`.
+  - `POST /api/player/sync`: Ingests and merges player game state in `data/players.json`. Enforces strict server-side schema bounds on all fields (`highScore` max 500,000, `cores` max 1,000,000, `hyperCrystals` max 1,000, `bestCombo` max 100), validates equipment selections against `Constants.js` catalogs, and sanitizes prototype pollution properties.
   - `POST /api/player/restore`: Secure credential verification and state restoration by player ID (`#XXXX-XXXX` or legacy `#XXXX`).
   - Zero-friction link sharing: Clicking "SPIELSTAND-LINK KOPIEREN" copies `?id=XXXX-XXXX`. When opened on any browser or mobile device, state is automatically restored on initial page load.
   - Manual ID load: Players can enter any `#XXXX-XXXX` (or legacy `#XXXX`) code and click "LADEN" to restore progress immediately.

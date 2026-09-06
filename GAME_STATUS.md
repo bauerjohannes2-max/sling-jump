@@ -72,6 +72,11 @@
   - Updated server `ID_REGEX` (`/^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ-]{4,10}$/`) to support hyphens across all player sync, restore, and login endpoints.
   - Preserved 100% backward compatibility: `StorageService.migrate()` and server endpoints accept both legacy 4-character accounts and new 8-character accounts without resetting user progression.
   - Verified with automated 500-sample uniqueness test, migration suite, and Playwright runner 06 (`06b_pilot_profile.png`) with 0 console errors.
+- **Save State Schema Validation & Numeric Bounds Enforcement (`scripts/serve.js`, `Constants.js`):**
+  - Enforced strict server-side bounds via `sanitizeState()` on `POST /api/player/sync`: `highScore` clamped to [0, 500,000], `cores` clamped to [0, 1,000,000], `hyperCrystals` clamped to [0, 1,000], and `bestCombo` clamped to [0, 100].
+  - Equipment selections (`selectedShip`, `selectedTrail`, `selectedTheme`) validated against registered catalogs in `Constants.js`, falling back to safe starter defaults (`dart`, `neon_cyan`, `deep_space`) on unverified keys.
+  - Unlocked item arrays filtered of unauthorized strings; sub-objects recursively stripped of prototype-pollution properties (`__proto__`, `constructor`, `prototype`).
+  - Verified with automated unit and integration suite (`test_schema_bounds.js`) + Playwright runner 06 (0 console errors).
 - **Stats Modal Redesign (`index.html`, `style.css`):**
   - Full floating-dock parity: `.stats-modal-card` with stiff `580px` height, `#0b0d13` base, `24px` radius.
   - Hero Record Card (`.stats-hero-card`) with crimson accent border, SVG trend icon, bold Orbitron value.

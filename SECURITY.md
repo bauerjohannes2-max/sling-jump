@@ -21,7 +21,7 @@ This document defines the security architecture and incremental hardening roadma
 - [x] **Step 4: Server-Side Cryptographic Salt & Key Derivation (PBKDF2)** (Completed)
 - [x] **Step 5: Ephemeral Session Tokens (Eliminate Per-Request Credential Transmission)** (Completed)
 - [x] **Step 6: Collision-Resistant 8-Character Player ID Architecture** (Completed - Commit `02bbf60`)
-- [ ] **Step 7: Save State Schema Validation & Numeric Bounds Enforcement**
+- [x] **Step 7: Save State Schema Validation & Numeric Bounds Enforcement** (Completed)
 - [ ] **Step 8: Local TLS / HTTPS Transport Support for Mobile Dev**
 - [ ] **Step 9: Production Backend Adapter (Supabase / Firebase)**
 
@@ -97,24 +97,29 @@ This document defines the security architecture and incremental hardening roadma
 
 ---
 
-### [ ] Step 7: Save State Schema Validation & Numeric Bounds Enforcement
-* **Status:** NEXT UP
+### [x] Step 7: Save State Schema Validation & Numeric Bounds Enforcement
+* **Status:** COMPLETED
 * **Goal:** Prevent clients from injecting corrupted or astronomically manipulated save data (e.g. `cores: 1e99`, `NaN`, negative high scores).
-* **Files to Modify:**
-  * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js)
+* **Files Modified:**
+  * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js), [`js/config/Constants.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/config/Constants.js)
 * **Implementation Details:**
-  1. Define explicit schema bounds:
+  1. Defined explicit schema bounds:
      * `highScore`: positive finite integer, max 500,000.
      * `cores`: positive finite integer, max 1,000,000.
      * `hyperCrystals`: positive finite integer, max 1,000.
-     * `selectedShip`, `selectedTrail`, `selectedTheme`: must be one of predefined registered asset keys in `Constants.js`.
-  2. Clamp or reject out-of-bound state fields before saving to `playersStore`.
+     * `selectedShip`, `selectedTrail`, `selectedTheme`: strictly validated against registered catalog keys in `Constants.js` (`VALID_SHIPS`, `VALID_TRAILS`, `VALID_THEMES`).
+     * `unlockedShips`, `unlockedTrails`, `unlockedThemes`: filtered to recognized catalog IDs with starter defaults guaranteed.
+     * `stats`: clamped numeric values (`bestCombo` max 100, stats max 100M).
+     * Sub-objects recursively stripped of prototype pollution properties.
+  2. Integrated bounds enforcement into `sanitizeState()` before persisting in `playersStore`.
 * **Verification:**
-  * Automated test: Attempting to save `cores: 999999999` or `highScore: "invalid"` gets clamped or rejected.
+  * Automated unit & integration tests (`test_schema_bounds.js`): Verified upper bounds clamping (`cores=1M`, `highScore=500k`, `hyperCrystals=1k`), negative number normalization, catalog fallback to `'dart'`, `'neon_cyan'`, `'deep_space'`, prototype pollution neutrality, and server sync/restore verification.
+  * Playwright visual test `06`: Fresh `06b_pilot_profile.png` verified with 0 console errors.
 
 ---
 
 ### [ ] Step 8: Local TLS / HTTPS Transport Support for Mobile Dev
+* **Status:** NEXT UP
 * **Goal:** Protect network traffic across shared local Wi-Fi.
 * **Files to Modify:**
   * [`scripts/serve.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/scripts/serve.js), `package.json`
