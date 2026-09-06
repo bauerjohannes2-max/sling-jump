@@ -581,6 +581,12 @@
       }
 
       if (serverVer && serverVer !== currentVer) {
+        const lastReload = sessionStorage.getItem('sj_reload_guard');
+        if (lastReload === serverVer) {
+          console.warn(`[Update] Version mismatch ignored to prevent reload loop: ${serverVer}`);
+          return;
+        }
+        sessionStorage.setItem('sj_reload_guard', serverVer);
         console.log(`[Update] Neuer Build verfügbar: ${serverVer} (Lokal: ${currentVer}). Aktualisiere...`);
         if (btnCheck) btnCheck.textContent = `UPDATE GEFUNDEN (v${serverVer})!`;
 
