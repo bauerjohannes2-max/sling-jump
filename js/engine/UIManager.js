@@ -145,6 +145,7 @@ class UIManager {
 
       // Settings Inputs
       btnAudioToggle: document.getElementById('btn-audio-toggle'),
+      btnFullscreenToggle: document.getElementById('btn-fullscreen-toggle'),
       btnFpsToggle: document.getElementById('btn-fps-toggle'),
       btnPerfToggle: document.getElementById('btn-perf-toggle'),
       hudFpsBadge: document.getElementById('hud-fps-badge'),
@@ -1462,6 +1463,19 @@ class UIManager {
       });
     }
 
+    if (this.dom.btnFullscreenToggle) {
+      this.updateFullscreenToggleBtn();
+      this.dom.btnFullscreenToggle.addEventListener('click', () => {
+        this.toggleFullscreen();
+      });
+      document.addEventListener('fullscreenchange', () => {
+        this.updateFullscreenToggleBtn();
+      });
+      document.addEventListener('webkitfullscreenchange', () => {
+        this.updateFullscreenToggleBtn();
+      });
+    }
+
     if (this.dom.btnFpsToggle) {
       this.updateFpsToggleBtn();
       this.dom.btnFpsToggle.addEventListener('click', () => {
@@ -1524,6 +1538,41 @@ class UIManager {
       this.dom.btnAudioToggle.style.background = 'rgba(255, 255, 255, 0.04)';
       this.dom.btnAudioToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
       this.dom.btnAudioToggle.style.boxShadow = 'none';
+    }
+  }
+
+  toggleFullscreen() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      const docEl = document.documentElement;
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen().catch(() => {});
+      } else if (docEl.webkitRequestFullscreen) {
+        docEl.webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    }
+    setTimeout(() => this.updateFullscreenToggleBtn(), 100);
+  }
+
+  updateFullscreenToggleBtn() {
+    if (!this.dom.btnFullscreenToggle) return;
+    const isFullscreen = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+    this.dom.btnFullscreenToggle.textContent = isFullscreen ? 'AN' : 'AUS';
+    if (isFullscreen) {
+      this.dom.btnFullscreenToggle.style.color = '#ffffff';
+      this.dom.btnFullscreenToggle.style.background = 'rgba(225, 29, 72, 0.22)';
+      this.dom.btnFullscreenToggle.style.borderColor = 'var(--accent-crimson)';
+      this.dom.btnFullscreenToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
+    } else {
+      this.dom.btnFullscreenToggle.style.color = '#64748b';
+      this.dom.btnFullscreenToggle.style.background = 'rgba(255, 255, 255, 0.04)';
+      this.dom.btnFullscreenToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+      this.dom.btnFullscreenToggle.style.boxShadow = 'none';
     }
   }
 

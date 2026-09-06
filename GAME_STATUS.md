@@ -35,6 +35,11 @@
 
 ## 3. Chronologische Release-Historie
 
+### v5.18.1 (06.09.2026) - Fullscreen Mode Settings Integration
+- **Fullscreen Option (`index.html`, `UIManager.js`):**
+  - Added "Vollbild" setting row in Settings modal (`#btn-fullscreen-toggle`).
+  - Standardized Fullscreen API toggle with `fullscreenchange` event synchronization and status styling.
+
 ### v5.18.0 (06.09.2026) - Password Auth, Stats Redesign & Tutorial Polish
 - **Username+Password Cross-Device Auth (`serve.js`, `StorageService.js`, `main.js`, `index.html`):**
   - Optional SHA-256 password protection for cross-device sync. Client hashes via Web Crypto API, server stores hash in `players.json`.
