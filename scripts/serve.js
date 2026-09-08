@@ -782,79 +782,15 @@ function createRequestListener() {
       return;
     }
 
-    // API: Player Cloud Restore Legacy (GET /api/player/:id?pw=hash)
+    // Retired: GET /api/player/:id?pw=hash leaked password hashes into URLs and access logs.
+    // Superseded by POST /api/player/restore.
     if (req.method === 'GET' && reqUrl.startsWith('/api/player/')) {
-      let rawId = decodeURIComponent(reqUrl.replace('/api/player/', '')).trim().toUpperCase();
-      if (!rawId.startsWith('#')) rawId = '#' + rawId;
-
-      if (!ID_REGEX.test(rawId)) {
-        res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-        res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGES USER-ID FORMAT' }));
-        return;
-      }
-
-      const authKey = `${clientIp}:${rawId}`;
-      const lockCheck = checkAuthLockout(authKey);
-      if (lockCheck.locked) {
-        res.writeHead(429, {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': corsOrigin || '*',
-          'Retry-After': String(lockCheck.retryAfter),
-          'Vary': 'Origin'
-        });
-        res.end(JSON.stringify({
-          ok: false,
-          error: `ZU VIELE FEHLVERSUCHE. BITTE ${lockCheck.retryAfter} SEKUNDEN WARTEN.`,
-          retryAfter: lockCheck.retryAfter
-        }));
-        return;
-      }
-
-      // Parse password hash from query string
-      const fullUrl = req.url;
-      const qIdx = fullUrl.indexOf('?');
-      const params = qIdx >= 0 ? new URLSearchParams(fullUrl.slice(qIdx)) : new URLSearchParams();
-      const clientPw = (params.get('pw') || '').trim();
-
-      const record = playersStore[rawId];
-      if (record) {
-        // Validate password if record is password-protected
-        if (hasPassword(record)) {
-          const authResult = verifyPassword(record.passwordHash, clientPw);
-          if (!authResult.valid) {
-            recordAuthFailure(authKey, 5, 60000);
-            res.writeHead(403, {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Access-Control-Allow-Origin': corsOrigin || '*',
-              'Vary': 'Origin'
-            });
-            res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
-            return;
-          }
-          // Transparent upgrade of legacy unsalted records upon successful authentication
-          if (authResult.needsUpgrade && clientPw) {
-            record.passwordHash = createSaltedPassword(clientPw);
-            savePlayers();
-          }
-        }
-
-        recordAuthSuccess(authKey);
-
-        res.writeHead(200, {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': corsOrigin || '*',
-          'Cache-Control': 'no-cache',
-          'Vary': 'Origin'
-        });
-        res.end(JSON.stringify({ ok: true, player: record }));
-      } else {
-        res.writeHead(404, {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': corsOrigin || '*',
-          'Vary': 'Origin'
-        });
-        res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
-      }
+      res.writeHead(410, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': corsOrigin || '*',
+        'Vary': 'Origin'
+      });
+      res.end(JSON.stringify({ ok: false, error: 'ENDPUNKT ENTFERNT. BITTE POST /api/player/restore VERWENDEN.' }));
       return;
     }
 
