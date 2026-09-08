@@ -68,7 +68,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Bypass API, Telemetry, and Dashboard calls completely (Game SW never hijacks Dashboard)
-  if (url.pathname.startsWith('/api/') || url.pathname.includes('/dashboard') || url.pathname.endsWith('dashboard.html')) {
+  if (url.pathname.startsWith('/api/') || url.pathname.includes('/dashboard')) {
     return;
   }
 

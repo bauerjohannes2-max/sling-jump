@@ -46,8 +46,9 @@ function createDashboardServer() {
   return http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
 
-    // REST API: Analytics Summary
-    if (req.method === 'GET' && reqUrl === '/api/analytics/summary') {
+    // REST API: Telemetry Stats. Same route name and payload as scripts/serve.js so the
+    // dashboard's LIVE mode works against either server.
+    if (req.method === 'GET' && reqUrl === '/api/telemetry/stats') {
       const store = readTelemetryStore();
       const uniqueCount = Object.keys(store.uniqueDevices || {}).length;
       const totalRuns = store.totalRuns || 0;

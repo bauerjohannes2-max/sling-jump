@@ -5,7 +5,7 @@ Standalone telemetry, marketing attribution, economy balancing, and diagnostics 
 ## Launch
 - **Port 3001:** `npm run serve:dashboard` or `node dashboard/server.js` -> `http://localhost:3001`
 - **Port 3000:** `npm start` -> `http://localhost:3000/dashboard`
-- **File Access:** Open `dashboard.html` or `dashboard/index.html` directly in browser.
+- **File Access:** Open `dashboard/index.html` directly in browser.
 - **PIN Gate:** Master Developer PIN: `2026`
 
 ## Modules

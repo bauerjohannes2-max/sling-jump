@@ -446,11 +446,14 @@ async function runPlaywrightSuite() {
 
     if (shouldCapture('12_mobile_skins.png')) {
       await page.evaluate(() => {
-        if (window._gameEngine) window._gameEngine.state.changeState(StateManager.STATES.SHOP);
+        if (window._gameEngine) window._gameEngine.state.changeState(StateManager.STATES.MENU);
+        // Skins live in the menu hangar carousel; cycle to the next ship for the shot.
+        const shipUnit = document.getElementById('ship-unit');
+        if (shipUnit) shipUnit.click();
       });
       await sleep(400);
       console.log('[Playwright] Capturing 12_mobile_skins.png');
-      await captureScreenshot(page, '12_mobile_skins.png', 'Mobile Skins Shop');
+      await captureScreenshot(page, '12_mobile_skins.png', 'Mobile Hangar Carousel');
     }
   }
 
@@ -458,7 +461,7 @@ async function runPlaywrightSuite() {
   const needsDashboard = shouldCapture('14_dashboard_locked.png') || shouldCapture('14b_dashboard_unlocked.png');
   if (needsDashboard) {
     console.log('[Playwright] Testing Protected Dashboard Auth Gate...');
-    const DASHBOARD_FILE = 'file:///' + path.join(__dirname, '..', 'dashboard.html').replace(/\\/g, '/');
+    const DASHBOARD_FILE = 'file:///' + path.join(__dirname, '..', 'dashboard', 'index.html').replace(/\\/g, '/');
     const dashPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     dashPage.on('console', msg => {
       if (msg.type() === 'error') consoleErrors.push(`[Dashboard] ${msg.text()}`);
