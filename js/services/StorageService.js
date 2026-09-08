@@ -421,6 +421,11 @@ class StorageService {
 
       if (res.player && res.player.state) {
         this.data = this.migrate(res.player.state);
+        // migrate() mints a fresh id when the stored save carries none. Keeping it would pair a
+        // random local identity with this account's session token, and every later sync would 401.
+        if (this.data.playerProfile) {
+          this.data.playerProfile.playerId = cleanId;
+        }
         if (res.sessionToken && this.data.playerProfile) {
           this.data.playerProfile.sessionToken = res.sessionToken;
         }
