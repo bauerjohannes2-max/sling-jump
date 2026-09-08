@@ -35,10 +35,6 @@ class UIManager {
     this.missions = missionManager;
     this.input = inputManager;
 
-    // Active Hangar Tab
-    this.activeShopTab = 'ships'; // 'ships', 'trails', 'themes'
-    this.selectedShopItem = null;
-
     // Cache DOM Elements
     this.dom = {
       // Overlays & Modals
