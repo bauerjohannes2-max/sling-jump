@@ -96,7 +96,17 @@ async function runPlaywrightSuite() {
     launchOptions.channel = 'msedge';
   }
 
-  const browser = await chromium.launch(launchOptions);
+  let browser;
+  try {
+    browser = await chromium.launch(launchOptions);
+  } catch (e) {
+    // Edge only exists on the dev machine; fall back to Playwright's bundled Chromium
+    // so the suite also runs on Linux and in CI.
+    console.log('[Playwright] Edge unavailable, falling back to bundled Chromium.');
+    delete launchOptions.channel;
+    delete launchOptions.executablePath;
+    browser = await chromium.launch(launchOptions);
+  }
   const context = await browser.newContext({
     viewport: { width: 1280, height: 800 },
     deviceScaleFactor: 2

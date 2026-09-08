@@ -1,28 +1,39 @@
 {
   "suite": "Space Jump Automated Playwright Visual Verification",
-  "mode": "Selective (06)",
-  "executedAt": "2026-09-06T20:10:43.060Z",
-  "localTimestamp": "6.9.2026, 22:10:43",
-  "consoleErrorsCount": 0,
-  "consoleErrors": [],
+  "mode": "Selective (12_mobile_skins, 14_dashboard)",
+  "executedAt": "2026-09-08T11:54:51.195Z",
+  "localTimestamp": "9/8/2026, 11:54:51 AM",
+  "consoleErrorsCount": 10,
+  "consoleErrors": [
+    "Fetch API cannot load file:///workspace/assets/audio/music/bgm_menu.mp3. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/music/bgm_gameplay.mp3. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/music/bgm_gameover.mp3. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_grapple_lock.wav. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_slingshot_boost.wav. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_core_pickup.wav. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_node_shatter.wav. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_near_miss.wav. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_crash.wav. URL scheme \"file\" is not supported.",
+    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_ui_click.wav. URL scheme \"file\" is not supported."
+  ],
   "selectiveScreenshotsCount": 2,
   "totalCatalogScreenshotsCount": 22,
   "freshRunManifest": [
     {
-      "filename": "06_hub_stats.png",
-      "description": "Pilot Stats",
-      "sizeKb": 155,
-      "capturedAt": "2026-09-06T20:10:39.952Z",
-      "localTime": "22:10:39",
-      "sha256": "4a5562344ecf2b27"
+      "filename": "12_mobile_skins.png",
+      "description": "Mobile Hangar Carousel",
+      "sizeKb": 200,
+      "capturedAt": "2026-09-08T11:54:50.338Z",
+      "localTime": "11:54:50 AM",
+      "sha256": "6a87cbb95c76ee8d"
     },
     {
-      "filename": "06b_pilot_profile.png",
-      "description": "Pilot Profile",
-      "sizeKb": 177,
-      "capturedAt": "2026-09-06T20:10:41.562Z",
-      "localTime": "22:10:41",
-      "sha256": "502dd739869bea48"
+      "filename": "14_dashboard_locked.png",
+      "description": "Dashboard Gate Locked",
+      "sizeKb": 48,
+      "capturedAt": "2026-09-08T11:54:51.152Z",
+      "localTime": "11:54:51 AM",
+      "sha256": "3b0329b9fb9860b9"
     }
   ],
   "manifest": [
@@ -97,22 +108,6 @@
       "capturedAt": "2026-09-06T17:10:40.835Z",
       "localTime": "19:10:40",
       "sha256": "928401890d031ad6"
-    },
-    {
-      "filename": "12_mobile_skins.png",
-      "description": "Mobile Skins Shop",
-      "sizeKb": 22,
-      "capturedAt": "2026-09-06T17:10:41.512Z",
-      "localTime": "19:10:41",
-      "sha256": "2600730e33f66907"
-    },
-    {
-      "filename": "14_dashboard_locked.png",
-      "description": "Dashboard Gate Locked",
-      "sizeKb": 45,
-      "capturedAt": "2026-09-06T17:10:43.699Z",
-      "localTime": "19:10:43",
-      "sha256": "fcd6832ebceafd8c"
     },
     {
       "filename": "14b_dashboard_unlocked.png",
@@ -201,6 +196,22 @@
       "capturedAt": "2026-09-06T20:10:41.562Z",
       "localTime": "22:10:41",
       "sha256": "502dd739869bea48"
+    },
+    {
+      "filename": "12_mobile_skins.png",
+      "description": "Mobile Hangar Carousel",
+      "sizeKb": 200,
+      "capturedAt": "2026-09-08T11:54:50.338Z",
+      "localTime": "11:54:50 AM",
+      "sha256": "6a87cbb95c76ee8d"
+    },
+    {
+      "filename": "14_dashboard_locked.png",
+      "description": "Dashboard Gate Locked",
+      "sizeKb": 48,
+      "capturedAt": "2026-09-08T11:54:51.152Z",
+      "localTime": "11:54:51 AM",
+      "sha256": "3b0329b9fb9860b9"
     }
   ]
 }

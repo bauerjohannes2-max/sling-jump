@@ -1,6 +1,6 @@
 # Playwright Visual Verification Report
-> **Laufzeit:** 6.9.2026, 22:10:43  
-> **Modus:** Selektiv (`06`)  
+> **Laufzeit:** 9/8/2026, 11:54:51 AM  
+> **Modus:** Selektiv (`12_mobile_skins, 14_dashboard`)  
 > **Status:** BESTANDEN (0 Konsolenfehler)  
 > **Frisch erfasste Screenshots in diesem Lauf:** 2  
 > **Garantierte Frische:** Alle unten aufgeführten Dateien wurden in diesem Testlauf frisch erzeugt.
@@ -8,8 +8,8 @@
 ### Frisch erfasste Screenshots
 | Datei | Zweck | Uhrzeit | Dateigröße | SHA-256 Prüfsumme |
 | :--- | :--- | :--- | :--- | :--- |
-| `06_hub_stats.png` | Pilot Stats | 22:10:39 | 155 KB | `4a5562344ecf2b27` |
-| `06b_pilot_profile.png` | Pilot Profile | 22:10:41 | 177 KB | `502dd739869bea48` |
+| `12_mobile_skins.png` | Mobile Hangar Carousel | 11:54:50 AM | 200 KB | `6a87cbb95c76ee8d` |
+| `14_dashboard_locked.png` | Dashboard Gate Locked | 11:54:51 AM | 48 KB | `3b0329b9fb9860b9` |
 
 
 ### Gesamter Screenshot-Bestand (22 Dateien)
@@ -24,8 +24,6 @@
 | `10c_mobile_game_over.png` | 19:10:38 | 368 KB |
 | `10b_revived_gameplay.png` | 19:10:39 | 223 KB |
 | `11_mobile_responsive.png` | 19:10:40 | 169 KB |
-| `12_mobile_skins.png` | 19:10:41 | 22 KB |
-| `14_dashboard_locked.png` | 19:10:43 | 45 KB |
 | `14b_dashboard_unlocked.png` | 19:10:44 | 202 KB |
 | `05b_hub_quests_claimed.png` | 19:53:04 | 288 KB |
 | `05c_hub_quests_scrolled.png` | 19:58:30 | 195 KB |
@@ -37,3 +35,5 @@
 | `13_tutorial_modal.png` | 21:08:48 | 249 KB |
 | `06_hub_stats.png` | 22:10:39 | 155 KB |
 | `06b_pilot_profile.png` | 22:10:41 | 177 KB |
+| `12_mobile_skins.png` | 11:54:50 AM | 200 KB |
+| `14_dashboard_locked.png` | 11:54:51 AM | 48 KB |
