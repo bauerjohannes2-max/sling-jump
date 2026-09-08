@@ -10,6 +10,7 @@ class AnalyticsService {
     this.sessionId = this.getOrCreateSessionId();
     this.heartbeatTimer = null;
     this.isOnline = navigator.onLine;
+    this.storage = null;
 
     window.addEventListener('online', () => { this.isOnline = true; });
     window.addEventListener('offline', () => { this.isOnline = false; });
@@ -41,7 +42,8 @@ class AnalyticsService {
     }
   }
 
-  init() {
+  init(storage = null) {
+    this.storage = storage;
     this.trackSessionStart();
     this.startHeartbeat();
   }
@@ -93,8 +95,8 @@ class AnalyticsService {
     let userId = 'usr_anonymous';
     let gamerTag = 'Player';
     try {
-      if (window.game && window.game.storage) {
-        const profile = window.game.storage.getPlayerProfile();
+      if (this.storage) {
+        const profile = this.storage.getPlayerProfile();
         if (profile) {
           userId = profile.playerId || userId;
           gamerTag = profile.pilotName || gamerTag;

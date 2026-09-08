@@ -9,6 +9,9 @@
   const engine = new GameEngine();
   window._gameEngine = engine;
 
+  // Assigned by bindUIButtons(); the hangar carousel state is a closure inside it.
+  let refreshHangar = () => {};
+
   // Unlock WebAudio on user gesture
   const unlockAudio = () => {
     if (engine.audio && engine.audio.enabled) {
@@ -180,7 +183,7 @@
         triggerQuickToast('SPIELSTAND ERFOLGREICH GELADEN!');
         ui.updateUserProfileNav();
         ui.updateHUD();
-        ui.initHangar();
+        renderMenuShip();
         ui.initSettingsUI();
         ui.openProfileModal();
         if (input) input.value = '';
@@ -303,6 +306,8 @@
         engine.player.setCustomization(activeShipId, engine.player.trailId);
       }
     }
+
+    refreshHangar = renderMenuShip;
 
     function selectMenuShip(idx) {
       menuShipIndex = (idx + menuShips.length) % menuShips.length;
@@ -683,7 +688,7 @@
 
   // --- TELEMETRY / ANALYTICS INITIALIZATION ---
   if (window.AnalyticsService) {
-    window.AnalyticsService.init();
+    window.AnalyticsService.init(engine.storage);
   }
 
   // --- VIEWPORT STABILIZATION (NO FORCED FULLSCREEN API) ---
@@ -732,7 +737,7 @@
             triggerQuickToast(`KONTO GELADEN: ${res.profile.playerId}`);
             engine.ui.updateUserProfileNav();
             engine.ui.updateHUD();
-            engine.ui.initHangar();
+            refreshHangar();
             engine.ui.initSettingsUI();
           } else if (res && res.requiresPassword) {
             triggerQuickToast('PASSWORT ERFORDERLICH! BITTE IM PROFIL ANMELDEN');
