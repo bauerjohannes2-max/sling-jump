@@ -549,7 +549,6 @@
     }
 
     renderDiagnosticsTab() {
-      const runs = this.activeDataset.runs || [];
       const platformsDef = [
         { label: 'iOS (Safari Mobile)', sub: '44% aller Spieler', value: 44, formattedValue: '59.8 FPS', color: '#38bdf8' },
         { label: 'Android (Chrome Mobile)', sub: '36% aller Spieler', value: 36, formattedValue: '58.4 FPS', color: '#10b981' },

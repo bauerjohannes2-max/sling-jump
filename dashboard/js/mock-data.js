@@ -113,7 +113,7 @@
         const ship = pickWeighted(SHIPS, 'basePickRate');
         
         // Realistic log-normal altitude distribution with zone-based fatality spikes
-        let altFactor = Math.random();
+        const altFactor = Math.random();
         let altitude = 0;
         if (altFactor < 0.35) {
           altitude = randomRange(45, 480); // Zone 1 Calibrierung churn

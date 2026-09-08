@@ -10,15 +10,16 @@
     "share": "node scripts/share.js",
     "serve:dashboard": "node dashboard/server.js",
     "dashboard": "node dashboard/server.js",
+    "lint": "eslint .",
+    "version:sync": "node scripts/sync_version.js",
+    "version:check": "node scripts/sync_version.js --check",
     "test": "node scripts/playwright_runner.js",
-    "test:quick": "node scripts/playwright_runner.js",
-    "test:selective": "node scripts/playwright_runner.js",
     "test:visual": "node scripts/playwright_runner.js"
   },
   "devDependencies": {
+    "eslint": "^9.39.5",
     "localtunnel": "^2.0.2",
     "playwright": "^1.50.0",
-    "puppeteer-core": "^25.9.0",
     "qrcode-terminal": "^0.12.0",
     "untun": "^0.2.2"
   }

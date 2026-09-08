@@ -135,7 +135,7 @@ class OrbitNode {
 
     let coreColor = theme ? theme.primary : '#00f0ff';
     let glowColor = 'rgba(0, 240, 255, 0.45)';
-    let outerRadius = this.radius + Math.sin(this.pulse) * 2.5;
+    const outerRadius = this.radius + Math.sin(this.pulse) * 2.5;
 
     if (this.type === 'HAZARD') {
       // --- LETHAL SPACE MINE / BOMB ENTITY ---

@@ -151,7 +151,6 @@ class AudioManager {
     if (!this.ctx || this.currentMusicKey === key) return;
 
     const oldSource = this.currentMusicSource;
-    const oldKey = this.currentMusicKey;
     this.currentMusicKey = key;
 
     const buffer = this.audioBuffers.get(key);

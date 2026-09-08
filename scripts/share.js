@@ -24,7 +24,7 @@ try {
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 
 async function shareGame() {
-  const { server, localUrl, networkUrl } = startServer(PORT);
+  const { networkUrl } = startServer(PORT);
   let publicUrl = null;
 
   // 1. Try Cloudflare Tunnel (untun) - rock-solid, zero password screens, fast worldwide CDN

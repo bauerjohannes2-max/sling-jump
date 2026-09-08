@@ -5,7 +5,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 
 const MUSIC_DIR = path.join(__dirname, '..', 'assets', 'audio', 'music');
 const SFX_DIR = path.join(__dirname, '..', 'assets', 'audio', 'sfx');
@@ -235,7 +234,6 @@ function synthGameplayMusic() {
   for (let i = 0; i < numSamples; i++) {
     const t = i / SAMPLE_RATE;
     const beatTime = t % beatDur;
-    const beatIndex = Math.floor(t / beatDur);
 
     // 1. Kick Drum (on every beat)
     const kickEnv = Math.exp(-beatTime * 18);
