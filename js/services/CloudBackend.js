@@ -61,12 +61,17 @@ class LocalNodeAdapter extends BaseCloudAdapter {
         const err = await res.json().catch(() => ({}));
         return { ok: false, error: err.error || 'FALSCHES PASSWORT', requiresPassword: true };
       }
+      if (res.status === 409) {
+        const err = await res.json().catch(() => ({}));
+        return { ok: false, error: err.error || 'NAME SCHON VERGEBEN', nameTaken: true };
+      }
       if (res.status === 429) {
         const err = await res.json().catch(() => ({}));
         return { ok: false, error: err.error || 'ZU VIELE VERSUCHE', locked: true };
       }
       if (!res.ok) {
-        return { ok: false, error: `HTTP_${res.status}` };
+        const err = await res.json().catch(() => ({}));
+        return { ok: false, error: err.error || `HTTP_${res.status}` };
       }
       const data = await res.json().catch(() => ({}));
       return { ok: true, sessionToken: data.sessionToken, updatedAt: data.updatedAt };
@@ -75,7 +80,7 @@ class LocalNodeAdapter extends BaseCloudAdapter {
     }
   }
 
-  async restore(playerId, passwordHash) {
+  async restore(playerId, passwordHash, username) {
     if (typeof fetch === 'undefined' || (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:')) {
       return { ok: false, error: 'OFFLINE_OR_FILE_PROTOCOL' };
     }
@@ -84,7 +89,11 @@ class LocalNodeAdapter extends BaseCloudAdapter {
       const res = await fetch(`${this.baseUrl}/api/player/restore`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, passwordHash: passwordHash || null })
+        body: JSON.stringify({
+          playerId: playerId || null,
+          username: username || null,
+          passwordHash: passwordHash || null
+        })
       });
       if (res.status === 403) {
         const err = await res.json().catch(() => ({}));
@@ -112,7 +121,7 @@ class LocalNodeAdapter extends BaseCloudAdapter {
     }
   }
 
-  async login(playerId, passwordHash) {
+  async login(playerId, passwordHash, username) {
     if (typeof fetch === 'undefined' || (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:')) {
       return { ok: false, error: 'OFFLINE_OR_FILE_PROTOCOL' };
     }
@@ -121,7 +130,11 @@ class LocalNodeAdapter extends BaseCloudAdapter {
       const res = await fetch(`${this.baseUrl}/api/player/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, passwordHash: passwordHash || null })
+        body: JSON.stringify({
+          playerId: playerId || null,
+          username: username || null,
+          passwordHash: passwordHash || null
+        })
       });
       if (res.status === 403) {
         return { ok: false, error: 'FALSCHES PASSWORT' };
@@ -204,6 +217,7 @@ class SupabaseAdapter extends BaseCloudAdapter {
     try {
       const row = {
         player_id: payload.playerId,
+        username: payload.username || (payload.state && payload.state.playerProfile && (payload.state.playerProfile.accountName || payload.state.playerProfile.pilotName)) || null,
         state: payload.state,
         updated_at: new Date().toISOString()
       };
@@ -234,13 +248,16 @@ class SupabaseAdapter extends BaseCloudAdapter {
     }
   }
 
-  async restore(playerId, passwordHash) {
+  async restore(playerId, passwordHash, username) {
     if (!this.supabaseUrl || !this.supabaseAnonKey) {
       return { ok: false, error: 'SUPABASE_NOT_CONFIGURED' };
     }
 
     try {
-      const url = `${this.supabaseUrl}/rest/v1/${this.tableName}?player_id=eq.${encodeURIComponent(playerId)}&select=*`;
+      const filter = username
+        ? `username=eq.${encodeURIComponent(username)}`
+        : `player_id=eq.${encodeURIComponent(playerId)}`;
+      const url = `${this.supabaseUrl}/rest/v1/${this.tableName}?${filter}&select=*`;
       const res = await fetch(url, {
         method: 'GET',
         headers: this.getHeaders()
@@ -280,10 +297,10 @@ class SupabaseAdapter extends BaseCloudAdapter {
     }
   }
 
-  async login(playerId, passwordHash) {
-    const res = await this.restore(playerId, passwordHash);
+  async login(playerId, passwordHash, username) {
+    const res = await this.restore(playerId, passwordHash, username);
     if (res.ok && res.sessionToken) {
-      return { ok: true, sessionToken: res.sessionToken, playerId };
+      return { ok: true, sessionToken: res.sessionToken, playerId: (res.player && res.player.playerId) || playerId };
     }
     return { ok: false, error: res.error || 'LOGIN_FEHLGESCHLAGEN', locked: res.locked };
   }

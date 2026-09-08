@@ -12,12 +12,12 @@
       }
     })();
   </script>
-  <link rel="manifest" href="manifest.json?v=5.18.3">
-  <link rel="shortcut icon" href="favicon.ico?v=5.18.3">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.3">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=5.18.3">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.3">
-  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192.png?v=5.18.3">
+  <link rel="manifest" href="manifest.json?v=5.18.6">
+  <link rel="shortcut icon" href="favicon.ico?v=5.18.6">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.6">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=5.18.6">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.6">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192.png?v=5.18.6">
   <meta name="theme-color" content="#080b10">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,10 +27,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Oxanium:wght@800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=5.18.3">
+  <link rel="stylesheet" href="css/style.css?v=5.18.6">
   <script>
     (function() {
-      var APP_VERSION = '5.18.3';
+      var APP_VERSION = '5.18.6';
       var storedVer = localStorage.getItem('space_jump_installed_version') || localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('space_jump_installed_version', APP_VERSION);
@@ -699,7 +699,7 @@
           <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag">SPACE JUMP v5.18.3</div>
+        <div class="settings-version-tag">SPACE JUMP v5.18.6</div>
       </div>
     </div>
 
@@ -764,7 +764,7 @@
             </div>
             <div class="profile-hero-meta">
               <div class="profile-hero-tag" id="profile-hero-name">SPIELER</div>
-              <div class="profile-id-pill" id="profile-user-id-badge">ID: #8K2P-9J7M</div>
+              <div class="profile-id-pill guest" id="profile-user-id-badge">GAST</div>
             </div>
           </div>
         </div>
@@ -781,38 +781,34 @@
           <div id="profile-status-message" class="profile-status-message"></div>
         </div>
 
-        <!-- 3. Cross-device restore: ID is the account, optional PIN only when sharing -->
-        <div class="profile-sync-card">
+        <!-- 3. Guest vs Account: local save first, cloud only with name + password -->
+        <div class="profile-auth-card" id="profile-auth-guest">
           <div class="profile-sync-header">
-            <span class="profile-sync-title">ANDERES GERÄT</span>
-            <span class="profile-sync-hint">Dein Spielstand hängt an der ID oben. Kein Login nötig.</span>
+            <span class="profile-sync-title">SPIELSTAND</span>
+            <p class="profile-auth-copy">Du spielst als Gast. Alles bleibt auf diesem Gerät. Mit einem Account speicherst du dauerhaft und kannst dich überall einloggen.</p>
           </div>
 
-          <button type="button" id="btn-copy-sync-link" class="btn-profile-sync-copy">
-            <svg viewBox="0 0 24 24" class="sync-icon-svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <span>ID-LINK KOPIEREN</span>
-          </button>
+          <form id="profile-create-form" class="profile-auth-form">
+            <div class="profile-sync-subtitle">ACCOUNT ERSTELLEN</div>
+            <p class="profile-auth-note">Dein Name oben wird zum Login-Namen.</p>
+            <input type="password" id="account-password-input" maxlength="32" minlength="4" placeholder="Passwort (min. 4 Zeichen)" autocomplete="new-password" spellcheck="false">
+            <button type="submit" id="btn-create-account" class="btn-profile-submit btn-profile-auth-full">ACCOUNT ERSTELLEN</button>
+          </form>
 
-          <div class="profile-sync-load-section">
-            <div class="profile-sync-subtitle">SPIELSTAND LADEN</div>
-            <div class="profile-sync-manual-row">
-              <input type="text" id="sync-player-id-input" maxlength="10" placeholder="ID EINGEBEN  #EXGN-8K2P" autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-load-sync-id" class="btn-profile-sync-load">LADEN</button>
-            </div>
-            <div class="profile-sync-manual-row" id="sync-load-pin-row">
-              <input type="password" id="sync-load-password-input" maxlength="32" placeholder="PIN, falls der Stand geschützt ist" autocomplete="off" spellcheck="false">
-            </div>
-          </div>
+          <form id="profile-login-form" class="profile-auth-form profile-auth-login">
+            <div class="profile-sync-subtitle">SCHON EINEN ACCOUNT?</div>
+            <input type="text" id="login-name-input" maxlength="16" placeholder="Name" autocomplete="username" spellcheck="false">
+            <input type="password" id="login-password-input" maxlength="32" placeholder="Passwort" autocomplete="current-password" spellcheck="false">
+            <button type="submit" id="btn-login-account" class="btn-profile-sync-copy">EINLOGGEN</button>
+          </form>
+        </div>
 
-          <div class="profile-pw-section">
-            <div class="profile-sync-subtitle">OPTIONALER SCHUTZ</div>
-            <div class="profile-pw-status" id="profile-pw-status">UNGESCHÜTZT — JEDER MIT DER ID KANN LADEN</div>
-            <div class="profile-sync-manual-row">
-              <input type="password" id="sync-password-input" maxlength="32" placeholder="PIN setzen (min. 4 Zeichen)" autocomplete="new-password" spellcheck="false">
-              <button type="button" id="btn-set-password" class="btn-profile-sync-load">SCHÜTZEN</button>
-            </div>
-            <button type="button" id="btn-remove-password" class="btn-profile-pw-remove" style="display: none;">SCHUTZ ENTFERNEN</button>
+        <div class="profile-auth-card" id="profile-auth-account" hidden>
+          <div class="profile-sync-header">
+            <span class="profile-sync-title">ACCOUNT AKTIV</span>
+            <p class="profile-auth-copy">Dein Spielstand liegt in der Cloud. Auf einem anderen Gerät: Profil öffnen und mit Name + Passwort einloggen.</p>
           </div>
+          <div class="profile-account-login-name" id="profile-account-login-name">Login: —</div>
         </div>
 
         <!-- Hidden compat anchors for JS listeners -->
@@ -841,21 +837,21 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=5.18.3"></script>
-  <script src="js/services/CloudBackend.js?v=5.18.3"></script>
-  <script src="js/services/StorageService.js?v=5.18.3"></script>
-  <script src="js/audio/AudioManager.js?v=5.18.3"></script>
-  <script src="js/engine/ParticleSystem.js?v=5.18.3"></script>
-  <script src="js/engine/InputManager.js?v=5.18.3"></script>
-  <script src="js/engine/MissionManager.js?v=5.18.3"></script>
-  <script src="js/entities/Node.js?v=5.18.3"></script>
-  <script src="js/entities/EnergyOrb.js?v=5.18.3"></script>
-  <script src="js/entities/Spaceship.js?v=5.18.3"></script>
-  <script src="js/world/WorldManager.js?v=5.18.3"></script>
-  <script src="js/engine/ShopManager.js?v=5.18.3"></script>
-  <script src="js/engine/StateManager.js?v=5.18.3"></script>
-  <script src="js/engine/UIManager.js?v=5.18.3"></script>
-  <script src="js/engine/GameEngine.js?v=5.18.3"></script>
-  <script src="js/main.js?v=5.18.3"></script>
+  <script src="js/config/Constants.js?v=5.18.6"></script>
+  <script src="js/services/CloudBackend.js?v=5.18.6"></script>
+  <script src="js/services/StorageService.js?v=5.18.6"></script>
+  <script src="js/audio/AudioManager.js?v=5.18.6"></script>
+  <script src="js/engine/ParticleSystem.js?v=5.18.6"></script>
+  <script src="js/engine/InputManager.js?v=5.18.6"></script>
+  <script src="js/engine/MissionManager.js?v=5.18.6"></script>
+  <script src="js/entities/Node.js?v=5.18.6"></script>
+  <script src="js/entities/EnergyOrb.js?v=5.18.6"></script>
+  <script src="js/entities/Spaceship.js?v=5.18.6"></script>
+  <script src="js/world/WorldManager.js?v=5.18.6"></script>
+  <script src="js/engine/ShopManager.js?v=5.18.6"></script>
+  <script src="js/engine/StateManager.js?v=5.18.6"></script>
+  <script src="js/engine/UIManager.js?v=5.18.6"></script>
+  <script src="js/engine/GameEngine.js?v=5.18.6"></script>
+  <script src="js/main.js?v=5.18.6"></script>
 </body>
 </html>

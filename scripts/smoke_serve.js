@@ -65,17 +65,45 @@ async function main() {
 
     const idA = '#SMK2-AAA2';
     const idB = '#SMK2-BBB2';
+    const hashA = 'aa'.repeat(32);
+    const hashB = 'bb'.repeat(32);
+
+    const guestSync = await request(gamePort, 'POST', '/api/player/sync', {
+      body: { playerId: idA, state: { cores: 1, highScore: 1 } }
+    });
+    assert(guestSync.status === 400, `sync without password should be 400, got ${guestSync.status}`);
+
     const [syncA, syncB] = await Promise.all([
-      request(gamePort, 'POST', '/api/player/sync', { body: { playerId: idA, state: { cores: 11, highScore: 100 } } }),
-      request(gamePort, 'POST', '/api/player/sync', { body: { playerId: idB, state: { cores: 22, highScore: 200 } } })
+      request(gamePort, 'POST', '/api/player/sync', {
+        body: {
+          playerId: idA,
+          passwordHash: hashA,
+          username: 'SmokeAlpha',
+          state: { cores: 11, highScore: 100, playerProfile: { pilotName: 'SmokeAlpha', accountName: 'SmokeAlpha' } }
+        }
+      }),
+      request(gamePort, 'POST', '/api/player/sync', {
+        body: {
+          playerId: idB,
+          passwordHash: hashB,
+          username: 'SmokeBravo',
+          state: { cores: 22, highScore: 200, playerProfile: { pilotName: 'SmokeBravo', accountName: 'SmokeBravo' } }
+        }
+      })
     ]);
     assert(syncA.status === 200 && syncA.json && syncA.json.ok, 'sync A should succeed');
     assert(syncB.status === 200 && syncB.json && syncB.json.ok, 'sync B should succeed');
 
-    const restA = await request(gamePort, 'POST', '/api/player/restore', { body: { playerId: idA } });
-    const restB = await request(gamePort, 'POST', '/api/player/restore', { body: { playerId: idB } });
+    const restNoPw = await request(gamePort, 'POST', '/api/player/restore', { body: { playerId: idA } });
+    assert(restNoPw.status === 403, `restore without password should be 403, got ${restNoPw.status}`);
+
+    const restA = await request(gamePort, 'POST', '/api/player/restore', { body: { playerId: idA, passwordHash: hashA } });
+    const restB = await request(gamePort, 'POST', '/api/player/restore', { body: { username: 'SmokeBravo', passwordHash: hashB } });
     assert(restA.status === 200 && restA.json.player && restA.json.player.state.cores === 11, 'player A save must survive a parallel sync');
-    assert(restB.status === 200 && restB.json.player && restB.json.player.state.cores === 22, 'player B save must survive a parallel sync');
+    assert(restB.status === 200 && restB.json.player && restB.json.player.state.cores === 22, 'player B save must restore by username');
+
+    const loginName = await request(gamePort, 'POST', '/api/player/login', { body: { username: 'SmokeAlpha', passwordHash: hashA } });
+    assert(loginName.status === 200 && loginName.json && loginName.json.sessionToken, 'login by username should return a session token');
 
     console.log('[smoke] serve.js passed');
   } finally {

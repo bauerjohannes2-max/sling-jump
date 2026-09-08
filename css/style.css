@@ -4133,6 +4133,9 @@ canvas#gameCanvas {
 .profile-modal-card {
   max-width: 440px;
   width: 92%;
+  max-height: min(640px, 90vh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 24px 20px;
   background: #0b0d13 !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -4232,16 +4235,26 @@ canvas#gameCanvas {
 }
 
 .profile-id-pill {
-  font-family: 'Orbitron', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.10);
-  border: 1px solid rgba(56, 189, 248, 0.22);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
   border-radius: 6px;
   padding: 2px 8px;
   line-height: 1.2;
+}
+
+.profile-id-pill.guest {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.10);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.profile-id-pill.account {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.10);
+  border: 1px solid rgba(16, 185, 129, 0.22);
 }
 
 /* 2. Name Change Section */
@@ -4341,8 +4354,8 @@ canvas#gameCanvas {
   opacity: 0;
 }
 
-/* 3. Cross-Device Cloud Sync Card (Floating-Dock Parity) */
-.profile-sync-card {
+/* 3. Guest vs Account */
+.profile-auth-card {
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
@@ -4351,14 +4364,18 @@ canvas#gameCanvas {
   -webkit-backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   text-align: left;
+}
+
+.profile-auth-card[hidden] {
+  display: none !important;
 }
 
 .profile-sync-header {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
 .profile-sync-title {
@@ -4370,13 +4387,59 @@ canvas#gameCanvas {
   text-transform: uppercase;
 }
 
-.profile-sync-hint {
+.profile-auth-copy {
+  margin: 0;
   font-family: var(--font-ui);
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
+  line-height: 1.45;
+  color: #94a3b8;
+  text-transform: none;
+}
+
+.profile-auth-note {
+  margin: 0 0 2px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
   color: #64748b;
-  text-transform: uppercase;
+}
+
+.profile-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-auth-login {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.profile-auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.profile-auth-form input:focus {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.btn-profile-auth-full {
+  width: 100%;
 }
 
 .btn-profile-sync-copy {
@@ -4406,63 +4469,6 @@ canvas#gameCanvas {
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
 }
 
-.sync-icon-svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.profile-sync-manual-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.profile-sync-manual-row input {
-  flex: 1;
-  min-width: 0;
-  padding: 8px 12px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  color: #38bdf8;
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  outline: none;
-  transition: border-color 0.18s ease;
-}
-
-.profile-sync-manual-row input:focus {
-  border-color: rgba(56, 189, 248, 0.5);
-}
-
-.btn-profile-sync-load {
-  padding: 8px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  color: #f8fafc;
-  font-family: var(--font-ui);
-  font-size: 11.5px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.btn-profile-sync-load:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-}
-
 .profile-sync-subtitle {
   font-family: var(--font-ui);
   font-size: 10px;
@@ -4472,59 +4478,13 @@ canvas#gameCanvas {
   text-transform: uppercase;
 }
 
-.profile-pw-section {
-  margin-top: 4px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.profile-pw-status {
+.profile-account-login-name {
   font-family: var(--font-ui);
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 1.2px;
-  color: #64748b;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.profile-pw-status.active {
-  color: #10b981;
-}
-
-.profile-sync-manual-row input[type="password"] {
-  text-transform: none;
-  color: #f8fafc;
-  font-family: var(--font-ui);
-  letter-spacing: 2px;
-}
-
-.btn-profile-pw-remove {
-  width: 100%;
-  padding: 6px 12px;
-  margin-top: 6px;
-  background: rgba(225, 29, 72, 0.08);
-  border: 1px solid rgba(225, 29, 72, 0.25);
-  border-radius: 8px;
-  color: var(--accent-crimson);
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.btn-profile-pw-remove:hover {
-  background: rgba(225, 29, 72, 0.15);
-  border-color: rgba(225, 29, 72, 0.45);
-}
-
-.profile-sync-load-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #94a3b8;
+  padding: 2px 0 0;
 }
 
 /* =========================================================================

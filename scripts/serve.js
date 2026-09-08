@@ -347,6 +347,61 @@ function readJsonBody(req, res, corsOrigin, callback) {
 
 const ID_REGEX = /^#[23456789ABCDEFGHJKLMNPQRSTUVWXYZ-]{4,10}$/;
 
+function normalizeUsername(name) {
+  return String(name || '').trim().toLowerCase();
+}
+
+function getRecordUsername(record) {
+  if (!record) return '';
+  if (record.username) return String(record.username);
+  const profile = record.state && record.state.playerProfile;
+  if (profile && profile.accountName) return String(profile.accountName);
+  if (profile && profile.pilotName) return String(profile.pilotName);
+  return '';
+}
+
+function findAccountByUsername(username) {
+  const needle = normalizeUsername(username);
+  if (!needle) return null;
+  for (const [id, rec] of Object.entries(playersStore)) {
+    if (!hasPassword(rec)) continue;
+    if (normalizeUsername(getRecordUsername(rec)) === needle) {
+      return { id, record: rec };
+    }
+  }
+  return null;
+}
+
+function parsePlayerId(raw) {
+  let rawId = String(raw || '').trim().toUpperCase();
+  if (!rawId) return null;
+  if (!rawId.startsWith('#')) rawId = '#' + rawId;
+  if (!ID_REGEX.test(rawId)) return null;
+  return rawId;
+}
+
+function resolveAccountIdentity(payload) {
+  const username = payload && payload.username ? String(payload.username).trim() : '';
+  if (username) {
+    const found = findAccountByUsername(username);
+    if (found) return { ok: true, playerId: found.id, record: found.record };
+    return { ok: false, status: 404, error: 'Name oder Passwort falsch.' };
+  }
+  const playerId = parsePlayerId(payload && payload.playerId);
+  if (!playerId) {
+    return { ok: false, status: 400, error: 'Name oder Passwort fehlt.' };
+  }
+  return { ok: true, playerId, record: playersStore[playerId] || null };
+}
+
+function incomingUsername(payload) {
+  if (payload && payload.username) return String(payload.username).trim();
+  const profile = payload && payload.state && payload.state.playerProfile;
+  if (profile && profile.accountName) return String(profile.accountName).trim();
+  if (profile && profile.pilotName) return String(profile.pilotName).trim();
+  return '';
+}
+
 let APP_CONSTANTS = null;
 try {
   APP_CONSTANTS = require(path.join(ROOT_DIR, 'js', 'config', 'Constants.js'));
@@ -508,19 +563,13 @@ function createRequestListener() {
     // API: Player Login (POST /api/player/login) -> Ephemeral Session Token
     if (req.method === 'POST' && reqUrl === '/api/player/login') {
       readJsonBody(req, res, corsOrigin, (err, payload) => {
-        let rawId = (payload.playerId || '').trim().toUpperCase();
-        if (!rawId) {
-          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-          res.end(JSON.stringify({ ok: false, error: 'Missing playerId' }));
+        const identity = resolveAccountIdentity(payload);
+        if (!identity.ok) {
+          res.writeHead(identity.status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: identity.error }));
           return;
         }
-        if (!rawId.startsWith('#')) rawId = '#' + rawId;
-
-        if (!ID_REGEX.test(rawId)) {
-          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-          res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGES USER-ID FORMAT' }));
-          return;
-        }
+        const rawId = identity.playerId;
 
         const authKey = `${clientIp}:${rawId}`;
         const lockCheck = checkAuthLockout(authKey);
@@ -539,27 +588,31 @@ function createRequestListener() {
           return;
         }
 
-        const record = playersStore[rawId];
-        if (!record) {
+        const record = identity.record;
+        if (!record || !hasPassword(record)) {
           res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-          res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
+          res.end(JSON.stringify({ ok: false, error: 'Name oder Passwort falsch.' }));
           return;
         }
 
         const clientPwHash = (payload.passwordHash || '').trim() || null;
+        if (!clientPwHash) {
+          recordAuthFailure(authKey, 5, 60000);
+          res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Passwort erforderlich.', requiresPassword: true }));
+          return;
+        }
 
-        if (hasPassword(record)) {
-          const authResult = verifyPassword(record.passwordHash, clientPwHash);
-          if (!authResult.valid) {
-            recordAuthFailure(authKey, 5, 60000);
-            res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-            res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
-            return;
-          }
-          if (authResult.needsUpgrade && clientPwHash) {
-            record.passwordHash = createSaltedPassword(clientPwHash);
-            savePlayers();
-          }
+        const authResult = verifyPassword(record.passwordHash, clientPwHash);
+        if (!authResult.valid) {
+          recordAuthFailure(authKey, 5, 60000);
+          res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Name oder Passwort falsch.', requiresPassword: true }));
+          return;
+        }
+        if (authResult.needsUpgrade && clientPwHash) {
+          record.passwordHash = createSaltedPassword(clientPwHash);
+          savePlayers();
         }
 
         recordAuthSuccess(authKey);
@@ -642,6 +695,12 @@ function createRequestListener() {
           tokenAuthenticated = true;
         }
 
+        if (!existing && !clientPwHash && !tokenAuthenticated) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Passwort erforderlich.' }));
+          return;
+        }
+
         // If record exists with a password, enforce authentication before overwriting
         if (existing && hasPassword(existing) && !tokenAuthenticated) {
           const authResult = verifyPassword(existing.passwordHash, clientPwHash);
@@ -676,8 +735,25 @@ function createRequestListener() {
           finalPasswordHash = existing.passwordHash;
         }
 
+        if (!finalPasswordHash && !payload.removePassword) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Passwort erforderlich.' }));
+          return;
+        }
+
+        const username = incomingUsername(payload);
+        if (username && finalPasswordHash) {
+          const clash = findAccountByUsername(username);
+          if (clash && clash.id !== rawId) {
+            res.writeHead(409, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+            res.end(JSON.stringify({ ok: false, error: 'NAME SCHON VERGEBEN', nameTaken: true }));
+            return;
+          }
+        }
+
         playersStore[rawId] = {
           playerId: rawId,
+          username: username || getRecordUsername({ username, state: payload.state }) || null,
           updatedAt: new Date().toISOString(),
           passwordHash: finalPasswordHash,
           state: sanitizeState(payload.state)
@@ -720,19 +796,13 @@ function createRequestListener() {
     if (req.method === 'POST' && reqUrl === '/api/player/restore') {
       readJsonBody(req, res, corsOrigin, (err, payload) => {
         withPlayersStoreLock(() => {
-        let rawId = (payload.playerId || '').trim().toUpperCase();
-        if (!rawId) {
-          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-          res.end(JSON.stringify({ ok: false, error: 'Missing playerId' }));
+        const identity = resolveAccountIdentity(payload);
+        if (!identity.ok) {
+          res.writeHead(identity.status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: identity.error }));
           return;
         }
-        if (!rawId.startsWith('#')) rawId = '#' + rawId;
-
-        if (!ID_REGEX.test(rawId)) {
-          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-          res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGES USER-ID FORMAT' }));
-          return;
-        }
+        const rawId = identity.playerId;
 
         const authKey = `${clientIp}:${rawId}`;
         const lockCheck = checkAuthLockout(authKey);
@@ -752,27 +822,31 @@ function createRequestListener() {
         }
 
         const clientPwHash = (payload.passwordHash || '').trim() || null;
-        const record = playersStore[rawId];
+        const record = identity.record;
 
-        if (!record) {
+        if (!record || !hasPassword(record)) {
           res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-          res.end(JSON.stringify({ ok: false, error: 'Player not found', queriedId: rawId }));
+          res.end(JSON.stringify({ ok: false, error: 'Name oder Passwort falsch.' }));
           return;
         }
 
-        if (hasPassword(record)) {
-          const authResult = verifyPassword(record.passwordHash, clientPwHash);
-          if (!authResult.valid) {
-            recordAuthFailure(authKey, 5, 60000);
-            res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
-            res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
-            return;
-          }
-          // Transparent upgrade of legacy unsalted records upon successful authentication
-          if (authResult.needsUpgrade && clientPwHash) {
-            record.passwordHash = createSaltedPassword(clientPwHash);
-            savePlayers();
-          }
+        if (!clientPwHash) {
+          recordAuthFailure(authKey, 5, 60000);
+          res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Passwort erforderlich.', requiresPassword: true }));
+          return;
+        }
+
+        const authResult = verifyPassword(record.passwordHash, clientPwHash);
+        if (!authResult.valid) {
+          recordAuthFailure(authKey, 5, 60000);
+          res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'Name oder Passwort falsch.', requiresPassword: true }));
+          return;
+        }
+        if (authResult.needsUpgrade && clientPwHash) {
+          record.passwordHash = createSaltedPassword(clientPwHash);
+          savePlayers();
         }
 
         recordAuthSuccess(authKey);

@@ -1,14 +1,13 @@
 /**
  * Space Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 5.18.3
+ * Version: 5.18.6
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'space-jump-v5.18.3';
+const CACHE_NAME = 'space-jump-v5.18.6';
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
-  './version.json',
   './favicon.ico',
   './assets/favicon.png',
   './assets/icon.svg',
@@ -89,7 +88,7 @@ self.addEventListener('fetch', (event) => {
   if (isCoreCode) {
     // NETWORK-FIRST: Always fetch freshest HTML/JS/CSS when online; fallback to cache if offline
     event.respondWith(
-      fetch(event.request, { cache: 'no-cache' }).then((networkResponse) => {
+      fetch(event.request, { cache: 'no-store' }).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const toCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, toCache));

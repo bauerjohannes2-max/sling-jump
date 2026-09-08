@@ -98,106 +98,67 @@
     onBtn('btn-menu-profile', () => ui.openProfileModal());
     onBtn('btn-profile-close', () => ui.closeProfileModal());
 
-    // --- CLOUD ACCOUNT & SYNC BUTTONS ---
-
-    // Password status UI updater
-    function updatePasswordUI() {
-      const profile = engine.storage.getPlayerProfile();
-      const hasPassword = !!(profile && profile.passwordHash);
-      const statusEl = document.getElementById('profile-pw-status');
-      const removeBtn = document.getElementById('btn-remove-password');
-      const pwInput = document.getElementById('sync-password-input');
-      if (statusEl) {
-        statusEl.textContent = hasPassword
-          ? 'PIN AKTIV — ID ALLEIN REICHT NICHT'
-          : 'UNGESCHÜTZT — JEDER MIT DER ID KANN LADEN';
-        statusEl.classList.toggle('active', hasPassword);
-      }
-      if (removeBtn) removeBtn.style.display = hasPassword ? 'block' : 'none';
-      if (pwInput && hasPassword) pwInput.placeholder = 'Neue PIN...';
-      if (pwInput && !hasPassword) pwInput.placeholder = 'PIN setzen (min. 4 Zeichen)';
-    }
-
-    // Set password
-    onBtn('btn-set-password', async () => {
-      const input = document.getElementById('sync-password-input');
-      const pw = input ? input.value.trim() : '';
-      if (!pw) {
-        triggerQuickToast('BITTE PIN EINGEBEN');
-        return;
-      }
-      if (pw.length < 4) {
-        triggerQuickToast('PIN MINDESTENS 4 ZEICHEN');
-        return;
-      }
-      const res = await engine.storage.setPassword(pw);
-      triggerQuickToast(res.message);
-      if (input) input.value = '';
-      updatePasswordUI();
-    });
-
-    // Remove password
-    onBtn('btn-remove-password', async () => {
-      const res = await engine.storage.removePassword();
-      triggerQuickToast(res.message);
-      updatePasswordUI();
-    });
-
-    // Initialize password UI on profile open
-    const origOpenProfile = ui.openProfileModal.bind(ui);
-    ui.openProfileModal = function() {
-      origOpenProfile();
-      updatePasswordUI();
+    // --- ACCOUNT: guest locally, name + password to persist ---
+    const refreshAfterAccountChange = () => {
+      ui.updateUserProfileNav();
+      ui.updateHUD();
+      ui.initSettingsUI();
+      refreshHangar();
+      ui.openProfileModal();
     };
 
-    onBtn('btn-copy-sync-link', async () => {
-      const profile = engine.storage.getPlayerProfile();
-      const playerId = (profile && profile.playerId) ? profile.playerId.replace('#', '') : '';
-      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(playerId)}`;
-
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(shareUrl);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = shareUrl;
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
+    const createForm = document.getElementById('profile-create-form');
+    if (createForm) {
+      createForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clickSfx();
+        const input = document.getElementById('account-password-input');
+        const pw = input ? input.value.trim() : '';
+        if (!pw) {
+          triggerQuickToast('BITTE PASSWORT EINGEBEN');
+          return;
         }
-        const hasPassword = !!(profile && profile.passwordHash);
-        triggerQuickToast(hasPassword ? 'LINK KOPIERT — PIN WIRD BENÖTIGT' : 'LINK KOPIERT — AUF ANDEREM GERÄT ÖFFNEN');
-      } catch (err) {
-        triggerQuickToast(`DEIN CODE: #${playerId}`);
-      }
-    });
+        if (pw.length < 4) {
+          triggerQuickToast('PASSWORT MINDESTENS 4 ZEICHEN');
+          return;
+        }
+        const res = await engine.storage.createAccount(pw);
+        triggerQuickToast((res && res.message ? res.message : 'FEHLER').toUpperCase());
+        if (res && res.success) {
+          if (input) input.value = '';
+          refreshAfterAccountChange();
+        }
+      });
+    }
 
-    onBtn('btn-load-sync-id', async () => {
-      const input = document.getElementById('sync-player-id-input');
-      const pwInput = document.getElementById('sync-load-password-input');
-      const enteredId = input ? input.value.trim() : '';
-      const enteredPw = pwInput ? pwInput.value.trim() : '';
-      if (!enteredId) {
-        triggerQuickToast('BITTE USER-ID EINGEBEN');
-        return;
-      }
-      const res = await engine.storage.restoreFromCloud(enteredId, enteredPw || undefined);
-      if (res && res.success) {
-        triggerQuickToast('SPIELSTAND ERFOLGREICH GELADEN!');
-        ui.updateUserProfileNav();
-        ui.updateHUD();
-        renderMenuShip();
-        ui.initSettingsUI();
-        ui.openProfileModal();
-        if (input) input.value = '';
-        if (pwInput) pwInput.value = '';
-      } else {
-        triggerQuickToast(res && res.message ? res.message.toUpperCase() : 'USER-ID NICHT GEFUNDEN');
-      }
-    });
+    const loginForm = document.getElementById('profile-login-form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clickSfx();
+        const nameInput = document.getElementById('login-name-input');
+        const pwInput = document.getElementById('login-password-input');
+        const name = nameInput ? nameInput.value.trim() : '';
+        const pw = pwInput ? pwInput.value.trim() : '';
+        if (!name) {
+          triggerQuickToast('BITTE NAMEN EINGEBEN');
+          return;
+        }
+        if (!pw) {
+          triggerQuickToast('BITTE PASSWORT EINGEBEN');
+          return;
+        }
+        const res = await engine.storage.login(name, pw);
+        if (res && res.success) {
+          triggerQuickToast((res.message || 'EINGELOGGT').toUpperCase());
+          if (nameInput) nameInput.value = '';
+          if (pwInput) pwInput.value = '';
+          refreshAfterAccountChange();
+        } else {
+          triggerQuickToast(res && res.message ? res.message.toUpperCase() : 'LOGIN FEHLGESCHLAGEN');
+        }
+      });
+    }
 
     // --- CENTER STAGE INTERACTIVE SHIP HANGAR CAROUSEL ---
     // Skin 1: Sleek Delta Dart from user screenshot
@@ -522,6 +483,32 @@
   }
 
   // --- BULLETPROOF VERSION & AUTO-UPDATE CHECKER ---
+  async function forceAppUpdate(serverVer) {
+    window._sjSuppressSwReload = true;
+    try {
+      if ('caches' in window) {
+        const names = await caches.keys();
+        await Promise.all(names.map(n => caches.delete(n)));
+      }
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) {
+          try {
+            if (r.active) r.active.postMessage({ action: 'purgeCache' });
+          } catch (e) {}
+          try {
+            await r.unregister();
+          } catch (e) {}
+        }
+      }
+    } catch (e) {}
+
+    const next = new URL(location.href);
+    next.searchParams.set('v', serverVer);
+    next.searchParams.set('_', String(Date.now()));
+    location.replace(next.pathname + next.search + next.hash);
+  }
+
   async function checkServerVersion(isManual = false) {
     if (!window.location.protocol.startsWith('http')) return;
     const btnCheck = document.getElementById('btn-check-update');
@@ -555,49 +542,37 @@
       }
 
       if (serverVer && serverVer !== currentVer) {
-        const lastReload = sessionStorage.getItem('sj_reload_guard');
-        if (lastReload === serverVer) {
-          console.warn(`[Update] Version mismatch ignored to prevent reload loop: ${serverVer}`);
+        const attempts = Number(sessionStorage.getItem('sj_update_attempts') || '0');
+        if (attempts >= 3) {
+          console.warn(`[Update] Version mismatch after ${attempts} reloads: ${serverVer}`);
+          if (isManual && btnCheck) {
+            btnCheck.textContent = `UPDATE v${serverVer} — APP NEU ÖFFNEN`;
+          }
           return;
         }
-        sessionStorage.setItem('sj_reload_guard', serverVer);
+        sessionStorage.setItem('sj_update_attempts', String(attempts + 1));
         console.log(`[Update] Neuer Build verfügbar: ${serverVer} (Lokal: ${currentVer}). Aktualisiere...`);
         if (btnCheck) btnCheck.textContent = `UPDATE GEFUNDEN (v${serverVer})!`;
+        await forceAppUpdate(serverVer);
+        return;
+      }
 
-        // 1. Clean all caches
-        if ('caches' in window) {
-          const names = await caches.keys();
-          await Promise.all(names.map(n => caches.delete(n)));
+      sessionStorage.removeItem('sj_update_attempts');
+      sessionStorage.removeItem('sj_reload_guard');
+
+      // Versions match or up to date - also ping service worker to check for byte updates
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) {
+          await r.update();
         }
+      }
 
-        // 2. Update service worker registrations
-        if ('serviceWorker' in navigator) {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          for (const r of regs) {
-            await r.update();
-            if (r.active) r.active.postMessage({ action: 'skipWaiting' });
-          }
-        }
-
-        // 3. Force clean reload
+      if (isManual && btnCheck) {
+        btnCheck.textContent = `VERSION AKTUELL (${currentVerTag})`;
         setTimeout(() => {
-          window.location.reload();
-        }, 700);
-      } else {
-        // Versions match or up to date - also ping service worker to check for byte updates
-        if ('serviceWorker' in navigator) {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          for (const r of regs) {
-            await r.update();
-          }
-        }
-
-        if (isManual && btnCheck) {
-          btnCheck.textContent = `VERSION AKTUELL (${currentVerTag})`;
-          setTimeout(() => {
-            btnCheck.textContent = 'NACH UPDATES SUCHEN';
-          }, 2500);
-        }
+          btnCheck.textContent = 'NACH UPDATES SUCHEN';
+        }, 2500);
       }
     } catch (err) {
       if ('serviceWorker' in navigator) {
@@ -619,6 +594,7 @@
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (window._sjSuppressSwReload) return;
       if (!refreshing) {
         refreshing = true;
         window.location.reload();
@@ -626,7 +602,7 @@
     });
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then((reg) => {
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
         // Check for updates on register
         reg.update();
 
@@ -688,33 +664,5 @@
   bindUIButtons();
   engine.state.changeState(StateManager.STATES.MENU);
   engine.start();
-
-  // Cross-Device Auto-Onboarding via URL parameter (?id=XXXX or ?user=XXXX)
-  (async () => {
-    try {
-      if (typeof window !== 'undefined' && window.location && window.location.search) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const syncId = urlParams.get('id') || urlParams.get('user');
-        if (syncId) {
-          const res = await engine.storage.restoreFromCloud(syncId);
-          if (res && res.success) {
-            triggerQuickToast(`KONTO GELADEN: ${res.profile.playerId}`);
-            engine.ui.updateUserProfileNav();
-            engine.ui.updateHUD();
-            refreshHangar();
-            engine.ui.initSettingsUI();
-          } else if (res && res.requiresPassword) {
-            triggerQuickToast('PIN ERFORDERLICH — IM PROFIL EINGEBEN');
-            const syncInput = document.getElementById('sync-player-id-input');
-            if (syncInput) syncInput.value = syncId.startsWith('#') ? syncId : '#' + syncId;
-            engine.ui.openProfileModal();
-          }
-          if (window.history && window.history.replaceState) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-          }
-        }
-      }
-    } catch (e) {}
-  })();
 
 })();

@@ -318,12 +318,18 @@ class UIManager {
     const remaining = Math.max(0, MAX_FREE_CHANGES - nameChanges);
 
     if (heroNameEl) heroNameEl.textContent = profile.pilotName || 'SPIELER';
-    if (idBadgeEl) idBadgeEl.textContent = `ID: ${profile.playerId || StorageService.generateUniqueUserId()}`;
+    const hasAccount = this.storage.hasAccount ? this.storage.hasAccount() : !!(profile && profile.passwordHash);
+    if (idBadgeEl) {
+      idBadgeEl.textContent = hasAccount ? 'ACCOUNT' : 'GAST';
+      idBadgeEl.classList.toggle('guest', !hasAccount);
+      idBadgeEl.classList.toggle('account', hasAccount);
+    }
     if (nameEl) nameEl.textContent = profile.pilotName || 'SPIELER';
     if (idEl) idEl.textContent = profile.playerId || '';
     if (statusEl) {
-      statusEl.textContent = 'AKTIV';
+      statusEl.textContent = hasAccount ? 'ACCOUNT' : 'GAST';
     }
+    this.updateProfileAuthUI();
     if (hsEl) hsEl.textContent = `${this.storage.data.highScore || 0} m`;
     if (dateEl) {
       const d = profile.registeredAt ? new Date(profile.registeredAt).toLocaleDateString('de-DE') : 'Heute';
@@ -384,6 +390,21 @@ class UIManager {
 
   closeProfileModal() {
     if (this.dom.profileModal) this.dom.profileModal.classList.remove('visible');
+  }
+
+  updateProfileAuthUI() {
+    const hasAccount = this.storage && this.storage.hasAccount ? this.storage.hasAccount() : false;
+    const guestEl = document.getElementById('profile-auth-guest');
+    const accountEl = document.getElementById('profile-auth-account');
+    const loginNameEl = document.getElementById('profile-account-login-name');
+    const profile = this.storage ? this.storage.getPlayerProfile() : null;
+
+    if (guestEl) guestEl.hidden = hasAccount;
+    if (accountEl) accountEl.hidden = !hasAccount;
+    if (loginNameEl && profile) {
+      const loginName = profile.accountName || profile.pilotName || '—';
+      loginNameEl.textContent = `Login: ${loginName}`;
+    }
   }
 
   saveProfile(e) {
