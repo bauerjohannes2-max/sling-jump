@@ -22,8 +22,11 @@ code is the healthiest part of the repository. The problems are around it:
 | --- | --- |
 | Critical | 2 |
 | High | 8 |
-| Medium | 8 |
+| Medium | 9 |
 | Low | 4 |
+
+The Phase 1 items (F1, F2, F4, F5, F9, F16) have since been fixed on this branch; each is marked
+below. Everything else is still open.
 
 ## Findings
 
@@ -40,6 +43,9 @@ through its refresh sequence.
 
 *Fix:* delete both calls, or implement `initHangar()` as the menu carousel refresh.
 
+**Fixed.** Both sites now call the hangar carousel's own `renderMenuShip()`, reached from the outer
+scope through a `refreshHangar` reference assigned inside `bindUIButtons()`.
+
 #### F2 — Service worker precache keys never match real requests
 
 `sw.js:8-35` versus `index.html:845-861`
@@ -50,6 +56,8 @@ through its refresh sequence.
 only for `index.html` and `version.json`.
 
 *Fix:* call `caches.match(request, { ignoreSearch: true })` in the offline fallback path.
+
+**Fixed.** All three `caches.match` calls in `sw.js` now pass `ignoreSearch: true`.
 
 ### High
 
@@ -75,6 +83,8 @@ crafted name executes in every viewer's session.
 
 *Fix:* build rows with `createElement`/`textContent`, or escape the value before interpolation.
 
+**Fixed.** Leaderboard rows are assembled from `createElement` cells with `textContent`.
+
 #### F5 — Analytics reads the wrong global
 
 `js/services/AnalyticsService.js:96`, `js/main.js:9-10`
@@ -84,6 +94,9 @@ the player profile. That branch never runs, so every telemetry event is attribut
 
 *Fix:* inject `StorageService` into `AnalyticsService` at construction instead of looking it up on
 `window`.
+
+**Fixed.** `AnalyticsService.init(storage)` receives `engine.storage`; the localStorage path remains
+as a fallback when nothing is injected.
 
 #### F6 — JSON persistence is a lost-update race
 
@@ -123,6 +136,9 @@ the LAN can read it directly.
 still live, so hashes land in access logs, proxies and browser history.
 
 *Fix:* delete the GET handler.
+
+**Fixed.** The handler is gone; `GET /api/player/*` now answers `410 Gone` pointing at the POST
+endpoint.
 
 #### F10 — Two god objects and a monolith server
 
@@ -201,6 +217,8 @@ has no copy of it even once F2 is fixed.
 
 *Fix:* add `./js/services/CloudBackend.js` to `PRECACHE_ASSETS`.
 
+**Fixed.** The file is in `PRECACHE_ASSETS`.
+
 #### F17 — Auth defenses evaporate on restart
 
 `scripts/serve.js:242`, `:243`, `:303-305`
@@ -222,6 +240,22 @@ that is not in the repository.
 
 *Fix:* add ESLint plus a GitHub Actions job that runs the Playwright runner and a `serve.js` smoke
 test.
+
+#### F23 — Cloud restore does not adopt the restored account's identity
+
+`js/services/StorageService.js:422-433`
+
+`restoreFromCloud` replaces local data with `migrate(res.player.state)` and attaches the returned
+session token to whatever profile comes out of that. It never forces `cleanId` onto the profile, so
+if the stored state carries no `playerProfile`, the client invents a fresh random ID and holds a
+token issued for a different account. Every later `POST /api/player/sync` then fails with
+`401 UNGUELTIGES ODER ABGELAUFENES TOKEN`, and the player's progress silently stops syncing.
+
+Observed while verifying the Phase 1 fixes: restoring `#ABCD-EFGH` produced a local profile of
+`#RQAD-8W85`, and the next sync was rejected.
+
+*Fix:* set `playerProfile.playerId = cleanId` after the migrate step, and treat a state without a
+profile as a failed restore.
 
 ### Low
 
