@@ -19,7 +19,6 @@ const PRECACHE_ASSETS = [
   './js/config/Constants.js',
   './js/services/CloudBackend.js',
   './js/services/StorageService.js',
-  './js/services/AnalyticsService.js',
   './js/audio/AudioManager.js',
   './js/engine/ParticleSystem.js',
   './js/engine/InputManager.js',
@@ -67,8 +66,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Bypass API, Telemetry, and Dashboard calls completely (Game SW never hijacks Dashboard)
-  if (url.pathname.startsWith('/api/') || url.pathname.includes('/dashboard')) {
+  // Bypass API calls completely (the game SW never caches player sync)
+  if (url.pathname.startsWith('/api/')) {
     return;
   }
 

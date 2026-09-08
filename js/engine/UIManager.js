@@ -440,9 +440,6 @@ class UIManager {
       }
 
       if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
-      if (window.AnalyticsService) {
-        window.AnalyticsService.sendEvent('profile_update', { pilotName: res.profile.pilotName });
-      }
     } else {
       if (msgEl) {
         msgEl.textContent = (res && res.message) || 'ÄNDERUNG NICHT MÖGLICH';

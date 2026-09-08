@@ -21,7 +21,6 @@
 | [`js/entities/Node.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/entities/Node.js) | Celestial anchor entity (`OrbitNode`) implementing Standard, Boost, Moving, Fragile, Decoy, and Hazard behaviors. |
 | [`js/entities/Spaceship.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/entities/Spaceship.js) | Player avatar handling orbital momentum, slingshot release dynamics, collision boundaries, and vector graphics. |
 | [`js/audio/AudioManager.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/audio/AudioManager.js) | Web Audio API sound controller managing procedural audio synthesis, sound effects, and music ducking. |
-| [`js/services/AnalyticsService.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/AnalyticsService.js) | Telemetry service tracking run starts, deaths, currencies, and milestone metrics to local storage. |
 | [`js/services/CloudBackend.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/CloudBackend.js) | Pluggable cloud storage adapter interface decoupling persistence from serve.js (LocalNodeAdapter, SupabaseAdapter). |
 | [`js/services/StorageService.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/services/StorageService.js) | Persistent state manager persisting profile, scores, inventory, and leaderboards with debounced writes. |
 | [`js/world/WorldManager.js`](file:///c:/Users/hannes.bauer/Documents/antigravity/blissful-euclid/js/world/WorldManager.js) | Procedural world generator constructing ascending anchor trajectories, difficulty curves, and starfields. |
@@ -74,7 +73,7 @@
   - Main menu currency pill features restored bullion coin (with Rajdhani 'C') and 8-point quantum spark, stripped of text labels ("CREDITS" / "SPARKS") for commercial arcade minimalism.
   - In-game bullion coin (`EnergyOrb.js`) is 100% visually synchronized with main menu SVG (outer beveled rim, specular ring, dark recessed well, zero blurring halo). Offscreen sprite rasterizer dynamically computes mathematical glyph center via `measureText('C')` ($\Delta y = (\text{actualAscent} - \text{actualDescent}) / 2$) and hooks into `document.fonts.load('700 46px "Rajdhani"')` & `document.fonts.ready` to guarantee perfect discrete raster centering.
 - **Harmonized Title Red Palette (`#e11d48`):**
-  - Project-wide red theme synchronized to the title plate `#e11d48` across CSS variables (`--accent-crimson`, `--danger`, `--btn-crimson-*`), buttons, ship chevrons, mine entities, collision shards, death laser horizon, debrief reticle, and developer dashboard.
+  - Project-wide red theme synchronized to the title plate `#e11d48` across CSS variables (`--accent-crimson`, `--danger`, `--btn-crimson-*`), buttons, ship chevrons, mine entities, collision shards, death laser horizon, and debrief reticle.
 - **Mission Hub Architecture (`#quests-modal`):**
   - Rigid height geometry (`580px`, `flex: 1; min-height: 0;` scroll area) guarantees absolute stability with zero height shifting across category filter changes (`ALLE`, `TÄGLICH`, `WÖCHENTLICH`).
   - Solid dark modal base (`#0b0d13` modal fill, `1px solid rgba(255, 255, 255, 0.08)` border) with floating-dock parity fill (`rgba(255, 255, 255, 0.035)`, `backdrop-filter: blur(16px)`) applied to `.quest-card`.

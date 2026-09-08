@@ -8,8 +8,6 @@
     "certs": "node scripts/generate_certs.js",
     "serve": "node scripts/serve.js",
     "share": "node scripts/share.js",
-    "serve:dashboard": "node dashboard/server.js",
-    "dashboard": "node dashboard/server.js",
     "lint": "eslint .",
     "version:sync": "node scripts/sync_version.js",
     "version:check": "node scripts/sync_version.js --check",

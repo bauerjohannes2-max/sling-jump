@@ -2,7 +2,7 @@
  * Space Jump - ESLint configuration
  *
  * The game ships as classic <script> files, so browser code is linted as scripts with the
- * project's cross-file classes declared as globals. Node tooling under scripts/ and dashboard/
+ * project's cross-file classes declared as globals. Node tooling under scripts/
  * is linted with CommonJS globals instead.
  */
 
@@ -55,7 +55,6 @@ const projectGlobals = {
   CONSTANTS: 'readonly',
   StorageService: 'readonly',
   CloudBackend: 'readonly',
-  AnalyticsService: 'readonly',
   AudioManager: 'readonly',
   ParticleSystem: 'readonly',
   InputManager: 'readonly',
@@ -94,7 +93,7 @@ module.exports = [
     ignores: ['node_modules/**', 'screenshots/**', 'data/**', 'certs/**']
   },
   {
-    files: ['js/**/*.js', 'sw.js', 'dashboard/js/**/*.js'],
+    files: ['js/**/*.js', 'sw.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'script',
@@ -103,7 +102,7 @@ module.exports = [
     rules: sharedRules
   },
   {
-    files: ['scripts/**/*.js', 'dashboard/server.js', 'eslint.config.js'],
+    files: ['scripts/**/*.js', 'eslint.config.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'commonjs',

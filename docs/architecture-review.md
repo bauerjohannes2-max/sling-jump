@@ -3,9 +3,9 @@
 Reviewed at commit `09ebc50`, 8 September 2026. All findings are read-only observations; no
 behaviour was changed while producing this document.
 
-The project is a vanilla-JS canvas game with a PWA shell, a Node dev/API server and a separate
-analytics dashboard. There is no build step, no bundler, and no test or lint tooling. Roughly
-12,000 lines of hand-written JavaScript, CSS and HTML are spread across four layers.
+The project is a vanilla-JS canvas game with a PWA shell and a Node dev/API server. There is no
+build step, no bundler, and no test or lint tooling. Roughly 12,000 lines of hand-written
+JavaScript, CSS and HTML are spread across four layers.
 
 ## Verdict
 
@@ -102,8 +102,9 @@ the player profile. That branch never runs, so every telemetry event is attribut
 *Fix:* inject `StorageService` into `AnalyticsService` at construction instead of looking it up on
 `window`.
 
-**Fixed.** `AnalyticsService.init(storage)` receives `engine.storage`; the localStorage path remains
-as a fallback when nothing is injected.
+**Fixed.** `AnalyticsService.init(storage)` received `engine.storage`.
+
+**Removed.** `AnalyticsService`, `/api/telemetry` ingest, and `data/analytics.json` are gone.
 
 #### F6 — JSON persistence is a lost-update race
 
@@ -115,7 +116,7 @@ truncates the file. `reloadPlayers()` exists but is never called from a request 
 
 *Fix:* write to a temporary file and `rename` it into place, and serialize writes per player ID.
 
-**Fixed.** All three stores go through `writeJsonStore()`. Player sync and restore run inside
+**Fixed.** Player and session stores go through `writeJsonStore()`. Player sync and restore run inside
 `withPlayersStoreLock()`, which reloads `players.json` before applying the incoming save so two
 overlapping writes cannot clobber each other.
 
@@ -129,7 +130,9 @@ localStorage.
 
 *Fix:* agree on one route name and use it in both servers.
 
-**Fixed.** Both servers now answer `GET /api/telemetry/stats` with the same payload shape.
+**Fixed.** Both servers then answered `GET /api/telemetry/stats` with the same payload shape.
+
+**Removed.** The dashboard app and both stats endpoints are gone.
 
 #### F8 — Dashboard access control lives in the client
 
@@ -141,9 +144,9 @@ the LAN can read it directly.
 
 *Fix:* move the gate to the server and require a token on the analytics routes.
 
-**Fixed.** `POST /api/dashboard/login` checks the PIN on the server (`DASHBOARD_PIN`, local default
-`2026`) and returns a token. `GET /api/telemetry/stats` on both servers returns `401` without that
-token. The client no longer compares the PIN in JavaScript.
+**Fixed.** `POST /api/dashboard/login` checked the PIN on the server and gated `/api/telemetry/stats`.
+
+**Removed.** The dashboard, PIN gate, and stats route are deleted.
 
 #### F9 — Legacy GET restore puts the password hash in the URL
 
@@ -222,8 +225,11 @@ referenced by nothing.
 *Fix:* keep `dashboard/index.html`, make the root path a redirect, and delete
 `manifest-dashboard.json`.
 
-**Fixed.** `dashboard.html` and `manifest-dashboard.json` are deleted, `/dashboard` serves
-`dashboard/index.html`, and the screenshot runner points at the surviving copy.
+**Fixed.** `dashboard.html` and `manifest-dashboard.json` were deleted, `/dashboard` served
+`dashboard/index.html`.
+
+**Removed.** The remaining `dashboard/` app, standalone server, PIN gate, and `/dashboard` rewrite
+are deleted.
 
 #### F15 — Run state has no owner
 
@@ -271,10 +277,9 @@ that is not in the repository.
 *Fix:* add ESLint plus a GitHub Actions job that runs the Playwright runner and a `serve.js` smoke
 test.
 
-**Fixed for the remaining CI gap.** `npm run test:smoke` hits `serve.js` (version, dashboard login,
-protected stats, parallel player sync) and the standalone dashboard server. GitHub Actions runs
-lint, the version-drift check, the smoke test, and the Playwright suite after installing Chromium.
-There is still no formatter or type checking.
+**Fixed for the remaining CI gap.** `npm run test:smoke` hits `serve.js` (version, game HTML, parallel
+player sync; dashboard routes now 404). GitHub Actions runs lint, the version-drift check, the smoke
+test, and the Playwright suite after installing Chromium. There is still no formatter or type checking.
 
 #### F23 — Cloud restore does not adopt the restored account's identity
 
@@ -354,7 +359,6 @@ feature to go.
 | `js/engine/GameEngine.js` | 1,001 |
 | `index.html` | 793 |
 | `js/main.js` | 674 |
-| `dashboard/js/app.js` | 641 |
 | `js/services/StorageService.js` | 576 |
 | `scripts/playwright_runner.js` | 529 |
 | `js/world/WorldManager.js` | 497 |
@@ -368,7 +372,7 @@ and in every case the copies have already diverged.
 | --- | --- | --- | --- |
 | App version | `index.html` (×4), `Constants.js`, `package.json`, `version.json`, `sw.js` | 4.7.1 / 4.8.0 / 5.18.0 / 5.18.1 live simultaneously | Fixed — stamped from `package.json`, drift check in CI |
 | Ship catalog and prices | `main.js` menu array, `Constants.SHIPS`, `ShopManager` cases | Different display names; `ShopManager` still handles removed ships | Fixed — `Constants.SHIPS` owns the catalog |
-| Dashboard app | `dashboard.html`, `dashboard/index.html`, three manifests | Only the nested copy has the PWA guard; one manifest is unreferenced | Fixed — one copy, one manifest |
+| Dashboard app | `dashboard.html`, `dashboard/index.html`, three manifests | Only the nested copy has the PWA guard; one manifest is unreferenced | Removed |
 | Run counters | `GameEngine.runCores`, `MissionManager.runCores` | Two owners of the same per-run number | Open (F15) |
 | Player API contract | `serve.js` routes, `LocalNodeAdapter`, `SupabaseAdapter` | The Supabase path skips PBKDF2 and issues non-server tokens | Open |
 | Screenshot tooling | `playwright_runner.js`, `capture_screens.js` | The second script uses Puppeteer and ignores console errors | Fixed — Puppeteer script deleted |
@@ -390,10 +394,11 @@ the remaining code stops describing features that no longer exist.
 | Legacy GET restore | `serve.js:785-858` | No client calls it | Removed (410) |
 | `capture_screens.js` | `scripts/` | Superseded by `playwright_runner.js` | Removed |
 | `manifest-dashboard.json` | repository root | Referenced by no HTML | Removed |
+| Analytics dashboard | `dashboard/` | Marketing mock; not a real product surface | Removed |
+| Telemetry ingest | `AnalyticsService.js`, `/api/telemetry` | Only fed the deleted dashboard | Removed |
 
 ESLint now catches the same class of leftovers automatically; the pass that introduced it removed
-unused locals from `UIManager`, `AudioManager`, `GameEngine`, `share.js`, `setup_audio.js` and the
-dashboard scripts.
+unused locals from `UIManager`, `AudioManager`, `GameEngine`, `share.js` and `setup_audio.js`.
 
 ## Layer map
 
@@ -401,11 +406,11 @@ dashboard scripts.
 | --- | --- | --- |
 | Presentation | `index.html`, `css/style.css`, `UIManager` | One 793-line document, one 4,360-line stylesheet, one 1,714-line controller |
 | Simulation | `GameEngine`, `WorldManager`, entities, `ParticleSystem` | Cleanest layer; the engine still owns run lifecycle, tutorial and camera |
-| Domain services | `StorageService`, `ShopManager`, `MissionManager`, `AnalyticsService` | `ShopManager` now owns purchases and `AnalyticsService` takes an injected store; `StorageService` still mixes save format, cloud sync and auth |
+| Domain services | `StorageService`, `ShopManager`, `MissionManager` | `ShopManager` now owns purchases; `StorageService` still mixes save format, cloud sync and auth |
 | Transport | `CloudBackend` adapters, `serve.js` API | The LocalNode adapter matches the server; the Supabase adapter has weaker auth semantics |
-| Infrastructure | `serve.js`, `dashboard/server.js`, `sw.js`, `scripts/` | Two servers, one dashboard entry point, one stamped version string |
+| Infrastructure | `serve.js`, `sw.js`, `scripts/` | One server, one stamped version string |
 
-Dependencies flow downward on paper. In practice `ParticleSystem`, `AnalyticsService` and
+Dependencies flow downward on paper. In practice `ParticleSystem` and
 `InputManager` reach back up through `window` and global DOM queries.
 
 ## Target shape
@@ -429,8 +434,8 @@ server/
   index.js        bootstrap + TLS
   static.js       MIME map, safe path resolution
   middleware/     cors, rateLimit, bodyParser
-  stores/         players, sessions, analytics (atomic writes)
-  routes/         player, telemetry, version, dashboard
+  stores/         players, sessions (atomic writes)
+  routes/         player, version
   auth/           password, sessions, lockout
 ```
 
@@ -442,10 +447,9 @@ fallback and precache `CloudBackend.js` (F2, F16). Delete the GET restore route 
 
 **Phase 2 — single sources (medium).** Done on this branch: one version string stamped from
 `package.json` (F3), the dead shop, sliders and duplicate dashboard removed (F12, F14, F19), the
-menu carousel driven by `Constants` and `ShopManager` (F13), atomic store writes (F6), one telemetry
-route in both servers (F7), the dashboard PIN on the server (F8), reload-before-write on player
-sync (F6), persisted session expiry (F17), unused tutorial/quest-toast paths, and CI smoke plus
-Playwright (F18).
+menu carousel driven by `Constants` and `ShopManager` (F13), atomic store writes (F6), then the
+dashboard itself was removed (F7, F8, F14). Reload-before-write on player sync (F6), persisted session
+expiry (F17), unused tutorial/quest-toast paths, and CI smoke plus Playwright (F18).
 
 **Phase 3 — boundaries (large).** Move to ES modules with explicit imports (F11). Split `UIManager`
 per modal and extract `RunState` (F10, F15). Split `serve.js` into stores, routes and middleware

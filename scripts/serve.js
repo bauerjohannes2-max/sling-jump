@@ -8,12 +8,6 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
-const {
-  attemptDashboardLogin,
-  isDashboardAuthorized,
-  extractBearer,
-  revokeDashboardToken
-} = require('./dashboard_gate');
 
 let qrcode = null;
 try {
@@ -51,9 +45,8 @@ function getLocalIpAddress() {
   return '127.0.0.1';
 }
 
-// Telemetry Persistence and Memory Store
+// Player and session JSON stores
 const DATA_DIR = path.join(ROOT_DIR, 'data');
-const ANALYTICS_FILE = path.join(DATA_DIR, 'analytics.json');
 
 function readJsonStore(file) {
   try {
@@ -82,27 +75,6 @@ function writeJsonStore(file, data) {
     console.warn(`[Server] Could not persist ${path.basename(file)}: ${e.message}`);
     return false;
   }
-}
-
-function loadAnalytics() {
-  return readJsonStore(ANALYTICS_FILE) || {
-    totalVisits: 0,
-    uniqueDevices: {},
-    totalRuns: 0,
-    todayRuns: 0,
-    currentDate: new Date().toISOString().slice(0, 10),
-    recordAltitude: 0,
-    totalAltitude: 0,
-    totalCoins: 0,
-    recentRuns: []
-  };
-}
-
-const analyticsStore = loadAnalytics();
-const activeSessions = new Map(); // sessionId -> lastHeartbeat (ms)
-
-function saveAnalytics() {
-  writeJsonStore(ANALYTICS_FILE, analyticsStore);
 }
 
 // Cross-Device Player Cloud Store
@@ -194,16 +166,6 @@ function revokePlayerSessions(playerId) {
 }
 
 
-function getActivePlayersCount() {
-  const now = Date.now();
-  for (const [sid, lastSeen] of activeSessions.entries()) {
-    if (now - lastSeen > 45000) {
-      activeSessions.delete(sid);
-    }
-  }
-  return activeSessions.size;
-}
-
 function safeCompareHashes(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
   const bufA = Buffer.from(a, 'utf8');
@@ -259,10 +221,10 @@ function verifyPassword(storedPasswordHash, clientPwHash) {
   return { valid: true, requiresPassword: false, needsUpgrade: false };
 }
 
-// Intentionally volatile: IP rate limits, brute-force lockouts and the online-player
-// count live only in memory. A restart clears them. That is preferred over writing
-// attacker IPs to disk. Session tokens in sessions.json are persisted; the sweeper
-// below must call saveSessions() so expired tokens leave disk as well as memory.
+// Intentionally volatile: IP rate limits and brute-force lockouts live only in
+// memory. A restart clears them. That is preferred over writing attacker IPs to disk.
+// Session tokens in sessions.json are persisted; the sweeper below must call
+// saveSessions() so expired tokens leave disk as well as memory.
 const ipRateLimitStore = new Map(); // ip -> { count, resetTime }
 const authLockoutStore = new Map(); // key (ip:playerId) -> { failures, lockoutUntil }
 
@@ -845,145 +807,6 @@ function createRequestListener() {
       return;
     }
 
-    // API: Telemetry Ingest (POST)
-    if (req.method === 'POST' && reqUrl === '/api/telemetry') {
-      readJsonBody(req, res, corsOrigin, (err, payload) => {
-          const today = new Date().toISOString().slice(0, 10);
-          if (analyticsStore.currentDate !== today) {
-            analyticsStore.currentDate = today;
-            analyticsStore.todayRuns = 0;
-          }
-
-          if (payload.sessionId) {
-            activeSessions.set(payload.sessionId, Date.now());
-          }
-
-          if (payload.event === 'session_start') {
-            analyticsStore.totalVisits = (analyticsStore.totalVisits || 0) + 1;
-            if (payload.deviceId) {
-              analyticsStore.uniqueDevices[payload.deviceId] = (analyticsStore.uniqueDevices[payload.deviceId] || 0) + 1;
-            }
-            saveAnalytics();
-          } else if (payload.event === 'run_completed' && payload.data) {
-            analyticsStore.totalRuns = (analyticsStore.totalRuns || 0) + 1;
-            analyticsStore.todayRuns = (analyticsStore.todayRuns || 0) + 1;
-            const alt = payload.data.altitude || 0;
-            const coins = payload.data.coins || 0;
-            analyticsStore.totalAltitude = (analyticsStore.totalAltitude || 0) + alt;
-            analyticsStore.totalCoins = (analyticsStore.totalCoins || 0) + coins;
-            if (alt > (analyticsStore.recordAltitude || 0)) {
-              analyticsStore.recordAltitude = alt;
-            }
-
-            if (!analyticsStore.recentRuns) analyticsStore.recentRuns = [];
-            analyticsStore.recentRuns.unshift({
-              timestamp: new Date().toISOString(),
-              altitude: alt,
-              coins: coins,
-              shipId: payload.data.shipId || 'arrow',
-              duration: payload.data.durationSeconds || 0,
-              isNewRecord: !!payload.data.isNewRecord
-            });
-            if (analyticsStore.recentRuns.length > 30) {
-              analyticsStore.recentRuns.length = 30;
-            }
-            saveAnalytics();
-          }
-
-          res.writeHead(200, {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': corsOrigin || '*',
-            'Vary': 'Origin'
-          });
-          res.end(JSON.stringify({ ok: true, activeOnline: getActivePlayersCount() }));
-      });
-      return;
-    }
-
-    if (req.method === 'POST' && reqUrl === '/api/dashboard/login') {
-      const dashLimit = checkIpRateLimit(`dashboard:${clientIp}`, 20, 60000);
-      if (dashLimit.limited) {
-        res.writeHead(429, {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': corsOrigin || '*',
-          'Retry-After': String(dashLimit.retryAfter),
-          'Vary': 'Origin'
-        });
-        res.end(JSON.stringify({
-          ok: false,
-          error: `ZU VIELE ANFRAGEN. BITTE ${dashLimit.retryAfter} SEKUNDEN WARTEN.`,
-          retryAfter: dashLimit.retryAfter
-        }));
-        return;
-      }
-      readJsonBody(req, res, corsOrigin, (err, payload) => {
-        const result = attemptDashboardLogin(payload.pin, clientIp);
-        const headers = {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': corsOrigin || '*',
-          'Cache-Control': 'no-cache',
-          'Vary': 'Origin'
-        };
-        if (result.retryAfter) headers['Retry-After'] = String(result.retryAfter);
-        res.writeHead(result.ok ? 200 : result.status, headers);
-        if (result.ok) {
-          res.end(JSON.stringify({ ok: true, token: result.token, expiresAt: result.expiresAt }));
-        } else {
-          res.end(JSON.stringify({ ok: false, error: result.error, retryAfter: result.retryAfter }));
-        }
-      });
-      return;
-    }
-
-    if (req.method === 'POST' && reqUrl === '/api/dashboard/logout') {
-      revokeDashboardToken(extractBearer(req));
-      res.writeHead(200, {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': corsOrigin || '*',
-        'Vary': 'Origin'
-      });
-      res.end(JSON.stringify({ ok: true }));
-      return;
-    }
-
-    // API: Telemetry Stats (GET) — requires a dashboard token issued by /api/dashboard/login
-    if (req.method === 'GET' && reqUrl === '/api/telemetry/stats') {
-      if (!isDashboardAuthorized(req)) {
-        res.writeHead(401, {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': corsOrigin || '*',
-          'Cache-Control': 'no-cache',
-          'Vary': 'Origin'
-        });
-        res.end(JSON.stringify({ ok: false, error: 'DASHBOARD-ANMELDUNG ERFORDERLICH' }));
-        return;
-      }
-
-      const activeCount = getActivePlayersCount();
-      const uniqueCount = Object.keys(analyticsStore.uniqueDevices || {}).length;
-      const totalRuns = analyticsStore.totalRuns || 0;
-      const avgAlt = totalRuns > 0 ? Math.round(analyticsStore.totalAltitude / totalRuns) : 0;
-
-      res.writeHead(200, {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': corsOrigin || '*',
-        'Cache-Control': 'no-cache',
-        'Vary': 'Origin'
-      });
-      res.end(JSON.stringify({
-        onlineNow: activeCount,
-        totalVisits: analyticsStore.totalVisits || 0,
-        uniqueDevices: uniqueCount,
-        totalRuns: totalRuns,
-        todayRuns: analyticsStore.todayRuns || 0,
-        recordAltitude: analyticsStore.recordAltitude || 0,
-        averageAltitude: avgAlt,
-        totalCoinsCollected: analyticsStore.totalCoins || 0,
-        recentRuns: analyticsStore.recentRuns || []
-      }));
-      return;
-    }
-
     // API: Live Version Check (GET)
     if (req.method === 'GET' && reqUrl === '/api/version') {
       let currentVer = '3.17.0';
@@ -1005,17 +828,6 @@ function createRequestListener() {
         timestamp: Date.now()
       }));
       return;
-    }
-
-    // Friendly URL for Dashboard. Redirect the slash-less path so relative CSS/JS
-    // resolve under /dashboard/ rather than the site root.
-    if (reqUrl === '/dashboard') {
-      res.writeHead(302, { Location: '/dashboard/', 'Cache-Control': 'no-cache' });
-      res.end();
-      return;
-    }
-    if (reqUrl === '/dashboard/') {
-      reqUrl = '/dashboard/index.html';
     }
 
     if (reqUrl === '/' || reqUrl === '') {

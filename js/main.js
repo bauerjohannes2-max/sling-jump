@@ -505,37 +505,6 @@
       });
     }
 
-    // Secret gesture: 3 taps on version tag opens dashboard
-    let versionTapCount = 0;
-    let versionTapTimer = null;
-    const versionTags = document.querySelectorAll('.app-version-tag, .settings-version-tag');
-    versionTags.forEach(el => {
-      el.style.cursor = 'pointer';
-      el.title = 'Tippe 3x für Spieler-Dashboard';
-      el.addEventListener('click', () => {
-        versionTapCount++;
-        clearTimeout(versionTapTimer);
-        versionTapTimer = setTimeout(() => { versionTapCount = 0; }, 800);
-        if (versionTapCount >= 3) {
-          versionTapCount = 0;
-          const isAppStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-          const targetUrl = 'dashboard/index.html';
-          if (isAppStandalone) {
-            // In standalone PWA, strictly isolate: open in system browser, never hijack game PWA
-            const a = document.createElement('a');
-            a.href = targetUrl;
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          } else {
-            window.open(targetUrl, '_blank') || (window.location.href = targetUrl);
-          }
-        }
-      });
-    });
-
     // Auto-Focus Window for instant keyboard response
     window.focus();
     document.body.focus();
@@ -678,11 +647,6 @@
         checkServerVersion(false);
       }
     });
-  }
-
-  // --- TELEMETRY / ANALYTICS INITIALIZATION ---
-  if (window.AnalyticsService) {
-    window.AnalyticsService.init(engine.storage);
   }
 
   // --- VIEWPORT STABILIZATION (NO FORCED FULLSCREEN API) ---

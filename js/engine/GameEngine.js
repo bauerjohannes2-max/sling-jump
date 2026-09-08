@@ -164,9 +164,6 @@ class GameEngine {
     this.hitstopTimer = 0;
     this.screenShake = 0;
     this.runStartTime = Date.now();
-    if (window.AnalyticsService) {
-      window.AnalyticsService.trackRunStart(this.isTutorial ? 'tutorial' : 'normal');
-    }
 
     this.particles.reset();
     this.missions.resetRunMetrics();
@@ -359,18 +356,6 @@ class GameEngine {
     );
 
     this.missions.onRunFinished(this.maxAltitudeMeters);
-
-    if (window.AnalyticsService) {
-      window.AnalyticsService.trackRunEnd({
-        finalAltitudeMeters: this.maxAltitudeMeters,
-        cores: this.runCores,
-        crystals: this.runCrystals,
-        nearMisses: this.runNearMisses,
-        isNewRecord: runResult.isNewHighScore,
-        shipId: this.player ? this.player.shipId : 'dart',
-        durationSeconds: (Date.now() - (this.runStartTime || Date.now())) / 1000
-      });
-    }
 
     const durationSec = Math.max(1, Math.round((Date.now() - (this.runStartTime || Date.now())) / 1000));
     const mins = Math.floor(durationSec / 60);
