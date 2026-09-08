@@ -1,217 +1,318 @@
 {
   "suite": "Space Jump Automated Playwright Visual Verification",
-  "mode": "Selective (12_mobile_skins, 14_dashboard)",
-  "executedAt": "2026-09-08T11:54:51.195Z",
-  "localTimestamp": "9/8/2026, 11:54:51 AM",
-  "consoleErrorsCount": 10,
-  "consoleErrors": [
-    "Fetch API cannot load file:///workspace/assets/audio/music/bgm_menu.mp3. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/music/bgm_gameplay.mp3. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/music/bgm_gameover.mp3. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_grapple_lock.wav. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_slingshot_boost.wav. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_core_pickup.wav. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_node_shatter.wav. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_near_miss.wav. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_crash.wav. URL scheme \"file\" is not supported.",
-    "Fetch API cannot load file:///workspace/assets/audio/sfx/sfx_ui_click.wav. URL scheme \"file\" is not supported."
-  ],
-  "selectiveScreenshotsCount": 2,
-  "totalCatalogScreenshotsCount": 22,
+  "mode": "Full Regression",
+  "executedAt": "2026-09-08T12:39:11.337Z",
+  "localTimestamp": "8.9.2026, 14:39:11",
+  "consoleErrorsCount": 0,
+  "consoleErrors": [],
+  "selectiveScreenshotsCount": 19,
+  "totalCatalogScreenshotsCount": 19,
   "freshRunManifest": [
     {
-      "filename": "12_mobile_skins.png",
-      "description": "Mobile Hangar Carousel",
-      "sizeKb": 200,
-      "capturedAt": "2026-09-08T11:54:50.338Z",
-      "localTime": "11:54:50 AM",
-      "sha256": "6a87cbb95c76ee8d"
-    },
-    {
-      "filename": "14_dashboard_locked.png",
-      "description": "Dashboard Gate Locked",
-      "sizeKb": 48,
-      "capturedAt": "2026-09-08T11:54:51.152Z",
-      "localTime": "11:54:51 AM",
-      "sha256": "3b0329b9fb9860b9"
-    }
-  ],
-  "manifest": [
-    {
-      "filename": "09_pause_modal.png",
-      "description": "Pause Modal",
-      "sizeKb": 190,
-      "capturedAt": "2026-09-05T21:45:11.078Z",
-      "localTime": "23:45:11",
-      "sha256": "ebf5439be203c3fb"
-    },
-    {
-      "filename": "08b_gameplay_fps_hud.png",
-      "description": "Live FPS Telemetry HUD",
-      "sizeKb": 321,
-      "capturedAt": "2026-09-06T08:56:15.989Z",
-      "localTime": "10:56:15",
-      "sha256": "a6d978b4c9c5b179"
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 236,
+      "capturedAt": "2026-09-08T12:38:39.944Z",
+      "localTime": "14:38:39",
+      "sha256": "6ebb7675853d64c6"
     },
     {
       "filename": "02_hangar_skins.png",
       "description": "Center Hangar Skin 2 (Phönix)",
-      "sizeKb": 245,
-      "capturedAt": "2026-09-06T15:02:30.904Z",
-      "localTime": "17:02:30",
-      "sha256": "e9eb58a4f09a4090"
-    },
-    {
-      "filename": "08_gameplay_hud.png",
-      "description": "Gameplay HUD & Combo",
-      "sizeKb": 213,
-      "capturedAt": "2026-09-06T16:53:08.243Z",
-      "localTime": "18:53:08",
-      "sha256": "8134a14991d05243"
-    },
-    {
-      "filename": "01_main_menu.png",
-      "description": "Main Menu",
-      "sizeKb": 222,
-      "capturedAt": "2026-09-06T17:10:29.083Z",
-      "localTime": "19:10:29",
-      "sha256": "b7d73d4228ba84fb"
-    },
-    {
-      "filename": "10_game_over.png",
-      "description": "Game Over Screen",
-      "sizeKb": 503,
-      "capturedAt": "2026-09-06T17:10:37.976Z",
-      "localTime": "19:10:37",
-      "sha256": "ec3c382ed76f6401"
-    },
-    {
-      "filename": "10c_mobile_game_over.png",
-      "description": "Mobile Game Over Screen",
-      "sizeKb": 368,
-      "capturedAt": "2026-09-06T17:10:38.668Z",
-      "localTime": "19:10:38",
-      "sha256": "b0ec4f6908f077ab"
-    },
-    {
-      "filename": "10b_revived_gameplay.png",
-      "description": "Revived Gameplay",
-      "sizeKb": 223,
-      "capturedAt": "2026-09-06T17:10:39.948Z",
-      "localTime": "19:10:39",
-      "sha256": "0170317e287f1289"
-    },
-    {
-      "filename": "11_mobile_responsive.png",
-      "description": "Mobile Responsive Menu",
-      "sizeKb": 169,
-      "capturedAt": "2026-09-06T17:10:40.835Z",
-      "localTime": "19:10:40",
-      "sha256": "928401890d031ad6"
-    },
-    {
-      "filename": "14b_dashboard_unlocked.png",
-      "description": "Dashboard Unlocked",
-      "sizeKb": 202,
-      "capturedAt": "2026-09-06T17:10:44.599Z",
-      "localTime": "19:10:44",
-      "sha256": "ef93eb3d7c4e3487"
-    },
-    {
-      "filename": "05b_hub_quests_claimed.png",
-      "description": "Quests Claimed",
-      "sizeKb": 288,
-      "capturedAt": "2026-09-06T17:53:04.814Z",
-      "localTime": "19:53:04",
-      "sha256": "88b77999d45753c2"
-    },
-    {
-      "filename": "05c_hub_quests_scrolled.png",
-      "description": "Quests Weekly Challenges",
-      "sizeKb": 195,
-      "capturedAt": "2026-09-06T17:58:30.476Z",
-      "localTime": "19:58:30",
-      "sha256": "0d85423c252c9f3a"
-    },
-    {
-      "filename": "05d_hub_quests_tab_weekly.png",
-      "description": "Quests Weekly Tab Filter",
-      "sizeKb": 195,
-      "capturedAt": "2026-09-06T17:58:31.253Z",
-      "localTime": "19:58:31",
-      "sha256": "ef2c055211c10b30"
-    },
-    {
-      "filename": "05e_hub_quests_tab_daily.png",
-      "description": "Quests Daily Tab Filter Scrolled",
-      "sizeKb": 339,
-      "capturedAt": "2026-09-06T17:59:36.000Z",
-      "localTime": "19:59:36",
-      "sha256": "d5e202d979f4b737"
-    },
-    {
-      "filename": "05_hub_quests.png",
-      "description": "Quests Active",
-      "sizeKb": 378,
-      "capturedAt": "2026-09-06T18:20:22.255Z",
-      "localTime": "20:20:22",
-      "sha256": "d442d6557a38db0f"
-    },
-    {
-      "filename": "07_settings.png",
-      "description": "Settings Modal",
-      "sizeKb": 203,
-      "capturedAt": "2026-09-06T18:36:57.789Z",
-      "localTime": "20:36:57",
-      "sha256": "5edb23f4176e52ab"
+      "sizeKb": 242,
+      "capturedAt": "2026-09-08T12:38:41.025Z",
+      "localTime": "14:38:41",
+      "sha256": "5e53b93e2d85f0c5"
     },
     {
       "filename": "04_hub_leaderboard.png",
       "description": "Global Leaderboard",
       "sizeKb": 201,
-      "capturedAt": "2026-09-06T18:48:18.936Z",
-      "localTime": "20:48:18",
-      "sha256": "e5d80f2f60bc41ad"
+      "capturedAt": "2026-09-08T12:38:43.130Z",
+      "localTime": "14:38:43",
+      "sha256": "4614b9fd27ac2bce"
     },
     {
-      "filename": "13_tutorial_modal.png",
-      "description": "Tutorial Controls Guide",
-      "sizeKb": 249,
-      "capturedAt": "2026-09-06T19:08:48.247Z",
-      "localTime": "21:08:48",
-      "sha256": "12981fe2700e4ca5"
+      "filename": "05_hub_quests.png",
+      "description": "Quests Active",
+      "sizeKb": 379,
+      "capturedAt": "2026-09-08T12:38:45.108Z",
+      "localTime": "14:38:45",
+      "sha256": "96f3fcb53839cfba"
+    },
+    {
+      "filename": "05b_hub_quests_claimed.png",
+      "description": "Quests Claimed",
+      "sizeKb": 288,
+      "capturedAt": "2026-09-08T12:38:46.230Z",
+      "localTime": "14:38:46",
+      "sha256": "168dd830707653a6"
+    },
+    {
+      "filename": "05c_hub_quests_scrolled.png",
+      "description": "Quests Weekly Challenges",
+      "sizeKb": 187,
+      "capturedAt": "2026-09-08T12:38:47.094Z",
+      "localTime": "14:38:47",
+      "sha256": "ee4e72ede6d598ce"
+    },
+    {
+      "filename": "05d_hub_quests_tab_weekly.png",
+      "description": "Quests Weekly Tab Filter",
+      "sizeKb": 184,
+      "capturedAt": "2026-09-08T12:38:48.021Z",
+      "localTime": "14:38:48",
+      "sha256": "23440e3642e06585"
+    },
+    {
+      "filename": "05e_hub_quests_tab_daily.png",
+      "description": "Quests Daily Tab Filter Scrolled",
+      "sizeKb": 280,
+      "capturedAt": "2026-09-08T12:38:49.123Z",
+      "localTime": "14:38:49",
+      "sha256": "0c93b67507519472"
     },
     {
       "filename": "06_hub_stats.png",
       "description": "Pilot Stats",
-      "sizeKb": 155,
-      "capturedAt": "2026-09-06T20:10:39.952Z",
-      "localTime": "22:10:39",
-      "sha256": "4a5562344ecf2b27"
+      "sizeKb": 160,
+      "capturedAt": "2026-09-08T12:38:50.604Z",
+      "localTime": "14:38:50",
+      "sha256": "1fa35a4b83fbd673"
     },
     {
       "filename": "06b_pilot_profile.png",
       "description": "Pilot Profile",
+      "sizeKb": 179,
+      "capturedAt": "2026-09-08T12:38:52.041Z",
+      "localTime": "14:38:52",
+      "sha256": "7d93dc0e8b454889"
+    },
+    {
+      "filename": "07_settings.png",
+      "description": "Settings Modal",
       "sizeKb": 177,
-      "capturedAt": "2026-09-06T20:10:41.562Z",
-      "localTime": "22:10:41",
-      "sha256": "502dd739869bea48"
+      "capturedAt": "2026-09-08T12:38:54.047Z",
+      "localTime": "14:38:54",
+      "sha256": "e2638083fbfe2719"
+    },
+    {
+      "filename": "13_tutorial_modal.png",
+      "description": "Tutorial Controls Guide",
+      "sizeKb": 259,
+      "capturedAt": "2026-09-08T12:38:56.020Z",
+      "localTime": "14:38:56",
+      "sha256": "9e54b370b6621283"
+    },
+    {
+      "filename": "08_gameplay_hud.png",
+      "description": "Gameplay HUD & Combo",
+      "sizeKb": 222,
+      "capturedAt": "2026-09-08T12:38:57.789Z",
+      "localTime": "14:38:57",
+      "sha256": "2c6db71556387708"
+    },
+    {
+      "filename": "09_pause_modal.png",
+      "description": "Pause Modal",
+      "sizeKb": 190,
+      "capturedAt": "2026-09-08T12:38:59.122Z",
+      "localTime": "14:38:59",
+      "sha256": "434e9f2c6cd53938"
+    },
+    {
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 497,
+      "capturedAt": "2026-09-08T12:39:05.733Z",
+      "localTime": "14:39:05",
+      "sha256": "52f48ff7762891be"
+    },
+    {
+      "filename": "10c_mobile_game_over.png",
+      "description": "Mobile Game Over Screen",
+      "sizeKb": 346,
+      "capturedAt": "2026-09-08T12:39:06.947Z",
+      "localTime": "14:39:06",
+      "sha256": "f0f5f0d0237b80a3"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 222,
+      "capturedAt": "2026-09-08T12:39:08.538Z",
+      "localTime": "14:39:08",
+      "sha256": "f9493bdbe6c94163"
+    },
+    {
+      "filename": "11_mobile_responsive.png",
+      "description": "Mobile Responsive Menu",
+      "sizeKb": 171,
+      "capturedAt": "2026-09-08T12:39:09.755Z",
+      "localTime": "14:39:09",
+      "sha256": "fbb27b2bf8df0136"
     },
     {
       "filename": "12_mobile_skins.png",
       "description": "Mobile Hangar Carousel",
-      "sizeKb": 200,
-      "capturedAt": "2026-09-08T11:54:50.338Z",
-      "localTime": "11:54:50 AM",
-      "sha256": "6a87cbb95c76ee8d"
+      "sizeKb": 191,
+      "capturedAt": "2026-09-08T12:39:10.546Z",
+      "localTime": "14:39:10",
+      "sha256": "c64f5fd4e007dac6"
+    }
+  ],
+  "manifest": [
+    {
+      "filename": "01_main_menu.png",
+      "description": "Main Menu",
+      "sizeKb": 236,
+      "capturedAt": "2026-09-08T12:38:39.944Z",
+      "localTime": "14:38:39",
+      "sha256": "6ebb7675853d64c6"
     },
     {
-      "filename": "14_dashboard_locked.png",
-      "description": "Dashboard Gate Locked",
-      "sizeKb": 48,
-      "capturedAt": "2026-09-08T11:54:51.152Z",
-      "localTime": "11:54:51 AM",
-      "sha256": "3b0329b9fb9860b9"
+      "filename": "02_hangar_skins.png",
+      "description": "Center Hangar Skin 2 (Phönix)",
+      "sizeKb": 242,
+      "capturedAt": "2026-09-08T12:38:41.025Z",
+      "localTime": "14:38:41",
+      "sha256": "5e53b93e2d85f0c5"
+    },
+    {
+      "filename": "04_hub_leaderboard.png",
+      "description": "Global Leaderboard",
+      "sizeKb": 201,
+      "capturedAt": "2026-09-08T12:38:43.130Z",
+      "localTime": "14:38:43",
+      "sha256": "4614b9fd27ac2bce"
+    },
+    {
+      "filename": "05_hub_quests.png",
+      "description": "Quests Active",
+      "sizeKb": 379,
+      "capturedAt": "2026-09-08T12:38:45.108Z",
+      "localTime": "14:38:45",
+      "sha256": "96f3fcb53839cfba"
+    },
+    {
+      "filename": "05b_hub_quests_claimed.png",
+      "description": "Quests Claimed",
+      "sizeKb": 288,
+      "capturedAt": "2026-09-08T12:38:46.230Z",
+      "localTime": "14:38:46",
+      "sha256": "168dd830707653a6"
+    },
+    {
+      "filename": "05c_hub_quests_scrolled.png",
+      "description": "Quests Weekly Challenges",
+      "sizeKb": 187,
+      "capturedAt": "2026-09-08T12:38:47.094Z",
+      "localTime": "14:38:47",
+      "sha256": "ee4e72ede6d598ce"
+    },
+    {
+      "filename": "05d_hub_quests_tab_weekly.png",
+      "description": "Quests Weekly Tab Filter",
+      "sizeKb": 184,
+      "capturedAt": "2026-09-08T12:38:48.021Z",
+      "localTime": "14:38:48",
+      "sha256": "23440e3642e06585"
+    },
+    {
+      "filename": "05e_hub_quests_tab_daily.png",
+      "description": "Quests Daily Tab Filter Scrolled",
+      "sizeKb": 280,
+      "capturedAt": "2026-09-08T12:38:49.123Z",
+      "localTime": "14:38:49",
+      "sha256": "0c93b67507519472"
+    },
+    {
+      "filename": "06_hub_stats.png",
+      "description": "Pilot Stats",
+      "sizeKb": 160,
+      "capturedAt": "2026-09-08T12:38:50.604Z",
+      "localTime": "14:38:50",
+      "sha256": "1fa35a4b83fbd673"
+    },
+    {
+      "filename": "06b_pilot_profile.png",
+      "description": "Pilot Profile",
+      "sizeKb": 179,
+      "capturedAt": "2026-09-08T12:38:52.041Z",
+      "localTime": "14:38:52",
+      "sha256": "7d93dc0e8b454889"
+    },
+    {
+      "filename": "07_settings.png",
+      "description": "Settings Modal",
+      "sizeKb": 177,
+      "capturedAt": "2026-09-08T12:38:54.047Z",
+      "localTime": "14:38:54",
+      "sha256": "e2638083fbfe2719"
+    },
+    {
+      "filename": "13_tutorial_modal.png",
+      "description": "Tutorial Controls Guide",
+      "sizeKb": 259,
+      "capturedAt": "2026-09-08T12:38:56.020Z",
+      "localTime": "14:38:56",
+      "sha256": "9e54b370b6621283"
+    },
+    {
+      "filename": "08_gameplay_hud.png",
+      "description": "Gameplay HUD & Combo",
+      "sizeKb": 222,
+      "capturedAt": "2026-09-08T12:38:57.789Z",
+      "localTime": "14:38:57",
+      "sha256": "2c6db71556387708"
+    },
+    {
+      "filename": "09_pause_modal.png",
+      "description": "Pause Modal",
+      "sizeKb": 190,
+      "capturedAt": "2026-09-08T12:38:59.122Z",
+      "localTime": "14:38:59",
+      "sha256": "434e9f2c6cd53938"
+    },
+    {
+      "filename": "10_game_over.png",
+      "description": "Game Over Screen",
+      "sizeKb": 497,
+      "capturedAt": "2026-09-08T12:39:05.733Z",
+      "localTime": "14:39:05",
+      "sha256": "52f48ff7762891be"
+    },
+    {
+      "filename": "10c_mobile_game_over.png",
+      "description": "Mobile Game Over Screen",
+      "sizeKb": 346,
+      "capturedAt": "2026-09-08T12:39:06.947Z",
+      "localTime": "14:39:06",
+      "sha256": "f0f5f0d0237b80a3"
+    },
+    {
+      "filename": "10b_revived_gameplay.png",
+      "description": "Revived Gameplay",
+      "sizeKb": 222,
+      "capturedAt": "2026-09-08T12:39:08.538Z",
+      "localTime": "14:39:08",
+      "sha256": "f9493bdbe6c94163"
+    },
+    {
+      "filename": "11_mobile_responsive.png",
+      "description": "Mobile Responsive Menu",
+      "sizeKb": 171,
+      "capturedAt": "2026-09-08T12:39:09.755Z",
+      "localTime": "14:39:09",
+      "sha256": "fbb27b2bf8df0136"
+    },
+    {
+      "filename": "12_mobile_skins.png",
+      "description": "Mobile Hangar Carousel",
+      "sizeKb": 191,
+      "capturedAt": "2026-09-08T12:39:10.546Z",
+      "localTime": "14:39:10",
+      "sha256": "c64f5fd4e007dac6"
     }
   ]
 }

@@ -1,11 +1,13 @@
 # Space Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
-> **Status:** Release Candidate (v5.17.1 - Leaderboard Redesign, Stiff Height & Floating-Dock Parity)  
+> **Status:** Release Candidate (v5.18.1)  
 > **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/space-jump/`](https://bauerjohannes2-max.github.io/space-jump/)  
 > **Repository:** [`https://github.com/bauerjohannes2-max/space-jump`](https://github.com/bauerjohannes2-max/space-jump)  
-> **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
-> **Letzte Aktualisierung:** 06.09.2026  
-> **Test-Runner:** Playwright Test-Suite (`node scripts/playwright_runner.js <screen>`)
+> **Hosting:** GitHub Pages (PWA) plus local `npm start` for LAN / cloud saves  
+> **Letzte Aktualisierung:** 08.09.2026  
+> **Test-Runner:** Playwright (`node scripts/playwright_runner.js <screen>`)
+
+The live product is the game. The analytics dashboard and telemetry ingest were removed.
 
 ---
 
@@ -36,6 +38,7 @@
 ## 3. Chronologische Release-Historie
 
 ### v5.18.1 (06.09.2026) - Fullscreen Mode Settings Integration
+- Dashboard and telemetry ingest later removed (architecture-review branch, 08.09.2026). The product is the game PWA and LAN server only.
 - **Fullscreen Option (`index.html`, `UIManager.js`):**
   - Added "Vollbild" setting row in Settings modal (`#btn-fullscreen-toggle`).
   - Standardized Fullscreen API toggle with `fullscreenchange` event synchronization and status styling.
@@ -246,7 +249,7 @@
     - `Node.js`: Weltraum-Minen (Warnkreis `#e11d48`, Hülle `#9f1239`, Spitzen `#fda4af`, Glow `rgba(225, 29, 72, 0.7)`) und Zeituhr-Warnstufen harmonisiert.
     - `WorldManager.js`: Todeslaser-Horizont am unteren Bildschirmrand auf Karminrot kalibriert.
   - **UI & Telemetrie:**
-    - Flugdebriefing-Crash-Fadenkreuz (`index.html`), Aufgabenschienen-Füllung (`.quest-bar-fill`), FPS-Stotter-Warnung (`< 42 FPS`) und Dashboard-Farben (`dashboard.css`).
+    - Flugdebriefing-Crash-Fadenkreuz (`index.html`), Aufgabenschienen-Füllung (`.quest-bar-fill`), FPS-Stotter-Warnung (`< 42 FPS`).
   - Verifiziert via Playwright Visual Test Suite (Screens 01, 05, 10, 11). 0 Konsolenfehler.
 
 ### v5.13.1 (06.09.2026) - Death Screen Layout Elevation & Balanced Telemetry Alignment
@@ -420,7 +423,7 @@
 - Selektive Screenshot-Ausführung zur Token-Schonung. Google Lyria Synthwave-Soundtrack mit prozeduralem Fallback.
 
 ### v4.0.0 – v4.3.1 (04.09.2026) - Global Leaderboards & Standalone Analytics
-- Deduplizierte Global Top-100 Rangliste. Standalone Growth Dashboard (`dashboard/`, Port 3001, Master-PIN 2026).
+- Deduplizierte Global Top-100 Rangliste. Standalone Growth Dashboard was added here and later removed.
 
 ### v3.20.0 – v3.38.0 (03.09.2026 - 04.09.2026) - Quantum Revive & Deep Space Expansion
 - Hyper-Kristall-Währung, Quantum Revive Engine mit 2.5s Schild, 90° Apex-Combos (x1–x10), Tödliche Minen ab 5.000m.

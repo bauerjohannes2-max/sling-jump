@@ -26,9 +26,9 @@ code is the healthiest part of the repository. The problems are around it:
 | Low | 4 |
 
 Phase 1 (F1, F2, F4, F5, F9, F16) and Phase 2 (F3, F6, F7, F8, F12, F13, F14, F17, F18, F19)
-have since been fixed on this branch, along with the follow-up bug F23 and the leftover dead
-tutorial/quest-toast paths; each is marked below. Phase 3 (F10, F11, F15, F20, F21) is still
-open.
+have since been fixed on this branch, along with the follow-up bug F23, the leftover dead
+tutorial/quest-toast paths, dashboard/telemetry removal, and F22 documentation hygiene; each is
+marked below. Phase 3 (F10, F11, F15, F20, F21) is still open.
 
 ## Findings
 
@@ -344,6 +344,10 @@ the `scripts/` folder or the service worker. `AgentRules.md`, `GEMINI.md` and
 
 *Fix:* move the visual changelog into a design document and let `architecture.md` cover all four
 layers.
+
+**Fixed.** Visual tokens live in `docs/visual-standards.md`. `architecture.md` maps layers, files, the
+loop, `serve.js`, `sw.js` and `scripts/`. `AgentRules.md` and `GEMINI.md` point at
+`.agents/rules/standards.md` instead of duplicating it.
 
 ## File size concentration
 

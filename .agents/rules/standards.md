@@ -13,8 +13,10 @@ description: Zero emoji policy, selective visual testing, and token-efficient do
 - Fresh timestamps required (neutralize NTFS tunneling). Output `screenshots/LATEST_RUN.md` with SHA-256. 0 console errors.
 
 ## 3. Project Documentation
-- `GAME_STATUS.md`: Definitive cumulative changelog. Dense and token-efficient.
-- `GAME_SYSTEMS.md`: Live specification of formulas, mechanics, and entities.
+- `architecture.md`: Layers, files, loop, server, PWA.
+- `docs/visual-standards.md`: Fonts, palette, modal geometry.
+- `GAME_STATUS.md`: Changelog.
+- `GAME_SYSTEMS.md`: Formulas, mechanics, entities.
 
 ## 4. Adaptive Planning
 - Major features: `implementation_plan.md` checklist.
@@ -33,4 +35,4 @@ description: Zero emoji policy, selective visual testing, and token-efficient do
 - **Canvas-to-SVG Parity:** Canvas collectible sprites must mirror UI SVG definitions 1:1 without unrequested blur halos destroying outer rim stroke contrast.
 
 ## 8. Token Efficiency & Map First
-RULE: TOKEN EFFICIENCY & MAP FIRST. Before reading, grepping, or analyzing any .js or .css files for a new task, you MUST read architecture.md to understand the system context. Never dump full JS files into context blindly. You are strictly responsible for keeping architecture.md updated whenever you create a new file, change a core class, or alter the game loop.
+Read `architecture.md` before searching JS or CSS. Visual details are in `docs/visual-standards.md`. Keep `architecture.md` current when you add a file, change a core class, or change the game loop.
