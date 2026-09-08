@@ -371,8 +371,6 @@ class OrbitNode {
       // Thick primary jagged zigzag crack through node
       context.strokeStyle = '#ffffff';
       context.lineWidth = 2.2;
-      context.shadowColor = '#f97316';
-      context.shadowBlur = 8;
       context.beginPath();
       context.moveTo(-13, -12);
       context.lineTo(-5, -4);

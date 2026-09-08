@@ -33,7 +33,7 @@ class WorldManager {
 
   initStarfield(width, height) {
     this.stars = [];
-    const numStars = Math.floor((width * height) / 5800);
+    const numStars = Math.min(72, Math.floor((width * height) / 9000));
     for (let i = 0; i < numStars; i++) {
       const r = Math.random();
       const layer = r < 0.45 ? 0.20 : (r < 0.80 ? 0.45 : 0.75);
@@ -431,15 +431,14 @@ class WorldManager {
   drawBackground(context, width, height, cameraY, now = 0, playerVy = 0) {
     const theme = this.currentTheme;
 
-    // Expand drawing boundaries by 50% to prevent camera zoom-out pop-in glitches
-    const padX = width * 0.5;
-    const padY = height * 0.5;
-    const totalW = width + padX * 2;
-    const totalH = height + padY * 2;
+    // Fill only the viewport (plus a thin shake pad). A 50% pad used to paint 4× pixels.
+    const pad = 16;
+    const totalW = width + pad * 2;
+    const totalH = height + pad * 2;
 
     // 1. Cached Atmospheric Deep-Space Gradient Fill (Pure pitch black void)
     if (!this._bgGrad || this._bgGradTheme !== theme.id || this._bgGradH !== totalH) {
-      this._bgGrad = context.createLinearGradient(0, -padY, 0, height + padY);
+      this._bgGrad = context.createLinearGradient(0, -pad, 0, height + pad);
       this._bgGrad.addColorStop(0, '#020306');
       this._bgGrad.addColorStop(0.5, '#010204');
       this._bgGrad.addColorStop(1, '#000000');
@@ -447,7 +446,7 @@ class WorldManager {
       this._bgGradH = totalH;
     }
     context.fillStyle = this._bgGrad;
-    context.fillRect(-padX, -padY, totalW, totalH);
+    context.fillRect(-pad, -pad, totalW, totalH);
 
     // 2. Parallax Cyber-Grid: DELETED per user request (pure cosmic void)
     // 3. Ambient Celestial Nebulae: DELETED per user request (eliminates white brush/lighting haze)
@@ -478,42 +477,28 @@ class WorldManager {
       context.stroke();
       context.restore();
     } else {
-      // Classic Starfield: Dual-Pass Batched Rendering
-      // Pass A: Distant background stars (white/silver, soft circular points)
+      // Batched rectangles: one fillStyle/alpha per layer, no per-star paths
       context.fillStyle = '#ffffff';
+      context.globalAlpha = 0.55;
       for (let i = 0; i < this.stars.length; i++) {
         const star = this.stars[i];
         if (star.layer > 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const finalX = star.x;
-        const twinkle = Math.sin(now * 0.0018 * star.twinkleSpeed + star.x) * 0.15;
-        context.globalAlpha = Math.max(0.40, Math.min(0.90, star.baseAlpha + twinkle));
-        context.beginPath();
-        context.arc(finalX, finalY, Math.max(1.0, star.size * 0.8), 0, Math.PI * 2);
-        context.fill();
+        const s = Math.max(1, (star.size * 0.8) | 0);
+        context.fillRect((star.x - s) | 0, (finalY - s) | 0, s + s, s + s);
       }
 
-      // Pass B: Near celestial stars (bright white with theme neon glint, 4-point cross sparkles)
+      const accent = theme.primary || '#00f0ff';
+      context.globalAlpha = 0.88;
       for (let i = 0; i < this.stars.length; i++) {
         const star = this.stars[i];
         if (star.layer <= 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
-        const finalX = star.x;
-        const twinkle = Math.sin(now * 0.0022 * star.twinkleSpeed + star.x) * 0.25;
-        context.globalAlpha = Math.max(0.65, Math.min(1.0, star.baseAlpha + twinkle + 0.25));
-
-        context.fillStyle = (i % 3 === 0) ? (theme.primary || '#00f0ff') : '#ffffff';
-        context.beginPath();
-        context.arc(finalX, finalY, Math.max(1.4, star.size), 0, Math.PI * 2);
-        context.fill();
-
-        // Subtle cross-glint on radiant stars (zero allocations)
-        if (star.size >= 1.5 && (i & 3) === 0) {
-          context.fillRect((finalX - 3) | 0, (finalY - 0.5) | 0, 7, 1);
-          context.fillRect((finalX - 0.5) | 0, (finalY - 3) | 0, 1, 7);
-        }
+        const s = Math.max(1, star.size | 0);
+        context.fillStyle = (i % 3 === 0) ? accent : '#ffffff';
+        context.fillRect((star.x - s) | 0, (finalY - s) | 0, s + s, s + s);
       }
       context.globalAlpha = 1.0;
     }
@@ -524,16 +509,20 @@ class WorldManager {
     const time = timestamp * 0.005;
     const glowHeight = 42 + Math.sin(time) * 8;
 
-    const padX = width * 1.5;
+    const padX = 24;
     const drawWidth = width + padX * 2;
+    const glowKey = (glowHeight | 0) + '_' + height + '_' + (theme.id || '');
 
-    // 1. Bottom Glow Fill (Pre-calculated gradient)
-    const gradient = context.createLinearGradient(0, height - glowHeight, 0, height + 50);
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    gradient.addColorStop(0.4, theme.voidGlow || 'rgba(225, 29, 72, 0.45)');
-    gradient.addColorStop(1, theme.voidColor || '#e11d48');
+    if (!this._voidGrad || this._voidGradKey !== glowKey) {
+      const gradient = context.createLinearGradient(0, height - glowHeight, 0, height + 50);
+      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      gradient.addColorStop(0.4, theme.voidGlow || 'rgba(225, 29, 72, 0.45)');
+      gradient.addColorStop(1, theme.voidColor || '#e11d48');
+      this._voidGrad = gradient;
+      this._voidGradKey = glowKey;
+    }
 
-    context.fillStyle = gradient;
+    context.fillStyle = this._voidGrad;
     context.fillRect(-padX, height - glowHeight, drawWidth, glowHeight + 100);
 
     // 2. High-Performance Multi-Layer Laser Beam (Zero shadowBlur overhead)

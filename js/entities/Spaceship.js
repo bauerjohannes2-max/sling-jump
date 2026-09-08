@@ -292,8 +292,6 @@ class Spaceship {
       context.strokeStyle = `rgba(217, 70, 239, ${shieldAlpha * 0.85})`;
       context.fillStyle = `rgba(217, 70, 239, ${shieldAlpha * 0.16})`;
       context.lineWidth = 2.0;
-      context.shadowColor = '#d946ef';
-      context.shadowBlur = 18;
       context.beginPath();
       context.arc(0, 0, (this.radius + 15) * pulse, 0, Math.PI * 2);
       context.fill();
@@ -352,9 +350,6 @@ class Spaceship {
     const shipDef = CONSTANTS.SHIPS.find(s => s.id === shipId) || CONSTANTS.SHIPS[0];
     const trailDef = CONSTANTS.TRAILS.find(t => t.id === this.trailId) || CONSTANTS.TRAILS[0];
     const glowColor = trailDef.color === 'rainbow' ? '#00f0ff' : trailDef.color;
-
-    context.shadowColor = glowColor;
-    context.shadowBlur = 16;
 
     // Dynamic Engine Glow / Plume (Dual-layer plasma jet with white-hot core)
     const spd = Math.hypot(this.vx, this.vy);

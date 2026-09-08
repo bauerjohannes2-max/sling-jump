@@ -321,8 +321,6 @@ class ParticleSystem {
       if (sy < -60 || sy > screenHeight + 60) continue;
 
       const alpha = Math.max(0, t.life);
-      const isPerf = Boolean(window._gameEngine && window._gameEngine.storage && window._gameEngine.storage.data.settings.performanceMode);
-
       context.globalAlpha = alpha;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
@@ -345,16 +343,11 @@ class ParticleSystem {
         context.strokeText(t.text, 0, 0);
 
         context.fillStyle = t.color;
-        if (!isPerf) {
-          context.shadowColor = t.color;
-          context.shadowBlur = 20;
-        }
         context.fillText(t.text, 0, 0);
 
         // Reverse scale/translate
         context.scale(1 / popScale, 1 / popScale);
         context.translate(-px, -sy);
-        if (!isPerf) context.shadowBlur = 0;
       } else {
         const fontSize = t.size || 16;
         context.font = `700 ${fontSize}px ${fontFam}`;
@@ -364,12 +357,7 @@ class ParticleSystem {
         context.strokeText(t.text, px, sy);
 
         context.fillStyle = t.color;
-        if (!isPerf) {
-          context.shadowColor = t.color;
-          context.shadowBlur = 10;
-        }
         context.fillText(t.text, px, sy);
-        if (!isPerf) context.shadowBlur = 0;
       }
     }
     context.globalAlpha = 1.0;

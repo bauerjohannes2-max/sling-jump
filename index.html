@@ -773,37 +773,37 @@
           <div id="profile-status-message" class="profile-status-message"></div>
         </div>
 
-        <!-- 3. Cross-Device Cloud Sync Card (Floating-Dock Parity) -->
+        <!-- 3. Cross-device restore: ID is the account, optional PIN only when sharing -->
         <div class="profile-sync-card">
           <div class="profile-sync-header">
-            <span class="profile-sync-title">GERÄTE-SYNCHRONISATION</span>
-            <span class="profile-sync-hint">Fortschritt über Browser &amp; Geräte übertragen</span>
-          </div>
-
-          <!-- Password Protection Section -->
-          <div class="profile-pw-section">
-            <div class="profile-pw-status" id="profile-pw-status">KEIN PASSWORT GESETZT</div>
-            <div class="profile-sync-manual-row">
-              <input type="password" id="sync-password-input" maxlength="32" placeholder="Passwort setzen..." autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-set-password" class="btn-profile-sync-load">SETZEN</button>
-            </div>
-            <button type="button" id="btn-remove-password" class="btn-profile-pw-remove" style="display: none;">PASSWORT ENTFERNEN</button>
+            <span class="profile-sync-title">ANDERES GERÄT</span>
+            <span class="profile-sync-hint">Dein Spielstand hängt an der ID oben. Kein Login nötig.</span>
           </div>
 
           <button type="button" id="btn-copy-sync-link" class="btn-profile-sync-copy">
             <svg viewBox="0 0 24 24" class="sync-icon-svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <span>SPIELSTAND-LINK KOPIEREN</span>
+            <span>ID-LINK KOPIEREN</span>
           </button>
 
-          <!-- Load Remote Save Section -->
           <div class="profile-sync-load-section">
+            <div class="profile-sync-subtitle">SPIELSTAND LADEN</div>
             <div class="profile-sync-manual-row">
-              <input type="text" id="sync-player-id-input" maxlength="10" placeholder="ID Z.B. #EXGN-8K2P" autocomplete="off" spellcheck="false">
+              <input type="text" id="sync-player-id-input" maxlength="10" placeholder="ID EINGEBEN  #EXGN-8K2P" autocomplete="off" spellcheck="false">
               <button type="button" id="btn-load-sync-id" class="btn-profile-sync-load">LADEN</button>
             </div>
-            <div class="profile-sync-manual-row">
-              <input type="password" id="sync-load-password-input" maxlength="32" placeholder="Passwort (falls gesetzt)" autocomplete="off" spellcheck="false">
+            <div class="profile-sync-manual-row" id="sync-load-pin-row">
+              <input type="password" id="sync-load-password-input" maxlength="32" placeholder="PIN, falls der Stand geschützt ist" autocomplete="off" spellcheck="false">
             </div>
+          </div>
+
+          <div class="profile-pw-section">
+            <div class="profile-sync-subtitle">OPTIONALER SCHUTZ</div>
+            <div class="profile-pw-status" id="profile-pw-status">UNGESCHÜTZT — JEDER MIT DER ID KANN LADEN</div>
+            <div class="profile-sync-manual-row">
+              <input type="password" id="sync-password-input" maxlength="32" placeholder="PIN setzen (min. 4 Zeichen)" autocomplete="new-password" spellcheck="false">
+              <button type="button" id="btn-set-password" class="btn-profile-sync-load">SCHÜTZEN</button>
+            </div>
+            <button type="button" id="btn-remove-password" class="btn-profile-pw-remove" style="display: none;">SCHUTZ ENTFERNEN</button>
           </div>
         </div>
 

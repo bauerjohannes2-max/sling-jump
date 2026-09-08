@@ -108,12 +108,14 @@
       const removeBtn = document.getElementById('btn-remove-password');
       const pwInput = document.getElementById('sync-password-input');
       if (statusEl) {
-        statusEl.textContent = hasPassword ? 'PASSWORT AKTIV' : 'KEIN PASSWORT GESETZT';
+        statusEl.textContent = hasPassword
+          ? 'PIN AKTIV — ID ALLEIN REICHT NICHT'
+          : 'UNGESCHÜTZT — JEDER MIT DER ID KANN LADEN';
         statusEl.classList.toggle('active', hasPassword);
       }
       if (removeBtn) removeBtn.style.display = hasPassword ? 'block' : 'none';
-      if (pwInput && hasPassword) pwInput.placeholder = 'Neues Passwort...';
-      if (pwInput && !hasPassword) pwInput.placeholder = 'Passwort setzen...';
+      if (pwInput && hasPassword) pwInput.placeholder = 'Neue PIN...';
+      if (pwInput && !hasPassword) pwInput.placeholder = 'PIN setzen (min. 4 Zeichen)';
     }
 
     // Set password
@@ -121,7 +123,11 @@
       const input = document.getElementById('sync-password-input');
       const pw = input ? input.value.trim() : '';
       if (!pw) {
-        triggerQuickToast('BITTE PASSWORT EINGEBEN');
+        triggerQuickToast('BITTE PIN EINGEBEN');
+        return;
+      }
+      if (pw.length < 4) {
+        triggerQuickToast('PIN MINDESTENS 4 ZEICHEN');
         return;
       }
       const res = await engine.storage.setPassword(pw);
@@ -163,7 +169,7 @@
           document.body.removeChild(ta);
         }
         const hasPassword = !!(profile && profile.passwordHash);
-        triggerQuickToast(hasPassword ? 'LINK KOPIERT! PASSWORT WIRD BENÖTIGT' : 'LINK KOPIERT! AUF ANDEREM GERÄT ÖFFNEN');
+        triggerQuickToast(hasPassword ? 'LINK KOPIERT — PIN WIRD BENÖTIGT' : 'LINK KOPIERT — AUF ANDEREM GERÄT ÖFFNEN');
       } catch (err) {
         triggerQuickToast(`DEIN CODE: #${playerId}`);
       }
@@ -698,7 +704,7 @@
             refreshHangar();
             engine.ui.initSettingsUI();
           } else if (res && res.requiresPassword) {
-            triggerQuickToast('PASSWORT ERFORDERLICH! BITTE IM PROFIL ANMELDEN');
+            triggerQuickToast('PIN ERFORDERLICH — IM PROFIL EINGEBEN');
             const syncInput = document.getElementById('sync-player-id-input');
             if (syncInput) syncInput.value = syncId.startsWith('#') ? syncId : '#' + syncId;
             engine.ui.openProfileModal();

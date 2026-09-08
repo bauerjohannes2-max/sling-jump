@@ -410,7 +410,7 @@ class StorageService {
 
       const res = await backend.restore(cleanId, pwHash || null);
       if (res && res.requiresPassword) {
-        return { success: false, message: 'PASSWORT ERFORDERLICH', requiresPassword: true };
+        return { success: false, message: 'PIN ERFORDERLICH', requiresPassword: true };
       }
       if (res && res.locked) {
         return { success: false, message: res.error || 'ZU VIELE VERSUCHE! BITTE WARTEN.' };
@@ -445,7 +445,10 @@ class StorageService {
 
   async setPassword(plainPassword) {
     if (!plainPassword || !plainPassword.trim()) {
-      return { success: false, message: 'Passwort darf nicht leer sein.' };
+      return { success: false, message: 'PIN darf nicht leer sein.' };
+    }
+    if (plainPassword.trim().length < 4) {
+      return { success: false, message: 'PIN mindestens 4 Zeichen.' };
     }
     try {
       const encoder = new TextEncoder();
@@ -456,7 +459,7 @@ class StorageService {
       this.data.playerProfile.passwordHash = hash;
       this.data.playerProfile.sessionToken = null; // Forces token re-negotiation on next sync
       this.save();
-      return { success: true, message: 'PASSWORT GESETZT' };
+      return { success: true, message: 'SPIELSTAND GESCHÜTZT' };
     } catch (e) {
       return { success: false, message: 'Fehler beim Setzen des Passworts.' };
     }
@@ -477,7 +480,7 @@ class StorageService {
       } catch (e) {}
     }
 
-    return { success: true, message: 'PASSWORT ENTFERNT' };
+    return { success: true, message: 'SCHUTZ ENTFERNT' };
   }
 
   async login(rawId, password) {
@@ -511,7 +514,7 @@ class StorageService {
         return { success: false, message: res.error || 'ZU VIELE VERSUCHE! BITTE WARTEN.' };
       }
       if (!res || !res.ok) {
-        return { success: false, message: (res && res.error) || 'FALSCHES PASSWORT' };
+        return { success: false, message: (res && res.error) || 'FALSCHE PIN' };
       }
       if (res.sessionToken) {
         if (this.data && this.data.playerProfile) {

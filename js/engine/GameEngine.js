@@ -9,7 +9,7 @@ class GameEngine {
     this.canvas = document.getElementById('gameCanvas');
     const container = document.getElementById('game-container');
     const rect = container.getBoundingClientRect();
-    this.ctx = this.canvas.getContext('2d', { alpha: false });
+    this.ctx = this.canvas.getContext('2d', { alpha: false, desynchronized: true });
     this.width = rect.width;
     this.height = rect.height;
     this.dpr = 1;
@@ -50,6 +50,7 @@ class GameEngine {
     this.runNearMisses = 0;
     this.recordBrokenThisRun = false;
     this.gameStarted = false;
+    this.nearestNode = null;
 
     // Time & Hitstop Micro-Freeze
     this.timeScale = 1.0;
@@ -159,6 +160,7 @@ class GameEngine {
     this.recordBrokenThisRun = false;
     this.gameStarted = false;
     this.isDying = false;
+    this.nearestNode = null;
     this.timeScale = 1.0;
     this.targetTimeScale = 1.0;
     this.hitstopTimer = 0;
@@ -220,7 +222,7 @@ class GameEngine {
     }
 
     if (this.player && !this.player.isHooked) {
-      const targetNode = this.world.getNearestNode(this.player, this.cameraY);
+      const targetNode = this.nearestNode || this.world.getNearestNode(this.player, this.cameraY);
       const hooked = targetNode ? this.player.tryHook(targetNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY) : false;
       if (!hooked && this.gameStarted) {
         if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
@@ -584,16 +586,14 @@ class GameEngine {
 
     if (isMenuScreen) {
       this.cameraY += 34 * rawDt;
-      this.world.generateUpTo(this.cameraY + this.height + 600, this.width, this.cameraY);
-      for (const node of this.world.nodes) {
-        node.update(rawDt, this.width, null, null);
-      }
+      this.nearestNode = null;
     }
 
     // STATE: PLAYING & TUTORIAL - Full Physics & Game Mechanics
     if (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL)) {
       // 1. Target Reticle & Nodes
       const nearestNode = this.world.getNearestNode(this.player, this.cameraY);
+      this.nearestNode = nearestNode;
       for (const node of this.world.nodes) {
         node.update(dt, this.width, this.audio, (n) => this.handleNodeBreak(n));
         node.isTargeted = (
@@ -846,7 +846,7 @@ class GameEngine {
 
     // 4. Spaceship & Trajectory (Only when active run)
     if (isActiveRun) {
-      const nearestNode = this.world.getNearestNode(this.player, this.cameraY);
+      const nearestNode = this.nearestNode || this.world.getNearestNode(this.player, this.cameraY);
       this.player.draw(this.ctx, this.cameraY, this.width, this.height, nearestNode, theme);
 
       // 4b. Dynamic Onboarding Tooltips (For fresh runs)
