@@ -17,6 +17,7 @@ const PRECACHE_ASSETS = [
   './assets/icon-192.png',
   './assets/icon-512.png',
   './js/config/Constants.js',
+  './js/services/CloudBackend.js',
   './js/services/StorageService.js',
   './js/services/AnalyticsService.js',
   './js/audio/AudioManager.js',
@@ -74,7 +75,7 @@ self.addEventListener('fetch', (event) => {
   // Always fetch version.json with no-store directly from network
   if (url.pathname.endsWith('version.json')) {
     event.respondWith(
-      fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request))
+      fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request, { ignoreSearch: true }))
     );
     return;
   }
@@ -92,7 +93,8 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       }).catch(() => {
-        return caches.match(event.request).then((cached) => cached || (isNavigation ? caches.match('./index.html') : null));
+        // Assets are requested with a ?v= cache-buster, so an exact match would miss every precached entry.
+        return caches.match(event.request, { ignoreSearch: true }).then((cached) => cached || (isNavigation ? caches.match('./index.html') : null));
       })
     );
     return;
@@ -100,7 +102,7 @@ self.addEventListener('fetch', (event) => {
 
   // ASSETS (images, audio, icons): Stale-While-Revalidate with fast network update
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
           const responseToCache = networkResponse.clone();
