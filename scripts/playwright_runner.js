@@ -467,11 +467,19 @@ async function runPlaywrightSuite() {
     }
   }
 
-  // 14 & 14b. Live Telemetry Dashboard View
+  // 14 & 14b. Live Telemetry Dashboard View (PIN is checked on the HTTP server)
   const needsDashboard = shouldCapture('14_dashboard_locked.png') || shouldCapture('14b_dashboard_unlocked.png');
+  let dashServer = null;
   if (needsDashboard) {
     console.log('[Playwright] Testing Protected Dashboard Auth Gate...');
-    const DASHBOARD_FILE = 'file:///' + path.join(__dirname, '..', 'dashboard', 'index.html').replace(/\\/g, '/');
+    const { createServer } = require('./serve.js');
+    dashServer = createServer();
+    await new Promise((resolve, reject) => {
+      dashServer.listen(0, '127.0.0.1', resolve);
+      dashServer.on('error', reject);
+    });
+    const dashPort = dashServer.address().port;
+    const DASHBOARD_URL = `http://127.0.0.1:${dashPort}/dashboard/`;
     const dashPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     dashPage.on('console', msg => {
       if (msg.type() === 'error') consoleErrors.push(`[Dashboard] ${msg.text()}`);
@@ -479,7 +487,7 @@ async function runPlaywrightSuite() {
     dashPage.on('pageerror', err => {
       consoleErrors.push(`[Dashboard Exception] ${err.message}`);
     });
-    await dashPage.goto(DASHBOARD_FILE, { waitUntil: 'load' });
+    await dashPage.goto(DASHBOARD_URL, { waitUntil: 'load' });
     await sleep(400);
     if (shouldCapture('14_dashboard_locked.png')) {
       console.log('[Playwright] Capturing 14_dashboard_locked.png');
@@ -495,6 +503,9 @@ async function runPlaywrightSuite() {
       await captureScreenshot(dashPage, '14b_dashboard_unlocked.png', 'Dashboard Unlocked');
     }
     await dashPage.close();
+    if (dashServer) {
+      await new Promise(resolve => dashServer.close(() => resolve()));
+    }
   }
 
   await browser.close();

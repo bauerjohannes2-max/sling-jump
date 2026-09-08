@@ -1669,52 +1669,6 @@ canvas#gameCanvas {
   transform: translateX(-50%) translateY(0) scale(1);
 }
 
-/* Quest Completed Toast */
-.quest-toast {
-  position: absolute;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50px);
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(251, 191, 36, 0.5);
-  border-radius: 12px;
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 200;
-}
-.quest-toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-.quest-toast-info {
-  display: flex;
-  flex-direction: column;
-}
-.quest-toast-tag {
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-  color: #94a3b8;
-  text-transform: uppercase;
-}
-.quest-toast-title {
-  font-size: 14px;
-  font-weight: 900;
-  color: #fff;
-}
-.quest-toast-reward {
-  font-size: 13px;
-  font-weight: 900;
-  color: #fbbf24;
-}
-
 /* =========================================================================
    3. MODAL SCREENS (Pause, GameOver, Hangar, Stats, Settings)
    ========================================================================= */

@@ -8,6 +8,12 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
+const {
+  attemptDashboardLogin,
+  isDashboardAuthorized,
+  extractBearer,
+  revokeDashboardToken
+} = require('./dashboard_gate');
 
 let qrcode = null;
 try {
@@ -115,6 +121,19 @@ function reloadPlayers() {
 
 function savePlayers() {
   return writeJsonStore(PLAYERS_FILE, playersStore);
+}
+
+// One queue for the whole players file so two overlapping syncs cannot reload/write
+// past each other and drop a save. Each turn reloads from disk first.
+let playersWriteChain = Promise.resolve();
+
+function withPlayersStoreLock(fn) {
+  const run = playersWriteChain.then(() => {
+    reloadPlayers();
+    return fn();
+  });
+  playersWriteChain = run.then(() => undefined, () => {});
+  return run;
 }
 
 // Cross-Device Player Ephemeral Sessions Store
@@ -240,7 +259,10 @@ function verifyPassword(storedPasswordHash, clientPwHash) {
   return { valid: true, requiresPassword: false, needsUpgrade: false };
 }
 
-// In-Memory Rate Limiting & Brute-Force Protection
+// Intentionally volatile: IP rate limits, brute-force lockouts and the online-player
+// count live only in memory. A restart clears them. That is preferred over writing
+// attacker IPs to disk. Session tokens in sessions.json are persisted; the sweeper
+// below must call saveSessions() so expired tokens leave disk as well as memory.
 const ipRateLimitStore = new Map(); // ip -> { count, resetTime }
 const authLockoutStore = new Map(); // key (ip:playerId) -> { failures, lockoutUntil }
 
@@ -302,9 +324,14 @@ const rateLimitCleanupInterval = setInterval(() => {
   for (const [k, v] of authLockoutStore.entries()) {
     if (v.lockoutUntil && now > v.lockoutUntil) authLockoutStore.delete(k);
   }
+  let sessionsChanged = false;
   for (const [k, v] of Object.entries(sessionsStore)) {
-    if (v.expiresAt && now > v.expiresAt) delete sessionsStore[k];
+    if (v.expiresAt && now > v.expiresAt) {
+      delete sessionsStore[k];
+      sessionsChanged = true;
+    }
   }
+  if (sessionsChanged) saveSessions();
 }, 300000);
 if (rateLimitCleanupInterval.unref) rateLimitCleanupInterval.unref();
 
@@ -589,6 +616,7 @@ function createRequestListener() {
     // API: Player Cloud Sync (POST)
     if (req.method === 'POST' && reqUrl === '/api/player/sync') {
       readJsonBody(req, res, corsOrigin, (err, payload) => {
+        withPlayersStoreLock(() => {
         let rawId = (payload.playerId || '').trim().toUpperCase();
         if (!rawId) {
           res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
@@ -707,6 +735,16 @@ function createRequestListener() {
           hasPassword: hasPassword(playersStore[rawId]),
           sessionToken: issuedToken || undefined
         }));
+        }).catch((e) => {
+          console.warn(`[Server] player sync failed: ${e.message}`);
+          if (!res.headersSent) {
+            res.writeHead(500, {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': corsOrigin || '*'
+            });
+            res.end(JSON.stringify({ ok: false, error: 'SPEICHERFEHLER' }));
+          }
+        });
       });
       return;
     }
@@ -714,6 +752,7 @@ function createRequestListener() {
     // API: Player Cloud Restore (POST /api/player/restore) - Secure JSON body
     if (req.method === 'POST' && reqUrl === '/api/player/restore') {
       readJsonBody(req, res, corsOrigin, (err, payload) => {
+        withPlayersStoreLock(() => {
         let rawId = (payload.playerId || '').trim().toUpperCase();
         if (!rawId) {
           res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
@@ -780,6 +819,16 @@ function createRequestListener() {
           'Vary': 'Origin'
         });
         res.end(JSON.stringify({ ok: true, player: record, sessionToken }));
+        }).catch((e) => {
+          console.warn(`[Server] player restore failed: ${e.message}`);
+          if (!res.headersSent) {
+            res.writeHead(500, {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': corsOrigin || '*'
+            });
+            res.end(JSON.stringify({ ok: false, error: 'SPEICHERFEHLER' }));
+          }
+        });
       });
       return;
     }
@@ -851,8 +900,65 @@ function createRequestListener() {
       return;
     }
 
-    // API: Telemetry Stats (GET)
+    if (req.method === 'POST' && reqUrl === '/api/dashboard/login') {
+      const dashLimit = checkIpRateLimit(`dashboard:${clientIp}`, 20, 60000);
+      if (dashLimit.limited) {
+        res.writeHead(429, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Retry-After': String(dashLimit.retryAfter),
+          'Vary': 'Origin'
+        });
+        res.end(JSON.stringify({
+          ok: false,
+          error: `ZU VIELE ANFRAGEN. BITTE ${dashLimit.retryAfter} SEKUNDEN WARTEN.`,
+          retryAfter: dashLimit.retryAfter
+        }));
+        return;
+      }
+      readJsonBody(req, res, corsOrigin, (err, payload) => {
+        const result = attemptDashboardLogin(payload.pin, clientIp);
+        const headers = {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Cache-Control': 'no-cache',
+          'Vary': 'Origin'
+        };
+        if (result.retryAfter) headers['Retry-After'] = String(result.retryAfter);
+        res.writeHead(result.ok ? 200 : result.status, headers);
+        if (result.ok) {
+          res.end(JSON.stringify({ ok: true, token: result.token, expiresAt: result.expiresAt }));
+        } else {
+          res.end(JSON.stringify({ ok: false, error: result.error, retryAfter: result.retryAfter }));
+        }
+      });
+      return;
+    }
+
+    if (req.method === 'POST' && reqUrl === '/api/dashboard/logout') {
+      revokeDashboardToken(extractBearer(req));
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': corsOrigin || '*',
+        'Vary': 'Origin'
+      });
+      res.end(JSON.stringify({ ok: true }));
+      return;
+    }
+
+    // API: Telemetry Stats (GET) — requires a dashboard token issued by /api/dashboard/login
     if (req.method === 'GET' && reqUrl === '/api/telemetry/stats') {
+      if (!isDashboardAuthorized(req)) {
+        res.writeHead(401, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Cache-Control': 'no-cache',
+          'Vary': 'Origin'
+        });
+        res.end(JSON.stringify({ ok: false, error: 'DASHBOARD-ANMELDUNG ERFORDERLICH' }));
+        return;
+      }
+
       const activeCount = getActivePlayersCount();
       const uniqueCount = Object.keys(analyticsStore.uniqueDevices || {}).length;
       const totalRuns = analyticsStore.totalRuns || 0;
@@ -860,8 +966,9 @@ function createRequestListener() {
 
       res.writeHead(200, {
         'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-cache'
+        'Access-Control-Allow-Origin': corsOrigin || '*',
+        'Cache-Control': 'no-cache',
+        'Vary': 'Origin'
       });
       res.end(JSON.stringify({
         onlineNow: activeCount,
@@ -900,8 +1007,14 @@ function createRequestListener() {
       return;
     }
 
-    // Friendly URL rewrite for Dashboard (single copy lives in dashboard/)
-    if (reqUrl === '/dashboard' || reqUrl === '/dashboard/') {
+    // Friendly URL for Dashboard. Redirect the slash-less path so relative CSS/JS
+    // resolve under /dashboard/ rather than the site root.
+    if (reqUrl === '/dashboard') {
+      res.writeHead(302, { Location: '/dashboard/', 'Cache-Control': 'no-cache' });
+      res.end();
+      return;
+    }
+    if (reqUrl === '/dashboard/') {
       reqUrl = '/dashboard/index.html';
     }
 

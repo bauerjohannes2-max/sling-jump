@@ -6,8 +6,6 @@
 (function(window) {
   'use strict';
 
-  const ADMIN_PIN_HASH = 'b89eaac7e61436d82f6e520eb0c96c4a88c3a1005a7698539265f24ec49be588'; // '2026'
-
   class DashboardApp {
     constructor() {
       this.currentMode = 'LIVE'; // 'LIVE' or 'BENCHMARK'
@@ -94,14 +92,9 @@
       }
     }
 
-    async sha256(str) {
-      try {
-        if (window.crypto && crypto.subtle) {
-          const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-          return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-      } catch (e) {}
-      return str;
+    dashboardAuthHeaders() {
+      const token = sessionStorage.getItem('sj_admin_token');
+      return token ? { Authorization: 'Bearer ' + token } : {};
     }
 
     async handleAuthSubmit(e) {
@@ -109,19 +102,38 @@
       const input = document.getElementById('auth-pin-input');
       const err = document.getElementById('auth-error');
       const pin = (input ? input.value : '').trim();
-      const hash = await this.sha256(pin);
 
-      if (hash === ADMIN_PIN_HASH || pin === '2026') {
-        sessionStorage.setItem('sj_admin_auth', 'true');
-        this.unlockDashboard();
-      } else {
-        if (err) err.style.display = 'block';
-        if (input) input.value = '';
+      if (!window.location.protocol.startsWith('http')) {
+        if (err) {
+          err.textContent = 'PIN-Prüfung läuft nur über den Server. Bitte das Dashboard über http://localhost öffnen.';
+          err.style.display = 'block';
+        }
+        return;
       }
+
+      try {
+        const res = await fetch('/api/dashboard/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.token) {
+          sessionStorage.setItem('sj_admin_token', data.token);
+          this.unlockDashboard();
+          return;
+        }
+      } catch (e) {}
+
+      if (err) {
+        err.textContent = 'Ungültiger PIN. Zugriff verweigert.';
+        err.style.display = 'block';
+      }
+      if (input) input.value = '';
     }
 
     checkAuth() {
-      if (sessionStorage.getItem('sj_admin_auth') === 'true') {
+      if (sessionStorage.getItem('sj_admin_token')) {
         this.unlockDashboard();
       } else {
         const overlay = document.getElementById('auth-overlay');
@@ -146,7 +158,14 @@
     }
 
     lockDashboard() {
-      sessionStorage.removeItem('sj_admin_auth');
+      const token = sessionStorage.getItem('sj_admin_token');
+      sessionStorage.removeItem('sj_admin_token');
+      if (token && window.location.protocol.startsWith('http')) {
+        fetch('/api/dashboard/logout', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token }
+        }).catch(() => {});
+      }
       location.reload();
     }
 
@@ -187,7 +206,13 @@
 
       try {
         if (window.location.protocol.startsWith('http')) {
-          const res = await fetch('/api/telemetry/stats');
+          const res = await fetch('/api/telemetry/stats', {
+            headers: this.dashboardAuthHeaders()
+          });
+          if (res.status === 401) {
+            this.lockDashboard();
+            return;
+          }
           if (res.ok) {
             const data = await res.json();
             this.telemetryData = this.normalizeBackendData(data);

@@ -14,7 +14,8 @@
     "version:sync": "node scripts/sync_version.js",
     "version:check": "node scripts/sync_version.js --check",
     "test": "node scripts/playwright_runner.js",
-    "test:visual": "node scripts/playwright_runner.js"
+    "test:visual": "node scripts/playwright_runner.js",
+    "test:smoke": "node scripts/smoke_serve.js"
   },
   "devDependencies": {
     "eslint": "^9.39.5",

@@ -55,9 +55,6 @@ class UIManager {
       dangerOverlay: document.getElementById('danger-overlay'),
       flashOverlay: document.getElementById('flash-overlay'),
       recordBanner: document.getElementById('record-banner'),
-      questToast: document.getElementById('quest-toast'),
-      questToastTitle: document.getElementById('quest-toast-title'),
-      questToastReward: document.getElementById('quest-toast-reward'),
 
       // HUD Elements
       altitudeVal: document.getElementById('altitude-val'),

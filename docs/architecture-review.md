@@ -25,9 +25,10 @@ code is the healthiest part of the repository. The problems are around it:
 | Medium | 9 |
 | Low | 4 |
 
-Phase 1 (F1, F2, F4, F5, F9, F16) and Phase 2 (F3, F6, F7, F12, F13, F14, F18) have since been
-fixed on this branch, along with the follow-up bug F23; each is marked below. Everything else is
-still open.
+Phase 1 (F1, F2, F4, F5, F9, F16) and Phase 2 (F3, F6, F7, F8, F12, F13, F14, F17, F18, F19)
+have since been fixed on this branch, along with the follow-up bug F23 and the leftover dead
+tutorial/quest-toast paths; each is marked below. Phase 3 (F10, F11, F15, F20, F21) is still
+open.
 
 ## Findings
 
@@ -114,9 +115,9 @@ truncates the file. `reloadPlayers()` exists but is never called from a request 
 
 *Fix:* write to a temporary file and `rename` it into place, and serialize writes per player ID.
 
-**Partly fixed.** All three stores now go through `writeJsonStore()`, which writes a temp file and
-renames it over the target, and read failures are logged instead of swallowed. The lost-update race
-between two concurrent syncs of the same player remains open.
+**Fixed.** All three stores go through `writeJsonStore()`. Player sync and restore run inside
+`withPlayersStoreLock()`, which reloads `players.json` before applying the incoming save so two
+overlapping writes cannot clobber each other.
 
 #### F7 — The dashboard calls an endpoint its own server does not have
 
@@ -139,6 +140,10 @@ analytics API behind it is unauthenticated and `/api/telemetry/stats` sends `COR
 the LAN can read it directly.
 
 *Fix:* move the gate to the server and require a token on the analytics routes.
+
+**Fixed.** `POST /api/dashboard/login` checks the PIN on the server (`DASHBOARD_PIN`, local default
+`2026`) and returns a token. `GET /api/telemetry/stats` on both servers returns `401` without that
+token. The client no longer compares the PIN in JavaScript.
 
 #### F9 — Legacy GET restore puts the password hash in the URL
 
@@ -251,6 +256,9 @@ restart clears them. The expiry sweeper deletes tokens from the store without ca
 
 *Fix:* persist the sweep, and document rate-limit state as intentionally volatile.
 
+**Fixed.** The five-minute sweeper now calls `saveSessions()` after deleting expired tokens. Rate-limit
+and lockout `Map`s are documented in `serve.js` and `SECURITY.md` as intentionally volatile.
+
 #### F18 — No lint, format, CI or type checking
 
 `package.json:5-25`
@@ -263,11 +271,10 @@ that is not in the repository.
 *Fix:* add ESLint plus a GitHub Actions job that runs the Playwright runner and a `serve.js` smoke
 test.
 
-**Partly fixed.** `eslint.config.js`, `npm run lint` and `.github/workflows/ci.yml` exist, the
-duplicate test aliases are gone, and the Playwright runner now falls back to bundled Chromium when
-Edge is absent so it can run outside the dev machine. CI runs lint plus the version-drift check;
-Playwright and a `serve.js` smoke test are not wired into CI yet, and there is still no formatter
-or type checking.
+**Fixed for the remaining CI gap.** `npm run test:smoke` hits `serve.js` (version, dashboard login,
+protected stats, parallel player sync) and the standalone dashboard server. GitHub Actions runs
+lint, the version-drift check, the smoke test, and the Playwright suite after installing Chromium.
+There is still no formatter or type checking.
 
 #### F23 — Cloud restore does not adopt the restored account's identity
 
@@ -377,8 +384,8 @@ the remaining code stops describing features that no longer exist.
 | Hangar preview renderer | `ShopManager.renderPreview()` | Only the removed SHOP state drew it | Removed |
 | Game-over upgrade banner | `UIManager.checkOneTimeUpgradeNotification()` | `#gameover-upgrade-banner` is not in `index.html` | Removed |
 | Volume sliders | `UIManager.js:157` | `#slider-master` is not in `index.html` | Removed |
-| `GameEngine.startTutorial` | `GameEngine.js:151-227` | The tutorial modal goes straight to `PLAYING` | Open |
-| Quest toast wiring | `UIManager.js:63-65` | Cached references are never used | Open |
+| `GameEngine.startTutorial` | `GameEngine.js:151-227` | The tutorial modal goes straight to `PLAYING` | Removed |
+| Quest toast wiring | `UIManager.js:63-65` | Cached references are never used | Removed |
 | Tutorial animation stubs | `UIManager.js:311-312` | Empty function bodies | Removed |
 | Legacy GET restore | `serve.js:785-858` | No client calls it | Removed (410) |
 | `capture_screens.js` | `scripts/` | Superseded by `playwright_runner.js` | Removed |
@@ -436,9 +443,9 @@ fallback and precache `CloudBackend.js` (F2, F16). Delete the GET restore route 
 **Phase 2 — single sources (medium).** Done on this branch: one version string stamped from
 `package.json` (F3), the dead shop, sliders and duplicate dashboard removed (F12, F14, F19), the
 menu carousel driven by `Constants` and `ShopManager` (F13), atomic store writes (F6), one telemetry
-route in both servers (F7), and ESLint plus a CI job (F18). Left over from this phase:
-reload-before-write to close the concurrent-sync race (F6), the unused tutorial paths and quest
-toast wiring, and wiring Playwright and a `serve.js` smoke test into CI.
+route in both servers (F7), the dashboard PIN on the server (F8), reload-before-write on player
+sync (F6), persisted session expiry (F17), unused tutorial/quest-toast paths, and CI smoke plus
+Playwright (F18).
 
 **Phase 3 — boundaries (large).** Move to ES modules with explicit imports (F11). Split `UIManager`
 per modal and extract `RunState` (F10, F15). Split `serve.js` into stores, routes and middleware

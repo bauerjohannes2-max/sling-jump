@@ -24,3 +24,12 @@ jobs:
 
       - name: Version references in sync with package.json
         run: npm run version:check
+
+      - name: Serve.js smoke test
+        run: npm run test:smoke
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Playwright visual suite
+        run: npm test

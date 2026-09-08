@@ -46,6 +46,7 @@ This document defines the security architecture and incremental hardening roadma
   * Account brute-force defense: Max 5 consecutive failed password guesses per `IP:PlayerId`. Triggers 60-second lockout.
   * Client handles 429 and shows countdown toast notification.
   * Swept by 5-minute unreferenced interval timer.
+  * The rate-limit and lockout Maps are intentionally volatile: they are not written to disk and reset when the process restarts.
 
 ---
 

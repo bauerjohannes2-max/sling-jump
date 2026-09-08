@@ -5,8 +5,8 @@ Standalone telemetry, marketing attribution, economy balancing, and diagnostics 
 ## Launch
 - **Port 3001:** `npm run serve:dashboard` or `node dashboard/server.js` -> `http://localhost:3001`
 - **Port 3000:** `npm start` -> `http://localhost:3000/dashboard`
-- **File Access:** Open `dashboard/index.html` directly in browser.
-- **PIN Gate:** Master Developer PIN: `2026`
+- **File Access:** Opening `dashboard/index.html` as a file only shows the lock screen. The PIN is checked on the server, so use one of the HTTP URLs above.
+- **PIN Gate:** The server checks the PIN (`DASHBOARD_PIN` environment variable; local default `2026`) and issues a token. `/api/telemetry/stats` refuses requests without that token.
 
 ## Modules
 1. **Executive KPIs:** Live players, sessions, altitude records, 7-day timeline.
