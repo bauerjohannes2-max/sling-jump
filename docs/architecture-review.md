@@ -25,8 +25,9 @@ code is the healthiest part of the repository. The problems are around it:
 | Medium | 9 |
 | Low | 4 |
 
-The Phase 1 items (F1, F2, F4, F5, F9, F16) have since been fixed on this branch; each is marked
-below. Everything else is still open.
+Phase 1 (F1, F2, F4, F5, F9, F16) and Phase 2 (F3, F6, F7, F12, F13, F14, F18) have since been
+fixed on this branch, along with the follow-up bug F23; each is marked below. Everything else is
+still open.
 
 ## Findings
 
@@ -73,6 +74,11 @@ nothing else in the project uses.
 
 *Fix:* read one version (`version.json`) and stamp the query strings from it at serve time.
 
+**Fixed.** `package.json` is now the single source. `scripts/sync_version.js` stamps it into the
+`index.html` cache busters, `APP_VERSION`, the settings label, `Constants.VERSION`, the service
+worker cache name and `version.json`; `npm run version:check` fails when any copy drifts, and CI
+runs that check.
+
 #### F4 — Stored XSS through leaderboard names
 
 `js/engine/UIManager.js:1195`, `js/services/StorageService.js:230`
@@ -108,6 +114,10 @@ truncates the file. `reloadPlayers()` exists but is never called from a request 
 
 *Fix:* write to a temporary file and `rename` it into place, and serialize writes per player ID.
 
+**Partly fixed.** All three stores now go through `writeJsonStore()`, which writes a temp file and
+renames it over the target, and read failures are logged instead of swallowed. The lost-update race
+between two concurrent syncs of the same player remains open.
+
 #### F7 — The dashboard calls an endpoint its own server does not have
 
 `dashboard/js/app.js:190`, `dashboard/server.js:50`
@@ -117,6 +127,8 @@ standalone dashboard server exposes `/api/analytics/summary`, so LIVE mode silen
 localStorage.
 
 *Fix:* agree on one route name and use it in both servers.
+
+**Fixed.** Both servers now answer `GET /api/telemetry/stats` with the same payload shape.
 
 #### F8 — Dashboard access control lives in the client
 
@@ -176,6 +188,10 @@ enter the SHOP state, which now renders nothing.
 
 *Fix:* delete the SHOP state and the hangar-tab code, or restore the markup.
 
+**Fixed.** The SHOP state, the hangar-tab grid renderer, the 190-line `ShopManager.renderPreview()`,
+the game-over upgrade banner, the volume-slider bindings and the tutorial animation stubs are gone,
+together with `scripts/capture_screens.js`, which drove that removed UI.
+
 #### F13 — The ship economy is implemented twice
 
 `js/main.js:232-245`, `:342-345` versus `js/config/Constants.js:100-120`
@@ -185,6 +201,9 @@ directly through `StorageService` instead of `ShopManager.buyItem`. Two price li
 paths for the same two ships.
 
 *Fix:* drive the carousel from `CONSTANTS.SHIPS` and route purchases through `ShopManager`.
+
+**Fixed.** The carousel maps `CONSTANTS.SHIPS` to artwork, renders the price from the catalog and
+buys through `ShopManager.buyItem()`, which also equips the purchase.
 
 #### F14 — The dashboard exists three times
 
@@ -197,6 +216,9 @@ referenced by nothing.
 
 *Fix:* keep `dashboard/index.html`, make the root path a redirect, and delete
 `manifest-dashboard.json`.
+
+**Fixed.** `dashboard.html` and `manifest-dashboard.json` are deleted, `/dashboard` serves
+`dashboard/index.html`, and the screenshot runner points at the surviving copy.
 
 #### F15 — Run state has no owner
 
@@ -241,6 +263,12 @@ that is not in the repository.
 *Fix:* add ESLint plus a GitHub Actions job that runs the Playwright runner and a `serve.js` smoke
 test.
 
+**Partly fixed.** `eslint.config.js`, `npm run lint` and `.github/workflows/ci.yml` exist, the
+duplicate test aliases are gone, and the Playwright runner now falls back to bundled Chromium when
+Edge is absent so it can run outside the dev machine. CI runs lint plus the version-drift check;
+Playwright and a `serve.js` smoke test are not wired into CI yet, and there is still no formatter
+or type checking.
+
 #### F23 — Cloud restore does not adopt the restored account's identity
 
 `js/services/StorageService.js:422-433`
@@ -257,6 +285,10 @@ Observed while verifying the Phase 1 fixes: restoring `#ABCD-EFGH` produced a lo
 *Fix:* set `playerProfile.playerId = cleanId` after the migrate step, and treat a state without a
 profile as a failed restore.
 
+**Fixed.** `restoreFromCloud` now writes `cleanId` onto the restored profile. Verified end to end:
+restoring an account whose stored state had no profile yields the account's own ID, and the next
+sync is accepted with `200` instead of `401`.
+
 ### Low
 
 #### F19 — Two browser automation stacks
@@ -267,6 +299,8 @@ profile as a failed restore.
 `playwright_runner.js` already covers and does not fail on console errors.
 
 *Fix:* delete `capture_screens.js` and the `puppeteer-core` dependency.
+
+**Fixed.** Both are gone; `playwright_runner.js` is the only automation stack.
 
 #### F20 — German UI copy is hardcoded everywhere
 
@@ -323,30 +357,36 @@ feature to go.
 This is the strongest single pattern in the review. Every item below has at least two definitions,
 and in every case the copies have already diverged.
 
-| Concept | Copies | Drift observed |
-| --- | --- | --- |
-| App version | `index.html` (×4), `Constants.js`, `package.json`, `version.json`, `sw.js` | 4.7.1 / 4.8.0 / 5.18.0 / 5.18.1 live simultaneously |
-| Ship catalog and prices | `main.js` menu array, `Constants.SHIPS`, `ShopManager` cases | Different display names; `ShopManager` still handles removed ships |
-| Dashboard app | `dashboard.html`, `dashboard/index.html`, three manifests | Only the nested copy has the PWA guard; one manifest is unreferenced |
-| Run counters | `GameEngine.runCores`, `MissionManager.runCores` | Two owners of the same per-run number |
-| Player API contract | `serve.js` routes, `LocalNodeAdapter`, `SupabaseAdapter` | The Supabase path skips PBKDF2 and issues non-server tokens |
-| Screenshot tooling | `playwright_runner.js`, `capture_screens.js` | The second script uses Puppeteer and ignores console errors |
+| Concept | Copies | Drift observed | Status |
+| --- | --- | --- | --- |
+| App version | `index.html` (×4), `Constants.js`, `package.json`, `version.json`, `sw.js` | 4.7.1 / 4.8.0 / 5.18.0 / 5.18.1 live simultaneously | Fixed — stamped from `package.json`, drift check in CI |
+| Ship catalog and prices | `main.js` menu array, `Constants.SHIPS`, `ShopManager` cases | Different display names; `ShopManager` still handles removed ships | Fixed — `Constants.SHIPS` owns the catalog |
+| Dashboard app | `dashboard.html`, `dashboard/index.html`, three manifests | Only the nested copy has the PWA guard; one manifest is unreferenced | Fixed — one copy, one manifest |
+| Run counters | `GameEngine.runCores`, `MissionManager.runCores` | Two owners of the same per-run number | Open (F15) |
+| Player API contract | `serve.js` routes, `LocalNodeAdapter`, `SupabaseAdapter` | The Supabase path skips PBKDF2 and issues non-server tokens | Open |
+| Screenshot tooling | `playwright_runner.js`, `capture_screens.js` | The second script uses Puppeteer and ignores console errors | Fixed — Puppeteer script deleted |
 
 ## Dead or unreachable code
 
 Removing these is the cheapest win available: no behaviour change, several hundred lines gone, and
 the remaining code stops describing features that no longer exist.
 
-| Item | Location | Why it is dead |
-| --- | --- | --- |
-| Shop modal UI | `UIManager.js:49`, `888-1007` | `#shop-modal` is not in `index.html` |
-| Volume sliders | `UIManager.js:157` | `#slider-master` is not in `index.html` |
-| `GameEngine.startTutorial` | `GameEngine.js:151-227` | The tutorial modal goes straight to `PLAYING` |
-| Quest toast wiring | `UIManager.js:63-65` | Cached references are never used |
-| Tutorial animation stubs | `UIManager.js:311-312` | Empty function bodies |
-| Legacy GET restore | `serve.js:785-858` | No client calls it |
-| `capture_screens.js` | `scripts/` | Superseded by `playwright_runner.js` |
-| `manifest-dashboard.json` | repository root | Referenced by no HTML |
+| Item | Location | Why it is dead | Status |
+| --- | --- | --- | --- |
+| Shop modal UI | `UIManager.js:49`, `888-1007` | `#shop-modal` is not in `index.html` | Removed |
+| Hangar preview renderer | `ShopManager.renderPreview()` | Only the removed SHOP state drew it | Removed |
+| Game-over upgrade banner | `UIManager.checkOneTimeUpgradeNotification()` | `#gameover-upgrade-banner` is not in `index.html` | Removed |
+| Volume sliders | `UIManager.js:157` | `#slider-master` is not in `index.html` | Removed |
+| `GameEngine.startTutorial` | `GameEngine.js:151-227` | The tutorial modal goes straight to `PLAYING` | Open |
+| Quest toast wiring | `UIManager.js:63-65` | Cached references are never used | Open |
+| Tutorial animation stubs | `UIManager.js:311-312` | Empty function bodies | Removed |
+| Legacy GET restore | `serve.js:785-858` | No client calls it | Removed (410) |
+| `capture_screens.js` | `scripts/` | Superseded by `playwright_runner.js` | Removed |
+| `manifest-dashboard.json` | repository root | Referenced by no HTML | Removed |
+
+ESLint now catches the same class of leftovers automatically; the pass that introduced it removed
+unused locals from `UIManager`, `AudioManager`, `GameEngine`, `share.js`, `setup_audio.js` and the
+dashboard scripts.
 
 ## Layer map
 
@@ -354,9 +394,9 @@ the remaining code stops describing features that no longer exist.
 | --- | --- | --- |
 | Presentation | `index.html`, `css/style.css`, `UIManager` | One 793-line document, one 4,360-line stylesheet, one 1,714-line controller |
 | Simulation | `GameEngine`, `WorldManager`, entities, `ParticleSystem` | Cleanest layer; the engine still owns run lifecycle, tutorial and camera |
-| Domain services | `StorageService`, `ShopManager`, `MissionManager`, `AnalyticsService` | Bypassed by `main.js` for ship purchases; analytics reads a stale global |
+| Domain services | `StorageService`, `ShopManager`, `MissionManager`, `AnalyticsService` | `ShopManager` now owns purchases and `AnalyticsService` takes an injected store; `StorageService` still mixes save format, cloud sync and auth |
 | Transport | `CloudBackend` adapters, `serve.js` API | The LocalNode adapter matches the server; the Supabase adapter has weaker auth semantics |
-| Infrastructure | `serve.js`, `dashboard/server.js`, `sw.js`, `scripts/` | Two servers, three dashboard entry points, five version strings |
+| Infrastructure | `serve.js`, `dashboard/server.js`, `sw.js`, `scripts/` | Two servers, one dashboard entry point, one stamped version string |
 
 Dependencies flow downward on paper. In practice `ParticleSystem`, `AnalyticsService` and
 `InputManager` reach back up through `window` and global DOM queries.
@@ -393,10 +433,12 @@ server/
 real engine global (F5). Escape leaderboard names (F4). Add `ignoreSearch` to the service worker
 fallback and precache `CloudBackend.js` (F2, F16). Delete the GET restore route (F9).
 
-**Phase 2 — single sources (medium).** One version string, stamped at serve time (F3). Delete the
-dead shop, sliders, tutorial paths and duplicate dashboard (F12, F14). Make the menu carousel read
-`Constants` and call `ShopManager` (F13). Atomic writes plus reload-before-write in the stores (F6).
-Add ESLint and a CI job so regressions surface (F18).
+**Phase 2 — single sources (medium).** Done on this branch: one version string stamped from
+`package.json` (F3), the dead shop, sliders and duplicate dashboard removed (F12, F14, F19), the
+menu carousel driven by `Constants` and `ShopManager` (F13), atomic store writes (F6), one telemetry
+route in both servers (F7), and ESLint plus a CI job (F18). Left over from this phase:
+reload-before-write to close the concurrent-sync race (F6), the unused tutorial paths and quest
+toast wiring, and wiring Playwright and a `serve.js` smoke test into CI.
 
 **Phase 3 — boundaries (large).** Move to ES modules with explicit imports (F11). Split `UIManager`
 per modal and extract `RunState` (F10, F15). Split `serve.js` into stores, routes and middleware
