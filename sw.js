@@ -1,9 +1,9 @@
 /**
  * Space Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 5.18.2
+ * Version: 5.18.3
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'space-jump-v5.18.2';
+const CACHE_NAME = 'space-jump-v5.18.3';
 
 const PRECACHE_ASSETS = [
   './',
@@ -79,7 +79,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const isNavigation = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/';
+  const isNavPath = url.pathname === '/' ||
+    url.pathname === '/space-jump' ||
+    url.pathname === '/space-jump/' ||
+    url.pathname.endsWith('.html');
+  const isNavigation = event.request.mode === 'navigate' || isNavPath;
   const isCoreCode = isNavigation || url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
 
   if (isCoreCode) {

@@ -459,6 +459,11 @@ function sanitizeState(state) {
 function createRequestListener() {
   return (req, res) => {
     let reqUrl = req.url.split('?')[0];
+    if (reqUrl === '/space-jump' || reqUrl === '/space-jump/') {
+      reqUrl = '/';
+    } else if (reqUrl.startsWith('/space-jump/')) {
+      reqUrl = reqUrl.slice('/space-jump'.length) || '/';
+    }
     const corsOrigin = getCorsOrigin(req);
 
     // Block disallowed external cross-origin requests

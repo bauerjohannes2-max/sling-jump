@@ -543,8 +543,8 @@
         }
       } catch (e) {}
 
-      // Fallback to /api/version if available
-      if (!serverVer) {
+      // Fallback to /api/version on the local server only (GitHub Pages has no API at the site root)
+      if (!serverVer && !/\.github\.io$/i.test(window.location.hostname)) {
         try {
           const resApi = await fetch(`/api/version?t=${Date.now()}`, { cache: 'no-store' });
           if (resApi.ok) {

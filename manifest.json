@@ -1,10 +1,10 @@
 {
-  "id": "space-jump-game",
+  "id": "https://bauerjohannes2-max.github.io/space-jump/",
   "name": "Space Jump - Von Stern zu Stern",
   "short_name": "Space Jump",
   "description": "Minimalist Vector Arcade Space Game",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/space-jump/",
+  "scope": "/space-jump/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#080b10",
