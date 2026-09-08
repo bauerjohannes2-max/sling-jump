@@ -89,12 +89,6 @@ class GameEngine {
       this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
 
       this.world.initStarfield(this.width, this.height);
-
-      // Also size hangar preview canvas
-      if (this.ui.dom.hangarCanvas) {
-        this.ui.dom.hangarCanvas.width = 240;
-        this.ui.dom.hangarCanvas.height = 180;
-      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -360,10 +354,6 @@ class GameEngine {
             this.runCores += bonusCoins;
             this.storage.addCores(bonusCoins);
             this.ui.updateCurrency();
-
-            // 2. Dynamic Speed Boost Feedback
-            const speedFactors = (CONSTANTS && CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.COMBO_SPEED_FACTORS) || [1.0, 1.03, 1.06, 1.09, 1.12, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30];
-            const speedPct = Math.round((speedFactors[Math.min(this.slingshotCombo, speedFactors.length - 1)] - 1.0) * 100);
 
             // Combo color escalation: from --neutral-cyan (x1-x2) toward --premium (x8-x10)
             const comboColors = ['#00f0ff', '#00f0ff', '#38bdf8', '#38bdf8', '#818cf8', '#a855f7', '#a855f7', '#c084fc', '#c084fc', '#d946ef'];
@@ -683,8 +673,7 @@ class GameEngine {
       this.state.is(StateManager.STATES.SETTINGS) ||
       this.state.is(StateManager.STATES.STATS) ||
       this.state.is(StateManager.STATES.LEADERBOARD) ||
-      this.state.is(StateManager.STATES.QUESTS) ||
-      this.state.is(StateManager.STATES.SHOP);
+      this.state.is(StateManager.STATES.QUESTS);
 
     if (isMenuScreen) {
       this.cameraY += 34 * rawDt;
@@ -692,13 +681,6 @@ class GameEngine {
       for (const node of this.world.nodes) {
         node.update(rawDt, this.width, null, null);
       }
-    }
-
-    // STATE: SHOP - Update Live Hangar Preview (Dynamic live selection)
-    if (this.state.is(StateManager.STATES.SHOP)) {
-      const preview = this.ui.getPreviewSelection();
-      const isEquipped = this.ui.isCurrentlyEquippedPreview();
-      this.shop.renderPreview(this.ui.dom.hangarCanvas, preview.shipId, preview.trailId, preview.themeId, isEquipped);
     }
 
     // STATE: PLAYING & TUTORIAL - Full Physics & Game Mechanics
@@ -941,8 +923,7 @@ class GameEngine {
       this.state.is(StateManager.STATES.SETTINGS) ||
       this.state.is(StateManager.STATES.STATS) ||
       this.state.is(StateManager.STATES.LEADERBOARD) ||
-      this.state.is(StateManager.STATES.QUESTS) ||
-      this.state.is(StateManager.STATES.SHOP);
+      this.state.is(StateManager.STATES.QUESTS);
 
     if (!isMenuScreen) {
       for (const orb of this.world.energyOrbs) {

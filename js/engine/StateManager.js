@@ -1,7 +1,7 @@
 /**
  * Space Jump - StateManager
- * Finite State Machine managing 6 core states with smooth transitions:
- * STATE_MENU, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER, STATE_SHOP, STATE_STATS.
+ * Finite State Machine managing the core states with smooth transitions:
+ * STATE_MENU, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER, STATE_STATS.
  */
 class StateManager {
   static STATES = {
@@ -9,7 +9,6 @@ class StateManager {
     PLAYING: 'STATE_PLAYING',
     PAUSED: 'STATE_PAUSED',
     GAME_OVER: 'STATE_GAME_OVER',
-    SHOP: 'STATE_SHOP',
     STATS: 'STATE_STATS',
     SETTINGS: 'STATE_SETTINGS',
     QUESTS: 'STATE_QUESTS',

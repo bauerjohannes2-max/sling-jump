@@ -46,7 +46,6 @@ class UIManager {
       hudLayer: document.getElementById('hud-layer'),
       pauseModal: document.getElementById('pause-modal'),
       gameoverModal: document.getElementById('gameover-modal'),
-      shopModal: document.getElementById('shop-modal'),
       questsModal: document.getElementById('quests-modal'),
       leaderboardModal: document.getElementById('leaderboard-modal'),
       statsModal: document.getElementById('stats-modal'),
@@ -87,19 +86,9 @@ class UIManager {
       reviveBtnText: document.getElementById('revive-btn-text'),
       reviveCostTag: document.getElementById('revive-cost-tag'),
       reviveStatusText: document.getElementById('revive-status-text'),
-      gameoverUpgradeBanner: document.getElementById('gameover-upgrade-banner'),
-      upgradeBannerText: document.getElementById('upgrade-banner-text'),
-      btnUpgradeView: document.getElementById('btn-upgrade-view'),
-
-      // Shop / Hangar
-      shopCurrencyVal: document.getElementById('shop-currency-val'),
-      shopCrystalsVal: document.getElementById('shop-crystals-val'),
+      // Menu currencies
       menuCurrencyVal: document.getElementById('menu-currency-val'),
       menuCrystalsVal: document.getElementById('menu-crystals-val'),
-      shopGrid: document.getElementById('shop-grid'),
-      shopItemTitle: document.getElementById('shop-item-title'),
-      shopItemDesc: document.getElementById('shop-item-desc'),
-      hangarCanvas: document.getElementById('hangar-preview-canvas'),
 
       // Global & Local Leaderboard
       globalLeaderboardList: document.getElementById('global-leaderboard-list'),
@@ -154,13 +143,6 @@ class UIManager {
       menuFpsBadge: document.getElementById('menu-fps-badge'),
       menuFpsVal: document.getElementById('menu-fps-val'),
       menuFpsDt: document.getElementById('menu-fps-dt'),
-      sliderMaster: document.getElementById('slider-master'),
-      sliderMusic: document.getElementById('slider-music'),
-      sliderSfx: document.getElementById('slider-sfx'),
-      valMaster: document.getElementById('val-master'),
-      valMusic: document.getElementById('val-music'),
-      valSfx: document.getElementById('val-sfx'),
-
       // Profile & Identity Elements
       menuProfileName: document.getElementById('menu-profile-name'),
       profileHeroName: document.getElementById('profile-hero-name'),
@@ -307,10 +289,6 @@ class UIManager {
     if (!this.dom.tutorialModal) return;
     this.dom.tutorialModal.classList.remove('visible');
   }
-
-  startTutorialAnimation() {}
-  stopTutorialAnimation() {}
-
 
   /* =========================================================================
      PILOT PROFILE & REGISTRATION
@@ -563,11 +541,8 @@ class UIManager {
      ========================================================================= */
   updateDebriefTrajectory(altitude, highScore, isNewRecord) {
     const tracePath = document.getElementById('debrief-trace-path');
-    const crashDot = document.getElementById('debrief-crash-dot');
     const tickRowCrash = document.getElementById('tick-row-crash');
     const tickRowHi = document.getElementById('tick-row-hi');
-    const tickRowTop = document.getElementById('tick-row-top');
-    const tickRowMid = document.getElementById('tick-row-mid');
     const tickCrash = document.getElementById('debrief-tick-crash');
     const tickHi = document.getElementById('debrief-tick-hi');
     const tickTop = document.getElementById('debrief-tick-top');
@@ -827,183 +802,6 @@ class UIManager {
       }
     }
 
-    // Check and display one-time upgrade notification if player has enough currency
-    this.checkOneTimeUpgradeNotification();
-  }
-
-  /**
-   * One-time notification for affordable upgrades (triggered at most once per item lifetime)
-   */
-  checkOneTimeUpgradeNotification() {
-    if (!this.dom.gameoverUpgradeBanner || !this.storage || !this.shop) {
-      return;
-    }
-
-    const currentStars = this.storage.data.cores;
-
-    // Collect all locked items the player can now afford
-    const candidates = [];
-
-    // 1. Ships
-    for (const ship of CONSTANTS.SHIPS) {
-      if (ship.cost > 0 && currentStars >= ship.cost && !this.shop.isUnlocked('ships', ship.id) && !this.storage.isUpgradeNotified(ship.id)) {
-        candidates.push({ ...ship, category: 'ships', catLabel: 'Raumschiff' });
-      }
-    }
-
-    // 2. Trails
-    for (const trail of CONSTANTS.TRAILS) {
-      if (trail.cost > 0 && currentStars >= trail.cost && !this.shop.isUnlocked('trails', trail.id) && !this.storage.isUpgradeNotified(trail.id)) {
-        candidates.push({ ...trail, category: 'trails', catLabel: 'Schweif' });
-      }
-    }
-
-    if (candidates.length > 0) {
-      // Pick the first milestone candidate
-      const target = candidates[0];
-
-      // Mark as notified in persistent storage so it NEVER triggers again
-      this.storage.markUpgradeNotified(target.id);
-
-      if (this.dom.upgradeBannerText) {
-        this.dom.upgradeBannerText.innerHTML = `Genug für <strong>${target.name}</strong> (${target.catLabel}, ${target.cost} ${UIManager.COIN_SVG})!`;
-      }
-
-      if (this.dom.btnUpgradeView) {
-        this.dom.btnUpgradeView.onclick = () => {
-          if (this.state) {
-            this.state.changeState(StateManager.STATES.SHOP);
-            this.openHangarTab(target.category);
-            this.selectShopItem(target.category, target);
-          }
-        };
-      }
-
-      this.dom.gameoverUpgradeBanner.style.display = 'block';
-    } else {
-      this.dom.gameoverUpgradeBanner.style.display = 'none';
-    }
-  }
-
-  /* =========================================================================
-     SKINS & SHOP (Top-Seller Live Preview & Customization Engine)
-     ========================================================================= */
-  getPreviewSelection() {
-    return {
-      shipId: this.previewShipId || this.storage.data.selectedShip || 'dart',
-      trailId: this.previewTrailId || this.storage.data.selectedTrail || 'neon_cyan',
-      themeId: 'deep_space'
-    };
-  }
-
-  isCurrentlyEquippedPreview() {
-    const tabKey = this.activeShopTab || 'ships';
-    if (!this.selectedShopItem) return true;
-    return this.shop.isEquipped(tabKey, this.selectedShopItem.id);
-  }
-
-  openHangarTab(tabKey = 'ships') {
-    this.activeShopTab = tabKey;
-    if (this.dom.shopCurrencyVal) {
-      this.dom.shopCurrencyVal.textContent = this.storage.data.cores.toString();
-    }
-
-    // Sync preview state with equipped items on tab open
-    if (!this.previewShipId) this.previewShipId = this.storage.data.selectedShip;
-    if (!this.previewTrailId) this.previewTrailId = this.storage.data.selectedTrail;
-
-    // Tab buttons styling
-    document.querySelectorAll('.shop-tab-btn').forEach(btn => {
-      if (btn.dataset.tab === tabKey) btn.classList.add('active');
-      else btn.classList.remove('active');
-    });
-
-    let items = [];
-    if (tabKey === 'ships') items = CONSTANTS.SHIPS;
-    else if (tabKey === 'trails') items = CONSTANTS.TRAILS;
-    else {
-      this.activeShopTab = 'ships';
-      items = CONSTANTS.SHIPS;
-    }
-
-    // Populate Grid with rich top-seller cards
-    if (!this.dom.shopGrid) return;
-    this.dom.shopGrid.innerHTML = '';
-
-    const currentSelected = this.storage.data[`selected${this.shop.capitalize(tabKey).slice(0, -1)}`];
-
-    items.forEach(item => {
-      const isUnlocked = this.shop.isUnlocked(tabKey, item.id);
-      const isEquipped = item.id === currentSelected;
-
-      const card = document.createElement('div');
-      card.className = `shop-card ${isEquipped ? 'equipped' : ''} ${!isUnlocked ? 'locked' : ''}`;
-      card.dataset.id = item.id;
-
-      // Generate preview swatch based on category
-      let swatchHtml = '';
-      if (tabKey === 'trails') {
-        const c = item.color === 'rainbow' ? 'linear-gradient(90deg, #ff0055, #00f0ff, #fbbf24)' : item.color;
-        swatchHtml = `<div class="trail-swatch" style="background:${c};"></div>`;
-      } else {
-        swatchHtml = `<div class="ship-icon-badge"><svg class="icon-svg" viewBox="0 0 24 24" style="width:12px;height:12px;"><polygon points="12 2 2 22 12 17 22 22 12 2"></polygon></svg></div>`;
-      }
-
-      card.innerHTML = `
-        <div class="shop-card-main">
-          ${swatchHtml}
-          <div class="shop-card-labels">
-            <span class="shop-card-name">${item.name}</span>
-            <span class="shop-card-tier">${item.tier || ''}</span>
-          </div>
-        </div>
-        <div class="shop-card-status">
-          ${isEquipped ? '<span class="status-pill active">AKTIV</span>' : (isUnlocked ? '<span class="status-pill">IN BESITZ</span>' : `<span class="price-tag">${item.cost} ${UIManager.COIN_SVG}</span>`)}
-        </div>
-      `;
-
-      card.addEventListener('click', () => {
-        this.selectShopItem(tabKey, item);
-      });
-
-      this.dom.shopGrid.appendChild(card);
-    });
-
-    // Teaser Card for future models (user will define new skins later)
-    const teaser = document.createElement('div');
-    teaser.className = 'shop-teaser-card';
-    teaser.style.cssText = 'grid-column: 1 / -1; margin-top: 10px; padding: 14px 16px; background: rgba(15, 23, 42, 0.5); border: 1px dashed rgba(56, 189, 248, 0.25); border-radius: 10px; text-align: center;';
-    teaser.innerHTML = '<span style="font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">WEITERE MODELLE IN ENTWICKLUNG</span>';
-    this.dom.shopGrid.appendChild(teaser);
-
-    // Select currently equipped item by default
-    const defaultItem = items.find(i => i.id === currentSelected) || items[0];
-    this.selectShopItem(tabKey, defaultItem);
-  }
-
-  selectShopItem(tabKey, item) {
-    this.selectedShopItem = item;
-
-    // Immediately update live preview model so player sees it instantly!
-    if (tabKey === 'ships') this.previewShipId = item.id;
-    if (tabKey === 'trails') this.previewTrailId = item.id;
-
-    document.querySelectorAll('.shop-card').forEach(c => {
-      if (c.dataset.id === item.id) c.classList.add('selected');
-      else c.classList.remove('selected');
-    });
-
-    if (this.dom.shopItemTitle) this.dom.shopItemTitle.textContent = item.name;
-    if (this.dom.shopItemDesc) {
-      if (item.description) {
-        this.dom.shopItemDesc.textContent = item.description;
-      } else if (tabKey === 'trails') {
-        this.dom.shopItemDesc.textContent = `Partikel-Schweif mit ${item.type} Ionen-Kanalisierung.`;
-      }
-    }
-
-    const isUnlocked = this.shop.isUnlocked(tabKey, item.id);
-    const isEquipped = this.shop.isEquipped(tabKey, item.id);
   }
 
   /* =========================================================================
@@ -1033,8 +831,6 @@ class UIManager {
 
     if (this.dom.menuCurrencyVal) this.dom.menuCurrencyVal.textContent = cores;
     if (this.dom.menuCrystalsVal) this.dom.menuCrystalsVal.textContent = crystals;
-    if (this.dom.shopCurrencyVal) this.dom.shopCurrencyVal.textContent = cores;
-    if (this.dom.shopCrystalsVal) this.dom.shopCrystalsVal.textContent = crystals;
     this.updateUserProfileNav();
     this.updateUnclaimedBadges();
     this.updateMenuRank();
@@ -1301,10 +1097,6 @@ class UIManager {
     const weeklies = this.missions.getWeeklyQuests() || [];
     const allQuests = [...dailies, ...weeklies];
     const totalCount = allQuests.length;
-    const completedCount = allQuests.filter(q => q.isComplete).length;
-    const claimedCount = allQuests.filter(q => q.isClaimed).length;
-    const unclaimedQuests = allQuests.filter(q => q.isComplete && !q.isClaimed);
-    const unclaimedTotal = unclaimedQuests.length;
     const unclaimedDailies = dailies.filter(q => q.isComplete && !q.isClaimed).length;
     const unclaimedWeeklies = weeklies.filter(q => q.isComplete && !q.isClaimed).length;
     // Update Tab Count Badges & Notification Dots
@@ -1428,45 +1220,10 @@ class UIManager {
      SETTINGS UI
      ========================================================================= */
   initSettingsUI() {
-    const s = this.storage.data.settings;
-
     if (this.dom.btnAudioToggle) {
       this.updateAudioToggleBtn();
       this.dom.btnAudioToggle.addEventListener('click', () => {
         this.toggleAudio();
-      });
-    }
-
-    if (this.dom.sliderMaster) {
-      this.dom.sliderMaster.value = Math.floor(s.masterVolume * 100);
-      if (this.dom.valMaster) this.dom.valMaster.textContent = `${this.dom.sliderMaster.value}%`;
-      this.dom.sliderMaster.addEventListener('input', (e) => {
-        this.storage.data.settings.masterVolume = parseInt(e.target.value, 10) / 100;
-        if (this.dom.valMaster) this.dom.valMaster.textContent = `${e.target.value}%`;
-        this.storage.save();
-        if (this.audio) this.audio.updateVolumes();
-      });
-    }
-
-    if (this.dom.sliderMusic) {
-      this.dom.sliderMusic.value = Math.floor(s.musicVolume * 100);
-      if (this.dom.valMusic) this.dom.valMusic.textContent = `${this.dom.sliderMusic.value}%`;
-      this.dom.sliderMusic.addEventListener('input', (e) => {
-        this.storage.data.settings.musicVolume = parseInt(e.target.value, 10) / 100;
-        if (this.dom.valMusic) this.dom.valMusic.textContent = `${e.target.value}%`;
-        this.storage.save();
-        if (this.audio) this.audio.updateVolumes();
-      });
-    }
-
-    if (this.dom.sliderSfx) {
-      this.dom.sliderSfx.value = Math.floor(s.sfxVolume * 100);
-      if (this.dom.valSfx) this.dom.valSfx.textContent = `${this.dom.sliderSfx.value}%`;
-      this.dom.sliderSfx.addEventListener('input', (e) => {
-        this.storage.data.settings.sfxVolume = parseInt(e.target.value, 10) / 100;
-        if (this.dom.valSfx) this.dom.valSfx.textContent = `${e.target.value}%`;
-        this.storage.save();
-        if (this.audio) this.audio.updateVolumes();
       });
     }
 
@@ -1519,7 +1276,7 @@ class UIManager {
       if (next) {
         this.audio.init();
         this.audio.updateVolumes();
-        if (this.state && (this.state.currentState === StateManager.STATES.MENU || this.state.currentState === StateManager.STATES.SHOP)) {
+        if (this.state && this.state.currentState === StateManager.STATES.MENU) {
           this.audio.playMusic('bgm_menu');
         } else if (this.state && this.state.currentState === StateManager.STATES.PLAYING) {
           this.audio.playMusic('bgm_gameplay');
