@@ -49,14 +49,37 @@ function getLocalIpAddress() {
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const ANALYTICS_FILE = path.join(DATA_DIR, 'analytics.json');
 
-function loadAnalytics() {
+function readJsonStore(file) {
   try {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-    if (fs.existsSync(ANALYTICS_FILE)) {
-      return JSON.parse(fs.readFileSync(ANALYTICS_FILE, 'utf8'));
+    if (fs.existsSync(file)) {
+      return JSON.parse(fs.readFileSync(file, 'utf8'));
     }
-  } catch (e) {}
-  return {
+  } catch (e) {
+    console.warn(`[Server] ${path.basename(file)} unreadable, starting from defaults: ${e.message}`);
+  }
+  return null;
+}
+
+/**
+ * Writes to a temp file and renames it over the target. A crash or a second writer can then
+ * never leave a half-written store on disk, which would wipe every player's cloud save.
+ */
+function writeJsonStore(file, data) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    const tmpFile = `${file}.${process.pid}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tmpFile, file);
+    return true;
+  } catch (e) {
+    console.warn(`[Server] Could not persist ${path.basename(file)}: ${e.message}`);
+    return false;
+  }
+}
+
+function loadAnalytics() {
+  return readJsonStore(ANALYTICS_FILE) || {
     totalVisits: 0,
     uniqueDevices: {},
     totalRuns: 0,
@@ -69,27 +92,18 @@ function loadAnalytics() {
   };
 }
 
-let analyticsStore = loadAnalytics();
+const analyticsStore = loadAnalytics();
 const activeSessions = new Map(); // sessionId -> lastHeartbeat (ms)
 
 function saveAnalytics() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(analyticsStore, null, 2), 'utf8');
-  } catch (e) {}
+  writeJsonStore(ANALYTICS_FILE, analyticsStore);
 }
 
 // Cross-Device Player Cloud Store
 const PLAYERS_FILE = path.join(DATA_DIR, 'players.json');
 
 function loadPlayers() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-    if (fs.existsSync(PLAYERS_FILE)) {
-      return JSON.parse(fs.readFileSync(PLAYERS_FILE, 'utf8'));
-    }
-  } catch (e) {}
-  return {};
+  return readJsonStore(PLAYERS_FILE) || {};
 }
 
 let playersStore = loadPlayers();
@@ -100,10 +114,7 @@ function reloadPlayers() {
 }
 
 function savePlayers() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.writeFileSync(PLAYERS_FILE, JSON.stringify(playersStore, null, 2), 'utf8');
-  } catch (e) {}
+  return writeJsonStore(PLAYERS_FILE, playersStore);
 }
 
 // Cross-Device Player Ephemeral Sessions Store
@@ -111,13 +122,7 @@ const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
 const SESSION_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 function loadSessions() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-    if (fs.existsSync(SESSIONS_FILE)) {
-      return JSON.parse(fs.readFileSync(SESSIONS_FILE, 'utf8'));
-    }
-  } catch (e) {}
-  return {};
+  return readJsonStore(SESSIONS_FILE) || {};
 }
 
 let sessionsStore = loadSessions();
@@ -128,10 +133,7 @@ function reloadSessions() {
 }
 
 function saveSessions() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessionsStore, null, 2), 'utf8');
-  } catch (e) {}
+  return writeJsonStore(SESSIONS_FILE, sessionsStore);
 }
 
 function createSessionToken(playerId) {
@@ -898,9 +900,9 @@ function createRequestListener() {
       return;
     }
 
-    // Friendly URL rewrite for Dashboard
-    if (reqUrl === '/dashboard') {
-      reqUrl = '/dashboard.html';
+    // Friendly URL rewrite for Dashboard (single copy lives in dashboard/)
+    if (reqUrl === '/dashboard' || reqUrl === '/dashboard/') {
+      reqUrl = '/dashboard/index.html';
     }
 
     if (reqUrl === '/' || reqUrl === '') {
