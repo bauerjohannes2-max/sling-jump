@@ -1186,17 +1186,24 @@ class UIManager {
       `;
       this.dom.globalLeaderboardList.appendChild(emptyBox);
     } else {
+      // Names are player-supplied and also arrive from the cloud sync API, so cells are
+      // built as text nodes instead of interpolated into markup.
+      const makeCell = (className, text) => {
+        const cell = document.createElement('div');
+        cell.className = className;
+        cell.textContent = text;
+        return cell;
+      };
+
       top100.forEach(entry => {
         const row = document.createElement('div');
         const rankClass = entry.rank <= 3 ? `top-rank-${entry.rank}` : '';
         const playerClass = entry.isPlayer ? 'player-entry' : '';
         row.className = `leaderboard-row ${rankClass} ${playerClass}`.trim();
         // Strictly 3 columns: Rank, Name, Metres
-        row.innerHTML = `
-          <div class="lb-rank">#${entry.rank}</div>
-          <div class="lb-name">${entry.name}</div>
-          <div class="lb-alt">${entry.altitude.toLocaleString('de-DE')} m</div>
-        `;
+        row.appendChild(makeCell('lb-rank', `#${entry.rank}`));
+        row.appendChild(makeCell('lb-name', entry.name));
+        row.appendChild(makeCell('lb-alt', `${entry.altitude.toLocaleString('de-DE')} m`));
         this.dom.globalLeaderboardList.appendChild(row);
       });
     }
