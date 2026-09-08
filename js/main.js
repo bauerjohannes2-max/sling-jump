@@ -232,21 +232,19 @@
       return (engine && engine.storage) ? engine.storage.isShipUnlocked(shipId) : false;
     }
 
-    const menuShips = [
-      {
-        id: 'dart',
-        name: 'DELTA DART',
-        thruster: 'single',
-        getSvg: () => skin1ScreenshotSvg
-      },
-      {
-        id: 'phoenix',
-        name: 'PHÖNIX',
-        thruster: 'twin',
-        cost: 500,
-        getSvg: () => isShipUnlocked('phoenix') ? skin2CurrentPhoenixSvg : skin2MysterySvg
-      }
-    ];
+    // Artwork per ship id; everything else (name, cost, thruster count) comes from CONSTANTS.SHIPS.
+    const menuShipArt = {
+      dart: () => skin1ScreenshotSvg,
+      phoenix: () => isShipUnlocked('phoenix') ? skin2CurrentPhoenixSvg : skin2MysterySvg
+    };
+
+    const menuShips = CONSTANTS.SHIPS.map(ship => ({
+      id: ship.id,
+      name: ship.name,
+      cost: ship.cost,
+      thruster: ship.thrusterCount > 1 ? 'twin' : 'single',
+      getSvg: menuShipArt[ship.id] || menuShipArt.dart
+    }));
     let menuShipIndex = 0;
 
     function renderMenuShip() {
@@ -262,6 +260,8 @@
       if (btnBuy) {
         if (!unlocked) {
           btnBuy.style.display = 'inline-flex';
+          const priceEl = btnBuy.querySelector('.buy-price');
+          if (priceEl && priceEl.firstChild) priceEl.firstChild.nodeValue = `${ship.cost} `;
         } else {
           btnBuy.style.display = 'none';
         }
@@ -341,21 +341,16 @@
       btnBuyShip.addEventListener('click', (e) => {
         e.stopPropagation();
         const ship = menuShips[menuShipIndex];
-        const cost = ship.cost || 500;
-        const currentCores = (typeof engine !== 'undefined' && engine && engine.storage) ? engine.storage.data.cores : 0;
-        if (currentCores >= cost) {
-          if (typeof engine !== 'undefined' && engine && engine.storage) {
-            engine.storage.spendCores(cost);
-            engine.storage.unlockShip(ship.id);
-            if (engine.audio) engine.audio.playSfx('sfx_slingshot_boost', { isBoost: true });
-            if (engine.ui) engine.ui.updateCurrency();
-          }
+        const result = engine.shop.buyItem('ships', ship.id);
+        if (result.success) {
+          if (engine.ui) engine.ui.updateCurrency();
           renderMenuShip();
+          triggerQuickToast(result.message.toUpperCase());
         } else {
           clickSfx();
           btnBuyShip.classList.add('shake');
           const buyLabel = btnBuyShip.querySelector('.buy-label');
-          if (buyLabel) buyLabel.textContent = 'ZU WENIG COINS';
+          if (buyLabel) buyLabel.textContent = (result.message || 'ZU WENIG COINS').toUpperCase();
           setTimeout(() => {
             btnBuyShip.classList.remove('shake');
             if (buyLabel) buyLabel.textContent = 'KAUFEN';
@@ -364,11 +359,10 @@
       });
     }
 
-    const dot0 = document.getElementById('dot-0');
-    if (dot0) dot0.addEventListener('click', () => selectMenuShip(0));
-
-    const dot1 = document.getElementById('dot-1');
-    if (dot1) dot1.addEventListener('click', () => selectMenuShip(1));
+    menuShips.forEach((_, index) => {
+      const dot = document.getElementById('dot-' + index);
+      if (dot) dot.addEventListener('click', () => selectMenuShip(index));
+    });
 
     // Touch Swipe Gestures on Hangar Stage
     const hangarStage = document.getElementById('hangar-stage');
