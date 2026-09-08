@@ -1,0 +1,10 @@
+---
+description: Bump and stamp the app version on every user-facing change so phones can detect the new build.
+alwaysApply: true
+---
+
+# Version stamp on every change
+
+After any change that ships to the game (UI, gameplay, CSS, JS, service worker, HTML), bump the patch version in `package.json` (e.g. 5.18.1 → 5.18.2) and run `npm run version:sync` before committing. That writes the version into `version.json`, `sw.js`, `js/config/Constants.js`, and `index.html` (cache-busters, `APP_VERSION`, settings tag).
+
+Do not skip this when the user can check the build on a phone. Include the stamped files in the same commit as the change. Do not bump for docs-only or local-only files such as `data/players.json`.
