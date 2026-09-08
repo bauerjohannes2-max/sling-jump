@@ -1,4 +1,4 @@
-# Sling Jump - Audio System Guide
+# Space Jump - Audio System Guide
 
 > Architecture: Web Audio Dynamic Buffer Pool + Procedural Synthesizer Fallback  
 > Features: Zero Latency, Low-Pass Ducking, Pitch-Ramp Combos

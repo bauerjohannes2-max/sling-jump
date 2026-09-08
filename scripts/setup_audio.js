@@ -1,5 +1,5 @@
 /**
- * Sling Jump - Audio Asset Generator & Downloader
+ * Space Jump - Audio Asset Generator & Downloader
  * Generates pristine 44.1kHz 16-Bit PCM WAV / Audio assets for all music tracks and sound effects.
  */
 
@@ -311,7 +311,7 @@ const assetsToGenerate = [
   { dir: SFX_DIR, name: 'sfx_ui_click.wav', synth: synthUIClick }
 ];
 
-console.log('Generating audio assets for Sling Jump...');
+console.log('Generating audio assets for Space Jump...');
 
 assetsToGenerate.forEach(({ dir, name, synth }) => {
   const filePath = path.join(dir, name);

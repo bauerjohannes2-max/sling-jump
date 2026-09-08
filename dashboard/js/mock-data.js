@@ -1,5 +1,5 @@
 /**
- * Sling Jump Analytics - Synthetic Benchmark & Production Seed Generator
+ * Space Jump Analytics - Synthetic Benchmark & Production Seed Generator
  * Generates realistic, statistically calibrated game telemetry for marketing,
  * game design balancing, distribution funnel tracking, and BI simulations.
  */

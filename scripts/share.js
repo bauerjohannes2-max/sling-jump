@@ -1,5 +1,5 @@
 /**
- * Sling Jump - Instant Public Phone Sharing via Tunnel
+ * Space Jump - Instant Public Phone Sharing via Tunnel
  * Starts local server and creates a secure HTTPS tunnel so anyone can open the game
  * on any smartphone over cellular (4G/5G) or external Wi-Fi.
  * STRICT RULE: No Emojis anywhere in code, logs, or UI.
@@ -52,10 +52,10 @@ async function shareGame() {
   }
 
   // Output Links & QR Code
-  const PERMANENT_URL = 'https://bauerjohannes2-max.github.io/sling-jump/';
+  const PERMANENT_URL = 'https://bauerjohannes2-max.github.io/space-jump/';
 
   console.log('\n======================================================');
-  console.log('       SLING JUMP - PERMANENTER LIVE-LINK             ');
+  console.log('       SPACE JUMP - PERMANENTER LIVE-LINK             ');
   console.log('======================================================\n');
   console.log('  DAUERHAFTER LINK FUER FREUNDE & FAMILIE (24/7 ONLINE):');
   console.log(`  ${PERMANENT_URL}\n`);

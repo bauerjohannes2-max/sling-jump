@@ -1,5 +1,5 @@
 /**
- * Sling Jump - Telemetry & Analytics Service
+ * Space Jump - Telemetry & Analytics Service
  * Anonymous, zero-dependency, privacy-friendly event tracking.
  * Safe fallback on offline/missing backend (0 console errors).
  */
@@ -17,11 +17,11 @@ class AnalyticsService {
 
   getOrCreateDeviceId() {
     try {
-      let id = localStorage.getItem('sling_device_id');
+      let id = localStorage.getItem('space_device_id') || localStorage.getItem('sling_device_id');
       if (!id) {
         id = 'dev_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
-        localStorage.setItem('sling_device_id', id);
       }
+      localStorage.setItem('space_device_id', id);
       return id;
     } catch (e) {
       return 'dev_ephemeral_' + Math.random().toString(36).substring(2, 8);
@@ -30,11 +30,11 @@ class AnalyticsService {
 
   getOrCreateSessionId() {
     try {
-      let sid = sessionStorage.getItem('sling_session_id');
+      let sid = sessionStorage.getItem('space_session_id') || sessionStorage.getItem('sling_session_id');
       if (!sid) {
         sid = 'sess_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
-        sessionStorage.setItem('sling_session_id', sid);
       }
+      sessionStorage.setItem('space_session_id', sid);
       return sid;
     } catch (e) {
       return 'sess_ephemeral_' + Math.random().toString(36).substring(2, 8);
@@ -100,7 +100,9 @@ class AnalyticsService {
           gamerTag = profile.pilotName || gamerTag;
         }
       } else {
-        const raw = localStorage.getItem('sling_jump_save_v1');
+        const raw = localStorage.getItem('space_jump_save_v2')
+          || localStorage.getItem('sling_jump_save_v2')
+          || localStorage.getItem('sling_jump_save_v1');
         if (raw) {
           const parsed = JSON.parse(raw);
           if (parsed && parsed.playerProfile) {
@@ -141,11 +143,11 @@ class AnalyticsService {
 
   recordLocalHistory(runData) {
     try {
-      const stored = localStorage.getItem('sling_local_runs');
+      const stored = localStorage.getItem('space_local_runs') || localStorage.getItem('sling_local_runs');
       const list = stored ? JSON.parse(stored) : [];
       list.unshift(runData);
       if (list.length > 50) list.length = 50;
-      localStorage.setItem('sling_local_runs', JSON.stringify(list));
+      localStorage.setItem('space_local_runs', JSON.stringify(list));
     } catch (e) {}
   }
 }

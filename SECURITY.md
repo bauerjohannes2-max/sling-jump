@@ -1,6 +1,6 @@
 # Security Roadmap & Agent Execution Guide
 
-This document defines the security architecture and incremental hardening roadmap for Sling Jump.
+This document defines the security architecture and incremental hardening roadmap for Space Jump.
 
 > **Instruction for AI Agents:**  
 > When given the prompt: `"/goal okay now implement the next tiny step towards more security."`  
@@ -144,7 +144,7 @@ This document defines the security architecture and incremental hardening roadma
   1. Implemented `BaseCloudAdapter` interface specifying `sync(payload)`, `restore(playerId, passwordHash)`, `login(playerId, passwordHash)`, and `removePassword(playerId, passwordHash, sessionToken, state)`.
   2. Implemented `LocalNodeAdapter` executing fetch requests against `serve.js` endpoints (`/api/player/sync`, `/api/player/restore`, `/api/player/login`) maintaining full backward compatibility with zero manual config in development.
   3. Implemented `SupabaseAdapter` executing direct PostgREST REST calls against `rest/v1/<tableName>` with `apikey` and `Authorization: Bearer <anonKey>` headers, supporting serverless static deployments.
-  4. Implemented `CloudBackend` singleton factory and registry supporting runtime switching (`CloudBackend.configure('supabase', ...)`), environment config detection (`window.SLING_JUMP_CLOUD_CONFIG` or `localStorage`), and adapter injection.
+  4. Implemented `CloudBackend` singleton factory and registry supporting runtime switching (`CloudBackend.configure('supabase', ...)`), environment config detection (`window.SPACE_JUMP_CLOUD_CONFIG` or `localStorage`), and adapter injection.
   5. Refactored `StorageService` to route all cloud operations (`syncToCloud`, `restoreFromCloud`, `removePassword`, `login`) through `getCloudBackend()`.
 * **Verification:**
   * Automated tests (`test_cloud_backend.js`): Verified `BaseCloudAdapter` abstract contract, `LocalNodeAdapter` URL normalization, `SupabaseAdapter` auth headers & endpoints, `CloudBackend` registry switching, and mock adapter delegation across all 4 persistence methods with 0 errors.

@@ -1,5 +1,5 @@
 /**
- * Sling Jump - Standalone Dedicated Analytics Dashboard Server
+ * Space Jump - Standalone Dedicated Analytics Dashboard Server
  * Runs independently on port 3001. Provides full REST endpoints for marketing,
  * distribution, telemetry aggregation, and BI exports.
  */

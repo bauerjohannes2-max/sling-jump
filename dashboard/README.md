@@ -1,4 +1,4 @@
-# Sling Jump - Analytics Command Center
+# Space Jump - Analytics Command Center
 
 Standalone telemetry, marketing attribution, economy balancing, and diagnostics app.
 

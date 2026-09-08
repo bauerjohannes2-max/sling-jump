@@ -1,8 +1,8 @@
-# Sling Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
+# Space Jump - Offizieller Spielstand & Historische Projekt-Dokumentation
 
 > **Status:** Release Candidate (v5.17.1 - Leaderboard Redesign, Stiff Height & Floating-Dock Parity)  
-> **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
-> **Repository:** [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
+> **Permanenter Live-Link (24/7):** [`https://bauerjohannes2-max.github.io/space-jump/`](https://bauerjohannes2-max.github.io/space-jump/)  
+> **Repository:** [`https://github.com/bauerjohannes2-max/space-jump`](https://github.com/bauerjohannes2-max/space-jump)  
 > **Hosting:** GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)  
 > **Letzte Aktualisierung:** 06.09.2026  
 > **Test-Runner:** Playwright Test-Suite (`node scripts/playwright_runner.js <screen>`)
@@ -13,7 +13,7 @@
 
 | Befehl | Zweck | Beschreibung |
 | :--- | :--- | :--- |
-| **Permanenter Link** | **24/7 Weltweit** | [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/) |
+| **Permanenter Link** | **24/7 Weltweit** | [`https://bauerjohannes2-max.github.io/space-jump/`](https://bauerjohannes2-max.github.io/space-jump/) |
 | `npm start` | **Lokales WLAN/LAN** | Startet HTTP-Server auf Port 3000, zeigt lokale IP & ASCII-QR-Code im Terminal. |
 | `npm run share` | **Dev-Tunnel & QR** | Temporärer Entwicklertunnel mit QR-Code im Terminal. |
 | `npm test` | **Automatisierte Suite** | Führt Playwright Visual Suite aus, neutralisiert NTFS-Tunneling, prüft 0 Konsolenfehler. |
@@ -92,7 +92,7 @@
   - Implemented `BaseCloudAdapter` abstract contract defining uniform persistence operations: `sync(payload)`, `restore(playerId, pwHash)`, `login(playerId, pwHash)`, and `removePassword(playerId, pwHash, token, state)`.
   - Built `LocalNodeAdapter` as the zero-configuration development default connecting directly to local Node.js endpoints (`/api/player/sync`, `/api/player/restore`, `/api/player/login`).
   - Implemented `SupabaseAdapter` communicating directly with Supabase PostgREST endpoints (`rest/v1/<tableName>`) using `apikey` and `Authorization: Bearer <key>` headers, enabling serverless static persistence on GitHub Pages.
-  - Built `CloudBackend` factory and registry supporting dynamic provider switching (`CloudBackend.configure('supabase', ...)`), environment auto-detection (`window.SLING_JUMP_CLOUD_CONFIG` or `localStorage`), and test mock injection.
+  - Built `CloudBackend` factory and registry supporting dynamic provider switching (`CloudBackend.configure('supabase', ...)`), environment auto-detection (`window.SPACE_JUMP_CLOUD_CONFIG` or `localStorage`), and test mock injection.
   - Refactored `StorageService` to route all cloud operations through `this.getCloudBackend()` with clean error handling and debounced writes.
   - Verified with 5-part automated unit test suite (`test_cloud_backend.js`) + Playwright visual suite 06 (`06b_pilot_profile.png`) with 0 console errors.
 - **Stats Modal Redesign (`index.html`, `style.css`):**
@@ -270,12 +270,12 @@
   - Verifiziert gegen Benchmark-Referenzbild auf Desktop und Mobile (390x844). 0 Konsolenfehler.
 
 ### v5.12.0 (06.09.2026) - Oxanium Aerospace Title Redesign & Minimalist Currency Pill
-- **Game Title Redesign ("SLING JUMP"):**
+- **Game Title Redesign ("SPACE JUMP"):**
   - **Font Integration:** Google Font `Oxanium:wght@800;900` (`'Oxanium', sans-serif; 900`).
   - **Kinetische Vorwärtsneigung (Shear):** `transform: skewX(-10deg)` für dynamischen Richtungsschub.
-  - **Typografisches Spacing:** `SLING` (`letter-spacing: 0.18em; font-size: clamp(34px, 8vw, 44px)`), `JUMP` (`letter-spacing: 0.12em; font-size: clamp(48px, 11vw, 60px); line-height: 0.95`).
+  - **Typografisches Spacing:** `SPACE` (`letter-spacing: 0.18em; font-size: clamp(34px, 8vw, 44px)`), `JUMP` (`letter-spacing: 0.12em; font-size: clamp(48px, 11vw, 60px); line-height: 0.95`).
   - **Mehrschichtige Shader & Filter:**
-    - `SLING`: Hochweiß (`#f8fafc`) mit eisblauem Multi-Layer Glow (`0 0 1px ... 0 2px 8px ... 0 0 20px`).
+    - `SPACE`: Hochweiß (`#f8fafc`) mit eisblauem Multi-Layer Glow (`0 0 1px ... 0 2px 8px ... 0 0 20px`).
     - `JUMP`: Text-Clipping mit linearem Crimson-Verlauf (`#ff4b72` $\to$ `#e11d48` $\to$ `#9f1239`) und Multi-Drop-Shadow Flare.
   - **Pulsierende Glow-Animation:** `@keyframes titlePulse` auf dem roten Glühen von `JUMP` (3s ease-in-out infinite).
 - **Hauptmenü Währungs-Visuelles & Textbereinigung:**
@@ -290,7 +290,7 @@
 - **Projektweites Zwei-Font-System:**
   - **Orbitron (`Orbitron:wght@500;700`):** Einheitlicher Font für alle Zahlen, Metriken, Zähler, Timer, Währungswerte, Highscores, Ranglisten und Canvas-Zahlenreadouts (`font-variant-numeric: tabular-nums`).
   - **Rajdhani (`Rajdhani:wght@500;600;700`):** Einheitlicher Font für alle Buchstaben, allgemeinen UI-Elemente, Labels, Menüs, Buttons, Profilnamen und Canvas-Textlabels.
-  - **Strikte Ausnahme für Spieltitel:** `.title-sling` und `.title-jump` behalten unverändert die originale Markenidentität (`'Space Grotesk', 'Chakra Petch', system-ui, sans-serif; 900`).
+  - **Strikte Ausnahme für Spieltitel:** `.title-space` und `.title-jump` behalten unverändert die originale Markenidentität (`'Space Grotesk', 'Chakra Petch', system-ui, sans-serif; 900`).
   - **Canvas & Font-Readiness:** Synchronisation aller Sprites und Onboarding-Tooltips (`document.fonts.ready`), vollständige Entfernung generischer Fallback-Schriften (`Inter`, `Montserrat`, `Sora`, `Manrope`, `Segoe UI`, `Arial`).
 
 ### v5.10.0 (06.09.2026) - Clean Hangar, Vector Collectibles & Tactical Death Reticle
@@ -320,11 +320,11 @@
 
 ### v5.8.5 (06.09.2026) - Main Menu Header Collision Fix: Centered Currency Repositioning
 - **Header-Kollision eliminiert:** Währungscontainer (`#menu-currency-pill`) aus der oberen Navigationsleiste (`.menu-top-bar`) entfernt. Pilot-Profil links und Quick-Actions (Missions, Settings) rechts verfügen nun auf allen Viewports (Desktop bis schmale Mobile-Screens) über großzügigen Freiraum ohne horizontale Überlappungen.
-- **Zentrierte Repositionierung unter Logo:** Der rahmenlose Währungscontainer (`.currency-group.currency-clean`) sitzt nun perfekt zentriert in `.center-stage` unmittelbar unterhalb des `SLING JUMP`-Wordmarks und oberhalb des interaktiven Hangar-/Orbit-Canvas.
+- **Zentrierte Repositionierung unter Logo:** Der rahmenlose Währungscontainer (`.currency-group.currency-clean`) sitzt nun perfekt zentriert in `.center-stage` unmittelbar unterhalb des `SPACE JUMP`-Wordmarks und oberhalb des interaktiven Hangar-/Orbit-Canvas.
 - **Konsistenter 20px-Abstand:** Abstand zwischen Gold-Kernen und Void-Kristallen ist mit `gap: 20px` responsive auf allen Displaybreiten fixiert. Ästhetik (Schriftarten, Tabular-Nums, Drop-Shadows, SVG-Vektoren) zu 100% unverändert. 0 Konsolenfehler.
 - **Rahmenlose Währungsanzeige:** Gold-Kerne und Void-Kristalle aus der zentralen Box befreit und als minimalistische, schwebende Vektor-Glyphen mit Tabular-Ziffern in die rechte Action-Gruppe verlagert (Zero verschachtelte Kapseln/Chips).
 - **Rahmenloser Profil-Button:** Äußere Kapselbox des Spielerprofils oben links vollständig entfernt; dezenter runder Avatar-Ring mit integriertem Online-Beacon und getracktem Rufzeichen.
-- **Visuelle Ruhe & Freiraum:** Freie Fläche oberhalb des `SLING JUMP`-Logos maximiert Fokus und Lesbarkeit im Arcade-Look. 0 Konsolenfehler.
+- **Visuelle Ruhe & Freiraum:** Freie Fläche oberhalb des `SPACE JUMP`-Logos maximiert Fokus und Lesbarkeit im Arcade-Look. 0 Konsolenfehler.
 
 ### v5.8.3 (06.09.2026) - Main Menu Top Header UI Glassmorphic Redesign
 - **Ästhetische Einheitlichkeit:** Sämtliche oberen Menü-Elemente (`.menu-top-bar`) auf das hochwertige Frosted-Glassmorphism-Design (`backdrop-filter: blur(16px)`, `rgba(15, 23, 42, 0.70)`, feine Glasrahmen) des unteren Floating-Docks umgestellt.
@@ -407,7 +407,7 @@
 - Modals als Front-Tabs vor dem lebendigen Menü-Hintergrund mit 16px Backdrop-Blur.
 
 ### v5.0.0 (05.09.2026) - Bold Crimson Red Main Menu Overhaul
-- Split-Wordmark (`SLING` weiß, `JUMP` karminrot). Großer Primär-CTA `START` mit animiertem Glanzlicht.
+- Split-Wordmark (`SPACE` weiß, `JUMP` karminrot). Großer Primär-CTA `START` mit animiertem Glanzlicht.
 
 ### v4.7.0 – v4.7.3 (05.09.2026) - Performance Hardening & Architecture Cleanliness
 - Live Rolling-Telemetrie (`Float32Array(30)`). Zero GC Frame-Budget (avg JS < 0.5ms).

@@ -1,5 +1,5 @@
 /**
- * Sling Jump - Spaceship Entity
+ * Space Jump - Spaceship Entity
  * Renders 6 distinct geometric vector ship hulls, customizable trails & physics.
  */
 class Spaceship {

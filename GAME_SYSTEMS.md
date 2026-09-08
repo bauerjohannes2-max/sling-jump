@@ -1,4 +1,4 @@
-# Sling Jump - Game Systems & Technical Specification Manual
+# Space Jump - Game Systems & Technical Specification Manual
 
 > Live Version: 5.17.0 | Architecture: Decoupled Vanilla Canvas 2D Engine | Standard: Zero GC, 60+ FPS
 
@@ -291,7 +291,7 @@ Procedural generation (`WorldManager.js`) scales density, node types, and lethal
   - Transmits `apikey` and `Authorization: Bearer <anon_key>` headers with upsert semantics (`on_conflict=player_id`).
   - Enables zero-server deployment on static hosting (e.g. GitHub Pages) with cloud persistence.
 - **Factory & Runtime Registry (`CloudBackend`):**
-  - Auto-configures active adapter via `window.SLING_JUMP_CLOUD_CONFIG` or `localStorage['sling_jump_cloud_config']`.
+  - Auto-configures active adapter via `window.SPACE_JUMP_CLOUD_CONFIG` or `localStorage['space_jump_cloud_config']`.
   - Provides runtime configuration and switching via `CloudBackend.configure(type, options)`.
 - **StorageService Delegation:**
   - `StorageService.getCloudBackend()` resolves the active adapter (or fallback).

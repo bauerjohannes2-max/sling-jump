@@ -1,5 +1,5 @@
 /**
- * Sling Jump Analytics - Zero-Dependency High-Performance SVG Chart Engine
+ * Space Jump Analytics - Zero-Dependency High-Performance SVG Chart Engine
  * Clean, modern SaaS data visualizations without third-party bloat.
  * Zero Emojis, crisp SVG vector geometry, accessible tooltips.
  */

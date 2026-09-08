@@ -1,5 +1,5 @@
 /**
- * Sling Jump - UIManager
+ * Space Jump - UIManager
  * Manages all HUD elements, Modals, State Transitions, Settings, Hangar UI,
  * Leaderboard & Quest notifications.
  * STRICT RULE: No Emojis - Pure Minimalist Vector UI & SVG Icons.

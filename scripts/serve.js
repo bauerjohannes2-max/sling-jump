@@ -1,5 +1,5 @@
 /**
- * Sling Jump - Mobile Access Local Server with QR Code
+ * Space Jump - Mobile Access Local Server with QR Code
  * Auto-detects LAN IPv4 and displays scannable terminal QR code for instant phone testing.
  */
 const http = require('http');
@@ -1044,7 +1044,7 @@ function startServer(port = PORT, options = {}) {
 
       server.listen(httpsPort, '0.0.0.0', () => {
         console.log('\n======================================================');
-        console.log('         SLING JUMP - MOBILE SERVER (HTTPS/TLS)       ');
+        console.log('         SPACE JUMP - MOBILE SERVER (HTTPS/TLS)       ');
         console.log('======================================================\n');
         console.log(`  Local:    ${localUrl}`);
         console.log(`  Network:  ${networkUrl}\n`);
@@ -1088,7 +1088,7 @@ function startServer(port = PORT, options = {}) {
 
   server.listen(port, '0.0.0.0', () => {
     console.log('\n======================================================');
-    console.log('              SLING JUMP - MOBILE SERVER              ');
+    console.log('              SPACE JUMP - MOBILE SERVER              ');
     console.log('======================================================\n');
     console.log(`  Local:    ${localUrl}`);
     console.log(`  Network:  ${networkUrl}\n`);

@@ -1,5 +1,5 @@
 /**
- * Sling Jump - AudioManager
+ * Space Jump - AudioManager
  * Professional External Audio Pipeline with WebAudio Buffer Pool,
  * Dynamic Crossfading, Low-Pass Ducking, Pitch-Ramp combos and Procedural Fallbacks.
  */

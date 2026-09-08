@@ -1,7 +1,7 @@
 {
-  "id": "sling-jump-game",
-  "name": "Sling Jump - Von Stern zu Stern",
-  "short_name": "Sling Jump",
+  "id": "space-jump-game",
+  "name": "Space Jump - Von Stern zu Stern",
+  "short_name": "Space Jump",
   "description": "Minimalist Vector Arcade Space Game",
   "start_url": "./index.html",
   "scope": "./",

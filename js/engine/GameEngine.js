@@ -1,5 +1,5 @@
 /**
- * Sling Jump - GameEngine
+ * Space Jump - GameEngine
  * Master Architecture Controller managing Game Loop, Micro-Freeze Hitstops,
  * Camera Physics, Near-Miss Detection, Input Dispatching and Rendering Pipeline.
  */

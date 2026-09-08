@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Sling Jump - Von Stern zu Stern</title>
+  <title>Space Jump - Von Stern zu Stern</title>
   <link rel="manifest" href="manifest.json?v=4.7.1">
   <link rel="shortcut icon" href="favicon.ico?v=4.7.1">
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=4.7.1">
@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Sling Jump">
+  <meta name="apple-mobile-web-app-title" content="Space Jump">
   <meta name="format-detection" content="telephone=no">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,9 +23,9 @@
   <script>
     (function() {
       var APP_VERSION = '4.8.0';
-      var storedVer = localStorage.getItem('sling_jump_installed_version');
+      var storedVer = localStorage.getItem('space_jump_installed_version') || localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
-        localStorage.setItem('sling_jump_installed_version', APP_VERSION);
+        localStorage.setItem('space_jump_installed_version', APP_VERSION);
         if ('caches' in window) {
           caches.keys().then(function(keys) {
             keys.forEach(function(k) {
@@ -39,7 +39,7 @@
           });
         }
       } else if (!storedVer) {
-        localStorage.setItem('sling_jump_installed_version', APP_VERSION);
+        localStorage.setItem('space_jump_installed_version', APP_VERSION);
       }
     })();
   </script>
@@ -700,7 +700,7 @@
           <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag">SLING JUMP v5.18.1</div>
+        <div class="settings-version-tag">SPACE JUMP v5.18.1</div>
       </div>
     </div>
 

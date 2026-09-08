@@ -1,5 +1,5 @@
 /**
- * Sling Jump - CloudBackend (Pluggable Storage Provider Interface)
+ * Space Jump - CloudBackend (Pluggable Storage Provider Interface)
  * Decouples game persistence from serve.js, enabling seamless migration to Supabase/Firebase
  * for static hosting on GitHub Pages with zero changes to core game systems.
  */
@@ -312,10 +312,10 @@ class CloudBackend {
       // Auto-detect environment configuration if present
       let config = null;
       if (typeof window !== 'undefined') {
-        config = window.SLING_JUMP_CLOUD_CONFIG || null;
+        config = window.SPACE_JUMP_CLOUD_CONFIG || window.SLING_JUMP_CLOUD_CONFIG || null;
         if (!config) {
           try {
-            const raw = localStorage.getItem('sling_jump_cloud_config');
+            const raw = localStorage.getItem('space_jump_cloud_config') || localStorage.getItem('sling_jump_cloud_config');
             if (raw) config = JSON.parse(raw);
           } catch (e) {}
         }

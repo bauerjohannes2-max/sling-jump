@@ -1,13 +1,13 @@
-# Sling Jump - Distribution & Hosting Guide
+# Space Jump - Distribution & Hosting Guide
 
-> Live: [`https://bauerjohannes2-max.github.io/sling-jump/`](https://bauerjohannes2-max.github.io/sling-jump/)  
-> Repository: [`https://github.com/bauerjohannes2-max/sling-jump`](https://github.com/bauerjohannes2-max/sling-jump)  
+> Live: [`https://bauerjohannes2-max.github.io/space-jump/`](https://bauerjohannes2-max.github.io/space-jump/)  
+> Repository: [`https://github.com/bauerjohannes2-max/space-jump`](https://github.com/bauerjohannes2-max/space-jump)  
 > Host: GitHub Pages Global Edge CDN (SSL/HTTPS, PWA Offline Support)
 
 ---
 
 ## 1. Access & Installation
-- **Permanent URL:** `https://bauerjohannes2-max.github.io/sling-jump/` (24/7 global access).
+- **Permanent URL:** `https://bauerjohannes2-max.github.io/space-jump/` (24/7 global access).
 - **iOS Safari:** Share -> "Add to Home Screen" (runs fullscreen PWA).
 - **Android Chrome:** Menu -> "Install App" / "Add to Home Screen".
 - **Auto-Update:** Git push to `main` triggers auto-deploy via GitHub Actions in 30-60s.

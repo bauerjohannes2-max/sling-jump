@@ -1,5 +1,5 @@
 /**
- * Sling Jump - OrbitNode Entity
+ * Space Jump - OrbitNode Entity
  * Supports: STANDARD, FRAGILE, BOOST, MOVING types, Lock-On Reticle & Dynamic Theming
  */
 class OrbitNode {

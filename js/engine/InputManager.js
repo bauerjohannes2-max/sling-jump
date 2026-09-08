@@ -1,5 +1,5 @@
 /**
- * Sling Jump - InputManager
+ * Space Jump - InputManager
  * Unified Input Controller supporting Keyboard, Mouse, Touch and Gamepad API
  * Automatically emits clean action events and detects controller prompts.
  */

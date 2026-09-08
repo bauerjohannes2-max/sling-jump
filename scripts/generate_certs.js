@@ -1,5 +1,5 @@
 /**
- * Sling Jump - Development TLS Certificate Generator
+ * Space Jump - Development TLS Certificate Generator
  * Generates local SSL/TLS certificates for mobile HTTPS testing.
  * Supports mkcert (system-trusted) with automatic zero-dependency Node.js fallback.
  */
@@ -182,7 +182,7 @@ function generateCerts() {
 
   console.log('[TLS] Erzeuge selbstsigniertes Entwickler-Zertifikat (ECDSA P-256)...');
   const { cert, key } = generateSelfSignedCert({
-    commonName: 'SlingJumpDev',
+    commonName: 'SpaceJumpDev',
     domains: ['localhost'],
     ips: ['127.0.0.1', localIp]
   });

@@ -1,5 +1,5 @@
 /**
- * Sling Jump - MissionManager
+ * Space Jump - MissionManager
  * Industry Standard Daily (24h) & Weekly (7d) Challenge System with Active Claim Flow
  */
 class MissionManager {

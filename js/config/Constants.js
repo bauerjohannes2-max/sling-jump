@@ -1,11 +1,12 @@
 /**
- * Sling Jump - Global Constants & Catalogs
+ * Space Jump - Global Constants & Catalogs
  * Simple, intuitive arcade terminology - No Emojis
  */
 
 const CONSTANTS = {
   VERSION: '5.18.1',
-  STORAGE_KEY: 'sling_jump_save_v2',
+  STORAGE_KEY: 'space_jump_save_v2',
+  LEGACY_STORAGE_KEY: 'sling_jump_save_v2',
 
   // Physics & Mechanics
   PHYSICS: {

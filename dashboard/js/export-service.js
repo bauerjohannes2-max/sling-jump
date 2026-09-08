@@ -1,5 +1,5 @@
 /**
- * Sling Jump Analytics - Data Export & BI Utility
+ * Space Jump Analytics - Data Export & BI Utility
  * Generates standards-compliant CSV and JSON payloads for Tableau, Excel, and custom data lakes.
  */
 (function(window) {
@@ -42,7 +42,7 @@
 
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    downloadBlob(csvContent, `sling_jump_runs_${timestamp}.csv`, 'text/csv;charset=utf-8;');
+    downloadBlob(csvContent, `space_jump_runs_${timestamp}.csv`, 'text/csv;charset=utf-8;');
   }
 
   function exportDatasetToJSON(dataset) {
@@ -52,7 +52,7 @@
     }
     const jsonStr = JSON.stringify(dataset, null, 2);
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    downloadBlob(jsonStr, `sling_jump_telemetry_dump_${timestamp}.json`, 'application/json;charset=utf-8;');
+    downloadBlob(jsonStr, `space_jump_telemetry_dump_${timestamp}.json`, 'application/json;charset=utf-8;');
   }
 
   async function copyToClipboard(text) {

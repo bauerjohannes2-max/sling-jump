@@ -1,5 +1,5 @@
 /**
- * Sling Jump Enterprise Analytics - Main Application Controller
+ * Space Jump Enterprise Analytics - Main Application Controller
  * Orchestrates real-time telemetry, mock benchmark simulation, SVG charts,
  * authentication gate, and data export.
  */
@@ -209,7 +209,7 @@
     loadLocalFallbackData() {
       let runs = [];
       try {
-        const raw = localStorage.getItem('sling_local_runs');
+        const raw = localStorage.getItem('space_local_runs') || localStorage.getItem('sling_local_runs');
         if (raw) runs = JSON.parse(raw);
       } catch (e) {}
 

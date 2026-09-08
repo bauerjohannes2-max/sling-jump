@@ -1,5 +1,5 @@
 /**
- * Sling Jump - StateManager
+ * Space Jump - StateManager
  * Finite State Machine managing 6 core states with smooth transitions:
  * STATE_MENU, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER, STATE_SHOP, STATE_STATS.
  */

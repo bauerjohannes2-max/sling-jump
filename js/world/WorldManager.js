@@ -1,5 +1,5 @@
 /**
- * Sling Jump - WorldManager
+ * Space Jump - WorldManager
  * Pure Procedural Generation Engine with Mathematical Reachability Solver,
  * Gentle Difficulty Scaling, Dynamic Path Branching & Parallax Starfield.
  */

@@ -501,7 +501,7 @@ async function runPlaywrightSuite() {
   const combinedManifest = [...existingManifest, ...capturedManifest];
 
   const runReport = {
-    suite: "Sling Jump Automated Playwright Visual Verification",
+    suite: "Space Jump Automated Playwright Visual Verification",
     mode: isSelective ? `Selective (${targetedFilters.join(', ')})` : "Full Regression",
     executedAt: new Date().toISOString(),
     localTimestamp: new Date().toLocaleString(),

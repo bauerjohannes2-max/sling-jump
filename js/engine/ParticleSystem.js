@@ -1,5 +1,5 @@
 /**
- * Sling Jump - ParticleSystem
+ * Space Jump - ParticleSystem
  * Pre-allocated object pool (Zero Garbage Collection during gameplay)
  * Supports: Sparks, Engine Thrust, Fracture Shards, and Floating Text Popups.
  */

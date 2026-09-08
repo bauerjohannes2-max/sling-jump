@@ -1,5 +1,5 @@
 /**
- * Sling Jump - Application Entry Point (Bootstrap)
+ * Space Jump - Application Entry Point (Bootstrap)
  * Minimalist Vector Arcade Indie Game
  */
 (function() {
@@ -412,10 +412,10 @@
       btnGameOverShare.addEventListener('click', async () => {
         clickSfx();
         const alt = document.getElementById('final-altitude-val')?.textContent || '0';
-        const shareText = `Sling Jump: ${alt}m Flugdistanz gemeistert! Kannst du mich schlagen?`;
+        const shareText = `Space Jump: ${alt}m Flugdistanz gemeistert! Kannst du mich schlagen?`;
         if (navigator.share) {
           try {
-            await navigator.share({ title: 'Sling Jump', text: shareText, url: window.location.href });
+            await navigator.share({ title: 'Space Jump', text: shareText, url: window.location.href });
           } catch (e) {}
         } else if (navigator.clipboard) {
           try {
@@ -544,7 +544,7 @@
     // Dynamically inject single source of truth version into all DOM elements
     const currentVerTag = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? `v${CONSTANTS.VERSION}` : 'v4.6.2';
     document.querySelectorAll('.app-version-tag').forEach(el => { el.textContent = currentVerTag; });
-    document.querySelectorAll('.settings-version-tag').forEach(el => { el.textContent = `SLING JUMP ${currentVerTag}`; });
+    document.querySelectorAll('.settings-version-tag').forEach(el => { el.textContent = `SPACE JUMP ${currentVerTag}`; });
   }
 
   // --- BULLETPROOF VERSION & AUTO-UPDATE CHECKER ---

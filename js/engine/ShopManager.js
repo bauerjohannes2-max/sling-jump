@@ -1,5 +1,5 @@
 /**
- * Sling Jump - ShopManager (Ingame Hangar)
+ * Space Jump - ShopManager (Ingame Hangar)
  * Manages item unlocking, currency transactions, equipment, and interactive Hangar 2D/3D vector previews.
  */
 class ShopManager {

@@ -1,5 +1,5 @@
 /**
- * Sling Jump - EnergyOrb Entity
+ * Space Jump - EnergyOrb Entity
  * Collectible Energy Core with Magnetic Attractor & Vector Crystal Rendering
  */
 class EnergyOrb {

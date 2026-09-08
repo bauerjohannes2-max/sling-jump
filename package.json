@@ -1,7 +1,7 @@
 {
-  "name": "sling-jump",
+  "name": "space-jump",
   "version": "5.18.1",
-  "description": "Sling Jump - Neon Vector Arcade Game with Playwright Visual Verification & Mobile Access",
+  "description": "Space Jump - Neon Vector Arcade Game with Playwright Visual Verification & Mobile Access",
   "scripts": {
     "start": "node scripts/serve.js",
     "start:https": "node scripts/serve.js --https",

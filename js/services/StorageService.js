@@ -1,5 +1,5 @@
 /**
- * Sling Jump - StorageService
+ * Space Jump - StorageService
  * Versioned LocalStorage persistence with corruption safeguards & migration
  */
 let CloudBackendModule = null;
@@ -105,7 +105,10 @@ class StorageService {
 
   load() {
     try {
-      const raw = localStorage.getItem(this.key);
+      let raw = localStorage.getItem(this.key);
+      if (!raw && CONSTANTS.LEGACY_STORAGE_KEY) {
+        raw = localStorage.getItem(CONSTANTS.LEGACY_STORAGE_KEY);
+      }
       if (!raw) {
         this.save();
         return;

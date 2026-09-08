@@ -1,4 +1,4 @@
-# Sling Jump - Codebase Architecture Map
+# Space Jump - Codebase Architecture Map
 
 > **Protocol:** Map First. Read this file before grepping or scanning any `.js` or `.css` files. Never dump full JS files into context.
 
@@ -93,7 +93,7 @@
     - **Ephemeral Session Tokens (Zero Per-Request Credentials):** Issues 30-day 256-bit session tokens (`crypto.randomBytes(32)`) via `POST /api/player/login` and on authenticated restore/sync. Routine active syncs transmit `Authorization: Bearer <token>` or `payload.sessionToken` with zero password hash transmission across the network. Expired or forged tokens are rejected with 401 Unauthorized.
     - **Save State Schema Validation & Numeric Bounds Enforcement:** Server sanitizes all ingested player states via `sanitizeState()` before writing to `playersStore`. Enforces strict numeric bounds (`highScore` $\le 500,000$, `cores` $\le 1,000,000$, `hyperCrystals` $\le 1,000$, `bestCombo` $\le 100$) and validates equipment identifiers (`selectedShip`, `selectedTrail`, `selectedTheme`) against registered assets in `Constants.js` to block arbitrary client-side state manipulation.
     - **Local TLS / HTTPS Transport Support:** Optional `--https` mode (`npm run start:https`) and certificate manager (`npm run certs`, `scripts/generate_certs.js`) providing encrypted transport across local Wi-Fi. Supports system-trusted certificates via `mkcert` with automatic zero-dependency Node.js ECDSA P-256 self-signed fallback, paired with an HTTP-to-HTTPS redirect server (`301 Moved Permanently`) on standard HTTP ports.
-    - **Pluggable Cloud Backend Adapter Architecture:** Decouples game persistence from `serve.js` via `BaseCloudAdapter` interface implemented by `LocalNodeAdapter` (development default communicating with `serve.js`) and `SupabaseAdapter` (serverless production communicating with Supabase PostgREST endpoints using `apikey` and bearer tokens). Managed by `CloudBackend` factory supporting runtime switching (`configure('supabase', ...)`), environment auto-detection (`window.SLING_JUMP_CLOUD_CONFIG`), and test injection with zero changes to core gameplay loops.
+    - **Pluggable Cloud Backend Adapter Architecture:** Decouples game persistence from `serve.js` via `BaseCloudAdapter` interface implemented by `LocalNodeAdapter` (development default communicating with `serve.js`) and `SupabaseAdapter` (serverless production communicating with Supabase PostgREST endpoints using `apikey` and bearer tokens). Managed by `CloudBackend` factory supporting runtime switching (`configure('supabase', ...)`), environment auto-detection (`window.SPACE_JUMP_CLOUD_CONFIG`), and test injection with zero changes to core gameplay loops.
 - **Tutorial Modal Architecture (`#tutorial-modal`):**
   - Commercial arcade minimalism (Alto's Adventure style) with solid `#0b0d13` base and floating-dock parity cards.
   - 100% text-driven guide (zero video, zero runtime canvas animation loops) with 3 monochrome step cards:

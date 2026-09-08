@@ -1,8 +1,8 @@
 {
-  "totalVisits": 128,
+  "totalVisits": 131,
   "uniqueDevices": {
     "dev_lw4pn7cacmtlpezo2": 6,
-    "dev_kqm0lbdr5mtokkmi0": 105,
+    "dev_kqm0lbdr5mtokkmi0": 106,
     "dev_rf27uw2cemtolgi08": 2,
     "dev_h0hvaxho1mtolgq7u": 2,
     "dev_e52m48dk8mtolhs1o": 2,
@@ -10,11 +10,12 @@
     "dev_fkkcyiamhmtolr251": 2,
     "dev_j7xqu5w1fmtolsspd": 2,
     "dev_cd5n7qafrmtolgc8r": 3,
-    "dev_rmscq5yq3mtpnnqfm": 2
+    "dev_rmscq5yq3mtpnnqfm": 2,
+    "dev_zfpaoedi8mtsiuoko": 2
   },
   "totalRuns": 30,
-  "todayRuns": 6,
-  "currentDate": "2026-09-06",
+  "todayRuns": 0,
+  "currentDate": "2026-09-08",
   "recordAltitude": 12163,
   "totalAltitude": 43984,
   "totalCoins": 167,

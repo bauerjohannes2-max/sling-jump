@@ -1,7 +1,7 @@
 {
-  "name": "Sling Jump - Spieler-Dashboard & Telemetrie",
+  "name": "Space Jump - Spieler-Dashboard & Telemetrie",
   "short_name": "Dashboard",
-  "description": "Echtzeit Spieler-Dashboard, Live-Telemetrie & Rundenübersicht für Sling Jump",
+  "description": "Echtzeit Spieler-Dashboard, Live-Telemetrie & Rundenübersicht für Space Jump",
   "start_url": "./dashboard.html",
   "display": "standalone",
   "orientation": "any",

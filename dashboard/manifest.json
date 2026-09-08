@@ -1,8 +1,8 @@
 {
-  "id": "sling-jump-analytics-dashboard",
-  "name": "Sling Jump Analytics Command Center",
-  "short_name": "SJ Analytics",
-  "description": "Enterprise Game & Growth Analytics Suite for Sling Jump",
+  "id": "space-jump-analytics-dashboard",
+  "name": "Space Jump Analytics Command Center",
+  "short_name": "Space Jump",
+  "description": "Enterprise Game & Growth Analytics Suite for Space Jump",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
