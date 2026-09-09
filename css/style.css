@@ -885,6 +885,7 @@ canvas#gameCanvas {
   justify-content: center;
   cursor: pointer;
   touch-action: pan-y;
+  overflow: visible;
 }
 
 /* THE SHIP COMPLETELY IN THE CENTER */
@@ -900,6 +901,7 @@ canvas#gameCanvas {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  overflow: visible;
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease;
 }
 
@@ -915,6 +917,7 @@ canvas#gameCanvas {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
   animation: ship-float-bob 3.2s ease-in-out infinite;
   will-change: transform;
 }
@@ -928,96 +931,63 @@ canvas#gameCanvas {
   }
 }
 
-/* Enhanced High-Energy Plasma Thruster Jets */
-.plasma-jets {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 44px;
-  height: 48px;
-  display: flex;
-  justify-content: space-between;
-  pointer-events: none;
-  z-index: 10;
+#ship-svg,
+.hero-centered-ship svg {
+  overflow: visible;
 }
 
-.plasma-jets.single-thruster {
-  justify-content: center;
-  width: 24px;
+.ship-flame {
+  transform-box: fill-box;
+  transform-origin: center top;
+  animation: shock-plasma 0.18s ease-in-out infinite alternate;
 }
 
-.plasma-flame {
-  position: relative;
-  width: 12px;
-  height: 38px;
-  background: linear-gradient(180deg, #ffffff 0%, #fb7185 24%, #e11d48 58%, rgba(225, 29, 72, 0) 100%);
-  border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
-  filter: drop-shadow(0 0 10px #e11d48) drop-shadow(0 0 24px rgba(225, 29, 72, 0.65));
-  animation: jet-pulse 0.085s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
-  transform-origin: top center;
-}
-
-/* Ultra-hot energetic ion core */
-.plasma-flame::after {
-  content: '';
-  position: absolute;
-  top: 1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 65%;
-  background: linear-gradient(180deg, #ffffff 0%, #a5f3fc 45%, rgba(255, 255, 255, 0) 100%);
-  border-radius: 50%;
-  filter: blur(0.5px);
-  opacity: 0.95;
-}
-
-/* Radiant nozzle flare ring */
-.plasma-flame::before {
-  content: '';
-  position: absolute;
-  top: -3px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 7px;
-  background: radial-gradient(ellipse at center, #ffffff 20%, #e11d48 70%, transparent 100%);
-  border-radius: 50%;
-  filter: drop-shadow(0 0 8px #e11d48);
-}
-
-.plasma-flame.center {
-  width: 14px;
-  height: 42px;
-}
-
-.plasma-flame.left {
-  animation-delay: 0.02s;
-}
-
-.plasma-flame.right {
-  animation-delay: 0.045s;
-}
-
-@keyframes jet-pulse {
+@keyframes shock-plasma {
   0% {
-    height: 32px;
-    transform: scaleX(0.9) scaleY(0.92);
-    filter: drop-shadow(0 0 8px #e11d48) drop-shadow(0 0 18px rgba(225, 29, 72, 0.5));
+    transform: scaleY(0.94);
+    opacity: 0.92;
   }
   100% {
-    height: 48px;
-    transform: scaleX(1.1) scaleY(1.08);
-    filter: drop-shadow(0 0 14px #e11d48) drop-shadow(0 0 32px rgba(225, 29, 72, 0.85));
+    transform: scaleY(1.04);
+    opacity: 1;
   }
+}
+
+.hangar-ship-meta {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 20;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.hangar-ship-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: #ffffff;
+}
+
+.hangar-ship-tier {
+  margin-top: 2px;
+  font-family: var(--font-numbers);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--neutral-cyan);
 }
 
 /* Pokemon Silhouette Coming Soon Effect */
 .hero-centered-ship.pokemon-locked {
   filter: drop-shadow(0 0 24px rgba(var(--accent-crimson-rgb), 0.45));
 }
-.hero-centered-ship.pokemon-locked .plasma-jets {
+.hero-centered-ship.pokemon-locked .ship-flame,
+.hero-centered-ship.pokemon-locked .ship-nozzle {
   display: none;
 }
 
@@ -1291,21 +1261,8 @@ canvas#gameCanvas {
     width: 105px;
     height: 105px;
   }
-  .plasma-jets {
-    bottom: 6px;
-    width: 36px;
-    height: 40px;
-  }
-  .plasma-jets.single-thruster {
-    width: 20px;
-  }
-  .plasma-flame {
-    width: 10px;
-    height: 30px;
-  }
-  .plasma-flame.center {
-    width: 11px;
-    height: 34px;
+  .hangar-ship-name {
+    font-size: 13px;
   }
   .btn-play-bold {
     height: 58px;
@@ -1344,7 +1301,7 @@ canvas#gameCanvas {
 
 .hud-combo-badge {
   position: absolute;
-  top: 90px;
+  top: 108px;
   left: 50%;
   transform: translateX(-50%);
   font-family: 'Orbitron', monospace;
@@ -1371,7 +1328,7 @@ canvas#gameCanvas {
 
 .hud-tutorial-tip {
   position: absolute;
-  top: 85px;
+  top: 108px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1418,32 +1375,110 @@ canvas#gameCanvas {
   align-items: flex-start;
 }
 
+.hud-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .score-container {
   display: inline-flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  align-items: stretch;
+  min-width: 168px;
   background: rgba(8, 14, 26, 0.90);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  border-radius: 18px;
-  padding: 10px 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 9px 14px 11px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.score-label {
+  font-family: var(--font-numbers);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--text-muted);
 }
 
 .altitude-meter {
-  font-family: var(--font-display);
-  font-size: 38px;
-  font-weight: 900;
-  letter-spacing: 1px;
+  font-family: var(--font-numbers);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--text-hero);
-  line-height: 1;
+  line-height: 0.95;
+  margin-top: 1px;
 }
 .altitude-unit {
-  font-size: 18px;
-  font-weight: 700;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 800;
   color: var(--action-start);
   margin-left: 3px;
+}
+
+.chase-track {
+  margin-top: 8px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.chase-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #22d3ee, var(--neutral-cyan));
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.55);
+  transition: width 0.16s linear, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chase-row {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.chase-caption {
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+}
+
+.chase-best {
+  font-family: var(--font-numbers);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--neutral-cyan);
+  font-weight: 700;
+}
+
+.score-container.record-break {
+  border-color: rgba(225, 29, 72, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(225, 29, 72, 0.18);
+}
+
+.score-container.record-break .chase-fill {
+  background: linear-gradient(90deg, #fb7185, var(--accent-crimson));
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.55);
+}
+
+.score-container.record-break .chase-caption {
+  color: var(--accent-crimson);
+}
+
+.score-container.record-break .chase-best {
+  color: #fb7185;
 }
 
 .sub-stats {
@@ -1643,7 +1678,7 @@ canvas#gameCanvas {
 /* Record Flash Banner */
 .record-banner {
   position: absolute;
-  top: 90px;
+  top: 108px;
   left: 50%;
   transform: translateX(-50%) translateY(-20px) scale(0.85);
   background: linear-gradient(135deg, rgba(251, 191, 36, 0.95), rgba(245, 158, 11, 0.95));
@@ -3669,13 +3704,15 @@ canvas#gameCanvas {
   50% { transform: scale(1.35); opacity: 1; }
 }
 
-/* Section Header & Timers */
+/* Section headers: wrap long titles instead of painting over the reset badge. */
 .quest-section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   margin-bottom: 8px;
-  gap: 8px;
+  gap: 6px 10px;
+  min-width: 0;
 }
 
 .section-title-group {
@@ -3683,17 +3720,26 @@ canvas#gameCanvas {
   align-items: center;
   gap: 7px;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 0;
+  overflow: hidden;
 }
 
 .section-subtitle {
   font-family: var(--font-ui);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.6px;
   color: #ffffff;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.reset-timer-badge-wrap {
+  flex: 0 0 auto;
+  margin-left: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .reset-timer-badge {
@@ -3701,7 +3747,7 @@ canvas#gameCanvas {
   font-size: 10px;
   font-weight: 700;
   color: #fbbf24;
-  background: rgba(251, 191, 36, 0.1);
+  background: #16120a;
   border: 1px solid rgba(251, 191, 36, 0.3);
   padding: 2.5px 7px;
   border-radius: 5px;
@@ -3953,8 +3999,8 @@ canvas#gameCanvas {
     padding: 12px 14px;
   }
   .section-subtitle {
-    font-size: 13.5px;
-    letter-spacing: 1.5px;
+    font-size: 12px;
+    letter-spacing: 0.4px;
   }
   .quest-card-title {
     font-size: 13px;

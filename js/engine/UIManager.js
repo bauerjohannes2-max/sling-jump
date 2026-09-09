@@ -59,6 +59,9 @@ class UIManager {
       // HUD Elements
       altitudeVal: document.getElementById('altitude-val'),
       bestVal: document.getElementById('best-val'),
+      chaseFill: document.getElementById('chase-fill'),
+      chaseCaption: document.getElementById('chase-caption'),
+      scoreContainer: document.getElementById('score-container'),
       orbsVal: document.getElementById('orbs-val'),
       hudComboBadge: document.getElementById('hud-combo-badge'),
       hudQuestTitle: document.getElementById('hud-quest-title'),
@@ -475,17 +478,48 @@ class UIManager {
      HUD UPDATES
      ========================================================================= */
   updateHUD(altitude, best, cores, multiplier = 1.0) {
-    if (this._cachedAlt !== altitude) {
-      this._cachedAlt = altitude;
-      if (this.dom.altitudeVal) this.dom.altitudeVal.textContent = altitude.toString();
+    const alt = Number.isFinite(altitude) ? altitude : (this._cachedAlt || 0);
+    const hi = Number.isFinite(best)
+      ? best
+      : (this.storage && this.storage.data ? this.storage.data.highScore : (this._cachedBest || 0));
+    const coins = Number.isFinite(cores)
+      ? cores
+      : (this.storage && this.storage.data ? this.storage.data.cores : (this._cachedCores || 0));
+
+    if (this._cachedAlt !== alt) {
+      this._cachedAlt = alt;
+      if (this.dom.altitudeVal) this.dom.altitudeVal.textContent = alt.toString();
     }
-    if (this._cachedBest !== best) {
-      this._cachedBest = best;
-      if (this.dom.bestVal) this.dom.bestVal.textContent = `${best}m`;
+
+    const breaking = alt > 0 && alt >= hi;
+    const shownBest = breaking ? alt : hi;
+    if (this._cachedBestDisplay !== shownBest) {
+      this._cachedBestDisplay = shownBest;
+      if (this.dom.bestVal) this.dom.bestVal.textContent = `${shownBest}m`;
     }
-    if (this._cachedCores !== cores) {
-      this._cachedCores = cores;
-      if (this.dom.orbsVal) this.dom.orbsVal.textContent = cores.toString();
+    this._cachedBest = hi;
+
+    const pct = breaking ? 100 : (hi > 0 ? Math.min(100, (alt / hi) * 100) : 0);
+    const roundedPct = Math.round(pct * 10) / 10;
+    if (this.dom.chaseFill && this._cachedChasePct !== roundedPct) {
+      this._cachedChasePct = roundedPct;
+      this.dom.chaseFill.style.width = `${roundedPct}%`;
+    }
+
+    if (this.dom.scoreContainer && this._cachedBreaking !== breaking) {
+      this._cachedBreaking = breaking;
+      this.dom.scoreContainer.classList.toggle('record-break', breaking);
+    }
+
+    const caption = breaking ? 'NEW BEST' : 'TO BEST';
+    if (this.dom.chaseCaption && this._cachedChaseCap !== caption) {
+      this._cachedChaseCap = caption;
+      this.dom.chaseCaption.textContent = caption;
+    }
+
+    if (this._cachedCores !== coins) {
+      this._cachedCores = coins;
+      if (this.dom.orbsVal) this.dom.orbsVal.textContent = coins.toString();
     }
   }
 

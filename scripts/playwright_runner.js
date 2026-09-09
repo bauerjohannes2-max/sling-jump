@@ -160,7 +160,7 @@ async function runPlaywrightSuite() {
     console.log('[Playwright] Testing Main Menu Center Hangar Skins Switching...');
     await page.click('#dot-1');
     await sleep(400);
-    await captureScreenshot(page, '02_hangar_skins.png', 'Center Hangar Skin 2 (Phönix)');
+    await captureScreenshot(page, '02_hangar_skins.png', 'Center Hangar Skin 2 (Habicht)');
     await page.click('#dot-0');
     await sleep(300);
   }

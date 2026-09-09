@@ -1,9 +1,9 @@
 /**
  * Space Jump - Spaceship Entity
- * Renders 6 distinct geometric vector ship hulls, customizable trails & physics.
+ * Renders canonical vector ship hulls, customizable trails & physics.
  */
 class Spaceship {
-  constructor(x, y, shipId = 'dart', trailId = 'neon_cyan') {
+  constructor(x, y, shipId = 'pfeil', trailId = 'neon_cyan') {
     this.x = x;
     this.y = y;
     this.vx = 0;
@@ -277,7 +277,7 @@ class Spaceship {
     context.translate(this.x, screenY);
     context.rotate(-this.angle + Math.PI / 2);
 
-    this.renderShipModel(context, this.shipId, this.isHooked);
+    this.renderShipModel(context, this.shipId);
 
     context.restore();
 
@@ -345,181 +345,9 @@ class Spaceship {
     context.restore();
   }
 
-  // Pure Vector Ship Geometries (No Images/Emojis)
-  renderShipModel(context, shipId, isHooked) {
-    const shipDef = CONSTANTS.SHIPS.find(s => s.id === shipId) || CONSTANTS.SHIPS[0];
-    const trailDef = CONSTANTS.TRAILS.find(t => t.id === this.trailId) || CONSTANTS.TRAILS[0];
-    const glowColor = trailDef.color === 'rainbow' ? '#00f0ff' : trailDef.color;
-
-    // Dynamic Engine Glow / Plume (Dual-layer plasma jet with white-hot core)
-    const spd = Math.hypot(this.vx, this.vy);
-    const flameSize = Math.min(26, (spd / 650) * 16 + 8);
-    const flameFlicker = Math.random() * 3.5;
-
-    // Outer Energetic Mantle
-    context.fillStyle = isHooked ? 'rgba(56, 189, 248, 0.88)' : (glowColor || '#e11d48');
-    for (const offset of shipDef.thrusterOffsets) {
-      context.beginPath();
-      context.moveTo(offset.x - 3.5, offset.y);
-      context.lineTo(offset.x, offset.y + flameSize + flameFlicker);
-      context.lineTo(offset.x + 3.5, offset.y);
-      context.closePath();
-      context.fill();
-    }
-
-    // Inner White-Hot Ion Core
-    context.fillStyle = '#ffffff';
-    for (const offset of shipDef.thrusterOffsets) {
-      context.beginPath();
-      context.moveTo(offset.x - 1.5, offset.y);
-      context.lineTo(offset.x, offset.y + (flameSize * 0.55) + flameFlicker * 0.4);
-      context.lineTo(offset.x + 1.5, offset.y);
-      context.closePath();
-      context.fill();
-    }
-
-    context.fillStyle = '#0b1329';
-    context.strokeStyle = '#ffffff';
-    context.lineWidth = 2;
-
-    switch (shipId) {
-      case 'phoenix':
-      case 'interceptor':
-      case 'valkyrie': {
-        // Tier 1: PHÖNIX - Swept Twin-Blade Fighter with energized wings
-        context.beginPath();
-        context.moveTo(0, -17);
-        context.lineTo(6, -4);
-        context.lineTo(16, 8);
-        context.lineTo(8, 7);
-        context.lineTo(0, 11);
-        context.lineTo(-8, 7);
-        context.lineTo(-16, 8);
-        context.lineTo(-6, -4);
-        context.closePath();
-        context.fill();
-        context.stroke();
-
-        context.strokeStyle = glowColor;
-        context.lineWidth = 1.8;
-        context.beginPath();
-        context.moveTo(-10, 5);
-        context.lineTo(-3, -6);
-        context.lineTo(0, -12);
-        context.lineTo(3, -6);
-        context.lineTo(10, 5);
-        context.stroke();
-        break;
-      }
-      case 'spectre':
-      case 'stealth_wing': {
-        // Tier 2: SPECTRE - Faceted Stealth Delta Interceptor with triple thrusters & energy core
-        context.beginPath();
-        context.moveTo(0, -16);
-        context.lineTo(15, 6);
-        context.lineTo(9, 11);
-        context.lineTo(0, 7);
-        context.lineTo(-9, 11);
-        context.lineTo(-15, 6);
-        context.closePath();
-        context.fill();
-        context.stroke();
-
-        context.strokeStyle = glowColor;
-        context.lineWidth = 1.5;
-        context.strokeRect(-3, -3, 6, 6);
-
-        context.fillStyle = glowColor;
-        context.beginPath();
-        context.arc(0, 0, 2.5, 0, Math.PI * 2);
-        context.fill();
-        break;
-      }
-      case 'titan':
-      case 'dreadnought':
-      case 'orbit_ring': {
-        // Tier 3: NEXUS-TITAN - Heavy Armored Orbital Flagship with quad thrusters & rotating shield ring
-        context.beginPath();
-        context.moveTo(-6, -17);
-        context.lineTo(6, -17);
-        context.lineTo(14, -5);
-        context.lineTo(15, 11);
-        context.lineTo(7, 9);
-        context.lineTo(0, 13);
-        context.lineTo(-7, 9);
-        context.lineTo(-15, 11);
-        context.lineTo(-14, -5);
-        context.closePath();
-        context.fill();
-        context.stroke();
-
-        // Rotating Energy Ring
-        context.strokeStyle = glowColor;
-        context.lineWidth = 1.5;
-        context.beginPath();
-        context.arc(0, -2, 9, this.rotationAngle, this.rotationAngle + Math.PI * 1.5);
-        context.stroke();
-
-        // Armored Center Plate
-        context.strokeRect(-4, -9, 8, 14);
-        break;
-      }
-      case 'dart':
-      default: {
-        // Delta Dart (Screenshot Skin 1): Deep navy body, crimson chevron, red spine, cyan core
-        context.fillStyle = '#0c1220';
-        context.strokeStyle = '#ffffff';
-        context.lineWidth = 2;
-
-        context.beginPath();
-        context.moveTo(0, -18);
-        context.lineTo(14, 10);
-        context.lineTo(7, 13);
-        context.lineTo(0, 6);
-        context.lineTo(-7, 13);
-        context.lineTo(-14, 10);
-        context.closePath();
-        context.fill();
-        context.stroke();
-
-        // Inner crimson chevron
-        context.strokeStyle = '#e11d48';
-        context.lineWidth = 1.6;
-        context.beginPath();
-        context.moveTo(-10, 8);
-        context.lineTo(0, -11);
-        context.lineTo(10, 8);
-        context.stroke();
-
-        // Red spearhead at nose
-        context.fillStyle = '#e11d48';
-        context.beginPath();
-        context.moveTo(0, -18);
-        context.lineTo(3.5, -11);
-        context.lineTo(0, -13.5);
-        context.lineTo(-3.5, -11);
-        context.closePath();
-        context.fill();
-
-        // Vertical red spine
-        context.beginPath();
-        context.moveTo(0, -13.5);
-        context.lineTo(0, 6);
-        context.stroke();
-
-        // Center cyan ring & white core
-        context.strokeStyle = '#00f0ff';
-        context.lineWidth = 1.4;
-        context.beginPath();
-        context.arc(0, -2, 3.2, 0, Math.PI * 2);
-        context.stroke();
-
-        context.fillStyle = '#ffffff';
-        context.beginPath();
-        context.arc(0, -2, 1.4, 0, Math.PI * 2);
-        context.fill();
-        break;
-      }
+  renderShipModel(context, shipId) {
+    if (typeof ShipArt !== 'undefined') {
+      ShipArt.renderCanvas(context, shipId);
     }
   }
 }

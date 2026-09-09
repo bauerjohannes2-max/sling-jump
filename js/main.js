@@ -161,74 +161,66 @@
     }
 
     // --- CENTER STAGE INTERACTIVE SHIP HANGAR CAROUSEL ---
-    // Skin 1: Sleek Delta Dart from user screenshot
-    const skin1ScreenshotSvg = `
-      <polygon points="0,-22 17,12 9,16 0,8 -9,16 -17,12" fill="#0c1220" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></polygon>
-      <polyline points="0,-13 12,9 7,12 0,6 -7,12 -12,9 0,-13" fill="none" stroke="var(--accent-crimson)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></polyline>
-      <polygon points="0,-19 3.5,-6 0,-2 -3.5,-6" fill="var(--accent-crimson)"></polygon>
-      <polygon points="0,-18 1.8,-6 0,-3" fill="#ffffff" opacity="0.85"></polygon>
-      <line x1="0" y1="-2" x2="0" y2="8" stroke="var(--accent-crimson)" stroke-width="1.8" stroke-linecap="round"></line>
-      <circle cx="0" cy="2" r="4.2" fill="none" stroke="#22d3ee" stroke-width="1.6"></circle>
-      <circle cx="0" cy="2" r="2.2" fill="#ffffff"></circle>
-    `;
-
-    // Skin 2: Current Phoenix Twin-Blade Fighter
-    const skin2CurrentPhoenixSvg = `
-      <polygon points="0,-22 4.5,-9 7,-4 21,10 20,14 11,11 7,13 0,9 -7,13 -11,11 -20,14 -21,10 -7,-4 -4.5,-9" fill="#080e1a" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"></polygon>
-      <polygon points="5,-3 19,9 13,10 7,4" fill="rgba(255,255,255,0.06)"></polygon>
-      <polygon points="-5,-3 -19,9 -13,10 -7,4" fill="rgba(255,255,255,0.06)"></polygon>
-      <polyline points="4,-5 16,7 12,10" fill="none" stroke="var(--accent-crimson)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></polyline>
-      <polyline points="-4,-5 -16,7 -12,10" fill="none" stroke="var(--accent-crimson)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></polyline>
-      <polygon points="0,-19 3,-7 3,6 0,8 -3,6 -3,-7" fill="#0f192c" stroke="rgba(255,255,255,0.3)" stroke-width="1"></polygon>
-      <polygon points="0,-14 3.5,-6 0,-1 -3.5,-6" fill="var(--accent-crimson)"></polygon>
-      <polygon points="0,-13 2,-6 0,-3" fill="#ffffff" opacity="0.85"></polygon>
-      <line x1="-7" y1="13" x2="-4" y2="13" stroke="var(--accent-crimson)" stroke-width="2" stroke-linecap="round"></line>
-      <line x1="4" y1="13" x2="7" y2="13" stroke="var(--accent-crimson)" stroke-width="2" stroke-linecap="round"></line>
-      <circle cx="0" cy="4" r="1.8" fill="#ffffff"></circle>
-    `;
-
-    // Skin 2 Locked Silhouette (Details hidden until purchased with coins)
-    const skin2MysterySvg = `
-      <polygon points="0,-22 4.5,-9 7,-4 21,10 20,14 11,11 7,13 0,9 -7,13 -11,11 -20,14 -21,10 -7,-4 -4.5,-9" fill="#03050b" stroke="rgba(255,255,255,0.10)" stroke-width="1.6" stroke-linejoin="round"></polygon>
-      <circle cx="0" cy="3" r="5" fill="none" stroke="rgba(251,191,36,0.25)" stroke-width="1.3" stroke-dasharray="2 3"></circle>
-      <circle cx="0" cy="3" r="1.6" fill="rgba(251,191,36,0.45)"></circle>
-    `;
-
     function isShipUnlocked(shipId) {
-      if (shipId === 'dart') return true;
+      const def = CONSTANTS.SHIPS.find(s => s.id === shipId);
+      if (def && def.cost === 0) return true;
       return (engine && engine.storage) ? engine.storage.isShipUnlocked(shipId) : false;
     }
-
-    // Artwork per ship id; everything else (name, cost, thruster count) comes from CONSTANTS.SHIPS.
-    const menuShipArt = {
-      dart: () => skin1ScreenshotSvg,
-      phoenix: () => isShipUnlocked('phoenix') ? skin2CurrentPhoenixSvg : skin2MysterySvg
-    };
 
     const menuShips = CONSTANTS.SHIPS.map(ship => ({
       id: ship.id,
       name: ship.name,
-      cost: ship.cost,
-      thruster: ship.thrusterCount > 1 ? 'twin' : 'single',
-      getSvg: menuShipArt[ship.id] || menuShipArt.dart
+      role: ship.role,
+      cost: ship.cost
     }));
-    let menuShipIndex = 0;
+
+    const savedShipId = engine.storage && engine.storage.data && engine.storage.data.selectedShip;
+    const savedShipIdx = menuShips.findIndex(s => s.id === savedShipId);
+    let menuShipIndex = savedShipIdx >= 0 ? savedShipIdx : 0;
+
+    const shipDotsEl = document.getElementById('ship-dots');
+    if (shipDotsEl) {
+      shipDotsEl.innerHTML = menuShips.map((_, index) =>
+        `<span class="s-dot" id="dot-${index}"></span>`
+      ).join('');
+    }
+
+    function formatShipCost(cost) {
+      return Number(cost).toLocaleString('de-DE');
+    }
+
+    function persistEquippedShip(shipId) {
+      if (!engine.storage) return;
+      if (engine.storage.data.selectedShip !== shipId) {
+        engine.storage.data.selectedShip = shipId;
+        engine.storage.save();
+      }
+      if (engine.player) {
+        engine.player.setCustomization(shipId, engine.player.trailId);
+      }
+    }
 
     function renderMenuShip() {
       const ship = menuShips[menuShipIndex];
       const sUnit = document.getElementById('ship-unit');
       const sSvg = document.getElementById('ship-svg');
-      const sPlasma = document.getElementById('ship-plasma');
       const btnBuy = document.getElementById('btn-buy-ship');
+      const nameEl = document.getElementById('hangar-ship-name');
+      const tierEl = document.getElementById('hangar-ship-tier');
       const unlocked = isShipUnlocked(ship.id);
 
-      if (sSvg) sSvg.innerHTML = ship.getSvg();
+      if (sSvg && typeof ShipArt !== 'undefined') {
+        sSvg.innerHTML = ShipArt.toSvg(ship.id, { locked: !unlocked });
+      }
+
+      if (nameEl) nameEl.textContent = ship.name;
+      if (tierEl) tierEl.textContent = ship.role || '';
 
       if (btnBuy) {
         if (!unlocked) {
           btnBuy.style.display = 'inline-flex';
           const priceEl = btnBuy.querySelector('.buy-price');
-          if (priceEl && priceEl.firstChild) priceEl.firstChild.nodeValue = `${ship.cost} `;
+          if (priceEl && priceEl.firstChild) priceEl.firstChild.nodeValue = `${formatShipCost(ship.cost)} `;
         } else {
           btnBuy.style.display = 'none';
         }
@@ -239,39 +231,12 @@
         else sUnit.classList.remove('pokemon-locked');
       }
 
-      if (sPlasma) {
-        if (!unlocked) {
-          sPlasma.style.display = 'none';
-        } else {
-          sPlasma.style.display = 'flex';
-          const cFlame = sPlasma.querySelector('.plasma-flame.center');
-          const lFlame = sPlasma.querySelector('.plasma-flame.left');
-          const rFlame = sPlasma.querySelector('.plasma-flame.right');
-
-          if (ship.thruster === 'single') {
-            sPlasma.classList.add('single-thruster');
-            if (cFlame) cFlame.style.display = 'block';
-            if (lFlame) lFlame.style.display = 'none';
-            if (rFlame) rFlame.style.display = 'none';
-          } else {
-            sPlasma.classList.remove('single-thruster');
-            if (cFlame) cFlame.style.display = 'none';
-            if (lFlame) lFlame.style.display = 'block';
-            if (rFlame) rFlame.style.display = 'block';
-          }
-        }
-      }
-
       for (let i = 0; i < menuShips.length; i++) {
         const dot = document.getElementById('dot-' + i);
         if (dot) dot.classList.toggle('active', i === menuShipIndex);
       }
 
-      // Sync active ship with game engine player
-      if (typeof engine !== 'undefined' && engine && engine.player) {
-        const activeShipId = unlocked ? ship.id : 'dart';
-        engine.player.setCustomization(activeShipId, engine.player.trailId);
-      }
+      if (unlocked) persistEquippedShip(ship.id);
     }
 
     refreshHangar = renderMenuShip;

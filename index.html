@@ -12,12 +12,12 @@
       }
     })();
   </script>
-  <link rel="manifest" href="manifest.json?v=5.18.6">
-  <link rel="shortcut icon" href="favicon.ico?v=5.18.6">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.6">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=5.18.6">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.6">
-  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192.png?v=5.18.6">
+  <link rel="manifest" href="manifest.json?v=5.18.11">
+  <link rel="shortcut icon" href="favicon.ico?v=5.18.11">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.11">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=5.18.11">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.11">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192.png?v=5.18.11">
   <meta name="theme-color" content="#080b10">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,10 +27,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Oxanium:wght@800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=5.18.6">
+  <link rel="stylesheet" href="css/style.css?v=5.18.11">
   <script>
     (function() {
-      var APP_VERSION = '5.18.6';
+      var APP_VERSION = '5.18.11';
       var storedVer = localStorage.getItem('space_jump_installed_version') || localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('space_jump_installed_version', APP_VERSION);
@@ -199,30 +199,26 @@
           <!-- THE SHIP COMPLETELY IN THE CENTER -->
           <div class="hero-centered-ship" id="ship-unit" title="Klicken zum Wechseln">
             <div class="hero-ship-inner" id="hero-ship-inner">
-              <div class="plasma-jets single-thruster" id="ship-plasma">
-                <div class="plasma-flame center"></div>
-                <div class="plasma-flame left" style="display: none;"></div>
-                <div class="plasma-flame right" style="display: none;"></div>
-              </div>
-              
-              <svg id="ship-svg" width="125" height="125" viewBox="-28 -28 56 56">
+              <svg id="ship-svg" width="125" height="125" viewBox="-28 -28 56 56" overflow="visible">
                 <!-- Rendered dynamically -->
               </svg>
             </div>
           </div>
 
-          <!-- Interactive Buy Button for Locked Skins (e.g. Skin 2) -->
+          <div class="hangar-ship-meta" id="hangar-ship-meta">
+            <div class="hangar-ship-name" id="hangar-ship-name">PFEIL</div>
+            <div class="hangar-ship-tier" id="hangar-ship-tier">Starter</div>
+          </div>
+
+          <!-- Interactive Buy Button for Locked Skins -->
           <button class="ship-buy-btn" id="btn-buy-ship" style="display: none;" title="Raumschiff mit Credits freischalten">
             <span class="buy-label">KAUFEN</span>
-            <span class="buy-price">500 <svg class="currency-icon coin-icon" viewBox="0 0 36 36" fill="none" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-left:3px;"><circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8" /><circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4" /><circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75" /><text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="'Rajdhani', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select: none;">C</text></svg></span>
+            <span class="buy-price">600 <svg class="currency-icon coin-icon" viewBox="0 0 36 36" fill="none" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-left:3px;"><circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8" /><circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4" /><circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75" /><text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="'Rajdhani', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select: none;">C</text></svg></span>
           </button>
         </div>
 
-        <!-- Ship Selection Dots (2 Skins) -->
-        <div class="ship-dots">
-          <span class="s-dot active" id="dot-0"></span>
-          <span class="s-dot" id="dot-1"></span>
-        </div>
+        <!-- Ship Selection Dots (canonical 5-skin lineup) -->
+        <div class="ship-dots" id="ship-dots"></div>
       </div>
 
       <!-- 3. BOTTOM CORE: MASSIVE PLAY CTA & REFINED FLOATING DOCK -->
@@ -297,18 +293,24 @@
       </div>
 
       <div class="top-header">
-        <div class="score-container">
-          <div class="altitude-meter"><span id="altitude-val">0</span><span class="altitude-unit">m</span></div>
-          <div class="sub-stats">
-            <div class="stat-badge best">
-              <span>REKORD:</span>
-              <span id="best-val">0m</span>
+        <div class="hud-left">
+          <div class="score-container" id="score-container">
+            <div class="score-label">ALTITUDE</div>
+            <div class="altitude-meter">
+              <span id="altitude-val">0</span><span class="altitude-unit">m</span>
             </div>
-            <div class="stat-badge fps" id="hud-fps-badge" style="display: none;">
-              <span class="fps-indicator-dot"></span>
-              <span id="hud-fps-val">60.0 FPS</span>
-              <span id="hud-fps-dt">16.6ms</span>
+            <div class="chase-track">
+              <div class="chase-fill" id="chase-fill"></div>
             </div>
+            <div class="chase-row">
+              <span class="chase-caption" id="chase-caption">TO BEST</span>
+              <span class="chase-best" id="best-val">0m</span>
+            </div>
+          </div>
+          <div class="stat-badge fps" id="hud-fps-badge" style="display: none;">
+            <span class="fps-indicator-dot"></span>
+            <span id="hud-fps-val">60.0 FPS</span>
+            <span id="hud-fps-dt">16.6ms</span>
           </div>
         </div>
 
@@ -699,7 +701,7 @@
           <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag">SPACE JUMP v5.18.6</div>
+        <div class="settings-version-tag">SPACE JUMP v5.18.11</div>
       </div>
     </div>
 
@@ -837,21 +839,22 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=5.18.6"></script>
-  <script src="js/services/CloudBackend.js?v=5.18.6"></script>
-  <script src="js/services/StorageService.js?v=5.18.6"></script>
-  <script src="js/audio/AudioManager.js?v=5.18.6"></script>
-  <script src="js/engine/ParticleSystem.js?v=5.18.6"></script>
-  <script src="js/engine/InputManager.js?v=5.18.6"></script>
-  <script src="js/engine/MissionManager.js?v=5.18.6"></script>
-  <script src="js/entities/Node.js?v=5.18.6"></script>
-  <script src="js/entities/EnergyOrb.js?v=5.18.6"></script>
-  <script src="js/entities/Spaceship.js?v=5.18.6"></script>
-  <script src="js/world/WorldManager.js?v=5.18.6"></script>
-  <script src="js/engine/ShopManager.js?v=5.18.6"></script>
-  <script src="js/engine/StateManager.js?v=5.18.6"></script>
-  <script src="js/engine/UIManager.js?v=5.18.6"></script>
-  <script src="js/engine/GameEngine.js?v=5.18.6"></script>
-  <script src="js/main.js?v=5.18.6"></script>
+  <script src="js/config/Constants.js?v=5.18.11"></script>
+  <script src="js/services/CloudBackend.js?v=5.18.11"></script>
+  <script src="js/services/StorageService.js?v=5.18.11"></script>
+  <script src="js/audio/AudioManager.js?v=5.18.11"></script>
+  <script src="js/engine/ParticleSystem.js?v=5.18.11"></script>
+  <script src="js/engine/InputManager.js?v=5.18.11"></script>
+  <script src="js/engine/MissionManager.js?v=5.18.11"></script>
+  <script src="js/entities/Node.js?v=5.18.11"></script>
+  <script src="js/entities/EnergyOrb.js?v=5.18.11"></script>
+  <script src="js/entities/ShipArt.js?v=5.18.11"></script>
+  <script src="js/entities/Spaceship.js?v=5.18.11"></script>
+  <script src="js/world/WorldManager.js?v=5.18.11"></script>
+  <script src="js/engine/ShopManager.js?v=5.18.11"></script>
+  <script src="js/engine/StateManager.js?v=5.18.11"></script>
+  <script src="js/engine/UIManager.js?v=5.18.11"></script>
+  <script src="js/engine/GameEngine.js?v=5.18.11"></script>
+  <script src="js/main.js?v=5.18.11"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '5.18.6',
+  VERSION: '5.18.11',
   STORAGE_KEY: 'space_jump_save_v2',
   LEGACY_STORAGE_KEY: 'sling_jump_save_v2',
 
@@ -96,27 +96,101 @@ const CONSTANTS = {
     }
   ],
 
-  // 1 Aktives Standard-Raumschiff
+  // Canonical hangar lineup (unlock order). Hulls are pure monocoque polygons.
   SHIPS: [
     {
-      id: 'dart',
-      name: 'DELTA PFEIL',
-      tier: 'SERIE 01',
-      description: 'Präzisions-Abfangjäger mit Crimson-Chevron und Einzeldüse.',
+      id: 'pfeil',
+      name: 'PFEIL',
+      tier: 'Starter',
+      role: 'Starter',
+      description: 'Delta-Starter mit einer zentralen Düse.',
       cost: 0,
       radius: 12,
       thrusterCount: 1,
-      thrusterOffsets: [{ x: 0, y: 8 }]
+      thrusterOffsets: [{ x: 0, y: 7 }],
+      hull: [
+        { points: '0,-22 13.5,11 4,7 -4,7 -13.5,11', fill: '#0c1626', stroke: '#ffffff', strokeWidth: 1.6 }
+      ],
+      nozzles: [
+        { x: 0, y: 7, width: 1.8, bell: 2.6, flameHeight: 11.5 }
+      ]
     },
     {
-      id: 'phoenix',
-      name: 'PHÖNIX',
-      tier: 'SERIE 02',
-      description: 'Zweiflügeliger Raumgleiter mit doppelter Impulsdüse.',
-      cost: 500,
+      id: 'habicht',
+      name: 'HABICHT',
+      tier: 'Recon',
+      role: 'Recon',
+      description: 'Waverider-Aufklärer mit Zwillingsdüsen.',
+      cost: 600,
       radius: 12,
       thrusterCount: 2,
-      thrusterOffsets: [{ x: -5, y: 8 }, { x: 5, y: 8 }]
+      thrusterOffsets: [{ x: -5.5, y: 12.2 }, { x: 5.5, y: 12.2 }],
+      hull: [
+        { points: '0,-27 3.5,-14 6,-5 18,8 15,13.5 6,11 3,14 0,12 -3,14 -6,11 -15,13.5 -18,8 -6,-5 -3.5,-14', fill: '#0a1220', stroke: '#ffffff', strokeWidth: 1.6 }
+      ],
+      nozzles: [
+        { x: -5.5, y: 12.2, width: 1.1, bell: 1.7, flameHeight: 11 },
+        { x: 5.5, y: 12.2, width: 1.1, bell: 1.7, flameHeight: 11 }
+      ]
+    },
+    {
+      id: 'lanze',
+      name: 'LANZE',
+      tier: 'Interceptor',
+      role: 'Interceptor',
+      description: 'Speerrumpf mit Mega-Düse und Heckfinnen.',
+      cost: 1800,
+      radius: 12,
+      thrusterCount: 1,
+      thrusterOffsets: [{ x: 0, y: 14 }],
+      hull: [
+        { points: '-2.6,2 -13.5,12 -12.5,14.5 -2.6,11', fill: '#080f1c', stroke: '#ffffff', strokeWidth: 1.2 },
+        { points: '2.6,2 13.5,12 12.5,14.5 2.6,11', fill: '#080f1c', stroke: '#ffffff', strokeWidth: 1.2 },
+        { points: '0,-27 2.6,-9 2.6,14 -2.6,14 -2.6,-9', fill: '#0c1626', stroke: '#ffffff', strokeWidth: 1.6 }
+      ],
+      nozzles: [
+        { x: 0, y: 14, width: 2.0, bell: 3.2, flameHeight: 14 }
+      ]
+    },
+    {
+      id: 'jaeger',
+      name: 'JÄGER',
+      tier: 'Air Superiority',
+      role: 'Air Superiority',
+      description: 'Luftüberlegenheitsjäger mit getrennten Düsen.',
+      cost: 4500,
+      radius: 12,
+      thrusterCount: 2,
+      thrusterOffsets: [{ x: -2.1, y: 12 }, { x: 2.1, y: 12 }],
+      hull: [
+        { points: '-3,-2 -18,5 -17,10 -3,8', fill: '#080f1c', stroke: '#ffffff', strokeWidth: 1.4 },
+        { points: '3,-2 18,5 17,10 3,8', fill: '#080f1c', stroke: '#ffffff', strokeWidth: 1.4 },
+        { points: '-3.5,8 -10,13.5 -9,15.5 -3.5,12.5', fill: '#060c18', stroke: '#ffffff', strokeWidth: 1 },
+        { points: '3.5,8 10,13.5 9,15.5 3.5,12.5', fill: '#060c18', stroke: '#ffffff', strokeWidth: 1 },
+        { points: '0,-23 3.6,-9 3.8,12 -3.8,12 -3.6,-9', fill: '#0f1b2f', stroke: '#ffffff', strokeWidth: 1.6 }
+      ],
+      nozzles: [
+        { x: -2.1, y: 12, width: 1.0, bell: 1.45, flameHeight: 9.5 },
+        { x: 2.1, y: 12, width: 1.0, bell: 1.45, flameHeight: 9.5 }
+      ]
+    },
+    {
+      id: 'falke',
+      name: 'FALKE',
+      tier: 'Apex Fighter',
+      role: 'Apex Fighter',
+      description: 'Apex-Jäger mit Vorwärtspfeilung und Heckbuchten.',
+      cost: 8000,
+      radius: 12,
+      thrusterCount: 2,
+      thrusterOffsets: [{ x: -6.8, y: 5.2 }, { x: 6.8, y: 5.2 }],
+      hull: [
+        { points: '0,-19 6,-11 24,-1 23,6 9,4 4,11 0,8 -4,11 -9,4 -23,6 -24,-1 -6,-11', fill: '#0a1220', stroke: '#ffffff', strokeWidth: 1.6 }
+      ],
+      nozzles: [
+        { x: -6.8, y: 5.2, width: 1.2, bell: 1.9, flameHeight: 10.5 },
+        { x: 6.8, y: 5.2, width: 1.2, bell: 1.9, flameHeight: 10.5 }
+      ]
     }
   ],
 

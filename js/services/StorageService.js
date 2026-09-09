@@ -48,10 +48,10 @@ class StorageService {
       cores: 0,
       hyperCrystals: 1, // 1 free starter crystal so players can experience revive immediately
       highScore: 0,
-      selectedShip: 'dart',
+      selectedShip: 'pfeil',
       selectedTrail: 'neon_cyan',
       selectedTheme: 'deep_space',
-      unlockedShips: ['dart'],
+      unlockedShips: ['pfeil'],
       unlockedTrails: ['neon_cyan'],
       unlockedThemes: ['deep_space'],
       notifiedUpgradeIds: [], // Tracks upgrade IDs that have already been notified (one-time per item)
@@ -138,6 +138,12 @@ class StorageService {
     merged.playerProfile = { ...defaultState.playerProfile, ...(saved.playerProfile || {}) };
 
     // Ensure array integrity & valid selected equipment
+    const validShipIds = CONSTANTS.SHIPS.map(s => s.id);
+    const remapShipId = (id) => ({ dart: 'pfeil', phoenix: 'habicht' }[id] || id);
+
+    if (typeof merged.selectedShip === 'string') {
+      merged.selectedShip = remapShipId(merged.selectedShip);
+    }
     if (!CONSTANTS.SHIPS.some(s => s.id === merged.selectedShip)) {
       merged.selectedShip = CONSTANTS.SHIPS[0].id;
     }
@@ -146,8 +152,16 @@ class StorageService {
     }
     if (!Array.isArray(merged.unlockedShips) || merged.unlockedShips.length === 0) {
       merged.unlockedShips = [CONSTANTS.SHIPS[0].id];
-    } else if (!merged.unlockedShips.includes(CONSTANTS.SHIPS[0].id)) {
-      merged.unlockedShips.unshift(CONSTANTS.SHIPS[0].id);
+    } else {
+      merged.unlockedShips = merged.unlockedShips
+        .map(remapShipId)
+        .filter((id, idx, arr) => validShipIds.includes(id) && arr.indexOf(id) === idx);
+      if (!merged.unlockedShips.includes(CONSTANTS.SHIPS[0].id)) {
+        merged.unlockedShips.unshift(CONSTANTS.SHIPS[0].id);
+      }
+      if (merged.unlockedShips.length === 0) {
+        merged.unlockedShips = [CONSTANTS.SHIPS[0].id];
+      }
     }
 
     if (!Array.isArray(merged.unlockedTrails) || merged.unlockedTrails.length === 0) {
@@ -300,7 +314,7 @@ class StorageService {
 
   unlockShip(shipId) {
     if (!this.isShipUnlocked(shipId)) {
-      if (!Array.isArray(this.data.unlockedShips)) this.data.unlockedShips = ['dart'];
+      if (!Array.isArray(this.data.unlockedShips)) this.data.unlockedShips = [CONSTANTS.SHIPS[0].id];
       this.data.unlockedShips.push(shipId);
       this.save();
       return true;

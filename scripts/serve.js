@@ -411,7 +411,7 @@ try {
 
 const VALID_SHIPS = (APP_CONSTANTS && Array.isArray(APP_CONSTANTS.SHIPS) && APP_CONSTANTS.SHIPS.length > 0)
   ? APP_CONSTANTS.SHIPS.map(s => s.id)
-  : ['dart', 'phoenix'];
+  : ['pfeil', 'habicht', 'lanze', 'jaeger', 'falke'];
 
 const VALID_TRAILS = (APP_CONSTANTS && Array.isArray(APP_CONSTANTS.TRAILS) && APP_CONSTANTS.TRAILS.length > 0)
   ? APP_CONSTANTS.TRAILS.map(t => t.id)
@@ -457,7 +457,7 @@ function sanitizeState(state) {
 
   // 2. Equipment catalog validation
   if ('selectedShip' in clean) {
-    clean.selectedShip = VALID_SHIPS.includes(clean.selectedShip) ? clean.selectedShip : (VALID_SHIPS[0] || 'dart');
+    clean.selectedShip = VALID_SHIPS.includes(clean.selectedShip) ? clean.selectedShip : (VALID_SHIPS[0] || 'pfeil');
   }
   if ('selectedTrail' in clean) {
     clean.selectedTrail = VALID_TRAILS.includes(clean.selectedTrail) ? clean.selectedTrail : (VALID_TRAILS[0] || 'neon_cyan');
