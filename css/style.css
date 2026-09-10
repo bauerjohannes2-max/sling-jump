@@ -594,6 +594,15 @@ canvas#gameCanvas {
   }
 }
 
+.profile-nav-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+  gap: 1px;
+}
+
 .profile-nav-name {
   font-family: var(--font-ui);
   font-size: 14px;
@@ -602,9 +611,25 @@ canvas#gameCanvas {
   color: #f8fafc;
   white-space: nowrap;
   min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.profile-nav-role {
+  font-family: var(--font-numbers);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #94a3b8;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.profile-nav-role[hidden] {
+  display: none;
 }
 
 /* Clean, Frameless Currencies (Zero Outer Boxes) */
@@ -743,6 +768,9 @@ canvas#gameCanvas {
   }
   .profile-nav-name {
     font-size: 12px;
+  }
+  .profile-nav-role {
+    font-size: 8px;
   }
   .currency-item {
     gap: 6px;

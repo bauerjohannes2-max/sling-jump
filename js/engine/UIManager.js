@@ -141,6 +141,7 @@ class UIManager {
       menuFpsDt: document.getElementById('menu-fps-dt'),
       // Profile & Identity Elements
       menuProfileName: document.getElementById('menu-profile-name'),
+      menuProfileRole: document.getElementById('menu-profile-role'),
       profileHeroName: document.getElementById('profile-hero-name'),
       profileUserIdBadge: document.getElementById('profile-user-id-badge'),
       profileStatusMsg: document.getElementById('profile-status-message'),
@@ -296,8 +297,14 @@ class UIManager {
     if (!this.storage) return;
     const profile = this.storage.getPlayerProfile();
     const navNameEl = this.dom.menuProfileName || document.getElementById('menu-profile-name');
+    const navRoleEl = this.dom.menuProfileRole || document.getElementById('menu-profile-role');
     if (navNameEl && profile) {
       navNameEl.textContent = profile.pilotName || 'SPIELER';
+    }
+    if (navRoleEl) {
+      const isGuest = !(this.storage.hasAccount && this.storage.hasAccount());
+      navRoleEl.hidden = !isGuest;
+      navRoleEl.textContent = 'GAST';
     }
   }
 

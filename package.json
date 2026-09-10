@@ -1,6 +1,6 @@
 {
   "name": "space-jump",
-  "version": "5.18.19",
+  "version": "5.18.20",
   "description": "Space Jump - Neon Vector Arcade Game with Playwright Visual Verification & Mobile Access",
   "scripts": {
     "start": "node scripts/serve.js",
