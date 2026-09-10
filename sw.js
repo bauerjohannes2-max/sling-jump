@@ -1,9 +1,9 @@
 /**
  * Space Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 5.18.27
+ * Version: 5.18.29
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'space-jump-v5.18.27';
+const CACHE_NAME = 'space-jump-v5.18.29';
 
 const PRECACHE_ASSETS = [
   './',
@@ -38,9 +38,9 @@ const PRECACHE_ASSETS = [
   './js/main.js'
 ];
 
-// 1. Install: Pre-cache core shell & immediately take over
+// 1. Install: Pre-cache core shell. Do not skipWaiting here — taking over
+// mid-run reloads the page and shifts the mobile viewport until a cold start.
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(PRECACHE_ASSETS);

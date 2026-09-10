@@ -94,6 +94,9 @@ class GameEngine {
     };
 
     window.addEventListener('resize', handleResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+    }
     handleResize();
   }
 

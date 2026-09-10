@@ -5,6 +5,26 @@
 (function() {
   'use strict';
 
+  // Pin the app to a stable visual viewport so browser chrome / live PWA
+  // updates overlay the UI instead of shrinking 100dvh and shifting layout.
+  function applyViewportLock() {
+    const vv = window.visualViewport;
+    const visualH = vv && vv.height ? vv.height : 0;
+    const layoutH = window.innerHeight || document.documentElement.clientHeight || 0;
+    const offsetTop = vv ? Math.round(vv.offsetTop || 0) : 0;
+    const height = Math.max(1, Math.round(offsetTop > 0 ? (visualH || layoutH) : Math.max(visualH, layoutH)));
+    document.documentElement.style.setProperty('--app-height', `${height}px`);
+    document.documentElement.style.setProperty('--app-offset-top', `${offsetTop}px`);
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
+  }
+  applyViewportLock();
+  window.addEventListener('resize', applyViewportLock);
+  window.addEventListener('orientationchange', () => setTimeout(applyViewportLock, 150));
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', applyViewportLock);
+    window.visualViewport.addEventListener('scroll', applyViewportLock);
+  }
+
   // Instantiate Game Engine
   const engine = new GameEngine();
   window._gameEngine = engine;
@@ -586,16 +606,64 @@
     }
   }
 
-  async function forceAppUpdate(serverVer) {
-    window._sjSuppressSwReload = true;
-    try {
-      await purgeAppCachesAndWorkers();
-    } catch (e) {}
+  let pendingReloadUrl = null;
 
+  function isInActiveRun() {
+    const s = engine.state && engine.state.currentState;
+    return s === StateManager.STATES.PLAYING
+      || s === StateManager.STATES.PAUSED
+      || s === StateManager.STATES.TUTORIAL
+      || s === StateManager.STATES.GAME_OVER;
+  }
+
+  async function navigateForUpdate(url) {
+    if (typeof url === 'string') {
+      window._sjSuppressSwReload = true;
+      try {
+        await purgeAppCachesAndWorkers();
+      } catch (e) {}
+      location.replace(url);
+      return;
+    }
+    location.reload();
+  }
+
+  function performOrDeferReload(url) {
+    if (isInActiveRun()) {
+      pendingReloadUrl = url || true;
+      return;
+    }
+    navigateForUpdate(url);
+  }
+
+  const originalChangeState = engine.state.changeState.bind(engine.state);
+  engine.state.changeState = function(newState, contextData) {
+    originalChangeState(newState, contextData);
+    if (pendingReloadUrl == null || newState !== StateManager.STATES.MENU) return;
+    const url = pendingReloadUrl;
+    pendingReloadUrl = null;
+    if (typeof url === 'string') {
+      navigateForUpdate(url);
+      return;
+    }
+    if (!('serviceWorker' in navigator)) {
+      location.reload();
+      return;
+    }
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      if (reg && reg.waiting) {
+        reg.waiting.postMessage({ action: 'skipWaiting' });
+        return;
+      }
+      location.reload();
+    }).catch(() => location.reload());
+  };
+
+  async function forceAppUpdate(serverVer) {
     const next = new URL(location.href);
     next.searchParams.set('v', serverVer);
     next.searchParams.set('_', String(Date.now()));
-    location.replace(next.pathname + next.search + next.hash);
+    performOrDeferReload(next.pathname + next.search + next.hash);
   }
 
   async function pingServiceWorkers() {
@@ -673,22 +741,33 @@
       if (window._sjSuppressSwReload) return;
       if (!refreshing) {
         refreshing = true;
-        window.location.reload();
+        performOrDeferReload();
       }
     });
 
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none', scope: './' }).then((reg) => {
+        const activateWaitingWorker = () => {
+          if (isInActiveRun()) {
+            pendingReloadUrl = pendingReloadUrl || true;
+            return;
+          }
+          if (reg.waiting) {
+            console.log('[PWA] Neuer Build installiert. Aktiviere sofort...');
+            reg.waiting.postMessage({ action: 'skipWaiting' });
+          }
+        };
+
         // Check for updates on register
         reg.update();
+        activateWaitingWorker();
 
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('[PWA] Neuer Build installiert. Aktiviere sofort...');
-                newWorker.postMessage({ action: 'skipWaiting' });
+                activateWaitingWorker();
               }
             });
           }
@@ -708,21 +787,11 @@
   }
 
   // --- VIEWPORT STABILIZATION (NO FORCED FULLSCREEN API) ---
-  // Mobile app standard: rely on 100dvh CSS viewport locking and standalone PWA display mode.
+  // Mobile app standard: rely on 100lvh CSS viewport locking and standalone PWA display mode.
   // HTML5 Fullscreen API (requestFullscreen) is disabled to prevent intrusive Android Chrome
   // security toasts ("... zum Beenden des Vollbildmodus: von oben ziehen").
   // True fullscreen without banners is achieved when installed as PWA to home screen.
-  function stabilizeViewport() {
-    if (window.scrollY !== 0) {
-      window.scrollTo(0, 0);
-    }
-  }
-
-  window.addEventListener('load', stabilizeViewport);
-  window.addEventListener('orientationchange', () => {
-    setTimeout(stabilizeViewport, 150);
-  });
-  window.addEventListener('resize', stabilizeViewport);
+  window.addEventListener('load', applyViewportLock);
 
   // Synchronize sprite caches with typography readiness
   if (typeof EnergyOrb !== 'undefined' && EnergyOrb.initCache) {

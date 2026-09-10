@@ -61,10 +61,23 @@
   outline: none;
 }
 
-body, html {
+html {
+  position: fixed;
+  inset: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+}
+
+body {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  top: var(--app-offset-top, 0px);
+  height: 100%;
   height: 100dvh;
+  height: 100lvh;
+  height: var(--app-height, 100lvh);
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
@@ -130,8 +143,11 @@ body, html {
   width: 100%;
   height: 100%;
   height: 100dvh;
+  height: 100lvh;
+  height: var(--app-height, 100lvh);
   max-width: calc(100vh * (9 / 16)); /* Portrait Mode Constraint */
   max-width: calc(100dvh * (9 / 16));
+  max-width: calc(var(--app-height, 100lvh) * (9 / 16));
   background-color: #080b10;
   overflow: hidden;
   overscroll-behavior: none;
@@ -4846,9 +4862,15 @@ canvas#gameCanvas {
    8. PWA MOBILE INSTALL BANNER & SAFE-AREA SUPPORT
    ========================================================================= */
 .pwa-install-banner {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
   width: 92%;
   max-width: 360px;
-  margin-top: 8px;
+  margin: 0;
+  z-index: 200;
+  pointer-events: auto;
   background: rgba(15, 23, 42, 0.95);
   border: 1px solid rgba(56, 189, 248, 0.35);
   border-radius: 12px;
@@ -4858,8 +4880,8 @@ canvas#gameCanvas {
 }
 
 @keyframes fadeInPwa {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 .pwa-banner-content {
