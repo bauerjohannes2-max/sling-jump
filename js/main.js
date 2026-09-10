@@ -239,26 +239,85 @@
 
     refreshHangar = renderMenuShip;
 
-    function selectMenuShip(idx) {
-      menuShipIndex = (idx + menuShips.length) % menuShips.length;
-      renderMenuShip();
+    let hangarBusy = false;
+
+    function playHangarSlide(dir, applyIndex) {
+      if (hangarBusy) return;
+      hangarBusy = true;
+      const unit = document.getElementById('ship-unit');
+      const inner = document.getElementById('hero-ship-inner');
+      const meta = document.getElementById('hangar-ship-meta');
+      const outX = dir > 0 ? -86 : 86;
+      const inX = dir > 0 ? 86 : -86;
+
+      if (unit) {
+        unit.classList.add('skin-animating');
+        unit.style.transition = 'transform 0.18s cubic-bezier(0.4, 0, 1, 0.4), opacity 0.14s ease';
+        unit.style.transform = `translate(calc(-50% + ${outX}px), -50%) scale(0.86)`;
+        unit.style.opacity = '0';
+      }
+      if (inner) inner.style.animationPlayState = 'paused';
+      if (meta) {
+        meta.classList.add('skin-meta-out');
+      }
+
+      window.setTimeout(() => {
+        applyIndex();
+        if (unit) {
+          unit.style.transition = 'none';
+          unit.style.transform = `translate(calc(-50% + ${inX}px), -50%) scale(0.86)`;
+          void unit.offsetWidth;
+          unit.style.transition = 'transform 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease';
+          unit.style.transform = 'translate(-50%, -50%) scale(1)';
+          unit.style.opacity = '1';
+        }
+        if (meta) {
+          meta.classList.remove('skin-meta-out');
+          meta.classList.add('skin-meta-in');
+        }
+        window.setTimeout(() => {
+          hangarBusy = false;
+          if (unit) {
+            unit.classList.remove('skin-animating');
+            unit.style.transition = '';
+            unit.style.transform = '';
+            unit.style.opacity = '';
+          }
+          if (inner) inner.style.animationPlayState = '';
+          if (meta) meta.classList.remove('skin-meta-in');
+        }, 360);
+      }, 160);
+    }
+
+    function selectMenuShip(idx, dir) {
+      if (hangarBusy) return;
+      const next = (idx + menuShips.length) % menuShips.length;
+      if (next === menuShipIndex) {
+        renderMenuShip();
+        return;
+      }
+      let slideDir = dir;
+      if (slideDir == null) {
+        const n = menuShips.length;
+        const fwd = (next - menuShipIndex + n) % n;
+        const back = (menuShipIndex - next + n) % n;
+        slideDir = fwd <= back ? 1 : -1;
+      }
+      playHangarSlide(slideDir, () => {
+        menuShipIndex = next;
+        renderMenuShip();
+      });
       clickSfx();
       hapticTick(10);
     }
 
     function cycleMenuShip(dir = 1) {
-      selectMenuShip(menuShipIndex + dir);
+      selectMenuShip(menuShipIndex + dir, dir);
     }
 
     function handleMenuShipClick(e) {
       if (e) e.stopPropagation();
-      clickSfx();
-      hapticTick(12);
-      const sUnit = document.getElementById('ship-unit');
-      if (sUnit) {
-        sUnit.style.transform = 'translate(-50%, -50%) scale(1.15)';
-        setTimeout(() => { if (sUnit) sUnit.style.transform = ''; }, 160);
-      }
+      if (hangarBusy) return;
       cycleMenuShip(1);
     }
 

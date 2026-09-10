@@ -326,6 +326,9 @@ class GameEngine {
     this.triggerScreenShake(8);
     this.triggerHitstop(16);
     this.audio.playSfx('sfx_crash');
+    if (this.audio && this.audio.fadeOutMusic) {
+      this.audio.fadeOutMusic(0.22);
+    }
 
     this.particles.spawnShards(this.player.x, this.player.y, 35, '#e11d48');
 

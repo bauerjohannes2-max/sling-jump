@@ -179,6 +179,9 @@ class WorldManager {
 
         const nodeLeft = new OrbitNode(leftX, nextY, leftType, width, altitude);
         const nodeRight = new OrbitNode(rightX, nextY + (Math.random() * 20 - 10), rightType, width, altitude);
+        if (rightType === 'MOVING') {
+          nodeRight.initMovingPath(width, Math.min(width * 0.16, 72));
+        }
 
         this.nodes.push(nodeLeft);
         this.nodes.push(nodeRight);
@@ -239,7 +242,7 @@ class WorldManager {
         const newNode = new OrbitNode(nodeX, nextY, type, width, altitude);
 
         if (type === 'MOVING') {
-          newNode.moveRange = Math.min(width * 0.20, 100);
+          newNode.initMovingPath(width, Math.min(width * 0.22, 110));
         }
 
         this.nodes.push(newNode);

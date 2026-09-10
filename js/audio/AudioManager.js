@@ -17,6 +17,7 @@ class AudioManager {
     // Music State
     this.currentMusicKey = null;
     this.currentMusicSource = null;
+    this.currentMusicGain = null;
     this.isDucked = false;
 
     // Audio Asset Paths
@@ -138,19 +139,27 @@ class AudioManager {
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
         this.audioBuffers.set(key, audioBuffer);
+        if (this.currentMusicKey === key) {
+          const resumeKey = key;
+          const shouldLoop = key !== 'bgm_gameover';
+          this.currentMusicKey = null;
+          this.playMusic(resumeKey, shouldLoop);
+        }
       } catch (err) {
         this.failedAssets.add(key);
       }
     }
   }
 
-  // Crossfade between music tracks (1.5s)
+  // Crossfade between music tracks
   playMusic(key, loop = true) {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx || this.currentMusicKey === key) return;
 
+    const now = this.ctx.currentTime;
     const oldSource = this.currentMusicSource;
+    const oldGain = this.currentMusicGain;
     this.currentMusicKey = key;
 
     const buffer = this.audioBuffers.get(key);
@@ -165,19 +174,65 @@ class AudioManager {
     newSource.loop = loop;
 
     const fadeGain = this.ctx.createGain();
-    fadeGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-    fadeGain.gain.exponentialRampToValueAtTime(1.0, this.ctx.currentTime + 1.5);
+    fadeGain.gain.setValueAtTime(0.001, now);
+    fadeGain.gain.exponentialRampToValueAtTime(1.0, now + 1.2);
 
     newSource.connect(fadeGain);
     fadeGain.connect(this.musicGain);
 
     newSource.start(0);
     this.currentMusicSource = newSource;
+    this.currentMusicGain = fadeGain;
 
+    if (oldGain) {
+      try {
+        oldGain.gain.cancelScheduledValues(now);
+        oldGain.gain.setValueAtTime(Math.max(0.001, oldGain.gain.value), now);
+        oldGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      } catch (e) {}
+    }
     if (oldSource) {
       try {
-        oldSource.stop(this.ctx.currentTime + 1.5);
+        oldSource.stop(now + 0.5);
       } catch (e) {}
+    }
+  }
+
+  fadeOutMusic(seconds = 0.25) {
+    if (!this.ctx) {
+      this.stopMusic();
+      return;
+    }
+    const now = this.ctx.currentTime;
+    const fade = Math.max(0.05, seconds);
+    if (this.currentMusicGain) {
+      try {
+        this.currentMusicGain.gain.cancelScheduledValues(now);
+        this.currentMusicGain.gain.setValueAtTime(Math.max(0.001, this.currentMusicGain.gain.value), now);
+        this.currentMusicGain.gain.exponentialRampToValueAtTime(0.001, now + fade);
+      } catch (e) {}
+    }
+    const src = this.currentMusicSource;
+    if (src) {
+      try {
+        src.stop(now + fade);
+      } catch (e) {}
+    }
+    this.currentMusicSource = null;
+    this.currentMusicGain = null;
+    this.currentMusicKey = null;
+    if (this.proceduralAmbientOsc) {
+      try { this.proceduralAmbientOsc.stop(); } catch (e) {}
+      this.proceduralAmbientOsc = null;
+    }
+    if (Array.isArray(this.proceduralNodes)) {
+      for (const node of this.proceduralNodes) {
+        try {
+          if (node.stop) node.stop();
+          if (node.disconnect) node.disconnect();
+        } catch (e) {}
+      }
+      this.proceduralNodes = [];
     }
   }
 
@@ -187,6 +242,7 @@ class AudioManager {
         this.currentMusicSource.stop();
       } catch (e) {}
       this.currentMusicSource = null;
+      this.currentMusicGain = null;
       this.currentMusicKey = null;
     }
     if (this.proceduralAmbientOsc) {

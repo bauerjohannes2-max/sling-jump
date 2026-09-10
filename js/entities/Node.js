@@ -11,12 +11,18 @@ class OrbitNode {
     this.pulse = Math.random() * Math.PI * 2;
     this.altitude = altitude;
 
-    // Moving Node properties
+    // Moving Node properties — constant-speed shuttle (no sine dwell at the ends)
     this.startX = x;
     const speedScale = Math.min(1.75, 1.0 + (altitude / 800) * 0.45);
     this.moveSpeed = (Math.random() * 40 + 55) * speedScale * (Math.random() < 0.5 ? 1 : -1);
     this.moveRange = Math.min(screenWidth * 0.25, 120);
     this.movePhase = Math.random() * Math.PI * 2;
+    this.moveOffset = 0;
+    this.moveDir = this.moveSpeed >= 0 ? 1 : -1;
+    this.moveSpeedAbs = Math.abs(this.moveSpeed);
+    if (type === 'MOVING') {
+      this.initMovingPath(screenWidth);
+    }
 
     // Fragile Node properties (scales slightly faster with altitude)
     this.maxFragileDuration = Math.max(0.72, (CONSTANTS.PHYSICS.FRAGILE_DURATION || 0.90) - (altitude / 1500) * 0.18);
@@ -39,6 +45,20 @@ class OrbitNode {
     this.isTargeted = false;
   }
 
+  initMovingPath(screenWidth, requestedRange) {
+    const pad = 52;
+    const width = Math.max(pad * 2 + 8, screenWidth || 0);
+    const requested = (requestedRange != null) ? requestedRange : this.moveRange;
+    const maxLeft = Math.max(24, this.startX - pad);
+    const maxRight = Math.max(24, width - pad - this.startX);
+    this.moveRange = Math.max(24, Math.min(requested, maxLeft, maxRight));
+    this.moveSpeedAbs = Math.abs(this.moveSpeed) || 70;
+    this.moveDir = this.moveSpeed >= 0 ? 1 : -1;
+    const seed = (this.movePhase != null) ? this.movePhase : 0;
+    this.moveOffset = Math.sin(seed) * this.moveRange * 0.72;
+    this.x = this.startX + this.moveOffset;
+  }
+
   update(dt, screenWidth, audio, onBreak) {
     if (this.type === 'HAZARD') {
       this.pulse += dt * 5.5; // Rapid aggressive warning pulse
@@ -49,10 +69,19 @@ class OrbitNode {
     this.pulse += dt * 3.2;
 
     if (this.type === 'MOVING') {
-      this.movePhase += (this.moveSpeed / this.moveRange) * dt;
-      this.x = this.startX + Math.sin(this.movePhase) * this.moveRange;
-      if (this.x < 45) this.x = 45;
-      if (this.x > screenWidth - 45) this.x = screenWidth - 45;
+      const span = this.moveRange;
+      const speed = this.moveSpeedAbs || Math.abs(this.moveSpeed) || 70;
+      this.moveOffset += this.moveDir * speed * dt;
+      if (this.moveOffset > span) {
+        this.moveOffset = span - (this.moveOffset - span);
+        this.moveDir = -1;
+      } else if (this.moveOffset < -span) {
+        this.moveOffset = -span - (this.moveOffset + span);
+        this.moveDir = 1;
+      }
+      if (this.moveOffset > span) this.moveOffset = span;
+      if (this.moveOffset < -span) this.moveOffset = -span;
+      this.x = this.startX + this.moveOffset;
     }
 
     if (this.type === 'DECOY' && this.isHooked && !this.isBroken) {
