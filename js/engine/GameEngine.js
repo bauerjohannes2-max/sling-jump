@@ -49,7 +49,7 @@ class GameEngine {
     this.tutorialCelebrateTimer = 0;
     this.shipFrozen = false;
     this.shipFreezeSettle = 0;
-    this.tutorialReleaseSlowMo = false;
+    this.launchWindowActive = false;
     this.hookSlowMo = false;
     this.momentSlowMoLeft = 0;
     this.momentSlowMoFactor = 0.28;
@@ -172,7 +172,7 @@ class GameEngine {
     this.tutorialCelebrateTimer = 0;
     this.shipFrozen = false;
     this.shipFreezeSettle = 0;
-    this.tutorialReleaseSlowMo = false;
+    this.launchWindowActive = false;
     this.hookSlowMo = false;
     this.momentSlowMoLeft = 0;
     this.momentSlowMoFactor = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR;
@@ -240,7 +240,7 @@ class GameEngine {
     this.isTutorial = false;
     this.tutorialStep = 0;
     this.clearShipFreeze();
-    this.tutorialReleaseSlowMo = false;
+    this.launchWindowActive = false;
     if (this.timeScale < 0.08) this.timeScale = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR;
     this.tutorialCelebrateTimer = 2.2;
     this.storage.data.settings.tutorialCompleted = true;
@@ -263,7 +263,7 @@ class GameEngine {
     this.isTutorial = false;
     this.tutorialStep = 0;
     this.clearShipFreeze();
-    this.tutorialReleaseSlowMo = false;
+    this.launchWindowActive = false;
     this.timeScale = 1;
     this.targetTimeScale = this.hookSlowMo ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
     this.storage.data.settings.tutorialCompleted = true;
@@ -284,7 +284,7 @@ class GameEngine {
   onTutorialHooked() {
     if (!this.isTutorial) return;
     this.clearShipFreeze();
-    this.tutorialReleaseSlowMo = false;
+    this.launchWindowActive = false;
     if (this.player) {
       this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
     }
@@ -292,7 +292,7 @@ class GameEngine {
 
   onTutorialReleased(isPerfectLaunch, tangentY, leavingNode) {
     if (!this.isTutorial) return;
-    this.tutorialReleaseSlowMo = false;
+    this.launchWindowActive = false;
     const launchedUp = Number.isFinite(tangentY) && tangentY >= 0.35;
     const nodeY = leavingNode && Number.isFinite(leavingNode.y) ? leavingNode.y : null;
     const lastY = this.tutorialLastOrbitY;
@@ -307,19 +307,21 @@ class GameEngine {
     }
   }
 
-  updateTutorialCoach() {
-    if (!this.isTutorial || !this.player || !this.player.isHooked) {
-      this.tutorialReleaseSlowMo = false;
+  updateLaunchWindow() {
+    if (!this.player || !this.player.isHooked) {
+      this.launchWindowActive = false;
       return;
     }
-    this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
+    if (this.isTutorial) {
+      this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
+    }
     const ty = this.player.getLaunchTangentY();
-    const enter = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_ENTER || 0.985;
-    const exit = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_EXIT || 0.97;
-    if (this.tutorialReleaseSlowMo) {
-      if (ty < exit) this.tutorialReleaseSlowMo = false;
+    const enter = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_ENTER || 0.97;
+    const exit = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_EXIT || 0.93;
+    if (this.launchWindowActive) {
+      if (ty < exit) this.launchWindowActive = false;
     } else if (ty >= enter) {
-      this.tutorialReleaseSlowMo = true;
+      this.launchWindowActive = true;
     }
   }
 
@@ -493,6 +495,12 @@ class GameEngine {
 
     if (!this.gameStarted) {
       this.gameStarted = true;
+    }
+
+    if (this.isTutorial && this.player && this.player.isHooked) {
+      const ty = this.player.getLaunchTangentY();
+      const minUp = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_EXIT || 0.93;
+      if (!this.launchWindowActive || !(ty >= minUp)) return;
     }
 
     if (this.player && this.player.isHooked) {
@@ -833,20 +841,25 @@ class GameEngine {
     }
     if (this.player && (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL))) {
       this.updateShipFreeze(rawDt);
+      this.updateLaunchWindow();
     }
-    if (this.isTutorial) {
-      this.updateTutorialCoach();
-    }
-    if (this.momentSlowMoLeft <= 0 && this.isTutorial && this.player && !this.isDying) {
-      if (this.player.isHooked && this.tutorialReleaseSlowMo) {
-        this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.05;
-        if (this.timeScale > 0.18) this.timeScale = 0.18;
+    if (this.momentSlowMoLeft <= 0 && this.player && !this.isDying &&
+        (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL))) {
+      if (this.player.isHooked && this.launchWindowActive) {
+        this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.018;
+        if (this.timeScale > 0.08) this.timeScale = 0.08;
         this.ui.setSlowMoVisual(true);
-      } else if (this.player.isHooked) {
+      } else if (this.isTutorial && this.player.isHooked) {
         this.targetTimeScale = CONSTANTS.PHYSICS.SLOWMO_FACTOR;
         this.ui.setSlowMoVisual(true);
-      } else if (this.canTutorialGrapple()) {
+      } else if (this.isTutorial && this.canTutorialGrapple()) {
         this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_HOOK_SLOWMO || 0.30;
+        this.ui.setSlowMoVisual(true);
+      } else if (this.isTutorial) {
+        this.targetTimeScale = 1.0;
+        this.ui.setSlowMoVisual(false);
+      } else if (this.player.isHooked && this.hookSlowMo) {
+        this.targetTimeScale = CONSTANTS.PHYSICS.SLOWMO_FACTOR;
         this.ui.setSlowMoVisual(true);
       } else {
         this.targetTimeScale = 1.0;
@@ -971,9 +984,7 @@ class GameEngine {
         }
       }
 
-      if (this.isTutorial) {
-        this.updateTutorialCoach();
-      }
+      this.updateLaunchWindow();
       this.ui.setPressCueVisible(false);
 
       // 4. Camera Follow (Upwards Only, centered at 50% screen height)
@@ -1106,20 +1117,10 @@ class GameEngine {
 
       if (this.player && this.ui) {
         const playerScreenY = this.height - (this.player.y - this.cameraY);
-        if (this.isTutorial) {
-          if (!this.player.isHooked && this.shouldShowPressCue()) {
-            this.ui.setTrainingHint('Drücken und halten', this.player.x, playerScreenY, 'beside', this.width, this.height);
-          } else if (this.player.isHooked && this.tutorialReleaseSlowMo) {
-            this.ui.setTrainingHint('Loslassen', this.player.x, playerScreenY, 'above', this.width, this.height);
-          } else {
-            this.ui.setTrainingHint(null);
-          }
-        } else if (this.state.is(StateManager.STATES.PLAYING) && this.storage.data.stats.totalRuns < 3 && this.storage.data.highScore < 150) {
-          if (this.player.isHooked && this.player.getLaunchTangentY() >= 0.82) {
-            this.ui.setTrainingHint('LOSLASSEN', this.player.x, playerScreenY, 'above', this.width, this.height);
-          } else {
-            this.ui.setTrainingHint(null);
-          }
+        if (this.player.isHooked && this.launchWindowActive) {
+          this.ui.setTrainingHint('Loslassen', this.player.x, playerScreenY, 'above', this.width, this.height);
+        } else if (this.isTutorial && !this.player.isHooked && this.shouldShowPressCue()) {
+          this.ui.setTrainingHint('Drücken und halten', this.player.x, playerScreenY, 'beside', this.width, this.height);
         } else {
           this.ui.setTrainingHint(null);
         }
