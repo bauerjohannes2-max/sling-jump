@@ -9,4 +9,7 @@ data/*.tmp
 data/players.json
 data/sessions.json
 data/public-leaderboard.json
+backups/.env
+backups/*.json
+backups/last-run.log
 
