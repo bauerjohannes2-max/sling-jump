@@ -45,6 +45,11 @@ class GameEngine {
     this.tutorialStep = 0;
     this.tutorialStep3Releases = 0;
     this.tutorialFrozen = false;
+    this.tutorialCelebrateTimer = 0;
+    this.hookSlowMo = false;
+    this.momentSlowMoLeft = 0;
+    this.momentSlowMoFactor = 0.28;
+    this.earlyCatchCooldown = 0;
     this.maxAltitudeMeters = 0;
     this.startAltitudeY = 0;
     this.runCores = 0;
@@ -159,7 +164,11 @@ class GameEngine {
     this.tutorialPhase = 0;
     this.tutorialStep = tutorial ? 1 : 0;
     this.tutorialStep3Releases = 0;
-    this.tutorialFrozen = false;
+    this.tutorialCelebrateTimer = 0;
+    this.hookSlowMo = false;
+    this.momentSlowMoLeft = 0;
+    this.momentSlowMoFactor = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR;
+    this.earlyCatchCooldown = 0;
     this.cameraY = 0;
     this.maxAltitudeMeters = 0;
     this.runCores = 0;
@@ -195,7 +204,10 @@ class GameEngine {
     this.player.hookedNode = startNode;
     this.player.orbitRadius = 70;
     this.player.orbitAngle = tutorial ? -Math.PI / 2 : 0;
-    this.player.orbitSpeed = tutorial ? 280 : 460; // Slow first swing so the release window is readable
+    this.player.orbitSpeed = CONSTANTS.PHYSICS.OPENING_ORBIT_SPEED;
+    this.player.orbitSpinScale = tutorial
+      ? CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN
+      : CONSTANTS.PHYSICS.OPENING_ORBIT_SPIN;
     this.player.orbitDirection = 1;
     startNode.isHooked = true;
     this.startAltitudeY = startNode.y + this.player.orbitRadius;
@@ -208,9 +220,9 @@ class GameEngine {
     this.ui.setDangerVisual(0);
 
     if (tutorial) {
-      this.ui.showTutorialTip('Lass los, wenn das Schiff nach OBEN zeigt.', { step: 1, steps: 3 });
+      this.ui.setTutorialSkipVisible(true);
     } else {
-      this.ui.hideTutorialTip();
+      this.ui.setTutorialSkipVisible(false);
     }
 
     this.state.changeState(StateManager.STATES.PLAYING);
@@ -220,24 +232,19 @@ class GameEngine {
     if (!this.isTutorial) return;
     this.isTutorial = false;
     this.tutorialStep = 0;
+    this.tutorialCelebrateTimer = 1.35;
     this.storage.data.settings.tutorialCompleted = true;
     this.storage.save();
     this.storage.addCores(50);
     this.ui.updateCurrency();
     this.ui.updatePlayButtonLabel();
-    const msg = didPerfect
-      ? 'PERFEKT! Training geschafft. +50 Gold'
-      : 'Training geschafft! +50 Gold — flieg weiter.';
-    this.ui.showTutorialTip(msg, { skip: false, ready: didPerfect });
-    if (this.player) {
-      this.particles.spawnFloatingText(this.player.x, this.player.y + 45, 'TRAINING ABGESCHLOSSEN!', '#10b981', 22, true);
-    }
-    setTimeout(() => this.ui.hideTutorialTip(), 3200);
+    this.ui.setTutorialSkipVisible(false);
+    this.triggerMomentSlowMo(1.2, CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR);
   }
 
   skipTutorial() {
     if (!this.isTutorial) {
-      this.ui.hideTutorialTip();
+      this.ui.setTutorialSkipVisible(false);
       return;
     }
     this.isTutorial = false;
@@ -245,10 +252,7 @@ class GameEngine {
     this.storage.data.settings.tutorialCompleted = true;
     this.storage.save();
     this.ui.updatePlayButtonLabel();
-    this.ui.hideTutorialTip();
-    if (this.player) {
-      this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'TRAINING BEENDET', '#94a3b8', 18, true);
-    }
+    this.ui.setTutorialSkipVisible(false);
   }
 
   onTutorialHooked() {
@@ -262,7 +266,6 @@ class GameEngine {
     if (!this.isTutorial) return;
     if (this.tutorialStep <= 1) {
       this.tutorialStep = 2;
-      this.ui.showTutorialTip('HALTE gedrückt, um den nächsten Knoten zu greifen.', { step: 2, steps: 3 });
       return;
     }
     if (this.tutorialStep === 3) {
@@ -275,45 +278,34 @@ class GameEngine {
 
   updateTutorialCoach() {
     if (!this.isTutorial || !this.player) return;
-
-    if (this.tutorialStep === 1 && this.player.isHooked) {
-      const ty = this.player.getLaunchTangentY();
-      if (ty >= 0.82) {
-        this.ui.showTutorialTip('JETZT LOSLASSEN!', { step: 1, steps: 3, ready: true });
-      } else {
-        this.ui.showTutorialTip('Lass los, wenn das Schiff nach OBEN zeigt.', { step: 1, steps: 3 });
-      }
-      return;
+    if (this.tutorialStep === 2 && this.player.isHooked) {
+      this.tutorialStep = 3;
     }
+  }
 
-    if (this.tutorialStep === 2) {
-      if (this.player.isHooked) {
-        this.tutorialStep = 3;
-      } else {
-        const node = this.nearestNode;
-        const inRange = !!(node && Math.hypot(this.player.x - node.x, this.player.y - node.y) <= CONSTANTS.PHYSICS.HOOK_RANGE);
-        if (inRange) {
-          this.ui.showTutorialTip('JETZT HALTEN — Knoten greifen!', { step: 2, steps: 3, ready: true });
-        } else {
-          this.ui.showTutorialTip('HALTE gedrückt, um den nächsten Knoten zu greifen.', { step: 2, steps: 3 });
-        }
-        return;
-      }
-    }
+  inEarlySafety() {
+    const groups = (CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.EARLY_SAFETY_GROUPS) || 5;
+    return this.isTutorial || this.runSlingshots < groups;
+  }
 
-    if (this.tutorialStep === 3) {
-      if (this.player.isHooked) {
-        const ty = this.player.getLaunchTangentY();
-        const threshold = CONSTANTS.PHYSICS.PERFECT_LAUNCH_THRESHOLD || 0.995;
-        if (ty >= threshold - 0.04) {
-          this.ui.showTutorialTip('90° — JETZT LOSLASSEN für Boost!', { step: 3, steps: 3, ready: true });
-        } else {
-          this.ui.showTutorialTip('Warte auf 90° oben — dann extra Boost.', { step: 3, steps: 3 });
-        }
-      } else {
-        this.ui.showTutorialTip('Wieder einhaken, dann bei 90° loslassen.', { step: 3, steps: 3 });
-      }
-    }
+  triggerMomentSlowMo(seconds = 1.1, factor = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR) {
+    this.momentSlowMoLeft = Math.max(this.momentSlowMoLeft, seconds);
+    this.momentSlowMoFactor = factor;
+    this.targetTimeScale = factor;
+    this.ui.setSlowMoVisual(true);
+  }
+
+  catchEarlyFall() {
+    if (!this.player || this.player.isHooked || this.isDying) return false;
+    if (!this.inEarlySafety()) return false;
+    if (this.player.y > this.cameraY + 72) return false;
+
+    this.player.y = this.cameraY + 88;
+    this.player.vy = Math.max(380, Math.abs(this.player.vy) * 0.45 + 260);
+    this.player.vx *= 0.72;
+    this.triggerMomentSlowMo(0.45, 0.36);
+    this.earlyCatchCooldown = 0.35;
+    return true;
   }
 
   triggerScreenShake(amount) {
@@ -327,6 +319,11 @@ class GameEngine {
   }
 
   setSlowMo(active) {
+    this.hookSlowMo = !!active;
+    if (this.momentSlowMoLeft > 0) {
+      this.ui.setSlowMoVisual(true);
+      return;
+    }
     this.targetTimeScale = active ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
     this.ui.setSlowMoVisual(active);
   }
@@ -368,9 +365,8 @@ class GameEngine {
     if (this.isTutorial && this.tutorialStep === 1 && this.player && this.player.isHooked) {
       const ty = this.player.getLaunchTangentY();
       if (ty < 0.32) {
-        this.ui.showTutorialTip('Noch nicht — warte, bis du nach OBEN fliegst.', { step: 1, steps: 3 });
         if (this.particles) {
-          this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'WARTEN', '#fbbf24', 18, true);
+          this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'WARTEN', '#fbbf24', 16, true);
         }
         return;
       }
@@ -694,6 +690,20 @@ class GameEngine {
       return; // Freeze physics for punchy impact
     }
 
+    if (this.tutorialCelebrateTimer > 0) {
+      this.tutorialCelebrateTimer = Math.max(0, this.tutorialCelebrateTimer - rawDt);
+    }
+    if (this.earlyCatchCooldown > 0) {
+      this.earlyCatchCooldown = Math.max(0, this.earlyCatchCooldown - rawDt);
+    }
+    if (this.momentSlowMoLeft > 0) {
+      this.momentSlowMoLeft = Math.max(0, this.momentSlowMoLeft - rawDt);
+      this.targetTimeScale = this.momentSlowMoFactor;
+      if (this.momentSlowMoLeft <= 0) {
+        this.targetTimeScale = this.hookSlowMo ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
+        this.ui.setSlowMoVisual(!!this.hookSlowMo);
+      }
+    }
     this.timeScale += (this.targetTimeScale - this.timeScale) * Math.min(1, rawDt * 16);
     const dt = rawDt * this.timeScale;
 
@@ -823,13 +833,14 @@ class GameEngine {
 
           if (!this.isTutorial && this.storage.data.highScore > 0 && this.maxAltitudeMeters > this.storage.data.highScore && !this.recordBrokenThisRun) {
             this.recordBrokenThisRun = true;
+            this.triggerMomentSlowMo(1.15, CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR);
             this.ui.showRecordFlash(this.storage.data.highScore, this.maxAltitudeMeters);
           }
         }
 
         // 5. Danger & Near-Miss Detection
         const playerScreenY = this.height - (this.player.y - this.cameraY);
-        if (!this.isTutorial && playerScreenY > this.height - 140) {
+        if (!this.inEarlySafety() && playerScreenY > this.height - 140) {
           const dangerRatio = (playerScreenY - (this.height - 140)) / 140;
           this.ui.setDangerVisual(dangerRatio);
 
@@ -843,33 +854,13 @@ class GameEngine {
           this.ui.setDangerVisual(0);
         }
 
-        // 6. Live Interactive Tutorial — catch-and-retry if they fall off screen
-        if (this.isTutorial && this.player) {
-          if (this.player.y < this.cameraY - 20) {
-            let anchor = this.world.nodes[0];
-            for (let i = this.world.nodes.length - 1; i >= 0; i--) {
-              const n = this.world.nodes[i];
-              if (n.type === 'STANDARD' && !n.isBroken && n.y <= this.player.y + 200) {
-                anchor = n;
-                break;
-              }
-            }
-            this.player.x = anchor.x;
-            this.player.y = anchor.y - 50;
-            this.player.vx = 0;
-            this.player.vy = 280;
-            this.player.tryHook(anchor, this.audio, null, this.particles, this.cameraY);
-            if (this.tutorialStep <= 1) {
-              this.tutorialStep = 1;
-            } else {
-              this.tutorialStep = 3;
-            }
-            this.ui.showTutorialTip('Noch mal: lass nach OBEN los.', { step: this.tutorialStep, steps: 3 });
-          }
+        // 6. Early-run safety: no death on the first groups — bounce back instead of freezing
+        if (this.inEarlySafety()) {
+          this.catchEarlyFall();
         }
 
         // 6b. Quantum Safety Trampoline (Bounce ship back up if falling near void during quantum shield)
-        if (!this.isTutorial && this.player.shieldTimer > 0 && this.player.y <= this.cameraY + 60) {
+        if (!this.inEarlySafety() && this.player.shieldTimer > 0 && this.player.y <= this.cameraY + 60) {
           this.player.vy = Math.max(540, Math.abs(this.player.vy) + 220);
           this.player.y = this.cameraY + 65;
           this.triggerScreenShake(5);
@@ -879,7 +870,7 @@ class GameEngine {
         }
 
         // 7. Death Collision (Disabled in Tutorial and during Active Shield)
-        if (!this.isTutorial && (!this.player.shieldTimer || this.player.shieldTimer <= 0) && this.player.y <= this.cameraY + CONSTANTS.PHYSICS.DEATH_BUFFER_PX && !this.isDying) {
+        if (!this.inEarlySafety() && (!this.player.shieldTimer || this.player.shieldTimer <= 0) && this.player.y <= this.cameraY + CONSTANTS.PHYSICS.DEATH_BUFFER_PX && !this.isDying) {
           this.isDying = true;
           this.triggerGameOver();
         }
@@ -953,42 +944,46 @@ class GameEngine {
     if (isActiveRun) {
       this.player.draw(this.ctx, this.cameraY, this.width, this.height, this.nearestNode, theme);
 
-      // 4b. Live tutorial callouts on the ship
-      if (this.isTutorial && this.player) {
+      // 4b. Quiet ship callouts — only the action word, only when it matters
+      if (this.player) {
         const playerScreenY = this.height - (this.player.y - this.cameraY);
         this.ctx.save();
         this.ctx.textAlign = 'center';
-        this.ctx.font = '800 14px "Rajdhani", sans-serif';
-        this.ctx.letterSpacing = '1.4px';
-        const pulseAlpha = Math.sin(now / 140) * 0.3 + 0.7;
-        const ty = this.player.isHooked ? this.player.getLaunchTangentY() : 0;
+        this.ctx.font = '800 13px "Rajdhani", sans-serif';
+        this.ctx.letterSpacing = '1.6px';
+        const pulseAlpha = Math.sin(now / 140) * 0.25 + 0.75;
 
-        if (this.tutorialStep === 1 && this.player.isHooked) {
-          this.ctx.fillStyle = ty >= 0.82 ? `rgba(251, 191, 36, ${pulseAlpha})` : `rgba(56, 189, 248, ${pulseAlpha})`;
-          this.ctx.fillText(ty >= 0.82 ? 'JETZT LOSLASSEN!' : 'NACH OBEN WARTEN', this.player.x, playerScreenY - 38);
-        } else if (this.tutorialStep === 2 && !this.player.isHooked) {
-          this.ctx.fillStyle = `rgba(0, 240, 255, ${pulseAlpha})`;
-          this.ctx.fillText('DRÜCKEN & HALTEN', this.player.x, playerScreenY + 46);
-        } else if (this.tutorialStep === 3 && this.player.isHooked) {
-          const ready = ty >= ((CONSTANTS.PHYSICS.PERFECT_LAUNCH_THRESHOLD || 0.995) - 0.04);
-          this.ctx.fillStyle = ready ? `rgba(251, 191, 36, ${pulseAlpha})` : `rgba(56, 189, 248, ${pulseAlpha})`;
-          this.ctx.fillText(ready ? '90° JETZT!' : '90° ANVISIEREN', this.player.x, playerScreenY - 38);
-        }
-        this.ctx.restore();
-      } else if (!this.isTutorial && this.state.is(StateManager.STATES.PLAYING) && this.storage.data.stats.totalRuns < 3 && this.storage.data.highScore < 150) {
-        const playerScreenY = this.height - (this.player.y - this.cameraY);
-        this.ctx.save();
-        this.ctx.textAlign = 'center';
-        this.ctx.font = '700 13px "Rajdhani", sans-serif';
-        this.ctx.letterSpacing = '1.5px';
-        const pulseAlpha = Math.sin(now / 150) * 0.3 + 0.7;
-
-        if (this.player.isHooked) {
-          this.ctx.fillStyle = `rgba(56, 189, 248, ${pulseAlpha})`;
-          this.ctx.fillText("LOSLASSEN!", this.player.x, playerScreenY - 35);
-        } else if (this.gameStarted && this.player.vy < 0 && this.nearestNode && Math.hypot(this.player.x - this.nearestNode.x, this.player.y - this.nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
-          this.ctx.fillStyle = `rgba(0, 240, 255, ${pulseAlpha})`;
-          this.ctx.fillText("DRÜCKEN & HALTEN", this.player.x, playerScreenY + 45);
+        if (this.tutorialCelebrateTimer > 0) {
+          this.ctx.fillStyle = `rgba(16, 185, 129, ${pulseAlpha})`;
+          this.ctx.font = '800 16px "Rajdhani", sans-serif';
+          this.ctx.fillText('TRAINING ABGESCHLOSSEN', this.player.x, playerScreenY - 42);
+        } else if (this.isTutorial) {
+          const ty = this.player.isHooked ? this.player.getLaunchTangentY() : 0;
+          const perfect = (CONSTANTS.PHYSICS.PERFECT_LAUNCH_THRESHOLD || 0.995) - 0.04;
+          if (this.tutorialStep === 1 && this.player.isHooked && ty >= 0.82) {
+            this.ctx.fillStyle = `rgba(251, 191, 36, ${pulseAlpha})`;
+            this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 36);
+          } else if (this.tutorialStep === 2 && !this.player.isHooked) {
+            const inRange = this.nearestNode && Math.hypot(this.player.x - this.nearestNode.x, this.player.y - this.nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE;
+            if (inRange) {
+              this.ctx.fillStyle = `rgba(0, 240, 255, ${pulseAlpha})`;
+              this.ctx.fillText('HALTEN', this.player.x, playerScreenY + 44);
+            }
+          } else if (this.tutorialStep === 3 && this.player.isHooked && ty >= perfect) {
+            this.ctx.fillStyle = `rgba(251, 191, 36, ${pulseAlpha})`;
+            this.ctx.fillText('90°', this.player.x, playerScreenY - 36);
+          }
+        } else if (this.state.is(StateManager.STATES.PLAYING) && this.storage.data.stats.totalRuns < 3 && this.storage.data.highScore < 150) {
+          if (this.player.isHooked) {
+            const ty = this.player.getLaunchTangentY();
+            if (ty >= 0.82) {
+              this.ctx.fillStyle = `rgba(56, 189, 248, ${pulseAlpha})`;
+              this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 35);
+            }
+          } else if (this.gameStarted && this.nearestNode && Math.hypot(this.player.x - this.nearestNode.x, this.player.y - this.nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
+            this.ctx.fillStyle = `rgba(0, 240, 255, ${pulseAlpha})`;
+            this.ctx.fillText('HALTEN', this.player.x, playerScreenY + 44);
+          }
         }
         this.ctx.restore();
       }
@@ -997,7 +992,7 @@ class GameEngine {
     this.ctx.restore();
 
     // 5. Death Horizon (Rendered in unscaled screen coordinates across full viewport width)
-    if (this.gameStarted && !this.isTutorial && (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.PAUSED))) {
+    if (this.gameStarted && !this.inEarlySafety() && (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.PAUSED))) {
       this.world.drawBottomDeathBoundary(this.ctx, now, this.width, this.height);
     }
   }

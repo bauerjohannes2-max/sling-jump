@@ -311,33 +311,18 @@ class UIManager {
     this.dom.btnMenuPlayLabel.textContent = this.shouldOfferFirstRunTutorial() ? 'TRAINING' : 'START';
   }
 
-  showTutorialTip(text, options = {}) {
-    const step = options.step || 0;
-    const steps = options.steps || 3;
-    const ready = !!options.ready;
-    const showSkip = options.skip !== false;
-    const badge = step > 0 ? `${step}/${steps}` : 'TRAINING';
-
-    if (this.dom.hudTutorialTipText) {
-      this.dom.hudTutorialTipText.textContent = text;
-    }
-    if (this.dom.hudTutorialTipBadge) {
-      this.dom.hudTutorialTipBadge.textContent = badge;
-    }
+  setTutorialSkipVisible(show) {
     if (this.dom.btnTutorialSkip) {
-      this.dom.btnTutorialSkip.style.display = showSkip ? 'inline-block' : 'none';
-    }
-    if (this.dom.hudTutorialTip) {
-      this.dom.hudTutorialTip.style.display = 'flex';
-      this.dom.hudTutorialTip.classList.toggle('is-ready', ready);
+      this.dom.btnTutorialSkip.style.display = show ? 'inline-block' : 'none';
     }
   }
 
+  showTutorialTip() {
+    // Intentionally unused: live tutorial uses ship callouts only.
+  }
+
   hideTutorialTip() {
-    if (this.dom.hudTutorialTip) {
-      this.dom.hudTutorialTip.style.display = 'none';
-      this.dom.hudTutorialTip.classList.remove('is-ready');
-    }
+    this.setTutorialSkipVisible(false);
   }
 
   openTutorialModal(slide = 1) {

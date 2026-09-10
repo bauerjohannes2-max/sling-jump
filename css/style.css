@@ -1702,7 +1702,25 @@ canvas#gameCanvas {
 .hud-right {
   display: flex;
   align-items: center;
+  gap: 8px;
   pointer-events: auto;
+}
+
+.tutorial-skip-hud {
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  padding: 8px 4px;
+  cursor: pointer;
+}
+
+.tutorial-skip-hud:active {
+  color: #e2e8f0;
 }
 
 #btn-hud-pause,

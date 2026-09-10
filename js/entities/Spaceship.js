@@ -18,6 +18,7 @@ class Spaceship {
     this.hookedNode = null;
     this.orbitRadius = 75;
     this.orbitAngle = 0;
+    this.orbitSpinScale = 1;
     this.orbitSpeed = CONSTANTS.PHYSICS.MIN_ORBIT_SPEED;
     this.orbitDirection = 1;
 
@@ -92,6 +93,7 @@ class Spaceship {
     const comboMult = this.getComboSpeedMultiplier();
     this.orbitSpeed = Math.max(currentSpeed * 0.95, CONSTANTS.PHYSICS.MIN_ORBIT_SPEED * comboMult);
     this.orbitSpeed = Math.min(this.orbitSpeed, CONSTANTS.PHYSICS.MAX_ORBIT_SPEED * comboMult);
+    this.orbitSpinScale = 1;
 
     this.vx = 0;
     this.vy = 0;
@@ -217,7 +219,8 @@ class Spaceship {
     }
 
     if (this.isHooked && this.hookedNode && !this.hookedNode.isBroken) {
-      const angularVel = (this.orbitSpeed / this.orbitRadius) * this.orbitDirection;
+      const spin = (this.orbitSpinScale > 0 && Number.isFinite(this.orbitSpinScale)) ? this.orbitSpinScale : 1;
+      const angularVel = (this.orbitSpeed / this.orbitRadius) * this.orbitDirection * spin;
       this.orbitAngle += angularVel * dt;
 
       this.x = this.hookedNode.x + Math.cos(this.orbitAngle) * this.orbitRadius;
