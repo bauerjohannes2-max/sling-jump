@@ -55,19 +55,22 @@ class WorldManager {
     this.nodesSinceLastBoost = 10;
     this.currentTheme = this.getActiveTheme();
 
-    // 1. Fully Procedural Start (Randomized initial node around viewport center)
+    // 1. Guaranteed first orbit dead-ahead (centered, no random sidestep)
     const startY = Math.max(320, Math.floor(height * 0.48));
     this.startY = startY;
-    const randomStartOffsetX = (Math.random() - 0.5) * 80;
-    const startX = Math.max(80, Math.min(width - 80, width / 2 + randomStartOffsetX));
+    const startX = Math.max(80, Math.min(width - 80, width / 2));
 
     const startNode = new OrbitNode(startX, startY, 'STANDARD', width, 0);
     this.nodes.push(startNode);
 
-    this.lastNodeX = startX;
-    this.lastNodeY = startY;
+    const followY = startY + 178;
+    const followX = Math.max(80, Math.min(width - 80, startX + 42));
+    this.nodes.push(new OrbitNode(followX, followY, 'STANDARD', width, 0));
+
+    this.lastNodeX = followX;
+    this.lastNodeY = followY;
     this.lastNodeType = 'STANDARD';
-    this.highestGeneratedY = startY;
+    this.highestGeneratedY = followY;
 
     // 2. Generate procedural upward trajectory
     this.generateUpTo(startY + height * 2.5, width, startY - height * 0.5);

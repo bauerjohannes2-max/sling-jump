@@ -203,7 +203,7 @@ class GameEngine {
     // Initialize player with selected custom ship and trail positioned on startNode
     const shipId = this.storage.data.selectedShip;
     const trailId = this.storage.data.selectedTrail;
-    this.player = new Spaceship(startNode.x, startNode.y - 220, shipId, trailId);
+    this.player = new Spaceship(startNode.x, startNode.y - 145, shipId, trailId);
     this.player.isHooked = false;
     this.player.hookedNode = null;
     this.player.vx = 0;
@@ -211,8 +211,8 @@ class GameEngine {
     this.player.orbitSpinScale = 1;
     this.startAltitudeY = this.player.y;
 
-    // Center camera on the launched ship so the first node sits above
-    this.cameraY = this.player.y - this.height * 0.55;
+    // Node sits in front of the nose; ship slightly below mid-screen
+    this.cameraY = this.player.y - this.height * 0.42;
 
     this.ui.updateHUD(0, this.storage.data.highScore, this.storage.data.cores);
     this.ui.setSlowMoVisual(false);
@@ -300,37 +300,38 @@ class GameEngine {
   }
 
   updateTapAssist() {
-    if (this.tutorialCelebrateTimer > 0) {
-      this.ui.setPressCueVisible(false);
+    this.ui.setPressCueVisible(false);
+    if (this.tutorialCelebrateTimer > 0 || !this.isTutorial) {
+      this.tapAssistActive = false;
       return;
     }
     if (!this.player || this.isDying || !this.gameStarted) {
-      this.ui.setPressCueVisible(false);
+      this.tapAssistActive = false;
       return;
     }
     if (this.player.isHooked) {
       this.tapAssistActive = false;
-      this.ui.setPressCueVisible(false);
       return;
     }
 
-    const node = this.nearestNode;
-    const dist = node ? Math.hypot(this.player.x - node.x, this.player.y - node.y) : 9999;
-    const range = CONSTANTS.PHYSICS.HOOK_RANGE;
-    const inRange = dist <= range;
-    const nearRange = dist <= range * 1.25;
-    const falling = this.player.vy < 60;
-    const droppingLow = this.player.y < this.cameraY + 200;
     const maxAssists = CONSTANTS.PHYSICS.TAP_ASSIST_MAX || 3;
-
-    if (falling && (nearRange || droppingLow) && this.tapAssistCount < maxAssists) {
+    // Freeze just before / just as the climb turns over — not after a long fall
+    const nearApex = this.player.vy < 180;
+    if (nearApex && this.tapAssistCount < maxAssists) {
       if (!this.tapAssistActive) {
         this.tapAssistActive = true;
         this.tapAssistCount += 1;
       }
     }
+  }
 
-    this.ui.setPressCueVisible(inRange || this.tapAssistActive);
+  shouldShowPressCue() {
+    if (!this.isTutorial || this.tutorialCelebrateTimer > 0 || !this.player || this.player.isHooked) {
+      return false;
+    }
+    const node = this.nearestNode;
+    const dist = node ? Math.hypot(this.player.x - node.x, this.player.y - node.y) : 9999;
+    return this.tapAssistActive || dist <= CONSTANTS.PHYSICS.HOOK_RANGE;
   }
 
   inEarlySafety() {
@@ -762,7 +763,7 @@ class GameEngine {
         this.ui.setSlowMoVisual(!!this.hookSlowMo);
       }
     }
-    if (this.momentSlowMoLeft <= 0 && this.tapAssistActive && this.player && !this.player.isHooked) {
+    if (this.momentSlowMoLeft <= 0 && this.isTutorial && this.tapAssistActive && this.player && !this.player.isHooked) {
       const freeze = CONSTANTS.PHYSICS.TAP_ASSIST_FREEZE || 0.12;
       this.targetTimeScale = Math.max(freeze, (this.targetTimeScale || 1) - rawDt * 1.35);
       this.ui.setSlowMoVisual(true);
@@ -1024,14 +1025,15 @@ class GameEngine {
         const hintGreen = `rgba(74, 222, 128, ${pulseAlpha})`;
 
         if (this.isTutorial) {
-          const ty = this.player.isHooked ? this.player.getLaunchTangentY() : 0;
-          const perfect = (CONSTANTS.PHYSICS.PERFECT_LAUNCH_THRESHOLD || 0.995) - 0.04;
-          if (this.tutorialStep === 2 && this.player.isHooked && ty >= 0.82) {
+          if (!this.player.isHooked && this.shouldShowPressCue()) {
+            const side = this.player.x < this.width * 0.62 ? 1 : -1;
+            this.ctx.textAlign = side > 0 ? 'left' : 'right';
+            this.ctx.fillStyle = hintGreen;
+            this.ctx.fillText('DRÜCKEN', this.player.x + side * 38, playerScreenY + 5);
+            this.ctx.textAlign = 'center';
+          } else if (this.player.isHooked && this.player.getLaunchTangentY() >= 0.82) {
             this.ctx.fillStyle = hintGreen;
             this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 40);
-          } else if (this.tutorialStep === 3 && this.player.isHooked && ty >= perfect) {
-            this.ctx.fillStyle = hintGreen;
-            this.ctx.fillText('90°', this.player.x, playerScreenY - 40);
           }
         } else if (this.state.is(StateManager.STATES.PLAYING) && this.storage.data.stats.totalRuns < 3 && this.storage.data.highScore < 150) {
           if (this.player.isHooked) {
