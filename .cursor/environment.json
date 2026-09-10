@@ -1,0 +1,11 @@
+{
+  "name": "Space Jump",
+  "install": "npm install && npx playwright install chromium",
+  "terminals": [
+    {
+      "name": "dev-server",
+      "command": "npm start"
+    }
+  ],
+  "ports": [3000]
+}
