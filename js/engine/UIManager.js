@@ -46,6 +46,7 @@ class UIManager {
       leaderboardModal: document.getElementById('leaderboard-modal'),
       statsModal: document.getElementById('stats-modal'),
       settingsModal: document.getElementById('settings-modal'),
+      legalModal: document.getElementById('legal-modal'),
       confirmModal: document.getElementById('confirm-modal'),
       tutorialModal: document.getElementById('tutorial-modal'),
       profileModal: document.getElementById('profile-modal'),
@@ -163,6 +164,7 @@ class UIManager {
     this._lastDebrief = null;
     this.initMissionTabsUI();
     this.initSettingsUI();
+    this.initLegalUI();
     this.initDebriefInteraction();
     this.updateUserProfileNav();
     window._uiManager = this;
@@ -193,6 +195,7 @@ class UIManager {
       this.dom.leaderboardModal,
       this.dom.statsModal,
       this.dom.settingsModal,
+      this.dom.legalModal,
       this.dom.tutorialModal,
       this.dom.profileModal
     ];
@@ -1748,6 +1751,50 @@ class UIManager {
         }
       }
     } catch (e) {}
+  }
+
+  initLegalUI() {
+    if (this._legalUiBound) return;
+    this._legalUiBound = true;
+    document.querySelectorAll('[data-legal]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openLegal(btn.getAttribute('data-legal') || 'impressum');
+      });
+    });
+    document.querySelectorAll('[data-legal-tab]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openLegal(btn.getAttribute('data-legal-tab') || 'impressum');
+      });
+    });
+    const closeBtn = document.getElementById('btn-legal-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.closeLegal());
+    }
+  }
+
+  openLegal(section) {
+    const which = section === 'privacy' ? 'privacy' : 'impressum';
+    if (this.dom.legalModal) this.dom.legalModal.classList.add('visible');
+    const impressumTab = document.getElementById('legal-tab-impressum');
+    const privacyTab = document.getElementById('legal-tab-privacy');
+    const impressumPanel = document.getElementById('legal-panel-impressum');
+    const privacyPanel = document.getElementById('legal-panel-privacy');
+    if (impressumTab) impressumTab.classList.toggle('is-active', which === 'impressum');
+    if (privacyTab) privacyTab.classList.toggle('is-active', which === 'privacy');
+    if (impressumPanel) {
+      impressumPanel.hidden = which !== 'impressum';
+      impressumPanel.classList.toggle('is-active', which === 'impressum');
+    }
+    if (privacyPanel) {
+      privacyPanel.hidden = which !== 'privacy';
+      privacyPanel.classList.toggle('is-active', which === 'privacy');
+    }
+  }
+
+  closeLegal() {
+    if (this.dom.legalModal) this.dom.legalModal.classList.remove('visible');
   }
 
   toggleAudio() {

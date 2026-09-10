@@ -12,11 +12,11 @@
       }
     })();
   </script>
-  <link rel="manifest" href="manifest.json?v=5.18.34">
-  <link rel="shortcut icon" href="favicon.ico?v=5.18.34">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.34">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-punch-192.png?v=5.18.34">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.34">
+  <link rel="manifest" href="manifest.json?v=5.18.35">
+  <link rel="shortcut icon" href="favicon.ico?v=5.18.35">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.35">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-punch-192.png?v=5.18.35">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.35">
   <link rel="apple-touch-icon" href="apple-touch-icon-punch.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-punch.png">
   <meta name="theme-color" content="#080b10">
@@ -28,10 +28,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Oxanium:wght@800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=5.18.34">
+  <link rel="stylesheet" href="css/style.css?v=5.18.35">
   <script>
     (function() {
-      var APP_VERSION = '5.18.34';
+      var APP_VERSION = '5.18.35';
       var storedVer = localStorage.getItem('space_jump_installed_version') || localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('space_jump_installed_version', APP_VERSION);
@@ -264,6 +264,11 @@
             </div>
             <span>RANK</span>
           </button>
+        </nav>
+        <nav class="legal-links legal-links-menu">
+          <button type="button" class="legal-link" data-legal="impressum">Impressum</button>
+          <span class="legal-sep">·</span>
+          <button type="button" class="legal-link" data-legal="privacy">Datenschutz</button>
         </nav>
       </footer>
 
@@ -701,11 +706,11 @@
           <div class="setting-row setting-row-volume">
             <div class="setting-volume-header">
               <span class="setting-label">Lautstärke</span>
-              <span class="volume-value" id="music-volume-value">70%</span>
+              <span class="volume-value" id="music-volume-value">55%</span>
             </div>
             <div class="volume-control">
               <button class="btn-volume-step" id="btn-volume-down" type="button" aria-label="Leiser">−</button>
-              <input class="slider-music-volume" id="slider-music-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Musiklautstärke">
+              <input class="slider-music-volume" id="slider-music-volume" type="range" min="0" max="100" step="1" value="55" aria-label="Musiklautstärke">
               <button class="btn-volume-step" id="btn-volume-up" type="button" aria-label="Lauter">+</button>
             </div>
           </div>
@@ -723,7 +728,12 @@
           <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag">SPACE JUMP v5.18.34</div>
+        <div class="settings-version-tag">SPACE JUMP v5.18.35</div>
+        <nav class="legal-links">
+          <button type="button" class="legal-link" data-legal="impressum">Impressum</button>
+          <span class="legal-sep">·</span>
+          <button type="button" class="legal-link" data-legal="privacy">Datenschutz</button>
+        </nav>
       </div>
     </div>
 
@@ -845,7 +855,51 @@
       </div>
     </div>
 
-    <!-- Confirmation Modal for Save Reset -->
+    <!-- LEGAL MODAL -->
+    <div class="modal-overlay" id="legal-modal" style="z-index:160;">
+      <div class="modal-card hub-card legal-modal-card" style="position: relative;">
+        <button class="modal-close-x" id="btn-legal-close" aria-label="Schließen">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <div class="legal-tabs">
+          <button type="button" class="legal-tab is-active" id="legal-tab-impressum" data-legal-tab="impressum">Impressum</button>
+          <button type="button" class="legal-tab" id="legal-tab-privacy" data-legal-tab="privacy">Datenschutz</button>
+        </div>
+        <div class="legal-scroll">
+          <section class="legal-panel is-active" id="legal-panel-impressum">
+            <h2>Angaben gemäß § 5 TMG</h2>
+            <p>
+              Johannes Bauer<br>
+              Am Schlag<br>
+              Lappersdorf<br>
+              Deutschland
+            </p>
+            <h3>Kontakt</h3>
+            <p><a href="mailto:bauerjohannes2@gmail.com">bauerjohannes2@gmail.com</a></p>
+            <p>Space Jump ist ein privates Hobby-Projekt. Es besteht keine Eintragung im Handelsregister.</p>
+          </section>
+          <section class="legal-panel" id="legal-panel-privacy" hidden>
+            <h2>Datenschutzerklärung</h2>
+            <p>Verantwortlich: Johannes Bauer, Am Schlag, Lappersdorf, Deutschland,
+              <a href="mailto:bauerjohannes2@gmail.com">bauerjohannes2@gmail.com</a>.</p>
+            <h3>Was gespeichert wird</h3>
+            <p>Auf deinem Gerät liegt der Spielstand in localStorage (Höhe, Coins, Sparks, Freischaltungen, Einstellungen).</p>
+            <p>Wenn du einen Account anlegst, speichern wir in der EU (Supabase, Region Frankfurt): Spielername, Passwort-Hash (kein Klartext), Spielstand und Sitzungstoken.</p>
+            <p>Die Bestenliste enthält Spieler-ID, Anzeigename und Höhe. Diese Werte sind öffentlich lesbar.</p>
+            <h3>Hosting</h3>
+            <p>Die Website läuft über GitHub Pages (GitHub Inc., USA). Dabei können technische Zugriffsdaten wie IP-Adresse in Serverlogs anfallen.</p>
+            <h3>Rechtsgrundlage</h3>
+            <p>Lokales Spielen: berechtigtes Interesse an einem funktionierenden Spiel (Art. 6 Abs. 1 lit. f DSGVO). Cloud-Account und Bestenliste: Vertrag bzw. deine Einwilligung beim Anlegen des Accounts (Art. 6 Abs. 1 lit. b und a DSGVO).</p>
+            <h3>Speicherdauer</h3>
+            <p>Lokal, bis du den Spielstand zurücksetzt oder den Browser-Speicher löschst. In der Cloud, bis du den Account nicht mehr nutzt oder uns zur Löschung aufforderst.</p>
+            <h3>Deine Rechte</h3>
+            <p>Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch. Beschwerde bei einer Datenschutzaufsichtsbehörde, in Bayern beim Bayerischen Landesamt für Datenschutzaufsicht.</p>
+            <p>Keine Werbung, kein Verkauf von Daten, kein Tracking für Marketing.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-overlay" id="confirm-modal" style="z-index:150;">
       <div class="modal-card" style="max-width:360px;">
         <div class="modal-title danger">ACHTUNG</div>
@@ -861,23 +915,23 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=5.18.34"></script>
-  <script src="js/config/CloudConfig.js?v=5.18.34"></script>
-  <script src="js/services/CloudBackend.js?v=5.18.34"></script>
-  <script src="js/services/StorageService.js?v=5.18.34"></script>
-  <script src="js/audio/AudioManager.js?v=5.18.34"></script>
-  <script src="js/engine/ParticleSystem.js?v=5.18.34"></script>
-  <script src="js/engine/InputManager.js?v=5.18.34"></script>
-  <script src="js/engine/MissionManager.js?v=5.18.34"></script>
-  <script src="js/entities/Node.js?v=5.18.34"></script>
-  <script src="js/entities/EnergyOrb.js?v=5.18.34"></script>
-  <script src="js/entities/ShipArt.js?v=5.18.34"></script>
-  <script src="js/entities/Spaceship.js?v=5.18.34"></script>
-  <script src="js/world/WorldManager.js?v=5.18.34"></script>
-  <script src="js/engine/ShopManager.js?v=5.18.34"></script>
-  <script src="js/engine/StateManager.js?v=5.18.34"></script>
-  <script src="js/engine/UIManager.js?v=5.18.34"></script>
-  <script src="js/engine/GameEngine.js?v=5.18.34"></script>
-  <script src="js/main.js?v=5.18.34"></script>
+  <script src="js/config/Constants.js?v=5.18.35"></script>
+  <script src="js/config/CloudConfig.js?v=5.18.35"></script>
+  <script src="js/services/CloudBackend.js?v=5.18.35"></script>
+  <script src="js/services/StorageService.js?v=5.18.35"></script>
+  <script src="js/audio/AudioManager.js?v=5.18.35"></script>
+  <script src="js/engine/ParticleSystem.js?v=5.18.35"></script>
+  <script src="js/engine/InputManager.js?v=5.18.35"></script>
+  <script src="js/engine/MissionManager.js?v=5.18.35"></script>
+  <script src="js/entities/Node.js?v=5.18.35"></script>
+  <script src="js/entities/EnergyOrb.js?v=5.18.35"></script>
+  <script src="js/entities/ShipArt.js?v=5.18.35"></script>
+  <script src="js/entities/Spaceship.js?v=5.18.35"></script>
+  <script src="js/world/WorldManager.js?v=5.18.35"></script>
+  <script src="js/engine/ShopManager.js?v=5.18.35"></script>
+  <script src="js/engine/StateManager.js?v=5.18.35"></script>
+  <script src="js/engine/UIManager.js?v=5.18.35"></script>
+  <script src="js/engine/GameEngine.js?v=5.18.35"></script>
+  <script src="js/main.js?v=5.18.35"></script>
 </body>
 </html>

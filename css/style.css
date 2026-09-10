@@ -4558,6 +4558,117 @@ canvas#gameCanvas {
   text-align: center;
 }
 
+.legal-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.legal-links-menu {
+  margin-top: 8px;
+}
+
+.legal-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #64748b;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.legal-link:hover {
+  color: #e2e8f0;
+}
+
+.legal-sep {
+  color: #334155;
+  font-size: 10px;
+}
+
+.legal-modal-card {
+  max-width: 440px;
+  width: 92%;
+  max-height: min(640px, 90vh);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.legal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-right: 36px;
+}
+
+.legal-tab {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.legal-tab.is-active {
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.55);
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.legal-scroll {
+  overflow-y: auto;
+  text-align: left;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.55;
+  padding-right: 4px;
+}
+
+.legal-panel h2,
+.legal-panel h3 {
+  font-family: var(--font-ui);
+  color: #e2e8f0;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.legal-panel h2 {
+  font-size: 14px;
+}
+
+.legal-panel h3 {
+  font-size: 12px;
+  margin-top: 16px;
+}
+
+.legal-panel p {
+  margin: 0 0 10px;
+}
+
+.legal-panel a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.legal-panel a:hover {
+  text-decoration: underline;
+}
+
 /* =========================================================================
    7. PROFIL MODAL (REDESIGNED: FLOATING-DOCK & MISSIONS PARITY)
    ========================================================================= */
