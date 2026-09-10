@@ -218,9 +218,11 @@ class GameEngine {
 
     this.ui.updateHUD(0, this.storage.data.highScore, this.storage.data.cores);
     this.ui.setSlowMoVisual(false);
+    this.ui.setFreezeVisual(false);
     this.ui.setDangerVisual(0);
     this.ui.setPressCueVisible(false);
     this.ui.setTrainingDoneVisible(false);
+    this.ui.setTrainingHint(null);
 
     if (tutorial) {
       this.ui.setTutorialSkipVisible(true);
@@ -235,8 +237,7 @@ class GameEngine {
     if (!this.isTutorial) return;
     this.isTutorial = false;
     this.tutorialStep = 0;
-    this.shipFrozen = false;
-    this.shipFreezeSettle = 0;
+    this.clearShipFreeze();
     this.tutorialReleaseSlowMo = false;
     if (this.timeScale < 0.08) this.timeScale = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR;
     this.tutorialCelebrateTimer = 2.2;
@@ -248,6 +249,7 @@ class GameEngine {
     this.ui.setTutorialSkipVisible(false);
     this.ui.setPressCueVisible(false);
     this.ui.setTrainingDoneVisible(true);
+    this.ui.setTrainingHint(null);
     this.triggerMomentSlowMo(1.5, CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR);
   }
 
@@ -258,8 +260,7 @@ class GameEngine {
     }
     this.isTutorial = false;
     this.tutorialStep = 0;
-    this.shipFrozen = false;
-    this.shipFreezeSettle = 0;
+    this.clearShipFreeze();
     this.tutorialReleaseSlowMo = false;
     this.timeScale = 1;
     this.targetTimeScale = this.hookSlowMo ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
@@ -269,11 +270,13 @@ class GameEngine {
     this.ui.setTutorialSkipVisible(false);
     this.ui.setPressCueVisible(false);
     this.ui.setTrainingDoneVisible(false);
+    this.ui.setTrainingHint(null);
   }
 
   clearShipFreeze() {
     this.shipFrozen = false;
     this.shipFreezeSettle = 0;
+    if (this.ui) this.ui.setFreezeVisual(false);
   }
 
   onTutorialHooked() {
@@ -338,16 +341,10 @@ class GameEngine {
 
   beginShipFreeze() {
     if (this.shipFrozen || this.shipFreezeSettle > 0) return;
-    const settle = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_SETTLE || 0.36;
+    const settle = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_SETTLE || 0.42;
     this.shipFreezeSettle = settle;
     this.shipFrozen = false;
-    this.triggerScreenShake(2.5);
-    if (this.particles && this.player) {
-      this.particles.spawnShockwave(this.player.x, this.player.y, '#7dd3fc', 78);
-      this.particles.spawnShockwave(this.player.x, this.player.y, '#e0f2fe', 42);
-      this.particles.spawnSparks(this.player.x, this.player.y, 18, '#e0f2fe', 0.85);
-      this.particles.spawnShards(this.player.x, this.player.y, 14, '#67e8f9');
-    }
+    if (this.ui) this.ui.setFreezeVisual(true);
   }
 
   updateShipFreeze(rawDt) {
@@ -746,65 +743,29 @@ class GameEngine {
     return true;
   }
 
-  drawTutorialFreezeAura(now) {
-    if (!this.player || (!this.shipFrozen && this.shipFreezeSettle <= 0)) return;
-    const screenY = this.height - (this.player.y - this.cameraY);
-    const settleMax = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_SETTLE || 0.36;
-    const settling = this.shipFreezeSettle > 0;
-    const p = settling ? Math.max(0, Math.min(1, 1 - (this.shipFreezeSettle / settleMax))) : 1;
-    const pulse = Math.sin(now / 160) * 0.14 + 0.86;
+  drawTutorialFreezeVignette(now) {
+    if (!this.isShipTimeStopped()) return;
+    const settleMax = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_SETTLE || 0.42;
+    const p = this.shipFreezeSettle > 0
+      ? Math.max(0, Math.min(1, 1 - (this.shipFreezeSettle / settleMax)))
+      : 1;
+    const pulse = Math.sin(now / 240) * 0.05 + 0.95;
+    const strength = p * pulse;
+    if (strength <= 0.01) return;
 
-    this.ctx.save();
-    this.ctx.translate(this.player.x, screenY);
+    const cx = this.width * 0.5;
+    const cy = this.height * 0.48;
+    const minSide = Math.min(this.width, this.height);
+    const inner = minSide * (0.64 - p * 0.30);
+    const outer = Math.hypot(this.width, this.height) * 0.58;
 
-    if (settling) {
-      const r1 = 14 + p * 70;
-      const r2 = 10 + p * 44;
-      this.ctx.strokeStyle = `rgba(186, 230, 253, ${0.95 * (1 - p)})`;
-      this.ctx.lineWidth = 3.2;
-      this.ctx.beginPath();
-      this.ctx.arc(0, 0, r1, 0, Math.PI * 2);
-      this.ctx.stroke();
-      this.ctx.strokeStyle = `rgba(125, 211, 252, ${0.8 * (1 - p)})`;
-      this.ctx.lineWidth = 1.8;
-      this.ctx.beginPath();
-      this.ctx.arc(0, 0, r2, 0, Math.PI * 2);
-      this.ctx.stroke();
-    }
-
-    this.ctx.fillStyle = `rgba(186, 230, 253, ${0.12 * pulse})`;
-    this.ctx.beginPath();
-    this.ctx.arc(0, 0, 16 * pulse, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.strokeStyle = `rgba(165, 243, 252, ${0.45 + 0.35 * pulse})`;
-    this.ctx.lineWidth = 1.7;
-    this.ctx.beginPath();
-    this.ctx.arc(0, 0, 19 * pulse, 0, Math.PI * 2);
-    this.ctx.stroke();
-
-    this.ctx.strokeStyle = `rgba(224, 242, 254, ${0.55 * pulse})`;
-    this.ctx.lineWidth = 1.1;
-    this.ctx.setLineDash([4, 5]);
-    this.ctx.beginPath();
-    this.ctx.arc(0, 0, 26 * pulse, 0, Math.PI * 2);
-    this.ctx.stroke();
-    this.ctx.setLineDash([]);
-
-    this.ctx.rotate(now * 0.00035);
-    this.ctx.strokeStyle = `rgba(224, 242, 254, ${0.75 * pulse})`;
-    this.ctx.lineWidth = 1.25;
-    for (let i = 0; i < 6; i++) {
-      const a = (i * Math.PI) / 3;
-      const c = Math.cos(a);
-      const s = Math.sin(a);
-      this.ctx.beginPath();
-      this.ctx.moveTo(c * 11, s * 11);
-      this.ctx.lineTo(c * 17, s * 17);
-      this.ctx.stroke();
-    }
-
-    this.ctx.restore();
+    const g = this.ctx.createRadialGradient(cx, cy, Math.max(8, inner), cx, cy, outer);
+    g.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    g.addColorStop(0.58, `rgba(8, 20, 36, ${0.03 * strength})`);
+    g.addColorStop(0.84, `rgba(56, 189, 248, ${0.14 * strength})`);
+    g.addColorStop(1, `rgba(4, 12, 22, ${0.40 * strength})`);
+    this.ctx.fillStyle = g;
+    this.ctx.fillRect(0, 0, this.width, this.height);
   }
 
   /* =========================================================================
@@ -892,13 +853,6 @@ class GameEngine {
       } else if (this.player.isHooked) {
         this.targetTimeScale = CONSTANTS.PHYSICS.SLOWMO_FACTOR;
         this.ui.setSlowMoVisual(true);
-      } else if (this.shipFreezeSettle > 0) {
-        this.targetTimeScale = 0.28;
-        this.ui.setSlowMoVisual(false);
-      } else if (this.shipFrozen) {
-        this.targetTimeScale = 0;
-        this.timeScale = 0;
-        this.ui.setSlowMoVisual(false);
       }
     }
     this.timeScale += (this.targetTimeScale - this.timeScale) * Math.min(1, rawDt * 16);
@@ -1151,43 +1105,34 @@ class GameEngine {
     // 4. Spaceship & Trajectory (Only when active run)
     if (isActiveRun) {
       this.player.draw(this.ctx, this.cameraY, this.width, this.height, this.nearestNode, theme);
-      this.drawTutorialFreezeAura(now);
 
-      // 4b. Quiet ship callouts — only the action word, only when it matters
-      if (this.player) {
+      if (this.player && this.ui) {
         const playerScreenY = this.height - (this.player.y - this.cameraY);
-        this.ctx.save();
-        this.ctx.textAlign = 'center';
-        this.ctx.font = '800 16px "Rajdhani", sans-serif';
-        this.ctx.letterSpacing = '1.6px';
-        const pulseAlpha = Math.sin(now / 140) * 0.25 + 0.75;
-        const hintGreen = `rgba(74, 222, 128, ${pulseAlpha})`;
-
         if (this.isTutorial) {
           if (!this.player.isHooked && this.shouldShowPressCue()) {
-            const side = this.player.x < this.width * 0.62 ? 1 : -1;
-            this.ctx.textAlign = side > 0 ? 'left' : 'right';
-            this.ctx.fillStyle = hintGreen;
-            this.ctx.fillText('DRÜCKEN', this.player.x + side * 38, playerScreenY + 5);
-            this.ctx.textAlign = 'center';
+            this.ui.setTrainingHint('DRÜCKEN', this.player.x, playerScreenY, 'beside', this.width, this.height);
           } else if (this.player.isHooked && (this.tutorialReleaseSlowMo || this.player.getLaunchTangentY() >= 0.82)) {
-            this.ctx.fillStyle = hintGreen;
-            this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 40);
+            this.ui.setTrainingHint('LOSLASSEN', this.player.x, playerScreenY, 'above', this.width, this.height);
+          } else {
+            this.ui.setTrainingHint(null);
           }
         } else if (this.state.is(StateManager.STATES.PLAYING) && this.storage.data.stats.totalRuns < 3 && this.storage.data.highScore < 150) {
-          if (this.player.isHooked) {
-            const ty = this.player.getLaunchTangentY();
-            if (ty >= 0.82) {
-              this.ctx.fillStyle = hintGreen;
-              this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 40);
-            }
+          if (this.player.isHooked && this.player.getLaunchTangentY() >= 0.82) {
+            this.ui.setTrainingHint('LOSLASSEN', this.player.x, playerScreenY, 'above', this.width, this.height);
+          } else {
+            this.ui.setTrainingHint(null);
           }
+        } else {
+          this.ui.setTrainingHint(null);
         }
-        this.ctx.restore();
       }
+    } else if (this.ui) {
+      this.ui.setTrainingHint(null);
     }
 
     this.ctx.restore();
+
+    this.drawTutorialFreezeVignette(now);
 
     // 5. Death Horizon (Rendered in unscaled screen coordinates across full viewport width)
     if (this.gameStarted && !this.inEarlySafety() && (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.PAUSED))) {

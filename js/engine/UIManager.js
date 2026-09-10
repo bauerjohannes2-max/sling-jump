@@ -54,6 +54,8 @@ class UIManager {
 
       // Screen Effects
       slowmoOverlay: document.getElementById('slowmo-overlay'),
+      freezeOverlay: document.getElementById('freeze-overlay'),
+      hudTrainingHint: document.getElementById('hud-training-hint'),
       dangerOverlay: document.getElementById('danger-overlay'),
       flashOverlay: document.getElementById('flash-overlay'),
       recordFx: document.getElementById('record-fx'),
@@ -604,6 +606,51 @@ class UIManager {
     if (this.dom.hudComboBadge) {
       this.dom.hudComboBadge.style.display = 'none';
     }
+  }
+
+  setFreezeVisual(active) {
+    if (!this.dom.freezeOverlay) return;
+    if (active) this.dom.freezeOverlay.classList.add('active');
+    else this.dom.freezeOverlay.classList.remove('active');
+  }
+
+  setTrainingHint(text, shipX, shipScreenY, placement, viewW, viewH) {
+    const el = this.dom.hudTrainingHint;
+    if (!el) return;
+    if (!text) {
+      el.style.display = 'none';
+      el.textContent = '';
+      return;
+    }
+    el.textContent = text;
+    el.style.display = 'block';
+    const w = el.offsetWidth || 90;
+    const h = el.offsetHeight || 26;
+    const padL = 12;
+    const padR = 12;
+    const padT = 96;
+    const padB = 24;
+    const vw = viewW || window.innerWidth;
+    const vh = viewH || window.innerHeight;
+    let mode = placement;
+    if (mode === 'beside' && (shipX < w + 28 || shipX > vw - w - 28)) {
+      mode = 'above';
+    }
+    let left;
+    let top;
+    if (mode === 'beside') {
+      const preferRight = shipX < vw * 0.62;
+      left = preferRight ? shipX + 28 : shipX - 28 - w;
+      top = shipScreenY - h * 0.5;
+    } else {
+      left = shipX - w * 0.5;
+      top = shipScreenY - 40 - h * 0.5;
+      if (top < padT) top = shipScreenY + 22;
+    }
+    left = Math.max(padL, Math.min(vw - padR - w, left));
+    top = Math.max(padT, Math.min(vh - padB - h, top));
+    el.style.left = `${Math.round(left)}px`;
+    el.style.top = `${Math.round(top)}px`;
   }
 
   setSlowMoVisual(active) {
