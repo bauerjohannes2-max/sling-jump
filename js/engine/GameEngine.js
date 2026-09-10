@@ -47,6 +47,8 @@ class GameEngine {
     this.tutorialFrozen = false;
     this.tutorialCelebrateTimer = 0;
     this.shipFrozen = false;
+    this.shipFreezeSettle = 0;
+    this.tutorialReleaseSlowMo = false;
     this.hookSlowMo = false;
     this.momentSlowMoLeft = 0;
     this.momentSlowMoFactor = 0.28;
@@ -167,6 +169,8 @@ class GameEngine {
     this.tutorialSlingshots = 0;
     this.tutorialCelebrateTimer = 0;
     this.shipFrozen = false;
+    this.shipFreezeSettle = 0;
+    this.tutorialReleaseSlowMo = false;
     this.hookSlowMo = false;
     this.momentSlowMoLeft = 0;
     this.momentSlowMoFactor = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR;
@@ -232,6 +236,8 @@ class GameEngine {
     this.isTutorial = false;
     this.tutorialStep = 0;
     this.shipFrozen = false;
+    this.shipFreezeSettle = 0;
+    this.tutorialReleaseSlowMo = false;
     if (this.timeScale < 0.08) this.timeScale = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR;
     this.tutorialCelebrateTimer = 2.2;
     this.storage.data.settings.tutorialCompleted = true;
@@ -253,6 +259,8 @@ class GameEngine {
     this.isTutorial = false;
     this.tutorialStep = 0;
     this.shipFrozen = false;
+    this.shipFreezeSettle = 0;
+    this.tutorialReleaseSlowMo = false;
     this.timeScale = 1;
     this.targetTimeScale = this.hookSlowMo ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
     this.storage.data.settings.tutorialCompleted = true;
@@ -263,12 +271,15 @@ class GameEngine {
     this.ui.setTrainingDoneVisible(false);
   }
 
+  clearShipFreeze() {
+    this.shipFrozen = false;
+    this.shipFreezeSettle = 0;
+  }
+
   onTutorialHooked() {
     if (!this.isTutorial) return;
-    this.shipFrozen = false;
-    const slow = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.05;
-    this.timeScale = slow;
-    this.targetTimeScale = slow;
+    this.clearShipFreeze();
+    this.tutorialReleaseSlowMo = false;
     if (this.player) {
       this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
     }
@@ -276,6 +287,7 @@ class GameEngine {
 
   onTutorialReleased(isPerfectLaunch) {
     if (!this.isTutorial) return;
+    this.tutorialReleaseSlowMo = false;
     this.tutorialSlingshots += 1;
     const needed = CONSTANTS.PHYSICS.TUTORIAL_CYCLES || 5;
     if (this.tutorialSlingshots >= needed) {
@@ -284,9 +296,18 @@ class GameEngine {
   }
 
   updateTutorialCoach() {
-    if (!this.isTutorial || !this.player) return;
-    if (this.player.isHooked) {
-      this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
+    if (!this.isTutorial || !this.player || !this.player.isHooked) {
+      this.tutorialReleaseSlowMo = false;
+      return;
+    }
+    this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
+    const ty = this.player.getLaunchTangentY();
+    const enter = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_ENTER || 0.80;
+    const exit = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_EXIT || 0.70;
+    if (this.tutorialReleaseSlowMo) {
+      if (ty < exit) this.tutorialReleaseSlowMo = false;
+    } else if (ty >= enter) {
+      this.tutorialReleaseSlowMo = true;
     }
   }
 
@@ -311,25 +332,63 @@ class GameEngine {
     return false;
   }
 
-  updateShipFreeze() {
+  isShipTimeStopped() {
+    return this.shipFrozen || this.shipFreezeSettle > 0;
+  }
+
+  beginShipFreeze() {
+    if (this.shipFrozen || this.shipFreezeSettle > 0) return;
+    const settle = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_SETTLE || 0.36;
+    this.shipFreezeSettle = settle;
+    this.shipFrozen = false;
+    this.triggerScreenShake(2.5);
+    if (this.particles && this.player) {
+      this.particles.spawnShockwave(this.player.x, this.player.y, '#7dd3fc', 78);
+      this.particles.spawnShockwave(this.player.x, this.player.y, '#e0f2fe', 42);
+      this.particles.spawnSparks(this.player.x, this.player.y, 18, '#e0f2fe', 0.85);
+      this.particles.spawnShards(this.player.x, this.player.y, 14, '#67e8f9');
+    }
+  }
+
+  updateShipFreeze(rawDt) {
     if (!this.isTutorial || !this.player || this.isDying || this.tutorialCelebrateTimer > 0) {
-      this.shipFrozen = false;
+      this.clearShipFreeze();
       return;
     }
     if (this.player.isHooked) {
-      this.shipFrozen = false;
+      this.clearShipFreeze();
       return;
     }
+
+    if (this.shipFreezeSettle > 0) {
+      this.shipFreezeSettle = Math.max(0, this.shipFreezeSettle - rawDt);
+      const damp = Math.exp(-rawDt * 11);
+      this.player.vx *= damp;
+      this.player.vy *= damp;
+      this.player.x += this.player.vx * rawDt;
+      this.player.y += this.player.vy * rawDt;
+      const spd = Math.hypot(this.player.vx, this.player.vy);
+      if (spd > 8) {
+        this.player.angle = Math.atan2(this.player.vy, this.player.vx);
+      }
+      if (this.shipFreezeSettle <= 0 || spd < 6) {
+        this.player.vx = 0;
+        this.player.vy = 0;
+        this.shipFreezeSettle = 0;
+        this.shipFrozen = true;
+      }
+      return;
+    }
+
     if (this.shipFrozen) {
       this.player.vx = 0;
       this.player.vy = 0;
       return;
     }
-    const freezeVy = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_VY || -180;
+
+    const freezeVy = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_VY || -40;
     if (this.player.vy < freezeVy && this.hasHookableNodeNearby()) {
-      this.shipFrozen = true;
-      this.player.vx = 0;
-      this.player.vy = 0;
+      this.beginShipFreeze();
     }
   }
 
@@ -339,7 +398,7 @@ class GameEngine {
     }
     const node = this.nearestNode;
     const dist = node ? Math.hypot(this.player.x - node.x, this.player.y - node.y) : 9999;
-    return this.shipFrozen || dist <= CONSTANTS.PHYSICS.HOOK_RANGE;
+    return this.shipFrozen || this.shipFreezeSettle > 0 || dist <= CONSTANTS.PHYSICS.HOOK_RANGE;
   }
 
   inEarlySafety() {
@@ -382,11 +441,7 @@ class GameEngine {
       this.ui.setSlowMoVisual(true);
       return;
     }
-    if (active && this.isTutorial) {
-      this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.05;
-    } else {
-      this.targetTimeScale = active ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
-    }
+    this.targetTimeScale = active ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
     this.ui.setSlowMoVisual(active);
   }
 
@@ -403,7 +458,7 @@ class GameEngine {
       const targetNode = this.nearestNode || this.world.getNearestNode(this.player, this.cameraY);
       const hooked = targetNode ? this.player.tryHook(targetNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY) : false;
       if (hooked) {
-        this.shipFrozen = false;
+        this.clearShipFreeze();
         this.onTutorialHooked();
         this.applyFirstOrbitFeel();
         this.ui.setPressCueVisible(false);
@@ -691,6 +746,67 @@ class GameEngine {
     return true;
   }
 
+  drawTutorialFreezeAura(now) {
+    if (!this.player || (!this.shipFrozen && this.shipFreezeSettle <= 0)) return;
+    const screenY = this.height - (this.player.y - this.cameraY);
+    const settleMax = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_SETTLE || 0.36;
+    const settling = this.shipFreezeSettle > 0;
+    const p = settling ? Math.max(0, Math.min(1, 1 - (this.shipFreezeSettle / settleMax))) : 1;
+    const pulse = Math.sin(now / 160) * 0.14 + 0.86;
+
+    this.ctx.save();
+    this.ctx.translate(this.player.x, screenY);
+
+    if (settling) {
+      const r1 = 14 + p * 70;
+      const r2 = 10 + p * 44;
+      this.ctx.strokeStyle = `rgba(186, 230, 253, ${0.95 * (1 - p)})`;
+      this.ctx.lineWidth = 3.2;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, r1, 0, Math.PI * 2);
+      this.ctx.stroke();
+      this.ctx.strokeStyle = `rgba(125, 211, 252, ${0.8 * (1 - p)})`;
+      this.ctx.lineWidth = 1.8;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      this.ctx.stroke();
+    }
+
+    this.ctx.fillStyle = `rgba(186, 230, 253, ${0.12 * pulse})`;
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, 16 * pulse, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    this.ctx.strokeStyle = `rgba(165, 243, 252, ${0.45 + 0.35 * pulse})`;
+    this.ctx.lineWidth = 1.7;
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, 19 * pulse, 0, Math.PI * 2);
+    this.ctx.stroke();
+
+    this.ctx.strokeStyle = `rgba(224, 242, 254, ${0.55 * pulse})`;
+    this.ctx.lineWidth = 1.1;
+    this.ctx.setLineDash([4, 5]);
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, 26 * pulse, 0, Math.PI * 2);
+    this.ctx.stroke();
+    this.ctx.setLineDash([]);
+
+    this.ctx.rotate(now * 0.00035);
+    this.ctx.strokeStyle = `rgba(224, 242, 254, ${0.75 * pulse})`;
+    this.ctx.lineWidth = 1.25;
+    for (let i = 0; i < 6; i++) {
+      const a = (i * Math.PI) / 3;
+      const c = Math.cos(a);
+      const s = Math.sin(a);
+      this.ctx.beginPath();
+      this.ctx.moveTo(c * 11, s * 11);
+      this.ctx.lineTo(c * 17, s * 17);
+      this.ctx.stroke();
+    }
+
+    this.ctx.restore();
+  }
+
   /* =========================================================================
      MASTER LOOP & UPDATE CYCLE
      ========================================================================= */
@@ -763,12 +879,22 @@ class GameEngine {
       }
     }
     if (this.player && (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL))) {
-      this.updateShipFreeze();
+      this.updateShipFreeze(rawDt);
+    }
+    if (this.isTutorial) {
+      this.updateTutorialCoach();
     }
     if (this.momentSlowMoLeft <= 0 && this.isTutorial && this.player && !this.isDying) {
-      if (this.player.isHooked) {
+      if (this.player.isHooked && this.tutorialReleaseSlowMo) {
         this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.05;
+        if (this.timeScale > 0.18) this.timeScale = 0.18;
         this.ui.setSlowMoVisual(true);
+      } else if (this.player.isHooked) {
+        this.targetTimeScale = CONSTANTS.PHYSICS.SLOWMO_FACTOR;
+        this.ui.setSlowMoVisual(true);
+      } else if (this.shipFreezeSettle > 0) {
+        this.targetTimeScale = 0.28;
+        this.ui.setSlowMoVisual(false);
       } else if (this.shipFrozen) {
         this.targetTimeScale = 0;
         this.timeScale = 0;
@@ -876,7 +1002,7 @@ class GameEngine {
         if (this.shipFrozen) {
           this.player.vx = 0;
           this.player.vy = 0;
-        } else {
+        } else if (this.shipFreezeSettle <= 0) {
           this.player.update(dt, this.width, this.particles);
         }
 
@@ -884,7 +1010,7 @@ class GameEngine {
           if (nearestNode && Math.hypot(this.player.x - nearestNode.x, this.player.y - nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
             const hooked = this.player.tryHook(nearestNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY);
             if (hooked) {
-              this.shipFrozen = false;
+              this.clearShipFreeze();
               this.onTutorialHooked();
               this.applyFirstOrbitFeel();
               this.ui.setPressCueVisible(false);
@@ -937,7 +1063,7 @@ class GameEngine {
         }
 
         // 6. Tutorial safety net if the freeze never triggers (no node in range)
-        if (this.inEarlySafety() && !this.shipFrozen) {
+        if (this.inEarlySafety() && !this.isShipTimeStopped()) {
           this.catchEarlyFall();
         }
 
@@ -1025,6 +1151,7 @@ class GameEngine {
     // 4. Spaceship & Trajectory (Only when active run)
     if (isActiveRun) {
       this.player.draw(this.ctx, this.cameraY, this.width, this.height, this.nearestNode, theme);
+      this.drawTutorialFreezeAura(now);
 
       // 4b. Quiet ship callouts — only the action word, only when it matters
       if (this.player) {
@@ -1043,7 +1170,7 @@ class GameEngine {
             this.ctx.fillStyle = hintGreen;
             this.ctx.fillText('DRÜCKEN', this.player.x + side * 38, playerScreenY + 5);
             this.ctx.textAlign = 'center';
-          } else if (this.player.isHooked && this.player.getLaunchTangentY() >= 0.82) {
+          } else if (this.player.isHooked && (this.tutorialReleaseSlowMo || this.player.getLaunchTangentY() >= 0.82)) {
             this.ctx.fillStyle = hintGreen;
             this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 40);
           }
