@@ -44,6 +44,7 @@ class GameEngine {
     this.tutorialPhase = 0;
     this.tutorialStep = 0;
     this.tutorialSlingshots = 0;
+    this.tutorialLastOrbitY = null;
     this.tutorialFrozen = false;
     this.tutorialCelebrateTimer = 0;
     this.shipFrozen = false;
@@ -167,6 +168,7 @@ class GameEngine {
     this.tutorialPhase = 0;
     this.tutorialStep = tutorial ? 1 : 0;
     this.tutorialSlingshots = 0;
+    this.tutorialLastOrbitY = null;
     this.tutorialCelebrateTimer = 0;
     this.shipFrozen = false;
     this.shipFreezeSettle = 0;
@@ -288,10 +290,17 @@ class GameEngine {
     }
   }
 
-  onTutorialReleased(isPerfectLaunch) {
+  onTutorialReleased(isPerfectLaunch, tangentY, leavingNode) {
     if (!this.isTutorial) return;
     this.tutorialReleaseSlowMo = false;
-    this.tutorialSlingshots += 1;
+    const launchedUp = Number.isFinite(tangentY) && tangentY >= 0.35;
+    const nodeY = leavingNode && Number.isFinite(leavingNode.y) ? leavingNode.y : null;
+    const lastY = this.tutorialLastOrbitY;
+    const isNewHigher = nodeY != null && (lastY == null || nodeY > lastY + (CONSTANTS.PHYSICS.TUTORIAL_CLIMB_GAP || 55));
+    if (launchedUp && isNewHigher) {
+      this.tutorialSlingshots += 1;
+      this.tutorialLastOrbitY = nodeY;
+    }
     const needed = CONSTANTS.PHYSICS.TUTORIAL_CYCLES || 5;
     if (this.tutorialSlingshots >= needed) {
       this.completeTutorial(!!isPerfectLaunch);
@@ -305,8 +314,8 @@ class GameEngine {
     }
     this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
     const ty = this.player.getLaunchTangentY();
-    const enter = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_ENTER || 0.80;
-    const exit = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_EXIT || 0.70;
+    const enter = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_ENTER || 0.985;
+    const exit = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_EXIT || 0.97;
     if (this.tutorialReleaseSlowMo) {
       if (ty < exit) this.tutorialReleaseSlowMo = false;
     } else if (ty >= enter) {
@@ -389,13 +398,16 @@ class GameEngine {
     }
   }
 
-  shouldShowPressCue() {
-    if (!this.isTutorial || this.tutorialCelebrateTimer > 0 || !this.player || this.player.isHooked) {
-      return false;
-    }
+  canTutorialGrapple() {
+    if (!this.isTutorial || !this.player || this.player.isHooked || this.isDying) return false;
     const node = this.nearestNode;
-    const dist = node ? Math.hypot(this.player.x - node.x, this.player.y - node.y) : 9999;
-    return this.shipFrozen || this.shipFreezeSettle > 0 || dist <= CONSTANTS.PHYSICS.HOOK_RANGE;
+    if (!node || node.isBroken || node.type === 'HAZARD' || node.type === 'DECOY') return false;
+    if (node.y < this.cameraY - 15) return false;
+    return Math.hypot(this.player.x - node.x, this.player.y - node.y) <= CONSTANTS.PHYSICS.HOOK_RANGE;
+  }
+
+  shouldShowPressCue() {
+    return this.canTutorialGrapple();
   }
 
   inEarlySafety() {
@@ -484,6 +496,7 @@ class GameEngine {
     }
 
     if (this.player && this.player.isHooked) {
+      const leavingNode = this.player.hookedNode;
       this.runSlingshots++;
       this.missions.onSlingshotPerformed();
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -534,7 +547,7 @@ class GameEngine {
             if (this.player) this.player.combo = 0;
             if (this.ui) this.ui.hideComboBadge();
           }
-          this.onTutorialReleased(!!isPerfectLaunch);
+          this.onTutorialReleased(!!isPerfectLaunch, tangentY, leavingNode);
         },
         this.slingshotCombo
       );
@@ -743,29 +756,8 @@ class GameEngine {
     return true;
   }
 
-  drawTutorialFreezeVignette(now) {
-    if (!this.isShipTimeStopped()) return;
-    const settleMax = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_SETTLE || 0.42;
-    const p = this.shipFreezeSettle > 0
-      ? Math.max(0, Math.min(1, 1 - (this.shipFreezeSettle / settleMax)))
-      : 1;
-    const pulse = Math.sin(now / 240) * 0.05 + 0.95;
-    const strength = p * pulse;
-    if (strength <= 0.01) return;
-
-    const cx = this.width * 0.5;
-    const cy = this.height * 0.48;
-    const minSide = Math.min(this.width, this.height);
-    const inner = minSide * (0.64 - p * 0.30);
-    const outer = Math.hypot(this.width, this.height) * 0.58;
-
-    const g = this.ctx.createRadialGradient(cx, cy, Math.max(8, inner), cx, cy, outer);
-    g.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    g.addColorStop(0.58, `rgba(8, 20, 36, ${0.03 * strength})`);
-    g.addColorStop(0.84, `rgba(56, 189, 248, ${0.14 * strength})`);
-    g.addColorStop(1, `rgba(4, 12, 22, ${0.40 * strength})`);
-    this.ctx.fillStyle = g;
-    this.ctx.fillRect(0, 0, this.width, this.height);
+  drawTutorialFreezeVignette() {
+    // Stasis look lives on #freeze-overlay (lock corners + scanline).
   }
 
   /* =========================================================================
@@ -853,6 +845,12 @@ class GameEngine {
       } else if (this.player.isHooked) {
         this.targetTimeScale = CONSTANTS.PHYSICS.SLOWMO_FACTOR;
         this.ui.setSlowMoVisual(true);
+      } else if (this.canTutorialGrapple()) {
+        this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_HOOK_SLOWMO || 0.30;
+        this.ui.setSlowMoVisual(true);
+      } else {
+        this.targetTimeScale = 1.0;
+        this.ui.setSlowMoVisual(false);
       }
     }
     this.timeScale += (this.targetTimeScale - this.timeScale) * Math.min(1, rawDt * 16);
@@ -1110,9 +1108,9 @@ class GameEngine {
         const playerScreenY = this.height - (this.player.y - this.cameraY);
         if (this.isTutorial) {
           if (!this.player.isHooked && this.shouldShowPressCue()) {
-            this.ui.setTrainingHint('DRÜCKEN', this.player.x, playerScreenY, 'beside', this.width, this.height);
-          } else if (this.player.isHooked && (this.tutorialReleaseSlowMo || this.player.getLaunchTangentY() >= 0.82)) {
-            this.ui.setTrainingHint('LOSLASSEN', this.player.x, playerScreenY, 'above', this.width, this.height);
+            this.ui.setTrainingHint('Drücken und halten', this.player.x, playerScreenY, 'beside', this.width, this.height);
+          } else if (this.player.isHooked && this.tutorialReleaseSlowMo) {
+            this.ui.setTrainingHint('Loslassen', this.player.x, playerScreenY, 'above', this.width, this.height);
           } else {
             this.ui.setTrainingHint(null);
           }

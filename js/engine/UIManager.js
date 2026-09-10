@@ -624,7 +624,7 @@ class UIManager {
     }
     el.textContent = text;
     el.style.display = 'block';
-    const w = el.offsetWidth || 90;
+    const w = el.offsetWidth || 168;
     const h = el.offsetHeight || 26;
     const padL = 12;
     const padR = 12;

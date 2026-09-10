@@ -209,45 +209,58 @@ canvas#gameCanvas {
   pointer-events: none;
   z-index: 11;
   opacity: 0;
-  transform: scale(1.04);
-  transition: opacity 0.38s ease-out, transform 0.48s ease-out;
-  background: radial-gradient(
-    ellipse 62% 56% at 50% 48%,
-    transparent 0%,
-    transparent 42%,
-    rgba(8, 22, 38, 0.10) 70%,
-    rgba(125, 211, 252, 0.18) 100%
-  );
-}
-#freeze-overlay::before {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  backdrop-filter: blur(14px) saturate(1.15);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  mask-image: radial-gradient(ellipse 56% 50% at 50% 48%, transparent 0%, transparent 32%, #000 70%);
-  -webkit-mask-image: radial-gradient(ellipse 56% 50% at 50% 48%, transparent 0%, transparent 32%, #000 70%);
-  pointer-events: none;
+  transition: opacity 0.28s ease-out;
+  background: transparent;
+  box-shadow: inset 0 0 28px 2px rgba(56, 189, 248, 0.10);
 }
 #freeze-overlay.active {
   opacity: 1;
-  transform: scale(1);
+}
+.freeze-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(125, 211, 252, 0.92);
+  border-style: solid;
+  border-width: 0;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55));
+}
+.freeze-corner-tl { top: 10px; left: 10px; border-top-width: 2px; border-left-width: 2px; }
+.freeze-corner-tr { top: 10px; right: 10px; border-top-width: 2px; border-right-width: 2px; }
+.freeze-corner-bl { bottom: 10px; left: 10px; border-bottom-width: 2px; border-left-width: 2px; }
+.freeze-corner-br { bottom: 10px; right: 10px; border-bottom-width: 2px; border-right-width: 2px; }
+.freeze-scan {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  top: 18%;
+  background: linear-gradient(90deg, transparent, rgba(165, 243, 252, 0.55), transparent);
+  opacity: 0;
+}
+#freeze-overlay.active .freeze-scan {
+  animation: freeze-scan 2.8s linear infinite;
+  opacity: 0.55;
+}
+@keyframes freeze-scan {
+  from { top: 14%; }
+  to { top: 86%; }
 }
 
 .hud-training-hint {
   position: absolute;
   z-index: 19;
   pointer-events: none;
-  padding: 5px 10px;
+  padding: 6px 10px;
   border-radius: 8px;
   background: rgba(6, 16, 14, 0.78);
   color: #4ade80;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 1.6px;
-  line-height: 1;
-  text-transform: uppercase;
+  font-family: var(--font-ui), 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  line-height: 1.1;
+  text-transform: none;
   white-space: nowrap;
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.18);
 }
