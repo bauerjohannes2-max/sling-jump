@@ -1031,10 +1031,15 @@ class UIManager {
     }
   }
 
+  getPublicShareUrl() {
+    return 'https://bauerjohannes2-max.github.io/space-jump/';
+  }
+
   async shareGameOverRun() {
     const data = this._lastDebrief || {};
     const alt = Number(data.altitude || 0).toLocaleString('de-DE');
-    const shareText = `Space Jump: ${alt}m Flugdistanz gemeistert! Kannst du mich schlagen?`;
+    const shareUrl = this.getPublicShareUrl();
+    const shareText = `Space Jump: ${alt}m Flugdistanz gemeistert! Kannst du mich schlagen?\n${shareUrl}`;
     let file = null;
     try {
       file = await this.buildHighscoreShareFile(data);
@@ -1042,12 +1047,32 @@ class UIManager {
       file = null;
     }
 
-    if (file && navigator.share) {
-      const withFile = { title: 'Space Jump', text: shareText, files: [file] };
+    const tryShare = async (payload) => {
+      if (!navigator.share) return false;
       try {
-        if (!navigator.canShare || navigator.canShare({ files: [file] })) {
-          await navigator.share(withFile);
-          return { ok: true };
+        if (payload.files && navigator.canShare && !navigator.canShare({ files: payload.files })) {
+          return false;
+        }
+        await navigator.share(payload);
+        return true;
+      } catch (e) {
+        if (e && e.name === 'AbortError') {
+          const abort = new Error('AbortError');
+          abort.name = 'AbortError';
+          throw abort;
+        }
+        return false;
+      }
+    };
+
+    if (file && navigator.share) {
+      const filePayloads = [
+        { title: 'Space Jump', text: shareText, url: shareUrl, files: [file] },
+        { title: 'Space Jump', text: shareText, files: [file] }
+      ];
+      try {
+        for (const payload of filePayloads) {
+          if (await tryShare(payload)) return { ok: true };
         }
       } catch (e) {
         if (e && e.name === 'AbortError') return { ok: false, aborted: true };
@@ -1056,8 +1081,9 @@ class UIManager {
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Space Jump', text: shareText, url: window.location.href });
-        return { ok: true };
+        if (await tryShare({ title: 'Space Jump', text: shareText, url: shareUrl })) {
+          return { ok: true };
+        }
       } catch (e) {
         if (e && e.name === 'AbortError') return { ok: false, aborted: true };
       }
@@ -1224,7 +1250,10 @@ class UIManager {
 
     ctx.fillStyle = '#64748b';
     ctx.font = '600 24px Rajdhani, sans-serif';
-    ctx.fillText('Kannst du mich schlagen?', 220, 1240);
+    ctx.fillText('Kannst du mich schlagen?', 220, 1220);
+    ctx.fillStyle = '#38e8ff';
+    ctx.font = '600 22px Rajdhani, sans-serif';
+    ctx.fillText('bauerjohannes2-max.github.io/space-jump', 220, 1264);
 
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
     if (!blob) return null;
