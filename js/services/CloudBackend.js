@@ -4,9 +4,62 @@
  * for static hosting on GitHub Pages with zero changes to core game systems.
  */
 
+function isFileProtocol() {
+  return typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
+}
+
+function isGitHubPagesHost() {
+  return typeof window !== 'undefined' && window.location && /\.github\.io$/i.test(window.location.hostname);
+}
+
+function jwtRole(token) {
+  if (!token || typeof token !== 'string') return '';
+  const parts = token.split('.');
+  if (parts.length < 2 || typeof atob !== 'function') return '';
+  try {
+    const padded = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(padded));
+    return (payload && payload.role) || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+async function readJsonApi(res) {
+  if (!res) return null;
+  const ctype = (res.headers.get('content-type') || '').toLowerCase();
+  if (ctype && !ctype.includes('json')) return null;
+  try {
+    const data = await res.json();
+    if (typeof data === 'string') {
+      try { return JSON.parse(data); } catch (e) { return null; }
+    }
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function mapLeaderboardEntries(rows) {
+  if (!Array.isArray(rows)) return [];
+  return rows.map((row) => ({
+    playerId: String((row && (row.playerId || row.player_id)) || '').trim(),
+    name: String((row && row.name) || 'Pilot').trim() || 'Pilot',
+    altitude: Math.floor(Number(row && row.altitude) || 0)
+  })).filter((row) => row.playerId && row.altitude > 0);
+}
+
 class BaseCloudAdapter {
   getName() {
     return 'base';
+  }
+
+  async fetchLeaderboard() {
+    return { ok: false, error: 'NOT_IMPLEMENTED' };
+  }
+
+  async submitScore(/* entry */) {
+    return { ok: false, error: 'NOT_IMPLEMENTED' };
   }
 
   async sync(payload) {
@@ -37,6 +90,52 @@ class LocalNodeAdapter extends BaseCloudAdapter {
 
   getName() {
     return 'local-node';
+  }
+
+  async fetchLeaderboard() {
+    if (typeof fetch === 'undefined' || isFileProtocol() || isGitHubPagesHost()) {
+      return { ok: false, error: isGitHubPagesHost() ? 'STATIC_HOST' : 'OFFLINE_OR_FILE_PROTOCOL' };
+    }
+    try {
+      const res = await fetch(`${this.baseUrl}/api/leaderboard`, { cache: 'no-store' });
+      if (!res.ok) return { ok: false, error: `HTTP_${res.status}` };
+      const data = await readJsonApi(res);
+      if (!data || !data.ok || !Array.isArray(data.entries)) {
+        return { ok: false, error: 'UNGUELTIGE ANTWORT' };
+      }
+      return { ok: true, entries: mapLeaderboardEntries(data.entries) };
+    } catch (e) {
+      return { ok: false, error: 'NETWORK_ERROR' };
+    }
+  }
+
+  async submitScore(entry) {
+    if (typeof fetch === 'undefined' || isFileProtocol() || isGitHubPagesHost()) {
+      return { ok: false, error: isGitHubPagesHost() ? 'STATIC_HOST' : 'OFFLINE_OR_FILE_PROTOCOL' };
+    }
+    if (!entry || !entry.playerId || !(entry.altitude > 0)) {
+      return { ok: false, error: 'INVALID_SCORE' };
+    }
+    try {
+      const res = await fetch(`${this.baseUrl}/api/leaderboard`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerId: entry.playerId,
+          name: entry.name || 'Pilot',
+          altitude: entry.altitude
+        })
+      });
+      if (!res.ok) {
+        const err = await readJsonApi(res);
+        return { ok: false, error: (err && err.error) || `HTTP_${res.status}` };
+      }
+      const data = await readJsonApi(res);
+      if (!data || !data.ok) return { ok: false, error: 'UNGUELTIGE ANTWORT' };
+      return { ok: true, altitude: data.altitude };
+    } catch (e) {
+      return { ok: false, error: 'NETWORK_ERROR' };
+    }
   }
 
   async sync(payload) {
@@ -194,15 +293,59 @@ class SupabaseAdapter extends BaseCloudAdapter {
     this.supabaseUrl = (options.supabaseUrl || '').replace(/\/+$/, '');
     this.supabaseAnonKey = options.supabaseAnonKey || options.apiKey || '';
     this.tableName = options.tableName || 'player_saves';
+    this.leaderboardTable = options.leaderboardTable || 'leaderboard';
   }
 
   getName() {
     return 'supabase';
   }
 
+  async fetchLeaderboard() {
+    if (!this.supabaseUrl || !this.supabaseAnonKey) {
+      return { ok: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+    try {
+      const url = `${this.supabaseUrl}/rest/v1/${this.leaderboardTable}?select=player_id,name,altitude&altitude=gt.0&order=altitude.desc&limit=100`;
+      const res = await fetch(url, { method: 'GET', headers: this.getHeaders(), cache: 'no-store' });
+      if (!res.ok) return { ok: false, error: `SUPABASE_HTTP_${res.status}` };
+      const rows = await readJsonApi(res);
+      if (!Array.isArray(rows)) return { ok: false, error: 'UNGUELTIGE ANTWORT' };
+      return { ok: true, entries: mapLeaderboardEntries(rows) };
+    } catch (e) {
+      return { ok: false, error: 'SUPABASE_LEADERBOARD_ERROR' };
+    }
+  }
+
+  async submitScore(entry) {
+    if (!this.supabaseUrl || !this.supabaseAnonKey) {
+      return { ok: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+    if (!entry || !entry.playerId || !(entry.altitude > 0)) {
+      return { ok: false, error: 'INVALID_SCORE' };
+    }
+    try {
+      const res = await fetch(`${this.supabaseUrl}/rest/v1/rpc/submit_leaderboard`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({
+          p_player_id: entry.playerId,
+          p_name: entry.name || 'Pilot',
+          p_altitude: Math.floor(entry.altitude)
+        })
+      });
+      if (!res.ok) return { ok: false, error: `SUPABASE_HTTP_${res.status}` };
+      const data = await readJsonApi(res);
+      if (data && data.ok === false) return { ok: false, error: data.error || 'SUBMIT_REJECTED' };
+      return { ok: true, altitude: data && data.altitude };
+    } catch (e) {
+      return { ok: false, error: 'SUPABASE_SUBMIT_ERROR' };
+    }
+  }
+
   getHeaders(extraHeaders = {}) {
     return {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'apikey': this.supabaseAnonKey,
       'Authorization': `Bearer ${this.supabaseAnonKey}`,
       ...extraHeaders
@@ -326,7 +469,6 @@ class CloudBackend {
 
   static getAdapter() {
     if (!CloudBackend._activeAdapter) {
-      // Auto-detect environment configuration if present
       let config = null;
       if (typeof window !== 'undefined') {
         config = window.SPACE_JUMP_CLOUD_CONFIG || window.SLING_JUMP_CLOUD_CONFIG || null;
@@ -337,9 +479,12 @@ class CloudBackend {
           } catch (e) {}
         }
       }
-      if (config && config.type && CloudBackend._adapters[config.type]) {
-        const AdapterClass = CloudBackend._adapters[config.type];
-        CloudBackend._activeAdapter = new AdapterClass(config.options || {});
+      const opts = (config && config.options) || {};
+      const supabaseReady = config && config.type === 'supabase'
+        && opts.supabaseUrl && opts.supabaseAnonKey
+        && jwtRole(opts.supabaseAnonKey) !== 'service_role';
+      if (supabaseReady) {
+        CloudBackend._activeAdapter = new SupabaseAdapter(opts);
       } else {
         CloudBackend._activeAdapter = new LocalNodeAdapter();
       }

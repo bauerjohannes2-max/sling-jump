@@ -646,10 +646,24 @@ class StorageService {
       if (this.data.leaderboard.length > 100) {
         this.data.leaderboard = this.data.leaderboard.slice(0, 100);
       }
+      this.submitPublicScore(this.data.highScore);
     }
 
     this.save();
     return { totalScore, isNewHighScore };
+  }
+
+  submitPublicScore(altitude) {
+    if (!(altitude > 0)) return;
+    const profile = this.getPlayerProfile();
+    if (!profile || !profile.playerId) return;
+    const backend = this.getCloudBackend();
+    if (!backend || typeof backend.submitScore !== 'function') return;
+    backend.submitScore({
+      playerId: profile.playerId,
+      name: profile.pilotName || profile.accountName || 'Pilot',
+      altitude: Math.floor(altitude)
+    }).catch(() => {});
   }
 
   static getPlayerRegion() {

@@ -6,4 +6,5 @@ Thumbs.db
 certs/
 *.pem
 data/*.tmp
+data/public-leaderboard.json
 

@@ -79,6 +79,7 @@ function writeJsonStore(file, data) {
 
 // Cross-Device Player Cloud Store
 const PLAYERS_FILE = path.join(DATA_DIR, 'players.json');
+const PUBLIC_LB_FILE = path.join(DATA_DIR, 'public-leaderboard.json');
 
 function loadPlayers() {
   return readJsonStore(PLAYERS_FILE) || {};
@@ -511,6 +512,54 @@ function sanitizeState(state) {
   return clean;
 }
 
+function sanitizeLeaderboardName(name) {
+  if (typeof name !== 'string') return 'Pilot';
+  const cleaned = name.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 24);
+  return cleaned || 'Pilot';
+}
+
+function buildPublicLeaderboard() {
+  const best = new Map();
+  for (const [id, record] of Object.entries(playersStore || {})) {
+    if (!record || typeof record !== 'object') continue;
+    if (id === '__proto__' || id === 'constructor' || id === 'prototype') continue;
+    const state = record.state && typeof record.state === 'object' && !Array.isArray(record.state)
+      ? record.state
+      : {};
+    const altitude = clampInt(state.highScore, 0, SCHEMA_BOUNDS.MAX_HIGH_SCORE, 0);
+    if (altitude <= 0) continue;
+    const profile = state.playerProfile && typeof state.playerProfile === 'object' && !Array.isArray(state.playerProfile)
+      ? state.playerProfile
+      : {};
+    const name = sanitizeLeaderboardName(
+      record.username || profile.accountName || profile.pilotName || ''
+    );
+    const playerId = typeof record.playerId === 'string' ? record.playerId : id;
+    const existing = best.get(playerId);
+    if (!existing || altitude > existing.altitude) {
+      best.set(playerId, { name, altitude, playerId });
+    }
+  }
+
+  const extras = readJsonStore(PUBLIC_LB_FILE) || {};
+  for (const [id, row] of Object.entries(extras)) {
+    if (!row || typeof row !== 'object') continue;
+    if (id === '__proto__' || id === 'constructor' || id === 'prototype') continue;
+    const playerId = parsePlayerId(row.playerId || id);
+    const altitude = clampInt(row.altitude, 0, SCHEMA_BOUNDS.MAX_HIGH_SCORE, 0);
+    if (!playerId || altitude <= 0) continue;
+    const name = sanitizeLeaderboardName(row.name || '');
+    const existing = best.get(playerId);
+    if (!existing || altitude > existing.altitude) {
+      best.set(playerId, { name, altitude, playerId });
+    } else if (existing && name && name !== 'Pilot') {
+      existing.name = name;
+    }
+  }
+
+  return Array.from(best.values()).sort((a, b) => b.altitude - a.altitude).slice(0, 100);
+}
+
 function serveDesignIndex(res) {
   const dir = path.join(ROOT_DIR, 'design');
   let files = [];
@@ -560,7 +609,7 @@ function createRequestListener() {
 
     // Rate limit check on API endpoints
     const clientIp = getClientIp(req);
-    if (reqUrl.startsWith('/api/player/')) {
+    if (reqUrl.startsWith('/api/player/') || reqUrl === '/api/leaderboard') {
       const ipLimit = checkIpRateLimit(clientIp, 60, 60000);
       if (ipLimit.limited) {
         res.writeHead(429, {
@@ -905,6 +954,61 @@ function createRequestListener() {
     }
 
     // API: Live Version Check (GET)
+    if (req.method === 'POST' && reqUrl === '/api/leaderboard') {
+      readJsonBody(req, res, corsOrigin, (err, payload) => {
+        const playerId = parsePlayerId(payload && payload.playerId);
+        const altitude = clampInt(payload && payload.altitude, 0, SCHEMA_BOUNDS.MAX_HIGH_SCORE, 0);
+        const name = sanitizeLeaderboardName(payload && payload.name);
+        if (!playerId || altitude <= 0) {
+          res.writeHead(400, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': corsOrigin || '*'
+          });
+          res.end(JSON.stringify({ ok: false, error: 'UNGÜLTIGER SCORE' }));
+          return;
+        }
+
+        const store = readJsonStore(PUBLIC_LB_FILE) || {};
+        const existing = store[playerId];
+        const nextAltitude = existing && existing.altitude > altitude ? existing.altitude : altitude;
+        store[playerId] = {
+          playerId,
+          name,
+          altitude: nextAltitude,
+          updatedAt: new Date().toISOString()
+        };
+        if (!writeJsonStore(PUBLIC_LB_FILE, store)) {
+          res.writeHead(500, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': corsOrigin || '*'
+          });
+          res.end(JSON.stringify({ ok: false, error: 'SPEICHERFEHLER' }));
+          return;
+        }
+
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Vary': 'Origin'
+        });
+        res.end(JSON.stringify({ ok: true, altitude: nextAltitude, playerId }));
+      });
+      return;
+    }
+
+    if (req.method === 'GET' && reqUrl === '/api/leaderboard') {
+      reloadPlayers();
+      const entries = buildPublicLeaderboard();
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': corsOrigin || '*',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Vary': 'Origin'
+      });
+      res.end(JSON.stringify({ ok: true, entries }));
+      return;
+    }
+
     if (req.method === 'GET' && reqUrl === '/api/version') {
       let currentVer = '3.17.0';
       try {

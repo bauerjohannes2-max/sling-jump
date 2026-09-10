@@ -148,6 +148,8 @@ class UIManager {
     };
 
     this.activeLeaderboardTab = 'global';
+    this._remoteLeaderboard = null;
+    this._leaderboardRenderGen = 0;
     this.activeMissionTab = 'all';
     this.initMissionTabsUI();
     this.initSettingsUI();
@@ -202,6 +204,7 @@ class UIManager {
       case StateManager.STATES.MENU:
         if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
         this.updateCurrency();
+        this.refreshRemoteLeaderboard().then(() => this.updateMenuRank()).catch(() => {});
         if (this.audio) this.audio.playMusic('bgm_menu');
         break;
 
@@ -887,22 +890,32 @@ class UIManager {
 
     const profile = (this.storage && this.storage.getPlayerProfile) ? this.storage.getPlayerProfile() : {};
     const playerName = profile.pilotName || 'Player';
+    const playerId = (profile.playerId || '').toUpperCase();
+    const remote = Array.isArray(this._remoteLeaderboard) ? this._remoteLeaderboard : null;
 
     const playerBestMap = new Map();
-    const storedRuns = ((this.storage && this.storage.data && this.storage.data.leaderboard) || []).map(r => ({
-      name: r.name || playerName,
-      altitude: r.altitude || 0,
-      isPlayer: (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')))
-    }));
+    const storedRuns = (remote || ((this.storage && this.storage.data && this.storage.data.leaderboard) || [])).map(r => {
+      const entryId = String(r.playerId || r.player_id || '').toUpperCase();
+      const isPlayer = remote
+        ? !!(playerId && entryId && entryId === playerId)
+        : (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')));
+      return {
+        name: r.name || playerName,
+        altitude: Math.floor(Number(r.altitude) || 0),
+        playerId: r.playerId || r.player_id || '',
+        isPlayer
+      };
+    });
 
     storedRuns.push({
       name: playerName,
       altitude: bestAltitude,
+      playerId: profile.playerId || '',
       isPlayer: true
     });
 
     storedRuns.forEach(r => {
-      const key = r.isPlayer ? '__CURRENT_PLAYER__' : (r.name ? r.name.trim() : 'Contender');
+      const key = r.isPlayer ? '__CURRENT_PLAYER__' : ((r.playerId || r.name || 'Contender').toString().trim());
       const existing = playerBestMap.get(key);
       if (!existing || r.altitude > existing.altitude) {
         playerBestMap.set(key, {
@@ -964,39 +977,77 @@ class UIManager {
     this.renderLeaderboard();
   }
 
+  async refreshRemoteLeaderboard() {
+    const backend = this.storage && this.storage.getCloudBackend ? this.storage.getCloudBackend() : null;
+    if (!backend || typeof backend.fetchLeaderboard !== 'function') {
+      this._remoteLeaderboard = null;
+      return null;
+    }
+    const res = await backend.fetchLeaderboard();
+    if (res && res.ok && Array.isArray(res.entries)) {
+      this._remoteLeaderboard = res.entries;
+      return res.entries;
+    }
+    this._remoteLeaderboard = null;
+    return null;
+  }
+
   renderLeaderboard() {
+    if (!this.dom.globalLeaderboardList) return;
+    this._leaderboardRenderGen += 1;
+    const gen = this._leaderboardRenderGen;
+    this.paintLeaderboard(this._remoteLeaderboard);
+    this.refreshRemoteLeaderboard().then((remote) => {
+      if (gen !== this._leaderboardRenderGen) return;
+      this.paintLeaderboard(remote);
+      this.updateMenuRank();
+    }).catch(() => {});
+  }
+
+  paintLeaderboard(remoteEntries) {
     if (!this.dom.globalLeaderboardList) return;
     this.dom.globalLeaderboardList.innerHTML = '';
 
     const profile = this.storage.getPlayerProfile();
     const playerName = profile.pilotName || 'Player';
+    const playerId = (profile.playerId || '').toUpperCase();
     const bestAltitude = this.storage.data.highScore || 0;
+    const remote = Array.isArray(remoteEntries) ? remoteEntries : null;
+    const sharedBoard = !!remote;
 
-    // Deduplicate: Exactly one entry per unique player, keeping their highscore
     const playerBestMap = new Map();
+    const sourceRuns = remote || (this.storage.data.leaderboard || []);
+    const storedRuns = sourceRuns.map(r => {
+      const entryId = String(r.playerId || r.player_id || '').toUpperCase();
+      const altitude = Math.floor(Number(r.altitude) || 0);
+      const isPlayer = remote
+        ? !!(playerId && entryId && entryId === playerId)
+        : (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')));
+      return {
+        name: r.name || playerName,
+        altitude,
+        country: r.country || 'DE',
+        countryName: r.countryName || 'Deutschland',
+        playerId: r.playerId || r.player_id || null,
+        isPlayer
+      };
+    });
 
-    const storedRuns = (this.storage.data.leaderboard || []).map(r => ({
-      name: r.name || playerName,
-      altitude: r.altitude || 0,
-      country: r.country || 'DE',
-      countryName: r.countryName || 'Deutschland',
-      isPlayer: (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')))
-    }));
-
-    // Ensure player's stored high score is accounted for
     if (bestAltitude > 0) {
       storedRuns.push({
         name: playerName,
         altitude: bestAltitude,
         country: 'DE',
         countryName: 'Deutschland',
+        playerId: profile.playerId || null,
         isPlayer: true
       });
     }
 
     storedRuns.forEach(r => {
-      // Normalise key: player is identified uniquely, other contenders by name
-      const key = r.isPlayer ? '__CURRENT_PLAYER__' : r.name.trim();
+      const key = r.isPlayer
+        ? '__CURRENT_PLAYER__'
+        : ((r.playerId || r.name || '').toString().trim() || 'Contender');
       const existing = playerBestMap.get(key);
       if (!existing || r.altitude > existing.altitude) {
         playerBestMap.set(key, {
@@ -1021,10 +1072,16 @@ class UIManager {
     if (top100.length === 0) {
       const emptyBox = document.createElement('div');
       emptyBox.className = 'lb-empty-state';
-      emptyBox.innerHTML = `
-        <div class="lb-empty-title">KEINE WELTWEITEN EINTRÄGE</div>
-        <div class="lb-empty-desc">Starte deinen ersten Flug, um den globalen Rekord aufzustellen.</div>
-      `;
+      const emptyTitle = document.createElement('div');
+      emptyTitle.className = 'lb-empty-title';
+      emptyTitle.textContent = sharedBoard ? 'KEINE GEMEINSAMEN EINTRÄGE' : 'KEINE EINTRÄGE';
+      const emptyDesc = document.createElement('div');
+      emptyDesc.className = 'lb-empty-desc';
+      emptyDesc.textContent = sharedBoard
+        ? 'Lege einen Account an und fliege, um auf der Bestenliste zu stehen.'
+        : 'Starte deinen ersten Flug, um gewertet zu werden.';
+      emptyBox.appendChild(emptyTitle);
+      emptyBox.appendChild(emptyDesc);
       this.dom.globalLeaderboardList.appendChild(emptyBox);
     } else {
       // Names are player-supplied and also arrive from the cloud sync API, so cells are
@@ -1050,19 +1107,20 @@ class UIManager {
     }
 
     // Sticky Player Rank Card
+    const scopeLabel = sharedBoard ? 'GETEILT (TOP 100)' : 'GERÄT';
     const playerEntry = top100.find(e => e.isPlayer);
     let rankDisplay = '#---';
-    let titleDisplay = 'GLOBAL (TOP 100)';
+    let titleDisplay = scopeLabel;
     let deltaDisplay = 'Absolviere einen Flug zur Wertung';
 
     if (playerEntry) {
       rankDisplay = `#${playerEntry.rank}`;
-      titleDisplay = `RANG #${playerEntry.rank} • GLOBAL (TOP 100)`;
+      titleDisplay = `RANG #${playerEntry.rank} • ${scopeLabel}`;
       deltaDisplay = `Bestleistung: ${bestAltitude.toLocaleString('de-DE')} m`;
     } else if (bestAltitude > 0) {
       const fullRank = displayList.findIndex(e => e.isPlayer) + 1;
       rankDisplay = fullRank > 0 ? `#${fullRank}` : '#---';
-      titleDisplay = fullRank > 0 ? `RANG #${fullRank} • GLOBAL` : 'GLOBAL (TOP 100)';
+      titleDisplay = fullRank > 0 ? `RANG #${fullRank} • ${scopeLabel}` : scopeLabel;
       deltaDisplay = `Bestleistung: ${bestAltitude.toLocaleString('de-DE')} m`;
     }
 

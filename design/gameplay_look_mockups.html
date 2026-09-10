@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPACE JUMP — Knife Light &amp; Gas Giant Roster</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Oxanium:wght@800;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --line: rgba(255,255,255,0.09);
+      --cyan: #00f0ff;
+      --crimson: #e11d48;
+      --text: #fff;
+      --muted: #94a3b8;
+      --font-title: 'Oxanium', sans-serif;
+      --font-ui: 'Rajdhani', sans-serif;
+      --font-num: 'Orbitron', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 50% -10%, rgba(225,29,72,0.08), transparent 42%),
+        #06080d;
+      color: var(--text);
+      font-family: var(--font-ui);
+      padding: 28px 16px 80px;
+    }
+    .wrap { max-width: 1280px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 20px; }
+    .kicker {
+      font-family: var(--font-num);
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      color: var(--crimson);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-family: var(--font-title);
+      font-size: 32px;
+      letter-spacing: 0.14em;
+      font-weight: 900;
+    }
+    .sub {
+      margin: 10px auto 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+    h2 {
+      font-family: var(--font-title);
+      font-size: 16px;
+      letter-spacing: 0.2em;
+      margin: 36px 0 14px;
+    }
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .grid6 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .grid4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 900px) {
+      .grid3, .grid6, .grid4 { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+    }
+    .card {
+      background: #0b0d13;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-2px); }
+    .card.active {
+      border-color: rgba(225,29,72,0.7);
+      box-shadow: 0 0 28px rgba(225,29,72,0.14);
+    }
+    .opt {
+      font-family: var(--font-num);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .opt .rec { color: var(--cyan); margin-left: 8px; }
+    .name {
+      font-family: var(--font-title);
+      font-size: 17px;
+      letter-spacing: 0.1em;
+      font-weight: 900;
+      margin-top: 2px;
+    }
+    .blurb {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+      min-height: 48px;
+    }
+    .phone {
+      position: relative;
+      margin-top: 12px;
+      height: 380px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #07090f;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone.mid { height: 240px; }
+    .phone.sm { height: 180px; }
+    .stars {
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 12% 18%, #fff, transparent),
+        radial-gradient(1.2px 1.2px at 28% 42%, #cbd5e1, transparent),
+        radial-gradient(1px 1px at 71% 22%, #fff, transparent),
+        radial-gradient(1px 1px at 84% 70%, #94a3b8, transparent),
+        radial-gradient(1.4px 1.4px at 46% 64%, #fff, transparent),
+        radial-gradient(1px 1px at 58% 12%, #e2e8f0, transparent);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .ship {
+      position: absolute;
+      width: 18px; height: 22px;
+      left: 46%; top: 42%;
+      z-index: 4;
+      filter: drop-shadow(0 0 6px rgba(0,240,255,0.4));
+    }
+    .ship svg { width: 100%; height: 100%; display: block; }
+    .pick {
+      margin-top: 10px;
+      text-align: center;
+      font-family: var(--font-num);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .card.active .pick { color: var(--crimson); }
+    .note {
+      margin-top: 22px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .live {
+      position: absolute;
+      border-radius: 50%;
+      border: 2.2px solid #00f0ff;
+      background: radial-gradient(circle, #fff 0 36%, transparent 38%);
+      z-index: 3;
+    }
+    .live.v { border-color: #c084fc; }
+
+    /* Knife family */
+    .knife { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; }
+    .knife .fall {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, #120308 0%, #05070c 55%, transparent 100%);
+    }
+    .knife .bloom {
+      position: absolute; left: 0; right: 0; bottom: 20px; height: 20px;
+      background: linear-gradient(to top, rgba(225,29,72,0.32), transparent);
+    }
+    .knife .lip {
+      position: absolute; left: 0; right: 0; bottom: 24px; height: 2px;
+      background: rgba(159,18,57,0.8);
+    }
+    .knife .wire {
+      position: absolute; left: 0; right: 0; bottom: 26px; height: 2px;
+      background: #fff;
+      box-shadow: 0 0 8px #fff, 0 0 14px rgba(225,29,72,0.35);
+    }
+    .knife.tight .bloom { height: 12px; bottom: 22px; background: linear-gradient(to top, rgba(225,29,72,0.22), transparent); }
+    .knife.tight .lip { bottom: 25px; height: 1px; }
+    .knife.tight .wire { bottom: 26px; height: 1.5px; box-shadow: 0 0 6px #fff, 0 0 10px rgba(225,29,72,0.28); }
+    .knife.ember .bloom { height: 28px; bottom: 16px; background: linear-gradient(to top, rgba(225,29,72,0.36), transparent); }
+    .knife.ember .lip { bottom: 22px; }
+    .knife.ember .wire { bottom: 24px; height: 2.5px; }
+    .knife.ember .hair {
+      position: absolute; left: 0; right: 0; bottom: 18px; height: 1px;
+      background: rgba(225,29,72,0.55);
+    }
+
+    .node {
+      position: absolute;
+      width: 88px; height: 88px;
+      color: #00f0ff;
+      z-index: 3;
+    }
+    .node svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    .stage {
+      position: absolute;
+      left: 50%; top: 46%;
+      width: 96px; height: 96px;
+      margin: -48px 0 0 -48px;
+      color: #00f0ff;
+    }
+    .stage svg { width: 100%; height: 100%; overflow: visible; }
+    .type-tag {
+      font-family: var(--font-num);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <radialGradient id="shadeMatte" cx="36%" cy="30%" r="80%">
+        <stop offset="0%" stop-color="#fff" stop-opacity="0.16"/>
+        <stop offset="42%" stop-color="#000" stop-opacity="0.06"/>
+        <stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+      </radialGradient>
+      <clipPath id="planetBall" clipPathUnits="userSpaceOnUse">
+        <circle cx="0" cy="0" r="20"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <div class="wrap">
+    <header>
+      <div class="kicker">GAMEPLAY LOOK · ROUND 8</div>
+      <h1>KNIFE LIGHT + GAS GIANT</h1>
+      <p class="sub">Knife Light is the horizon. Two more heat levels. Gas Giant is the orbit — matte, no specular disc. Below: every orbit type in the live game, drawn that way.</p>
+    </header>
+
+    <h2>1. KNIFE LIGHT — TWO MORE HEATS</h2>
+    <div class="grid3" id="grid-void"></div>
+
+    <h2>2. ORBIT TYPES — MATTE GAS GIANT</h2>
+    <div class="grid6" id="grid-types"></div>
+
+    <h2>3. THEME COLORWAYS — STANDARD NODE</h2>
+    <div class="grid4" id="grid-themes"></div>
+
+    <p class="note">Reply with a knife letter plus a type if you want extras, e.g. “Knife A, Gas Giant as-is”. Nothing ships until you pick.</p>
+  </div>
+
+  <script>
+    const ship = `<div class="ship">
+      <svg viewBox="0 0 18 22"><polygon points="9,0 18,22 9,16 0,22" fill="#fff"/></svg>
+    </div>`;
+    const liveOrbs = `
+      <div class="live" style="left:16%;top:20%;width:46px;height:46px"></div>
+      <div class="live v" style="right:12%;top:32%;width:36px;height:36px"></div>`;
+
+    function bands() {
+      return `<g clip-path="url(#planetBall)">
+        <rect x="-20" y="-16" width="40" height="4.5" fill="#000" opacity="0.22"/>
+        <rect x="-20" y="-8" width="40" height="3" fill="#fff" opacity="0.12"/>
+        <rect x="-20" y="-2" width="40" height="6" fill="#000" opacity="0.3"/>
+        <rect x="-20" y="8" width="40" height="3.2" fill="#fff" opacity="0.08"/>
+        <rect x="-20" y="14" width="40" height="6" fill="#000" opacity="0.24"/>
+      </g>`;
+    }
+
+    function giant(extra = '', extraBack = '') {
+      return `<svg viewBox="-32 -32 64 64">
+        ${extraBack}
+        <circle r="20" fill="currentColor"/>
+        ${bands()}
+        <circle r="20" fill="url(#shadeMatte)"/>
+        ${extra}
+      </svg>`;
+    }
+
+    const voids = [
+      {
+        id: 'A', rec: true, name: 'KNIFE LIGHT',
+        blurb: 'The one you liked. White filament, 2px wine lip, short crimson fog. Heat, not a wall.',
+        cls: ''
+      },
+      {
+        id: 'B', name: 'KNIFE TIGHT',
+        blurb: 'Same razor, less fog. Thinner wire. Reads more like a laser edge.',
+        cls: 'tight'
+      },
+      {
+        id: 'C', name: 'KNIFE EMBER',
+        blurb: 'Same razor, a little more heat: fatter wire, deeper fog, a second crimson hairline under it.',
+        cls: 'ember'
+      }
+    ];
+
+    const types = [
+      {
+        id: 'standard', name: 'STANDARD', color: '#00f0ff',
+        blurb: 'Default orbit. Cyan in Weltraum. Solid hook. Most of the climb.',
+        extra: ''
+      },
+      {
+        id: 'boost', name: 'SUPER-BOOST', color: '#10b981',
+        blurb: 'Green catapult. 2.8× launch. Up-chevron so it never reads as a normal planet.',
+        extra: `<polygon points="0,-29 -5,-22 5,-22" fill="#34d399"/><polygon points="0,-21 -3.2,-17 3.2,-17" fill="#34d399"/>`
+      },
+      {
+        id: 'moving', name: 'MOVING', color: '#c084fc',
+        blurb: 'Violet. Slides on a horizontal track. Dashed path behind the planet.',
+        extra: `<line x1="-30" y1="0" x2="30" y2="0" stroke="#c084fc" stroke-width="1.4" stroke-dasharray="3 4" opacity="0.55"/>`
+      },
+      {
+        id: 'fragile', name: 'FRAGILE', color: '#eab308',
+        blurb: 'Gold timer. Breaks if you stay hooked. Clock ticks around the sphere.',
+        extra: Array.from({length: 12}, (_, i) => {
+          const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+          const inner = 22.5, outer = i % 3 === 0 ? 27.5 : 25.5;
+          return `<line x1="${Math.cos(a)*inner}" y1="${Math.sin(a)*inner}" x2="${Math.cos(a)*outer}" y2="${Math.sin(a)*outer}" stroke="#eab308" stroke-width="1.4"/>`;
+        }).join('')
+      },
+      {
+        id: 'decoy', name: 'DECOY', color: '#f97316',
+        blurb: 'Orange bait. Shatters on grapple. Crack across the belts.',
+        extra: `<path d="M-12,-10 L-4,-2 L2,1 L-1,8 L12,13" fill="none" stroke="#fff" stroke-width="1.8"/>
+                <path d="M-4,-2 L-9,5 M2,1 L8,-6" fill="none" stroke="#fdba74" stroke-width="1.2"/>`
+      },
+      {
+        id: 'hazard', name: 'HAZARD MINE', color: '#e11d48',
+        blurb: 'Not an orbit — lethal contact from 5,000m. Spiked, still in the gas-giant paint.',
+        extra: '',
+        extraBack: Array.from({length: 8}, (_, i) => {
+          const a = (i / 8) * Math.PI * 2;
+          const b = a + Math.PI / 8;
+          const c = a + Math.PI / 4;
+          const r = 20, s = 28;
+          return `<polygon points="${Math.cos(a)*r},${Math.sin(a)*r} ${Math.cos(b)*s},${Math.sin(b)*s} ${Math.cos(c)*r},${Math.sin(c)*r}" fill="#9f1239" stroke="#fda4af" stroke-width="0.8"/>`;
+        }).join('')
+      }
+    ];
+
+    const themes = [
+      { id: 'deep_space', name: 'WELTRAUM', color: '#00f0ff', blurb: 'Default. Cyan gas giant.' },
+      { id: 'cyberpunk', name: 'NEON-CITY', color: '#ff007f', blurb: 'Pink gas giant.' },
+      { id: 'solar_flare', name: 'SONNENFEUER', color: '#ff8800', blurb: 'Orange gas giant.' },
+      { id: 'monolith_dark', name: 'NACHT', color: '#f8fafc', blurb: 'Pale gas giant.' }
+    ];
+
+    function card(html) { return html; }
+
+    document.getElementById('grid-void').innerHTML = voids.map(v => `
+      <article class="card" data-group="void" data-id="${v.id}">
+        <div class="opt">OPTION ${v.id}${v.rec ? ' <span class="rec">LIKED</span>' : ''}</div>
+        <div class="name">${v.name}</div>
+        <p class="blurb">${v.blurb}</p>
+        <div class="phone">
+          <div class="stars"></div>
+          ${liveOrbs}${ship}
+          <div class="knife ${v.cls}">
+            <div class="fall"></div><div class="bloom"></div><div class="lip"></div>
+            ${v.cls === 'ember' ? '<div class="hair"></div>' : ''}
+            <div class="wire"></div>
+          </div>
+        </div>
+        <div class="pick">CLICK TO SELECT</div>
+      </article>`).join('');
+
+    document.getElementById('grid-types').innerHTML = types.map(t => `
+      <article class="card" data-group="type" data-id="${t.id}">
+        <div class="opt">${t.id === 'hazard' ? 'NOT AN ORBIT' : 'ORBIT TYPE'}</div>
+        <div class="name">${t.name}</div>
+        <p class="type-tag">${t.color}</p>
+        <p class="blurb">${t.blurb}</p>
+        <div class="phone mid">
+          <div class="stars"></div>
+          <div class="stage" style="color:${t.color}">${giant(t.extra || '', t.extraBack || '')}</div>
+        </div>
+      </article>`).join('');
+
+    document.getElementById('grid-themes').innerHTML = themes.map(t => `
+      <article class="card" data-group="theme" data-id="${t.id}">
+        <div class="opt">THEME</div>
+        <div class="name">${t.name}</div>
+        <p class="blurb">${t.blurb}</p>
+        <div class="phone sm">
+          <div class="stars"></div>
+          <div class="stage" style="color:${t.color}">${giant()}</div>
+        </div>
+      </article>`).join('');
+
+    function bind(id) {
+      const root = document.getElementById(id);
+      root.addEventListener('click', (e) => {
+        const cardEl = e.target.closest('.card');
+        if (!cardEl) return;
+        root.querySelectorAll('.card').forEach((el) => {
+          const on = el === cardEl;
+          el.classList.toggle('active', on);
+          const pick = el.querySelector('.pick');
+          if (pick) pick.textContent = on ? 'SELECTED' : 'CLICK TO SELECT';
+        });
+      });
+    }
+    bind('grid-void');
+  </script>
+</body>
+</html>

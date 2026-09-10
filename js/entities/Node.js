@@ -81,11 +81,40 @@ class OrbitNode {
     if (onBreak) onBreak(this);
   }
 
+  static getCacheScale() {
+    const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+    // Match the game canvas cap (2) but never drop below 2x CSS, so 1x screens still get a crisp downsample.
+    return Math.max(2, Math.min(dpr, 2));
+  }
+
+  static makeHiDpiCanvas(cssSize) {
+    const scale = OrbitNode.getCacheScale();
+    const c = document.createElement('canvas');
+    c.width = Math.round(cssSize * scale);
+    c.height = Math.round(cssSize * scale);
+    const ctx = c.getContext('2d');
+    ctx.setTransform(c.width / cssSize, 0, 0, c.height / cssSize, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+    return c;
+  }
+
+  static blitCached(context, canvas, dx, dy, cssSize) {
+    const prevSmooth = context.imageSmoothingEnabled;
+    const prevQual = context.imageSmoothingQuality;
+    context.imageSmoothingEnabled = true;
+    if (typeof prevQual === 'string') context.imageSmoothingQuality = 'high';
+    context.drawImage(canvas, dx, dy, cssSize, cssSize);
+    context.imageSmoothingEnabled = prevSmooth;
+    if (typeof prevQual === 'string') context.imageSmoothingQuality = prevQual;
+  }
+
   static getCachedGlow(gColor) {
     if (!OrbitNode.cache) OrbitNode.cache = {};
-    if (!OrbitNode.cache[gColor]) {
-      const c = document.createElement('canvas');
-      c.width = 72; c.height = 72;
+    const scale = OrbitNode.getCacheScale();
+    const key = `glow_${gColor}_${scale}`;
+    if (!OrbitNode.cache[key]) {
+      const c = OrbitNode.makeHiDpiCanvas(72);
       const ctx = c.getContext('2d');
       const grad = ctx.createRadialGradient(36, 36, 2, 36, 36, 34);
       grad.addColorStop(0, gColor);
@@ -94,17 +123,17 @@ class OrbitNode {
       ctx.beginPath();
       ctx.arc(36, 36, 34, 0, Math.PI * 2);
       ctx.fill();
-      OrbitNode.cache[gColor] = c;
+      OrbitNode.cache[key] = c;
     }
-    return OrbitNode.cache[gColor];
+    return OrbitNode.cache[key];
   }
 
   static getCachedCore(cColor, isDecoy) {
     if (!OrbitNode.cache) OrbitNode.cache = {};
-    const key = `${cColor}_${isDecoy}`;
+    const scale = OrbitNode.getCacheScale();
+    const key = `core_${cColor}_${isDecoy}_${scale}`;
     if (!OrbitNode.cache[key]) {
-      const c = document.createElement('canvas');
-      c.width = 44; c.height = 44;
+      const c = OrbitNode.makeHiDpiCanvas(44);
       const ctx = c.getContext('2d');
       ctx.shadowColor = cColor;
       ctx.shadowBlur = 14;
@@ -112,7 +141,7 @@ class OrbitNode {
       ctx.beginPath();
       ctx.arc(22, 22, 9.35, 0, Math.PI * 2); // 17 * 0.55
       ctx.fill();
-      
+
       ctx.strokeStyle = cColor;
       ctx.lineWidth = 2.5;
       ctx.beginPath();
@@ -151,7 +180,7 @@ class OrbitNode {
       context.restore();
 
       // OPTIMIZATION: Pre-rendered Red Danger Aura
-      context.drawImage(OrbitNode.getCachedGlow('rgba(225, 29, 72, 0.7)'), -36, -36);
+      OrbitNode.blitCached(context, OrbitNode.getCachedGlow('rgba(225, 29, 72, 0.7)'), -36, -36, 72);
 
       context.rotate(this.rotation || 0);
 
@@ -252,7 +281,7 @@ class OrbitNode {
 
     if (!this.isHooked) {
       context.globalAlpha = 0.85 + Math.sin(this.pulse) * 0.15;
-      context.drawImage(OrbitNode.getCachedGlow(glowColor), -36, -36);
+      OrbitNode.blitCached(context, OrbitNode.getCachedGlow(glowColor), -36, -36, 72);
       context.globalAlpha = 1;
     }
 
@@ -386,9 +415,18 @@ class OrbitNode {
       context.restore();
     }
 
-    // 7 & 8. Inner Solid Core and Rim (Pre-rendered)
+    // 7 & 8. Inner core bloom (HiDPI sprite) plus live vector disc/rim so the circle stays sharp.
     context.globalAlpha = 1.0;
-    context.drawImage(OrbitNode.getCachedCore(coreColor, this.type === 'DECOY'), -22, -22);
+    OrbitNode.blitCached(context, OrbitNode.getCachedCore(coreColor, this.type === 'DECOY'), -22, -22, 44);
+    context.fillStyle = this.type === 'DECOY' ? '#7c2d12' : '#ffffff';
+    context.beginPath();
+    context.arc(0, 0, 9.35, 0, Math.PI * 2);
+    context.fill();
+    context.strokeStyle = coreColor;
+    context.lineWidth = 2.5;
+    context.beginPath();
+    context.arc(0, 0, 17, 0, Math.PI * 2);
+    context.stroke();
 
     context.translate(-px, -screenY);
   }
