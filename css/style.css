@@ -1398,7 +1398,7 @@ canvas#gameCanvas {
 
 .hud-tutorial-tip {
   position: absolute;
-  top: 108px;
+  top: 132px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1407,16 +1407,28 @@ canvas#gameCanvas {
   background: rgba(15, 23, 42, 0.96);
   border: 1px solid rgba(56, 189, 248, 0.5);
   border-radius: 24px;
-  padding: 8px 18px;
+  padding: 8px 14px 8px 16px;
   box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
   pointer-events: none;
   z-index: 50;
+  max-width: min(92vw, 420px);
   animation: pulseTip 2s infinite ease-in-out;
+}
+
+.hud-tutorial-tip.is-ready {
+  border-color: rgba(251, 191, 36, 0.95);
+  box-shadow: 0 0 28px rgba(251, 191, 36, 0.45);
+  animation: pulseTipReady 0.7s infinite ease-in-out;
 }
 
 @keyframes pulseTip {
   0%, 100% { border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
   50% { border-color: rgba(56, 189, 248, 0.9); box-shadow: 0 0 25px rgba(56, 189, 248, 0.45); }
+}
+
+@keyframes pulseTipReady {
+  0%, 100% { border-color: rgba(251, 191, 36, 0.55); box-shadow: 0 0 16px rgba(251, 191, 36, 0.28); }
+  50% { border-color: rgba(251, 191, 36, 1); box-shadow: 0 0 32px rgba(251, 191, 36, 0.55); }
 }
 
 .tutorial-tip-badge {
@@ -1428,15 +1440,41 @@ canvas#gameCanvas {
   padding: 2px 7px;
   border-radius: 10px;
   text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.hud-tutorial-tip.is-ready .tutorial-tip-badge {
+  background: #fbbf24;
 }
 
 .tutorial-tip-text {
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   color: #f8fafc;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: left;
+}
+
+.tutorial-tip-skip {
+  pointer-events: auto;
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 4px 2px 4px 8px;
+  cursor: pointer;
+}
+
+.tutorial-tip-skip:active {
+  color: #f8fafc;
 }
 
 .top-header {
@@ -5156,6 +5194,15 @@ canvas#gameCanvas {
   color: #ffffff;
   margin: 0;
   text-shadow: 0 0 16px rgba(225, 29, 72, 0.25);
+}
+
+.tutorial-kicker {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  text-transform: none;
 }
 
 .tutorial-cards-list {

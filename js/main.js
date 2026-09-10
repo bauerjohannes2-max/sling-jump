@@ -98,7 +98,9 @@
           if (unit) {
             unit.style.transform = '';
           }
-          state.changeState(StateManager.STATES.PLAYING);
+          state.changeState(StateManager.STATES.PLAYING, {
+            tutorial: engine.shouldStartTutorial()
+          });
         }, 180);
       });
     }
@@ -106,9 +108,10 @@
     onBtn('btn-menu-tutorial', () => ui.openTutorialModal(1));
     onBtn('btn-tut-play', () => {
       ui.closeTutorialModal();
-      state.changeState(StateManager.STATES.PLAYING);
+      state.changeState(StateManager.STATES.PLAYING, { tutorial: true });
     });
     onBtn('btn-tut-close-1', () => ui.closeTutorialModal());
+    onBtn('btn-tutorial-skip', () => engine.skipTutorial());
 
     // Currency capsule is purely informational (no modal opens on click)
     onBtn('btn-menu-leaderboard', () => state.changeState(StateManager.STATES.LEADERBOARD));
@@ -398,7 +401,7 @@
 
     // --- PAUSE MODAL BUTTONS ---
     onBtn('btn-pause-resume', () => state.changeState(StateManager.STATES.PLAYING));
-    onBtn('btn-pause-restart', () => engine.startNewRun());
+    onBtn('btn-pause-restart', () => engine.startNewRun({ tutorial: engine.isTutorial }));
     onBtn('btn-pause-settings', () => {
       if (ui.dom.settingsModal) ui.dom.settingsModal.classList.add('visible');
     });

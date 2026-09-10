@@ -73,6 +73,9 @@ class UIManager {
       hudQuestFill: document.getElementById('hud-quest-fill'),
       hudTutorialTip: document.getElementById('hud-tutorial-tip'),
       hudTutorialTipText: document.getElementById('hud-tutorial-tip-text'),
+      hudTutorialTipBadge: document.getElementById('hud-tutorial-tip-badge'),
+      btnTutorialSkip: document.getElementById('btn-tutorial-skip'),
+      btnMenuPlayLabel: document.querySelector('#btn-menu-play span'),
 
       // Game Over Stats
       finalAltitude: document.getElementById('final-altitude'),
@@ -183,8 +186,7 @@ class UIManager {
       state === StateManager.STATES.SETTINGS ||
       state === StateManager.STATES.STATS ||
       state === StateManager.STATES.LEADERBOARD ||
-      state === StateManager.STATES.QUESTS ||
-      state === StateManager.STATES.TUTORIAL
+      state === StateManager.STATES.QUESTS
     );
 
     // Hide other modal overlays
@@ -224,6 +226,7 @@ class UIManager {
       case StateManager.STATES.MENU:
         if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
         this.updateCurrency();
+        this.updatePlayButtonLabel();
         this.refreshRemoteLeaderboard(previousState === StateManager.STATES.GAME_OVER)
           .then(() => this.updateMenuRank())
           .catch(() => {});
@@ -290,18 +293,50 @@ class UIManager {
     this.audio.playMusic(inRun ? 'bgm_gameplay' : 'bgm_menu');
   }
 
-  showTutorialTip(text) {
+  isTutorialForcedByQuery() {
+    try {
+      return new URLSearchParams(window.location.search).get('tutorial') === '1';
+    } catch (err) {
+      return false;
+    }
+  }
+
+  shouldOfferFirstRunTutorial() {
+    if (this.isTutorialForcedByQuery()) return true;
+    return !(this.storage && this.storage.data && this.storage.data.settings && this.storage.data.settings.tutorialCompleted);
+  }
+
+  updatePlayButtonLabel() {
+    if (!this.dom.btnMenuPlayLabel) return;
+    this.dom.btnMenuPlayLabel.textContent = this.shouldOfferFirstRunTutorial() ? 'TRAINING' : 'START';
+  }
+
+  showTutorialTip(text, options = {}) {
+    const step = options.step || 0;
+    const steps = options.steps || 3;
+    const ready = !!options.ready;
+    const showSkip = options.skip !== false;
+    const badge = step > 0 ? `${step}/${steps}` : 'TRAINING';
+
     if (this.dom.hudTutorialTipText) {
       this.dom.hudTutorialTipText.textContent = text;
     }
+    if (this.dom.hudTutorialTipBadge) {
+      this.dom.hudTutorialTipBadge.textContent = badge;
+    }
+    if (this.dom.btnTutorialSkip) {
+      this.dom.btnTutorialSkip.style.display = showSkip ? 'inline-block' : 'none';
+    }
     if (this.dom.hudTutorialTip) {
       this.dom.hudTutorialTip.style.display = 'flex';
+      this.dom.hudTutorialTip.classList.toggle('is-ready', ready);
     }
   }
 
   hideTutorialTip() {
     if (this.dom.hudTutorialTip) {
       this.dom.hudTutorialTip.style.display = 'none';
+      this.dom.hudTutorialTip.classList.remove('is-ready');
     }
   }
 

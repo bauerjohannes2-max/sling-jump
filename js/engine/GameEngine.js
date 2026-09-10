@@ -42,6 +42,8 @@ class GameEngine {
     this.cameraY = 0;
     this.isTutorial = false;
     this.tutorialPhase = 0;
+    this.tutorialStep = 0;
+    this.tutorialStep3Releases = 0;
     this.tutorialFrozen = false;
     this.maxAltitudeMeters = 0;
     this.startAltitudeY = 0;
@@ -114,7 +116,7 @@ class GameEngine {
     };
 
     this.input.onPauseToggle = () => {
-      if (this.state.is(StateManager.STATES.PLAYING)) {
+      if (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL)) {
         this.state.changeState(StateManager.STATES.PAUSED);
       } else if (this.state.is(StateManager.STATES.PAUSED)) {
         this.state.changeState(StateManager.STATES.PLAYING);
@@ -123,28 +125,40 @@ class GameEngine {
 
     this.input.onRestartTrigger = () => {
       if (this.state.is(StateManager.STATES.GAME_OVER) || this.state.is(StateManager.STATES.PAUSED)) {
-        this.startNewRun();
+        this.startNewRun({ tutorial: this.isTutorial });
       }
     };
+  }
+
+  shouldStartTutorial() {
+    if (this.ui && this.ui.isTutorialForcedByQuery()) return true;
+    return !(this.storage.data.settings && this.storage.data.settings.tutorialCompleted);
   }
 
   handleStateTransition(newState, oldState, contextData) {
     this.ui.showState(newState, oldState, contextData);
 
-    if (newState === StateManager.STATES.PLAYING && oldState !== StateManager.STATES.PAUSED) {
-      if (!contextData || !contextData.isRevive) {
-        this.startNewRun();
-      }
+    const startingRun = (
+      (newState === StateManager.STATES.PLAYING || newState === StateManager.STATES.TUTORIAL) &&
+      oldState !== StateManager.STATES.PAUSED
+    );
+    if (startingRun && (!contextData || !contextData.isRevive)) {
+      this.startNewRun({ tutorial: !!(contextData && contextData.tutorial) });
     }
 
     if (newState === StateManager.STATES.MENU) {
       this.gameStarted = false;
       this.player = null;
+      this.ui.hideTutorialTip();
     }
   }
 
-  startNewRun() {
-    this.isTutorial = false;
+  startNewRun(options = {}) {
+    const tutorial = options.tutorial === true;
+    this.isTutorial = tutorial;
+    this.tutorialPhase = 0;
+    this.tutorialStep = tutorial ? 1 : 0;
+    this.tutorialStep3Releases = 0;
     this.tutorialFrozen = false;
     this.cameraY = 0;
     this.maxAltitudeMeters = 0;
@@ -180,8 +194,8 @@ class GameEngine {
     this.player.isHooked = true;
     this.player.hookedNode = startNode;
     this.player.orbitRadius = 70;
-    this.player.orbitAngle = 0;
-    this.player.orbitSpeed = 460; // Calm, manageable starting entry speed
+    this.player.orbitAngle = tutorial ? -Math.PI / 2 : 0;
+    this.player.orbitSpeed = tutorial ? 280 : 460; // Slow first swing so the release window is readable
     this.player.orbitDirection = 1;
     startNode.isHooked = true;
     this.startAltitudeY = startNode.y + this.player.orbitRadius;
@@ -193,7 +207,113 @@ class GameEngine {
     this.ui.setSlowMoVisual(true);
     this.ui.setDangerVisual(0);
 
+    if (tutorial) {
+      this.ui.showTutorialTip('Lass los, wenn das Schiff nach OBEN zeigt.', { step: 1, steps: 3 });
+    } else {
+      this.ui.hideTutorialTip();
+    }
+
     this.state.changeState(StateManager.STATES.PLAYING);
+  }
+
+  completeTutorial(didPerfect = false) {
+    if (!this.isTutorial) return;
+    this.isTutorial = false;
+    this.tutorialStep = 0;
+    this.storage.data.settings.tutorialCompleted = true;
+    this.storage.save();
+    this.storage.addCores(50);
+    this.ui.updateCurrency();
+    this.ui.updatePlayButtonLabel();
+    const msg = didPerfect
+      ? 'PERFEKT! Training geschafft. +50 Gold'
+      : 'Training geschafft! +50 Gold — flieg weiter.';
+    this.ui.showTutorialTip(msg, { skip: false, ready: didPerfect });
+    if (this.player) {
+      this.particles.spawnFloatingText(this.player.x, this.player.y + 45, 'TRAINING ABGESCHLOSSEN!', '#10b981', 22, true);
+    }
+    setTimeout(() => this.ui.hideTutorialTip(), 3200);
+  }
+
+  skipTutorial() {
+    if (!this.isTutorial) {
+      this.ui.hideTutorialTip();
+      return;
+    }
+    this.isTutorial = false;
+    this.tutorialStep = 0;
+    this.storage.data.settings.tutorialCompleted = true;
+    this.storage.save();
+    this.ui.updatePlayButtonLabel();
+    this.ui.hideTutorialTip();
+    if (this.player) {
+      this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'TRAINING BEENDET', '#94a3b8', 18, true);
+    }
+  }
+
+  onTutorialHooked() {
+    if (!this.isTutorial) return;
+    if (this.tutorialStep === 2) {
+      this.tutorialStep = 3;
+    }
+  }
+
+  onTutorialReleased(isPerfectLaunch) {
+    if (!this.isTutorial) return;
+    if (this.tutorialStep <= 1) {
+      this.tutorialStep = 2;
+      this.ui.showTutorialTip('HALTE gedrückt, um den nächsten Knoten zu greifen.', { step: 2, steps: 3 });
+      return;
+    }
+    if (this.tutorialStep === 3) {
+      this.tutorialStep3Releases += 1;
+      if (isPerfectLaunch || this.tutorialStep3Releases >= 2) {
+        this.completeTutorial(!!isPerfectLaunch);
+      }
+    }
+  }
+
+  updateTutorialCoach() {
+    if (!this.isTutorial || !this.player) return;
+
+    if (this.tutorialStep === 1 && this.player.isHooked) {
+      const ty = this.player.getLaunchTangentY();
+      if (ty >= 0.82) {
+        this.ui.showTutorialTip('JETZT LOSLASSEN!', { step: 1, steps: 3, ready: true });
+      } else {
+        this.ui.showTutorialTip('Lass los, wenn das Schiff nach OBEN zeigt.', { step: 1, steps: 3 });
+      }
+      return;
+    }
+
+    if (this.tutorialStep === 2) {
+      if (this.player.isHooked) {
+        this.tutorialStep = 3;
+      } else {
+        const node = this.nearestNode;
+        const inRange = !!(node && Math.hypot(this.player.x - node.x, this.player.y - node.y) <= CONSTANTS.PHYSICS.HOOK_RANGE);
+        if (inRange) {
+          this.ui.showTutorialTip('JETZT HALTEN — Knoten greifen!', { step: 2, steps: 3, ready: true });
+        } else {
+          this.ui.showTutorialTip('HALTE gedrückt, um den nächsten Knoten zu greifen.', { step: 2, steps: 3 });
+        }
+        return;
+      }
+    }
+
+    if (this.tutorialStep === 3) {
+      if (this.player.isHooked) {
+        const ty = this.player.getLaunchTangentY();
+        const threshold = CONSTANTS.PHYSICS.PERFECT_LAUNCH_THRESHOLD || 0.995;
+        if (ty >= threshold - 0.04) {
+          this.ui.showTutorialTip('90° — JETZT LOSLASSEN für Boost!', { step: 3, steps: 3, ready: true });
+        } else {
+          this.ui.showTutorialTip('Warte auf 90° oben — dann extra Boost.', { step: 3, steps: 3 });
+        }
+      } else {
+        this.ui.showTutorialTip('Wieder einhaken, dann bei 90° loslassen.', { step: 3, steps: 3 });
+      }
+    }
   }
 
   triggerScreenShake(amount) {
@@ -223,6 +343,9 @@ class GameEngine {
     if (this.player && !this.player.isHooked) {
       const targetNode = this.nearestNode || this.world.getNearestNode(this.player, this.cameraY);
       const hooked = targetNode ? this.player.tryHook(targetNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY) : false;
+      if (hooked) {
+        this.onTutorialHooked();
+      }
       if (!hooked && this.gameStarted) {
         if (this.particles) {
           const aimAngle = this.player.angle || -Math.PI / 2;
@@ -241,6 +364,17 @@ class GameEngine {
 
   handlePlayActionUp() {
     if (this.tutorialFrozen) return;
+
+    if (this.isTutorial && this.tutorialStep === 1 && this.player && this.player.isHooked) {
+      const ty = this.player.getLaunchTangentY();
+      if (ty < 0.32) {
+        this.ui.showTutorialTip('Noch nicht — warte, bis du nach OBEN fliegst.', { step: 1, steps: 3 });
+        if (this.particles) {
+          this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'WARTEN', '#fbbf24', 18, true);
+        }
+        return;
+      }
+    }
 
     if (!this.gameStarted) {
       this.gameStarted = true;
@@ -297,6 +431,7 @@ class GameEngine {
             if (this.player) this.player.combo = 0;
             if (this.ui) this.ui.hideComboBadge();
           }
+          this.onTutorialReleased(!!isPerfectLaunch);
         },
         this.slingshotCombo
       );
@@ -579,7 +714,7 @@ class GameEngine {
     }
 
     // STATE: PLAYING & TUTORIAL - Full Physics & Game Mechanics
-    if (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL)) {
+    if ((this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL)) && this.player) {
       // 1. Target Reticle & Nodes
       const nearestNode = this.world.getNearestNode(this.player, this.cameraY);
       this.nearestNode = nearestNode;
@@ -661,9 +796,14 @@ class GameEngine {
 
         if (this.input.actionHeld && !this.player.isHooked) {
           if (nearestNode && Math.hypot(this.player.x - nearestNode.x, this.player.y - nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
-            this.player.tryHook(nearestNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY);
+            const hooked = this.player.tryHook(nearestNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY);
+            if (hooked) this.onTutorialHooked();
           }
         }
+      }
+
+      if (this.isTutorial) {
+        this.updateTutorialCoach();
       }
 
       // 4. Camera Follow (Upwards Only, centered at 50% screen height)
@@ -703,29 +843,9 @@ class GameEngine {
           this.ui.setDangerVisual(0);
         }
 
-        // 6. Live Interactive Tutorial Progress (Seamless & Non-Freezing)
+        // 6. Live Interactive Tutorial — catch-and-retry if they fall off screen
         if (this.isTutorial && this.player) {
-          if (this.player.y < 200) {
-            this.ui.showTutorialTip('SCHWUNG: LASS BEIM SCHWUNG NACH OBEN LOS (90°)');
-          } else if (this.player.y < 420) {
-            this.ui.showTutorialTip('TURBO-KNOTEN: GRÜNER PFEIL FÜR DOPPELTEN SCHUB');
-          } else if (this.player.y < 680) {
-            this.ui.showTutorialTip('ZEITUHR: TICKT AB! SCHNELL WEITERSPRINGEN');
-          } else if (this.player.y < 920) {
-            this.ui.showTutorialTip('BRÜCHIGER KNOTEN: ZERFÄLLT SOFORT! ÜBERSPRINGEN');
-          } else if (this.player.y >= 980) {
-            // Tutorial Completed! Seamlessly transition into regular run with +50 bonus currency
-            this.isTutorial = false;
-            this.storage.addCores(50);
-            this.ui.updateCurrency();
-            this.particles.spawnFloatingText(this.player.x, this.player.y + 45, 'TRAINING ABGESCHLOSSEN!', '#10b981');
-            this.ui.showTutorialTip('TRAINING ERFOLGREICH! +50 GOLD BONUS');
-            setTimeout(() => this.ui.hideTutorialTip(), 3500);
-          }
-
-          // Frustration-free tutorial respawn
           if (this.player.y < this.cameraY - 20) {
-            // OPTIMIZATION: Replaced .filter() with reverse array lookup to prevent GC spikes
             let anchor = this.world.nodes[0];
             for (let i = this.world.nodes.length - 1; i >= 0; i--) {
               const n = this.world.nodes[i];
@@ -739,7 +859,12 @@ class GameEngine {
             this.player.vx = 0;
             this.player.vy = 280;
             this.player.tryHook(anchor, this.audio, null, this.particles, this.cameraY);
-            this.ui.showTutorialTip('WIEDERHOLUNG: HALTE GEDRÜCKT ZUM EINHAKEN');
+            if (this.tutorialStep <= 1) {
+              this.tutorialStep = 1;
+            } else {
+              this.tutorialStep = 3;
+            }
+            this.ui.showTutorialTip('Noch mal: lass nach OBEN los.', { step: this.tutorialStep, steps: 3 });
           }
         }
 
@@ -760,9 +885,7 @@ class GameEngine {
         }
       }
 
-      if (!this.isTutorial) {
-        this.world.generateUpTo(this.cameraY + this.height + 700, this.width, this.cameraY);
-      }
+      this.world.generateUpTo(this.cameraY + this.height + 700, this.width, this.cameraY);
     }
 
     // Update Particles
@@ -830,8 +953,29 @@ class GameEngine {
     if (isActiveRun) {
       this.player.draw(this.ctx, this.cameraY, this.width, this.height, this.nearestNode, theme);
 
-      // 4b. Dynamic Onboarding Tooltips (For fresh runs)
-      if (!this.isTutorial && this.state.is(StateManager.STATES.PLAYING) && this.storage.data.totalRuns < 3 && this.storage.data.highScore < 150) {
+      // 4b. Live tutorial callouts on the ship
+      if (this.isTutorial && this.player) {
+        const playerScreenY = this.height - (this.player.y - this.cameraY);
+        this.ctx.save();
+        this.ctx.textAlign = 'center';
+        this.ctx.font = '800 14px "Rajdhani", sans-serif';
+        this.ctx.letterSpacing = '1.4px';
+        const pulseAlpha = Math.sin(now / 140) * 0.3 + 0.7;
+        const ty = this.player.isHooked ? this.player.getLaunchTangentY() : 0;
+
+        if (this.tutorialStep === 1 && this.player.isHooked) {
+          this.ctx.fillStyle = ty >= 0.82 ? `rgba(251, 191, 36, ${pulseAlpha})` : `rgba(56, 189, 248, ${pulseAlpha})`;
+          this.ctx.fillText(ty >= 0.82 ? 'JETZT LOSLASSEN!' : 'NACH OBEN WARTEN', this.player.x, playerScreenY - 38);
+        } else if (this.tutorialStep === 2 && !this.player.isHooked) {
+          this.ctx.fillStyle = `rgba(0, 240, 255, ${pulseAlpha})`;
+          this.ctx.fillText('DRÜCKEN & HALTEN', this.player.x, playerScreenY + 46);
+        } else if (this.tutorialStep === 3 && this.player.isHooked) {
+          const ready = ty >= ((CONSTANTS.PHYSICS.PERFECT_LAUNCH_THRESHOLD || 0.995) - 0.04);
+          this.ctx.fillStyle = ready ? `rgba(251, 191, 36, ${pulseAlpha})` : `rgba(56, 189, 248, ${pulseAlpha})`;
+          this.ctx.fillText(ready ? '90° JETZT!' : '90° ANVISIEREN', this.player.x, playerScreenY - 38);
+        }
+        this.ctx.restore();
+      } else if (!this.isTutorial && this.state.is(StateManager.STATES.PLAYING) && this.storage.data.stats.totalRuns < 3 && this.storage.data.highScore < 150) {
         const playerScreenY = this.height - (this.player.y - this.cameraY);
         this.ctx.save();
         this.ctx.textAlign = 'center';

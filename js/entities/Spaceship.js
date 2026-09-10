@@ -192,6 +192,11 @@ class Spaceship {
     }
   }
 
+  getLaunchTangentY() {
+    if (!this.isHooked) return 0;
+    return Math.cos(this.orbitAngle) * this.orbitDirection;
+  }
+
   update(dt, screenWidth, particleSystem = null) {
     this.rotationAngle += dt * 4;
     if (this.shieldTimer > 0) {

@@ -102,7 +102,8 @@ class StorageService {
         sfxVolume: 0.90,
         screenShakeIntensity: 1.0, // 0.0, 0.5, 1.0
         performanceMode: false,
-        showFps: true
+        showFps: true,
+        tutorialCompleted: false
       }
     };
   }
@@ -137,6 +138,14 @@ class StorageService {
     // Deep merge nested objects
     merged.stats = { ...defaultState.stats, ...(saved.stats || {}) };
     merged.settings = { ...defaultState.settings, ...(saved.settings || {}) };
+
+    // Existing pilots already know the slingshot — don't force the live tutorial on them.
+    if (!(saved.settings && Object.prototype.hasOwnProperty.call(saved.settings, 'tutorialCompleted'))) {
+      const veteran = (merged.highScore > 0) || ((merged.stats && merged.stats.totalRuns) > 0);
+      merged.settings.tutorialCompleted = veteran;
+    } else {
+      merged.settings.tutorialCompleted = merged.settings.tutorialCompleted === true;
+    }
     merged.questProgress = { ...defaultState.questProgress, ...(saved.questProgress || {}) };
     merged.playerProfile = { ...defaultState.playerProfile, ...(saved.playerProfile || {}) };
 
