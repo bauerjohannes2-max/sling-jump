@@ -76,6 +76,8 @@ class UIManager {
       hudTutorialTipBadge: document.getElementById('hud-tutorial-tip-badge'),
       btnTutorialSkip: document.getElementById('btn-tutorial-skip'),
       btnMenuPlayLabel: document.querySelector('#btn-menu-play span'),
+      hudTrainingDone: document.getElementById('hud-training-done'),
+      hudPressCue: document.getElementById('hud-press-cue'),
 
       // Game Over Stats
       finalAltitude: document.getElementById('final-altitude'),
@@ -323,6 +325,18 @@ class UIManager {
 
   hideTutorialTip() {
     this.setTutorialSkipVisible(false);
+    this.setPressCueVisible(false);
+    this.setTrainingDoneVisible(false);
+  }
+
+  setPressCueVisible(show) {
+    if (!this.dom.hudPressCue) return;
+    this.dom.hudPressCue.style.display = show ? 'flex' : 'none';
+  }
+
+  setTrainingDoneVisible(show) {
+    if (!this.dom.hudTrainingDone) return;
+    this.dom.hudTrainingDone.style.display = show ? 'flex' : 'none';
   }
 
   openTutorialModal(slide = 1) {
