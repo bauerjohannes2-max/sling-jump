@@ -1769,10 +1769,11 @@ class UIManager {
   }
 
   getStoredMusicVolume() {
+    const fallback = (CONSTANTS.AUDIO && CONSTANTS.AUDIO.MUSIC_VOLUME_DEFAULT) || 0.55;
     const raw = this.storage && this.storage.data && this.storage.data.settings
       ? Number(this.storage.data.settings.musicVolume)
-      : 0.7;
-    if (!Number.isFinite(raw)) return 0.7;
+      : fallback;
+    if (!Number.isFinite(raw)) return fallback;
     return Math.max(0, Math.min(1, raw));
   }
 

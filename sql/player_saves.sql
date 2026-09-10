@@ -45,6 +45,7 @@ create or replace function public._scrub_save_state(p_state jsonb)
 returns jsonb
 language plpgsql
 immutable
+set search_path = public
 as $$
 declare
   clean jsonb;
@@ -67,7 +68,7 @@ create or replace function public._issue_player_session(p_player_id text)
 returns text
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   new_token text;
@@ -84,7 +85,7 @@ begin
           offset 4
        ) old_tokens
      );
-  new_token := encode(gen_random_bytes(32), 'hex');
+  new_token := encode(extensions.gen_random_bytes(32), 'hex');
   insert into public.player_sessions (token, player_id, expires_at)
   values (new_token, p_player_id, now() + interval '30 days');
   return new_token;

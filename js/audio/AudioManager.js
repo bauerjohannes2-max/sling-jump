@@ -25,9 +25,10 @@ class AudioManager {
   }
 
   getMusicVolume() {
-    if (!this.storage || !this.storage.data || !this.storage.data.settings) return 0.7;
+    const fallback = (typeof CONSTANTS !== 'undefined' && CONSTANTS.AUDIO && CONSTANTS.AUDIO.MUSIC_VOLUME_DEFAULT) || 0.55;
+    if (!this.storage || !this.storage.data || !this.storage.data.settings) return fallback;
     const raw = Number(this.storage.data.settings.musicVolume);
-    if (!Number.isFinite(raw)) return 0.7;
+    if (!Number.isFinite(raw)) return fallback;
     return Math.max(0, Math.min(1, raw));
   }
 
@@ -67,7 +68,8 @@ class AudioManager {
       this.masterGain.gain.setTargetAtTime(1, now, 0.03);
     }
     if (this.musicGain) {
-      this.musicGain.gain.setTargetAtTime(vol, now, 0.03);
+      const bus = (typeof CONSTANTS !== 'undefined' && CONSTANTS.AUDIO && CONSTANTS.AUDIO.MUSIC_BUS_GAIN) || 0.28;
+      this.musicGain.gain.setTargetAtTime(vol * bus, now, 0.03);
     }
   }
 

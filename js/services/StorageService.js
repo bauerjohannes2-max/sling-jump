@@ -95,7 +95,7 @@ class StorageService {
       settings: {
         audioEnabled: true,
         masterVolume: 0.85,
-        musicVolume: 0.70,
+        musicVolume: 0.55,
         sfxVolume: 0.90,
         screenShakeIntensity: 1.0, // 0.0, 0.5, 1.0
         performanceMode: false,

@@ -382,10 +382,6 @@ class SupabaseAdapter extends BaseCloudAdapter {
     return { res, data };
   }
 
-  fakeSessionToken() {
-    return 'sb_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-  }
-
   async sync(payload) {
     if (!this.supabaseUrl || !this.supabaseAnonKey) {
       return { ok: false, error: 'SUPABASE_NOT_CONFIGURED' };
@@ -416,40 +412,10 @@ class SupabaseAdapter extends BaseCloudAdapter {
         return this.mapRpcFailure(rpc.data, `SUPABASE_HTTP_${rpc.res.status}`);
       }
 
-      return this.syncViaTable(payload, username);
+      return { ok: false, error: 'SAVE_RPC_UNAVAILABLE' };
     } catch (e) {
       return { ok: false, error: 'SUPABASE_SYNC_ERROR' };
     }
-  }
-
-  async syncViaTable(payload, username) {
-    const row = {
-      player_id: payload.playerId,
-      username: username || null,
-      state: payload.state,
-      updated_at: new Date().toISOString()
-    };
-    if (payload.passwordHash) {
-      row.password_hash = payload.passwordHash;
-    }
-    if (payload.removePassword) {
-      row.password_hash = null;
-    }
-
-    const res = await fetch(`${this.supabaseUrl}/rest/v1/${this.tableName}?on_conflict=player_id`, {
-      method: 'POST',
-      headers: this.getHeaders({
-        'Prefer': 'resolution=merge-duplicates, return=representation'
-      }),
-      body: JSON.stringify(row)
-    });
-
-    if (!res.ok) {
-      return { ok: false, error: `SUPABASE_HTTP_${res.status}` };
-    }
-    const rows = await res.json().catch(() => []);
-    const updated = Array.isArray(rows) && rows[0] ? rows[0] : row;
-    return { ok: true, sessionToken: this.fakeSessionToken(), updatedAt: updated.updated_at };
   }
 
   async restore(playerId, passwordHash, username) {
@@ -478,50 +444,10 @@ class SupabaseAdapter extends BaseCloudAdapter {
         return this.mapRpcFailure(rpc.data, `SUPABASE_HTTP_${rpc.res.status}`);
       }
 
-      return this.restoreViaTable(playerId, passwordHash, username);
+      return { ok: false, error: 'SAVE_RPC_UNAVAILABLE' };
     } catch (e) {
       return { ok: false, error: 'SUPABASE_RESTORE_ERROR' };
     }
-  }
-
-  async restoreViaTable(playerId, passwordHash, username) {
-    const filter = username
-      ? `username=eq.${encodeURIComponent(username)}`
-      : `player_id=eq.${encodeURIComponent(playerId)}`;
-    const url = `${this.supabaseUrl}/rest/v1/${this.tableName}?${filter}&select=*`;
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: this.getHeaders()
-    });
-
-    if (!res.ok) {
-      return { ok: false, error: 'SPIELER NICHT GEFUNDEN' };
-    }
-
-    const rows = await res.json().catch(() => []);
-    if (!Array.isArray(rows) || rows.length === 0) {
-      return { ok: false, error: 'SPIELER NICHT GEFUNDEN' };
-    }
-
-    const record = rows[0];
-    if (record.password_hash) {
-      if (!passwordHash) {
-        return { ok: false, requiresPassword: true, error: 'PASSWORT ERFORDERLICH' };
-      }
-      if (record.password_hash !== passwordHash) {
-        return { ok: false, error: 'FALSCHES PASSWORT' };
-      }
-    }
-
-    return {
-      ok: true,
-      player: {
-        playerId: record.player_id,
-        state: record.state,
-        updatedAt: record.updated_at
-      },
-      sessionToken: this.fakeSessionToken()
-    };
   }
 
   async login(playerId, passwordHash, username) {
