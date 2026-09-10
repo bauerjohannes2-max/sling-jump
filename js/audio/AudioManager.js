@@ -14,7 +14,7 @@ class AudioManager {
     this.currentMusicSource = null;
     this.currentMusicGain = null;
 
-    this.gameplayPath = 'assets/audio/music/bgm_gameplay.mp3';
+    this.gameplayPath = 'assets/audio/music/bgm_gameplay.m4a';
     this.audioBuffers = new Map();
 
     this.enabled = this.storage ? (this.storage.data.settings.audioEnabled !== false) : true;
@@ -104,10 +104,11 @@ class AudioManager {
     const newSource = this.ctx.createBufferSource();
     newSource.buffer = buffer;
     newSource.loop = true;
+    newSource.loopStart = 0;
+    newSource.loopEnd = buffer.duration;
 
     const fadeGain = this.ctx.createGain();
-    fadeGain.gain.setValueAtTime(0.001, now);
-    fadeGain.gain.exponentialRampToValueAtTime(1.0, now + 1.2);
+    fadeGain.gain.setValueAtTime(1, now);
 
     newSource.connect(fadeGain);
     fadeGain.connect(this.musicGain);
