@@ -421,7 +421,7 @@ class GameEngine {
       const ty = this.player.getLaunchTangentY();
       if (ty < 0.32) {
         if (this.particles) {
-          this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'WARTEN', '#fbbf24', 16, true);
+          this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'WARTEN', '#4ade80', 18, true);
         }
         return;
       }
@@ -1018,26 +1018,27 @@ class GameEngine {
         const playerScreenY = this.height - (this.player.y - this.cameraY);
         this.ctx.save();
         this.ctx.textAlign = 'center';
-        this.ctx.font = '800 13px "Rajdhani", sans-serif';
+        this.ctx.font = '800 16px "Rajdhani", sans-serif';
         this.ctx.letterSpacing = '1.6px';
         const pulseAlpha = Math.sin(now / 140) * 0.25 + 0.75;
+        const hintGreen = `rgba(74, 222, 128, ${pulseAlpha})`;
 
         if (this.isTutorial) {
           const ty = this.player.isHooked ? this.player.getLaunchTangentY() : 0;
           const perfect = (CONSTANTS.PHYSICS.PERFECT_LAUNCH_THRESHOLD || 0.995) - 0.04;
           if (this.tutorialStep === 2 && this.player.isHooked && ty >= 0.82) {
-            this.ctx.fillStyle = `rgba(251, 191, 36, ${pulseAlpha})`;
-            this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 36);
+            this.ctx.fillStyle = hintGreen;
+            this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 40);
           } else if (this.tutorialStep === 3 && this.player.isHooked && ty >= perfect) {
-            this.ctx.fillStyle = `rgba(251, 191, 36, ${pulseAlpha})`;
-            this.ctx.fillText('90°', this.player.x, playerScreenY - 36);
+            this.ctx.fillStyle = hintGreen;
+            this.ctx.fillText('90°', this.player.x, playerScreenY - 40);
           }
         } else if (this.state.is(StateManager.STATES.PLAYING) && this.storage.data.stats.totalRuns < 3 && this.storage.data.highScore < 150) {
           if (this.player.isHooked) {
             const ty = this.player.getLaunchTangentY();
             if (ty >= 0.82) {
-              this.ctx.fillStyle = `rgba(56, 189, 248, ${pulseAlpha})`;
-              this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 35);
+              this.ctx.fillStyle = hintGreen;
+              this.ctx.fillText('LOSLASSEN', this.player.x, playerScreenY - 40);
             }
           }
         }
