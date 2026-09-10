@@ -1,9 +1,9 @@
 /**
  * Space Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 5.18.21
+ * Version: 5.18.22
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'space-jump-v5.18.21';
+const CACHE_NAME = 'space-jump-v5.18.22';
 
 const PRECACHE_ASSETS = [
   './',
@@ -13,6 +13,9 @@ const PRECACHE_ASSETS = [
   './assets/icon.svg',
   './css/style.css',
   './manifest.json',
+  './apple-touch-icon-punch.png',
+  './assets/app-icon-punch-192.png',
+  './assets/app-icon-punch-512.png',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './js/config/Constants.js',
@@ -78,8 +81,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // version.json must always hit the network. Never serve a cached copy.
-  if (url.pathname.endsWith('version.json')) {
+  // version.json and the web manifest must always hit the network.
+  // A cached manifest keeps phones on the old homescreen icon URL.
+  if (url.pathname.endsWith('version.json') || url.pathname.endsWith('manifest.json')) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' })
     );

@@ -43,10 +43,11 @@ async function exportIcons() {
 
   const imgBase64 = fs.readFileSync(sourcePath).toString('base64');
   const dataUri = `data:image/png;base64,${imgBase64}`;
-  const assetsDir = path.join(__dirname, '..', 'assets');
+  const rootDir = path.join(__dirname, '..');
+  const assetsDir = path.join(rootDir, 'assets');
   fs.mkdirSync(assetsDir, { recursive: true });
 
-  async function renderIcon(size, targetFilename) {
+  async function renderIcon(size, targetFilename, destDir = assetsDir) {
     const html = `
       <!DOCTYPE html>
       <html>
@@ -68,14 +69,17 @@ async function exportIcons() {
       const img = document.querySelector('img');
       return img && img.complete && img.naturalWidth > 0;
     });
-    const targetPath = path.join(assetsDir, targetFilename);
+    const targetPath = path.join(destDir, targetFilename);
     await page.screenshot({ path: targetPath, omitBackground: false });
     console.log(`[IconExporter] Created ${targetFilename} (${size}x${size})`);
     return targetPath;
   }
 
   const png512 = await renderIcon(512, 'icon-512.png');
+  await renderIcon(512, 'app-icon-punch-512.png');
   await renderIcon(192, 'icon-192.png');
+  await renderIcon(192, 'app-icon-punch-192.png');
+  await renderIcon(180, 'apple-touch-icon-punch.png', rootDir);
   await renderIcon(64, 'favicon.png');
   const icoPngPath = await renderIcon(32, 'favicon-32.png');
 
