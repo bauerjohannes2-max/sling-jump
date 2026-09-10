@@ -1,9 +1,9 @@
 /**
  * Space Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 5.18.11
+ * Version: 5.18.15
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'space-jump-v5.18.11';
+const CACHE_NAME = 'space-jump-v5.18.15';
 
 const PRECACHE_ASSETS = [
   './',
@@ -66,15 +66,21 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  // Never intercept other origins (GitHub raw version.json, fonts, CDNs).
+  // An old cache-first handler here is why phones could not see published updates.
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   // Bypass API calls completely (the game SW never caches player sync)
   if (url.pathname.startsWith('/api/')) {
     return;
   }
 
-  // Always fetch version.json with no-store directly from network
+  // version.json must always hit the network. Never serve a cached copy.
   if (url.pathname.endsWith('version.json')) {
     event.respondWith(
-      fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request, { ignoreSearch: true }))
+      fetch(event.request, { cache: 'no-store' })
     );
     return;
   }

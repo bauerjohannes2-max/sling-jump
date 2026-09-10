@@ -71,12 +71,10 @@
         const unit = document.getElementById('ship-unit');
         if (unit) {
           unit.style.transform = 'translate(-50%, -100px) scale(1.4)';
-          unit.style.filter = 'drop-shadow(0 0 40px var(--accent-crimson))';
         }
         setTimeout(() => {
           if (unit) {
             unit.style.transform = '';
-            unit.style.filter = '';
           }
           state.changeState(StateManager.STATES.PLAYING);
         }, 180);
@@ -447,25 +445,103 @@
     document.querySelectorAll('.settings-version-tag').forEach(el => { el.textContent = `SPACE JUMP ${currentVerTag}`; });
   }
 
-  // --- BULLETPROOF VERSION & AUTO-UPDATE CHECKER ---
+  // --- VERSION & AUTO-UPDATE CHECKER ---
+  // Same-origin version.json is not enough: an old service worker or a GitHub Pages
+  // CDN hit can echo the installed build back, so the app reports "aktuell" forever.
+  // We probe several publishers in parallel and only reload when a *newer* semver wins.
+  const PUBLISHED_PAGES_VERSION = 'https://bauerjohannes2-max.github.io/space-jump/version.json';
+  const PUBLISHED_RAW_VERSION = 'https://raw.githubusercontent.com/bauerjohannes2-max/space-jump/main/version.json';
+  let versionCheckInFlight = false;
+
+  function parseSemver(value) {
+    if (value == null) return null;
+    const cleaned = String(value).trim().replace(/^v/i, '');
+    const m = cleaned.match(/^(\d+)\.(\d+)\.(\d+)/);
+    if (!m) return null;
+    return [Number(m[1]), Number(m[2]), Number(m[3]), cleaned];
+  }
+
+  function isNewerVersion(remote, local) {
+    const a = parseSemver(remote);
+    const b = parseSemver(local);
+    if (!a || !b) return false;
+    for (let i = 0; i < 3; i++) {
+      if (a[i] > b[i]) return true;
+      if (a[i] < b[i]) return false;
+    }
+    return false;
+  }
+
+  function versionCheckSources() {
+    const t = Date.now();
+    const sources = [new URL(`version.json?t=${t}`, window.location.href).href];
+    if (!/\.github\.io$/i.test(window.location.hostname)) {
+      sources.push(`/api/version?t=${t}`);
+      sources.push(`${PUBLISHED_PAGES_VERSION}?t=${t}`);
+    }
+    sources.push(`${PUBLISHED_RAW_VERSION}?t=${t}`);
+    if (/\.github\.io$/i.test(window.location.hostname)) {
+      sources.push(`${PUBLISHED_PAGES_VERSION}?t=${t}`);
+    }
+    return sources;
+  }
+
+  async function fetchPublishedVersion(url) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 7000);
+    try {
+      const res = await fetch(url, {
+        cache: 'no-store',
+        signal: ctrl.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const parsed = parseSemver(data && (data.version || data.tag));
+      return parsed ? parsed[3] : null;
+    } catch (e) {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function resolveLatestPublishedVersion() {
+    const found = await Promise.all(versionCheckSources().map(fetchPublishedVersion));
+    let latest = null;
+    for (const ver of found) {
+      if (!ver) continue;
+      if (!latest || isNewerVersion(ver, latest)) latest = ver;
+    }
+    return latest;
+  }
+
+  async function purgeAppCachesAndWorkers() {
+    if ('caches' in window) {
+      const names = await caches.keys();
+      await Promise.all(names.map((n) => caches.delete(n)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const r of regs) {
+        try {
+          if (r.active) r.active.postMessage({ action: 'purgeCache' });
+        } catch (e) {}
+        try {
+          await r.unregister();
+        } catch (e) {}
+      }
+    }
+  }
+
   async function forceAppUpdate(serverVer) {
     window._sjSuppressSwReload = true;
     try {
-      if ('caches' in window) {
-        const names = await caches.keys();
-        await Promise.all(names.map(n => caches.delete(n)));
-      }
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        for (const r of regs) {
-          try {
-            if (r.active) r.active.postMessage({ action: 'purgeCache' });
-          } catch (e) {}
-          try {
-            await r.unregister();
-          } catch (e) {}
-        }
-      }
+      await purgeAppCachesAndWorkers();
     } catch (e) {}
 
     const next = new URL(location.href);
@@ -474,84 +550,71 @@
     location.replace(next.pathname + next.search + next.hash);
   }
 
+  async function pingServiceWorkers() {
+    if (!('serviceWorker' in navigator)) return;
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map((r) => r.update().catch(() => {})));
+  }
+
+  function setUpdateButtonLabel(btnCheck, label, resetMs) {
+    if (!btnCheck) return;
+    btnCheck.textContent = label;
+    if (resetMs) {
+      setTimeout(() => {
+        if (btnCheck.textContent === label) btnCheck.textContent = 'NACH UPDATES SUCHEN';
+      }, resetMs);
+    }
+  }
+
   async function checkServerVersion(isManual = false) {
     if (!window.location.protocol.startsWith('http')) return;
+    if (versionCheckInFlight && !isManual) return;
+    versionCheckInFlight = true;
+
     const btnCheck = document.getElementById('btn-check-update');
     const currentVer = (typeof CONSTANTS !== 'undefined' && CONSTANTS.VERSION) ? CONSTANTS.VERSION : '3.33.0';
     const currentVerTag = `v${currentVer}`;
 
-    if (isManual && btnCheck) {
-      btnCheck.textContent = 'PRÜFE UPDATE...';
+    if (isManual) {
+      sessionStorage.removeItem('sj_update_attempts');
+      setUpdateButtonLabel(btnCheck, 'PRÜFE UPDATE...');
     }
 
     try {
-      // 1. Fetch static version.json (works seamlessly on GitHub Pages and local servers)
-      let serverVer = null;
-      try {
-        const res = await fetch(`./version.json?t=${Date.now()}`, { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          serverVer = data.version;
-        }
-      } catch (e) {}
+      const serverVer = await resolveLatestPublishedVersion();
 
-      // Fallback to /api/version on the local server only (GitHub Pages has no API at the site root)
-      if (!serverVer && !/\.github\.io$/i.test(window.location.hostname)) {
-        try {
-          const resApi = await fetch(`/api/version?t=${Date.now()}`, { cache: 'no-store' });
-          if (resApi.ok) {
-            const dataApi = await resApi.json();
-            serverVer = dataApi.version;
-          }
-        } catch (e) {}
-      }
-
-      if (serverVer && serverVer !== currentVer) {
+      if (serverVer && isNewerVersion(serverVer, currentVer)) {
         const attempts = Number(sessionStorage.getItem('sj_update_attempts') || '0');
         if (attempts >= 3) {
           console.warn(`[Update] Version mismatch after ${attempts} reloads: ${serverVer}`);
-          if (isManual && btnCheck) {
-            btnCheck.textContent = `UPDATE v${serverVer} — APP NEU ÖFFNEN`;
-          }
+          if (isManual) setUpdateButtonLabel(btnCheck, `UPDATE v${serverVer} — APP NEU ÖFFNEN`);
           return;
         }
         sessionStorage.setItem('sj_update_attempts', String(attempts + 1));
         console.log(`[Update] Neuer Build verfügbar: ${serverVer} (Lokal: ${currentVer}). Aktualisiere...`);
-        if (btnCheck) btnCheck.textContent = `UPDATE GEFUNDEN (v${serverVer})!`;
+        setUpdateButtonLabel(btnCheck, `UPDATE GEFUNDEN (v${serverVer})!`);
         await forceAppUpdate(serverVer);
         return;
       }
 
       sessionStorage.removeItem('sj_update_attempts');
       sessionStorage.removeItem('sj_reload_guard');
+      await pingServiceWorkers();
 
-      // Versions match or up to date - also ping service worker to check for byte updates
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        for (const r of regs) {
-          await r.update();
+      if (isManual) {
+        if (!serverVer) {
+          setUpdateButtonLabel(btnCheck, 'UPDATE-PRÜFUNG FEHLGESCHLAGEN', 2800);
+        } else {
+          setUpdateButtonLabel(btnCheck, `VERSION AKTUELL (${currentVerTag})`, 2500);
         }
       }
-
-      if (isManual && btnCheck) {
-        btnCheck.textContent = `VERSION AKTUELL (${currentVerTag})`;
-        setTimeout(() => {
-          btnCheck.textContent = 'NACH UPDATES SUCHEN';
-        }, 2500);
-      }
     } catch (err) {
-      if ('serviceWorker' in navigator) {
-        try {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          for (const r of regs) { await r.update(); }
-        } catch (e) {}
+      try { await pingServiceWorkers(); } catch (e) {}
+      if (isManual) {
+        setUpdateButtonLabel(btnCheck, 'UPDATE-PRÜFUNG FEHLGESCHLAGEN', 2800);
       }
-      if (isManual && btnCheck) {
-        btnCheck.textContent = `VERSION AKTUELL (${currentVerTag})`;
-        setTimeout(() => {
-          btnCheck.textContent = 'NACH UPDATES SUCHEN';
-        }, 2500);
-      }
+    } finally {
+      versionCheckInFlight = false;
     }
   }
 
@@ -567,7 +630,7 @@
     });
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none', scope: './' }).then((reg) => {
         // Check for updates on register
         reg.update();
 

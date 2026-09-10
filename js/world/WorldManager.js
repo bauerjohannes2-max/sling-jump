@@ -489,15 +489,24 @@ class WorldManager {
         context.fillRect((star.x - s) | 0, (finalY - s) | 0, s + s, s + s);
       }
 
-      const accent = theme.primary || '#00f0ff';
       context.globalAlpha = 0.88;
+      context.fillStyle = '#ffffff';
       for (let i = 0; i < this.stars.length; i++) {
+        const star = this.stars[i];
+        if (star.layer <= 0.3 || (i % 3 === 0)) continue;
+        const starY = (star.y + cameraY * star.layer) % height;
+        const finalY = starY < 0 ? starY + height : starY;
+        const s = Math.max(1, star.size | 0);
+        context.fillRect((star.x - s) | 0, (finalY - s) | 0, s + s, s + s);
+      }
+      context.fillStyle = theme.primary || '#00f0ff';
+      for (let i = 0; i < this.stars.length; i++) {
+        if (i % 3 !== 0) continue;
         const star = this.stars[i];
         if (star.layer <= 0.3) continue;
         const starY = (star.y + cameraY * star.layer) % height;
         const finalY = starY < 0 ? starY + height : starY;
         const s = Math.max(1, star.size | 0);
-        context.fillStyle = (i % 3 === 0) ? accent : '#ffffff';
         context.fillRect((star.x - s) | 0, (finalY - s) | 0, s + s, s + s);
       }
       context.globalAlpha = 1.0;
@@ -506,58 +515,39 @@ class WorldManager {
 
   drawBottomDeathBoundary(context, timestamp, width, height) {
     const theme = this.currentTheme;
-    const time = timestamp * 0.005;
-    const glowHeight = 42 + Math.sin(time) * 8;
-
+    const glowHeight = 48;
     const padX = 24;
     const drawWidth = width + padX * 2;
-    const glowKey = (glowHeight | 0) + '_' + height + '_' + (theme.id || '');
+    const glowKey = height + '_' + (theme.id || '');
 
     if (!this._voidGrad || this._voidGradKey !== glowKey) {
-      const gradient = context.createLinearGradient(0, height - glowHeight, 0, height + 50);
+      const gradient = context.createLinearGradient(0, height - glowHeight, 0, height + 36);
       gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      gradient.addColorStop(0.4, theme.voidGlow || 'rgba(225, 29, 72, 0.45)');
+      gradient.addColorStop(0.45, theme.voidGlow || 'rgba(225, 29, 72, 0.42)');
       gradient.addColorStop(1, theme.voidColor || '#e11d48');
       this._voidGrad = gradient;
       this._voidGradKey = glowKey;
     }
 
+    const pulse = 0.82 + Math.sin(timestamp * 0.004) * 0.18;
+    context.globalAlpha = pulse;
     context.fillStyle = this._voidGrad;
-    context.fillRect(-padX, height - glowHeight, drawWidth, glowHeight + 100);
+    context.fillRect(-padX, height - glowHeight, drawWidth, glowHeight + 80);
 
-    // 2. High-Performance Multi-Layer Laser Beam (Zero shadowBlur overhead)
-    // Wide Outer Aura Line
-    context.strokeStyle = 'rgba(225, 29, 72, 0.28)';
-    context.lineWidth = 12;
+    context.globalAlpha = 0.32 * pulse;
+    context.strokeStyle = '#e11d48';
+    context.lineWidth = 10;
     context.beginPath();
     context.moveTo(-padX, height - 2);
     context.lineTo(width + padX, height - 2);
     context.stroke();
 
-    // Medium Glow Line
-    context.strokeStyle = 'rgba(225, 29, 72, 0.65)';
-    context.lineWidth = 5;
-    context.beginPath();
-    context.moveTo(-padX, height - 2);
-    context.lineTo(width + padX, height - 2);
-    context.stroke();
-
-    // Sharp Razor Laser Core Line
+    context.globalAlpha = 1;
     context.strokeStyle = '#ffffff';
     context.lineWidth = 2;
     context.beginPath();
     context.moveTo(-padX, height - 2);
     context.lineTo(width + padX, height - 2);
     context.stroke();
-
-    // Secondary Electro Horizon
-    context.strokeStyle = theme.primary || '#00f0ff';
-    context.lineWidth = 1.5;
-    context.globalAlpha = 0.7;
-    context.beginPath();
-    context.moveTo(-padX, height - 6);
-    context.lineTo(width + padX, height - 6);
-    context.stroke();
-    context.globalAlpha = 1.0;
   }
 }

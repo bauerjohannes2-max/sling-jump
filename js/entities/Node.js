@@ -224,22 +224,19 @@ class OrbitNode {
     }
 
     if (this.isTargeted && !this.isHooked) {
-      const lockPulse = (Math.sin(performance.now() * 0.008) + 1) * 0.5;
+      const lockPulse = (Math.sin(this.pulse) + 1) * 0.5;
       const targetRingRadius = outerRadius + 18 + lockPulse * 8;
-      
+
       context.save();
       context.strokeStyle = theme ? theme.primary : '#00f0ff';
       context.lineWidth = 2.5;
       context.globalAlpha = 0.85 + lockPulse * 0.15;
-
       context.beginPath();
       context.arc(0, 0, targetRingRadius, 0, Math.PI * 2);
       context.stroke();
 
       const bracketLen = 7;
       context.lineWidth = 3;
-      context.save();
-      context.rotate(performance.now() * 0.0005);
       context.beginPath();
       context.moveTo(0, -targetRingRadius - 4);
       context.lineTo(0, -targetRingRadius + bracketLen);
@@ -251,14 +248,12 @@ class OrbitNode {
       context.lineTo(targetRingRadius - bracketLen, 0);
       context.stroke();
       context.restore();
-
-      context.restore();
     }
 
-    // OPTIMIZATION: 2. Outer Soft Aura (Pre-rendered drawn dynamically scaled, suppressed when hooked)
     if (!this.isHooked) {
-      const dSize = outerRadius + 14;
-      context.drawImage(OrbitNode.getCachedGlow(glowColor), -dSize, -dSize, dSize * 2, dSize * 2);
+      context.globalAlpha = 0.85 + Math.sin(this.pulse) * 0.15;
+      context.drawImage(OrbitNode.getCachedGlow(glowColor), -36, -36);
+      context.globalAlpha = 1;
     }
 
     // 3. Orbit Target Ring

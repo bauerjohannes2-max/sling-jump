@@ -511,6 +511,24 @@ function sanitizeState(state) {
   return clean;
 }
 
+function serveDesignIndex(res) {
+  const dir = path.join(ROOT_DIR, 'design');
+  let files = [];
+  try {
+    files = fs.readdirSync(dir).filter((name) => name.toLowerCase().endsWith('.html')).sort();
+  } catch (e) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('404 Not Found');
+    return;
+  }
+  const items = files.map((name) => `<li><a href="/design/${encodeURIComponent(name)}">${name}</a></li>`).join('');
+  const html = `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>Space Jump Mockups</title>
+<style>body{font-family:sans-serif;background:#0b0d13;color:#e2e8f0;padding:32px}a{color:#38e8ff}li{margin:10px 0}</style>
+</head><body><h1>Design mockups</h1><ul>${items}</ul></body></html>`;
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+  res.end(html);
+}
+
 function createRequestListener() {
   return (req, res) => {
     let reqUrl = req.url.split('?')[0];
@@ -913,10 +931,19 @@ function createRequestListener() {
       reqUrl = '/index.html';
     }
 
-    const safePath = path.normalize(decodeURIComponent(reqUrl)).replace(/^(\.\.[\/\\])+/, '');
-    const filePath = path.join(ROOT_DIR, safePath);
+    const relPath = path.normalize(decodeURIComponent(reqUrl)).replace(/^(\.\.[\/\\])+/, '').replace(/^[/\\]+/, '');
+    const filePath = path.join(ROOT_DIR, relPath);
+
+    if (relPath === 'design' || relPath === 'design' + path.sep) {
+      serveDesignIndex(res);
+      return;
+    }
 
     fs.stat(filePath, (err, stats) => {
+      if (!err && stats.isDirectory() && relPath === 'design') {
+        serveDesignIndex(res);
+        return;
+      }
       if (err || !stats.isFile()) {
         res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
         res.end('404 Not Found');
@@ -925,7 +952,7 @@ function createRequestListener() {
 
       const ext = path.extname(filePath).toLowerCase();
       const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-      const isCriticalFile = ext === '.html' || ext === '.json' || safePath.includes('sw.js') || safePath.includes('Constants.js');
+      const isCriticalFile = ext === '.html' || ext === '.json' || relPath.includes('sw.js') || relPath.includes('Constants.js');
 
       const headers = {
         'Content-Type': contentType,
@@ -1024,31 +1051,46 @@ function startServer(port = PORT, options = {}) {
   }
 
   // Standard HTTP server fallback
-  const server = createServer();
-  const localUrl = `http://localhost:${port}`;
-  const networkUrl = `http://${localIp}:${port}`;
+  const startHttp = (tryPort, attempt) => {
+    const server = createServer();
+    const localUrl = `http://localhost:${tryPort}`;
+    const networkUrl = `http://${localIp}:${tryPort}`;
 
-  server.listen(port, '0.0.0.0', () => {
-    console.log('\n======================================================');
-    console.log('              SPACE JUMP - MOBILE SERVER              ');
-    console.log('======================================================\n');
-    console.log(`  Local:    ${localUrl}`);
-    console.log(`  Network:  ${networkUrl}\n`);
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE' && attempt < 20) {
+        console.warn(`[Server] Port ${tryPort} belegt, weiche auf ${tryPort + 1} aus.`);
+        startHttp(tryPort + 1, attempt + 1);
+        return;
+      }
+      console.error(err);
+      process.exit(1);
+    });
 
-    if (qrcode) {
-      console.log('  SCAN MIT DEM SMARTPHONE (im selben WLAN):\n');
-      qrcode.generate(networkUrl, { small: true }, (qr) => {
-        console.log(qr);
-      });
-    }
+    server.listen(tryPort, '0.0.0.0', () => {
+      console.log('\n======================================================');
+      console.log('              SPACE JUMP - MOBILE SERVER              ');
+      console.log('======================================================\n');
+      console.log(`  Local:    ${localUrl}`);
+      console.log(`  Network:  ${networkUrl}`);
+      console.log(`  Mockups:  ${localUrl}/design/\n`);
 
-    console.log('  Tipp: Starte mit "npm run start:https" fuer verschluesselten TLS-Zugriff.\n');
-    console.log('======================================================');
-    console.log('  Druecke Strg+C zum Beenden des Servers');
-    console.log('======================================================\n');
-  });
+      if (qrcode) {
+        console.log('  SCAN MIT DEM SMARTPHONE (im selben WLAN):\n');
+        qrcode.generate(networkUrl, { small: true }, (qr) => {
+          console.log(qr);
+        });
+      }
 
-  return { server, localUrl, networkUrl, isHttps: false, httpPort: port };
+      console.log('  Tipp: Starte mit "npm run start:https" fuer verschluesselten TLS-Zugriff.\n');
+      console.log('======================================================');
+      console.log('  Druecke Strg+C zum Beenden des Servers');
+      console.log('======================================================\n');
+    });
+
+    return { server, localUrl, networkUrl, isHttps: false, httpPort: tryPort };
+  };
+
+  return startHttp(port, 0);
 }
 
 if (require.main === module) {

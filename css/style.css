@@ -358,12 +358,16 @@ canvas#gameCanvas {
   align-items: center;
   justify-content: center;
   opacity: 0;
+  visibility: hidden;
+  content-visibility: hidden;
   pointer-events: none;
   transition: opacity 0.25s ease;
   z-index: 50;
 }
 .state-overlay.visible {
   opacity: 1;
+  visibility: visible;
+  content-visibility: visible;
   pointer-events: auto;
 }
 
@@ -919,7 +923,6 @@ canvas#gameCanvas {
   justify-content: center;
   overflow: visible;
   animation: ship-float-bob 3.2s ease-in-out infinite;
-  will-change: transform;
 }
 
 @keyframes ship-float-bob {
@@ -937,20 +940,14 @@ canvas#gameCanvas {
 }
 
 .ship-flame {
-  transform-box: fill-box;
-  transform-origin: center top;
-  animation: shock-plasma 0.18s ease-in-out infinite alternate;
+  /* Opacity-only: transform-box:fill-box + 0.18s scaleY forced SVG bbox
+     invalidation every frame and dropped hangar/in-run compositing to ~30 FPS. */
+  animation: shock-plasma 0.55s ease-in-out infinite alternate;
 }
 
 @keyframes shock-plasma {
-  0% {
-    transform: scaleY(0.94);
-    opacity: 0.92;
-  }
-  100% {
-    transform: scaleY(1.04);
-    opacity: 1;
-  }
+  0% { opacity: 0.82; }
+  100% { opacity: 1; }
 }
 
 .hangar-ship-meta {
@@ -1149,17 +1146,17 @@ canvas#gameCanvas {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
+  left: 0;
   width: 60%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-  transform: skewX(-20deg);
+  transform: skewX(-20deg) translateX(-170%);
   animation: light-swipe 3s infinite ease-in-out;
 }
 
 @keyframes light-swipe {
-  0% { left: -100%; }
-  30%, 100% { left: 180%; }
+  0% { transform: skewX(-20deg) translateX(-170%); }
+  30%, 100% { transform: skewX(-20deg) translateX(280%); }
 }
 
 /* Floating Dock (Tutorial, Stats, and Rank with VISIBLE BADGE) */
@@ -1292,11 +1289,15 @@ canvas#gameCanvas {
   justify-content: space-between;
   padding: 16px 20px;
   opacity: 0;
+  visibility: hidden;
+  content-visibility: hidden;
   transition: opacity 0.2s ease;
   z-index: 20;
 }
 .hud-layer.visible {
   opacity: 1;
+  visibility: visible;
+  content-visibility: visible;
 }
 
 .hud-combo-badge {
@@ -1464,21 +1465,21 @@ canvas#gameCanvas {
 }
 
 .score-container.record-break {
-  border-color: rgba(225, 29, 72, 0.45);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(225, 29, 72, 0.18);
+  border-color: rgba(56, 232, 255, 0.42);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(56, 232, 255, 0.20);
 }
 
 .score-container.record-break .chase-fill {
-  background: linear-gradient(90deg, #fb7185, var(--accent-crimson));
-  box-shadow: 0 0 10px rgba(225, 29, 72, 0.55);
+  background: linear-gradient(90deg, #38e8ff, #7cc0ff 70%, #b366ff);
+  box-shadow: 0 0 16px rgba(56, 232, 255, 0.55);
 }
 
 .score-container.record-break .chase-caption {
-  color: var(--accent-crimson);
+  color: #7cc0ff;
 }
 
 .score-container.record-break .chase-best {
-  color: #fb7185;
+  color: #b366ff;
 }
 
 .sub-stats {
@@ -1719,6 +1720,7 @@ canvas#gameCanvas {
   justify-content: center;
   opacity: 0;
   visibility: hidden;
+  content-visibility: hidden;
   pointer-events: none;
   transition: opacity 0.2s ease;
   z-index: 100;
@@ -1731,14 +1733,20 @@ canvas#gameCanvas {
 .modal-overlay.visible {
   opacity: 1;
   visibility: visible;
+  content-visibility: visible;
   pointer-events: auto;
   backdrop-filter: blur(12px) saturate(120%);
   -webkit-backdrop-filter: blur(12px) saturate(120%);
   animation: backdrop-in 200ms ease-out;
 }
 .modal-overlay.visible .modal-card {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   animation: card-in 260ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
+/* Skip painting hidden layers. Do not use a descendant `*` pause rule —
+   matching every child of nine overlays on each HUD invalidation tanks in-run FPS. */
 
 @keyframes backdrop-in {
   from { opacity: 0; }
@@ -1766,8 +1774,8 @@ canvas#gameCanvas {
   background: linear-gradient(180deg, rgba(20, 28, 46, 0.94), rgba(9, 14, 25, 0.97));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 24px;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(var(--accent-crimson-rgb), 0.12);
   padding: 32px 28px;
   text-align: center;

@@ -22,7 +22,8 @@ class Spaceship {
     this.orbitDirection = 1;
 
     // Pre-allocated Motion Trail buffer (Zero GC allocation)
-    this.maxTrailLength = 24;
+    this.maxTrailLength = 12;
+    this._trailColor = '#00f0ff';
     this.trailHistory = [];
     this.trailPool = [];
     for (let i = 0; i < this.maxTrailLength; i++) {
@@ -54,6 +55,8 @@ class Spaceship {
     if (shipDef) {
       this.radius = shipDef.radius;
     }
+    const trailDef = CONSTANTS.TRAILS.find(t => t.id === trailId) || CONSTANTS.TRAILS[0];
+    this._trailColor = (trailDef && trailDef.color) || '#00f0ff';
   }
 
   tryHook(closestNode, audio, setSlowMo, particleSystem, cameraY = null) {
@@ -77,8 +80,10 @@ class Spaceship {
 
     this.isHooked = true;
     this.hookedNode = closestNode;
-    this.isSuperBoosting = false;
-    this.boostTimer = 0;
+    if (closestNode.type !== 'BOOST') {
+      this.isSuperBoosting = false;
+      this.boostTimer = 0;
+    }
     this.orbitRadius = Math.max(55, Math.min(dist, 110));
     this.orbitAngle = Math.atan2(dy, dx);
 
@@ -263,6 +268,15 @@ class Spaceship {
     }
   }
 
+  isBoostProtected() {
+    if (this.boostTimer > 0 || this.isSuperBoosting) return true;
+    return !!(this.isHooked && this.hookedNode && this.hookedNode.type === 'BOOST');
+  }
+
+  isMineImmune() {
+    return this.shieldTimer > 0 || this.isBoostProtected();
+  }
+
   draw(context, camY, screenWidth, screenHeight, nearestNode = null, theme = null) {
     const screenY = screenHeight - (this.y - camY);
 
@@ -281,67 +295,87 @@ class Spaceship {
 
     context.restore();
 
-    // 4. Quantum Revive Invulnerability Shield
-    if (this.shieldTimer > 0) {
-      const shieldAlpha = Math.min(1.0, this.shieldTimer * 1.5);
-      const pulse = Math.sin(performance.now() * 0.008) * 0.12 + 0.90;
-      context.save();
-      context.translate(this.x, screenY);
-
-      // Outer Pulsating Shield Glow
-      context.strokeStyle = `rgba(217, 70, 239, ${shieldAlpha * 0.85})`;
-      context.fillStyle = `rgba(217, 70, 239, ${shieldAlpha * 0.16})`;
-      context.lineWidth = 2.0;
-      context.beginPath();
-      context.arc(0, 0, (this.radius + 15) * pulse, 0, Math.PI * 2);
-      context.fill();
-      context.stroke();
-
-      // Rotating Hexagonal Energy Facets
-      context.rotate(performance.now() * 0.0015);
-      context.strokeStyle = `rgba(255, 255, 255, ${shieldAlpha * 0.6})`;
-      context.lineWidth = 1.0;
-      context.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const ang = (i * Math.PI) / 3;
-        const rx = Math.cos(ang) * (this.radius + 11);
-        const ry = Math.sin(ang) * (this.radius + 11);
-        if (i === 0) context.moveTo(rx, ry);
-        else context.lineTo(rx, ry);
-      }
-      context.closePath();
-      context.stroke();
-
-      context.restore();
+    // 4. Invulnerability: green jump-orbit shield, otherwise purple revive shield
+    if (this.isBoostProtected()) {
+      this.drawShield(context, screenY, 'boost');
+    } else if (this.shieldTimer > 0) {
+      this.drawShield(context, screenY, 'revive');
     }
   }
 
-  drawTrail(context, camY, screenWidth, screenHeight) {
-    if (this.trailHistory.length < 2) return;
-    const trailDef = CONSTANTS.TRAILS.find(t => t.id === this.trailId) || CONSTANTS.TRAILS[0];
+  drawShield(context, screenY, kind) {
+    const isBoost = kind === 'boost';
+    const now = performance.now();
+    const alpha = isBoost ? 1 : Math.min(1.0, this.shieldTimer * 1.5);
+    const pulse = Math.sin(now * (isBoost ? 0.012 : 0.008)) * 0.12 + 0.90;
+    const rgb = isBoost ? '16, 185, 129' : '217, 70, 239';
+    const radius = (this.radius + (isBoost ? 18 : 15)) * pulse;
 
     context.save();
-    for (let i = 1; i < this.trailHistory.length; i++) {
-      const p1 = this.trailHistory[i - 1];
-      const p2 = this.trailHistory[i];
-      if (Math.abs(p1.x - p2.x) > screenWidth / 2) continue;
+    context.translate(this.x, screenY);
 
-      const sy1 = screenHeight - (p1.y - camY);
-      const sy2 = screenHeight - (p2.y - camY);
+    context.strokeStyle = `rgba(${rgb}, ${alpha * 0.92})`;
+    context.fillStyle = `rgba(${rgb}, ${alpha * (isBoost ? 0.22 : 0.16)})`;
+    context.lineWidth = isBoost ? 2.6 : 2.0;
+    context.beginPath();
+    context.arc(0, 0, radius, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
 
-      let strokeColor = trailDef.color;
-      if (trailDef.color === 'rainbow') {
-        strokeColor = `hsl(${((i * 25) + performance.now() * 0.2) % 360}, 100%, 65%)`;
-      }
-
-      context.strokeStyle = strokeColor;
-      context.globalAlpha = Math.max(0, p2.alpha * 0.4);
-      context.lineWidth = Math.max(1, (22 - i) * 0.4);
+    if (isBoost) {
+      context.strokeStyle = `rgba(52, 211, 153, ${alpha * 0.7})`;
+      context.lineWidth = 1.5;
+      context.setLineDash([6, 5]);
       context.beginPath();
-      context.moveTo(p1.x, sy1);
-      context.lineTo(p2.x, sy2);
+      context.arc(0, 0, radius + 8, 0, Math.PI * 2);
       context.stroke();
+      context.setLineDash([]);
     }
+
+    context.rotate(now * (isBoost ? 0.0024 : 0.0015));
+    context.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+    context.lineWidth = 1.15;
+    context.beginPath();
+    const hexR = this.radius + (isBoost ? 14 : 11);
+    for (let i = 0; i < 6; i++) {
+      const ang = (i * Math.PI) / 3;
+      const rx = Math.cos(ang) * hexR;
+      const ry = Math.sin(ang) * hexR;
+      if (i === 0) context.moveTo(rx, ry);
+      else context.lineTo(rx, ry);
+    }
+    context.closePath();
+    context.stroke();
+    context.restore();
+  }
+
+  drawTrail(context, camY, screenWidth, screenHeight) {
+    const n = this.trailHistory.length;
+    if (n < 2) return;
+
+    context.save();
+    context.strokeStyle = this._trailColor || '#00f0ff';
+    context.lineJoin = 'round';
+    context.lineCap = 'round';
+    context.globalAlpha = 0.38;
+    context.lineWidth = 5;
+    context.beginPath();
+    let started = false;
+    for (let i = 0; i < n; i++) {
+      const p = this.trailHistory[i];
+      if (i > 0 && Math.abs(p.x - this.trailHistory[i - 1].x) > screenWidth / 2) {
+        started = false;
+        continue;
+      }
+      const sy = screenHeight - (p.y - camY);
+      if (!started) {
+        context.moveTo(p.x, sy);
+        started = true;
+      } else {
+        context.lineTo(p.x, sy);
+      }
+    }
+    context.stroke();
     context.restore();
   }
 

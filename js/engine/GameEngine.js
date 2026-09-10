@@ -9,7 +9,8 @@ class GameEngine {
     this.canvas = document.getElementById('gameCanvas');
     const container = document.getElementById('game-container');
     const rect = container.getBoundingClientRect();
-    this.ctx = this.canvas.getContext('2d', { alpha: false, desynchronized: true });
+    // desynchronized canvases extra-copy under DOM overlays and desync rAF telemetry
+    this.ctx = this.canvas.getContext('2d', { alpha: false });
     this.width = rect.width;
     this.height = rect.height;
     this.dpr = 1;
@@ -529,20 +530,12 @@ class GameEngine {
       }
 
       const elapsed = now - this.fpsCounter.lastTelemetryTime;
-      // Refresh telemetry every 160ms: ideal human perception rate & zero DOM overhead
+      // Refresh telemetry every 160ms using the full interval, not a 4-frame spike window
       if (elapsed >= 160 && this.fpsCounter.totalSamples >= 3) {
-        // Sample latest 4 frame deltas from ring buffer for instantaneous responsiveness
-        const sampleCount = Math.min(this.fpsCounter.totalSamples, 4);
-        let sum = 0;
-        let maxDt = 0;
-        for (let k = 1; k <= sampleCount; k++) {
-          const d = this.fpsCounter.recentDeltas[(this.fpsCounter.deltaHead - k + 30) % 30];
-          sum += d;
-          if (d > maxDt) maxDt = d;
-        }
-        const avgDt = sum / sampleCount;
+        const intervalFrames = Math.max(1, this.fpsCounter.framesInInterval);
+        const avgDt = this.fpsCounter.intervalDtSum / intervalFrames;
         const liveFps = avgDt > 0 ? 1000 / avgDt : 60;
-        const worstDt = maxDt > 0 ? maxDt : avgDt;
+        const worstDt = this.fpsCounter.intervalMaxDt > 0 ? this.fpsCounter.intervalMaxDt : avgDt;
         const minFps = Math.max(1, Math.round(1000 / worstDt));
 
         // Precision metrics: live clamp 1..360 FPS (supports 60Hz, 90Hz, 120Hz, 144Hz, 240Hz)
@@ -615,7 +608,7 @@ class GameEngine {
             this.particles.spawnSparks(node.x, node.y, 35, '#f97316', 2.5);
             if (this.audio) this.audio.playSfx('sfx_node_shatter');
 
-            if (this.player.isSuperBoosting || this.player.boostTimer > 0) {
+            if (this.player.isBoostProtected()) {
               // Green Super-Boost Immunity: Shatter mine cleanly without dying!
               this.particles.spawnShockwave(node.x, node.y, '#10b981', 80);
               this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE ZERSTÖRT!', '#10b981', 26, true);
@@ -791,6 +784,13 @@ class GameEngine {
      RENDERING PIPELINE
      ========================================================================= */
   render(now) {
+    // Always paint the void at identity CSS-pixel transform first.
+    // Speed-zoom used to scale that fill smaller than the canvas, so
+    // leftover frames smeared into a ghost band at the top and bottom.
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    const playerVy = (this.player && !this.player.isHooked) ? this.player.vy : 0;
+    this.world.drawBackground(this.ctx, this.width, this.height, this.cameraY, now, playerVy);
+
     this.ctx.save();
 
     // Screenshake Offset
@@ -806,22 +806,15 @@ class GameEngine {
       this.state.is(StateManager.STATES.PAUSED)
     );
 
-    // Dynamic Camera Zoom for Speed Sensation
-    if (isActiveRun) {
-      let speedZoom = 1.0;
-      if (this.player.vy > 600) {
-        speedZoom = Math.max(0.85, 1.0 - ((this.player.vy - 600) / 4000));
-      }
-      if (speedZoom !== 1.0) {
+    // Dynamic Camera Zoom for Speed Sensation (gameplay only — not the void fill)
+    if (isActiveRun && this.player.vy > 600) {
+      const speedZoom = Math.max(0.85, 1.0 - ((this.player.vy - 600) / 4000));
+      if (speedZoom < 1) {
         this.ctx.translate(this.width / 2, this.height / 2);
         this.ctx.scale(speedZoom, speedZoom);
         this.ctx.translate(-this.width / 2, -this.height / 2);
       }
     }
-
-    // 1. Background Fill, Stars & Hyperspace Warp Streaks
-    const playerVy = (this.player && !this.player.isHooked) ? this.player.vy : 0;
-    this.world.drawBackground(this.ctx, this.width, this.height, this.cameraY, now, playerVy);
 
     const theme = this.world.currentTheme;
 
@@ -846,8 +839,7 @@ class GameEngine {
 
     // 4. Spaceship & Trajectory (Only when active run)
     if (isActiveRun) {
-      const nearestNode = this.nearestNode || this.world.getNearestNode(this.player, this.cameraY);
-      this.player.draw(this.ctx, this.cameraY, this.width, this.height, nearestNode, theme);
+      this.player.draw(this.ctx, this.cameraY, this.width, this.height, this.nearestNode, theme);
 
       // 4b. Dynamic Onboarding Tooltips (For fresh runs)
       if (!this.isTutorial && this.state.is(StateManager.STATES.PLAYING) && this.storage.data.totalRuns < 3 && this.storage.data.highScore < 150) {
@@ -861,7 +853,7 @@ class GameEngine {
         if (this.player.isHooked) {
           this.ctx.fillStyle = `rgba(56, 189, 248, ${pulseAlpha})`;
           this.ctx.fillText("LOSLASSEN!", this.player.x, playerScreenY - 35);
-        } else if (this.gameStarted && this.player.vy < 0 && nearestNode && Math.hypot(this.player.x - nearestNode.x, this.player.y - nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
+        } else if (this.gameStarted && this.player.vy < 0 && this.nearestNode && Math.hypot(this.player.x - this.nearestNode.x, this.player.y - this.nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
           this.ctx.fillStyle = `rgba(0, 240, 255, ${pulseAlpha})`;
           this.ctx.fillText("DRÜCKEN & HALTEN", this.player.x, playerScreenY + 45);
         }
