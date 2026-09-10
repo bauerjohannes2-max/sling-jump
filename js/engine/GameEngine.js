@@ -226,7 +226,6 @@ class GameEngine {
       const targetNode = this.nearestNode || this.world.getNearestNode(this.player, this.cameraY);
       const hooked = targetNode ? this.player.tryHook(targetNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY) : false;
       if (!hooked && this.gameStarted) {
-        if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
         if (this.particles) {
           const aimAngle = this.player.angle || -Math.PI / 2;
           this.particles.spawnThrust(
@@ -325,7 +324,6 @@ class GameEngine {
   triggerGameOver() {
     this.triggerScreenShake(8);
     this.triggerHitstop(16);
-    this.audio.playSfx('sfx_crash');
     if (this.audio && this.audio.fadeOutMusic) {
       this.audio.fadeOutMusic(0.22);
     }
@@ -474,9 +472,6 @@ class GameEngine {
     this.particles.spawnSparks(this.player.x, this.player.y, 25, '#f43f5e', 2.0);
     this.particles.spawnFloatingText(this.player.x, this.player.y + 45, 'WIEDERBELEBT!', '#d946ef', 34, true);
 
-    // Audio
-    this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
-
     // Guarantee 3 safe, solid ascending steps above the respawn node
     let lastLadderX = targetAnchor.x;
     for (let step = 1; step <= 3; step++) {
@@ -609,13 +604,11 @@ class GameEngine {
             this.triggerScreenShake(12);
             this.particles.spawnShards(node.x, node.y, 45, '#e11d48');
             this.particles.spawnSparks(node.x, node.y, 35, '#f97316', 2.5);
-            if (this.audio) this.audio.playSfx('sfx_node_shatter');
 
             if (this.player.isBoostProtected()) {
               // Green Super-Boost Immunity: Shatter mine cleanly without dying!
               this.particles.spawnShockwave(node.x, node.y, '#10b981', 80);
               this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE ZERSTÖRT!', '#10b981', 26, true);
-              if (this.audio) this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
             } else if (!this.player.shieldTimer || this.player.shieldTimer <= 0) {
               this.particles.spawnFloatingText(node.x, node.y + 35, 'MINE DETONIERT!', '#e11d48', 32, true);
               this.isDying = true;
@@ -644,7 +637,6 @@ class GameEngine {
               if (typeof navigator !== 'undefined' && navigator.vibrate) {
                 try { navigator.vibrate(16); } catch (e) {}
               }
-              this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
               this.triggerScreenShake(3);
 
               this.particles.spawnFloatingText(orb.x, orb.y + 25, '+1 SPARK!', '#d946ef', 28, true);
@@ -653,7 +645,6 @@ class GameEngine {
             } else {
               this.runCores++;
               this.storage.addCores(1);
-              this.audio.playCorePickup();
               this.missions.onCoreCollected();
 
               this.particles.spawnFloatingText(orb.x, orb.y + 15, `+${CONSTANTS.SCORE.PARTICLE_VALUE}`, '#fbbf24');
@@ -694,7 +685,6 @@ class GameEngine {
 
           if (!this.isTutorial && this.storage.data.highScore > 0 && this.maxAltitudeMeters > this.storage.data.highScore && !this.recordBrokenThisRun) {
             this.recordBrokenThisRun = true;
-            this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
             this.ui.showRecordFlash();
           }
         }
@@ -710,7 +700,6 @@ class GameEngine {
             this.runNearMisses++;
             this.missions.onNearMiss();
             this.particles.spawnFloatingText(this.player.x, this.player.y + 25, 'NEAR MISS!', '#e11d48');
-            this.audio.playSfx('sfx_near_miss');
           }
         } else {
           this.ui.setDangerVisual(0);
@@ -764,7 +753,6 @@ class GameEngine {
           this.particles.spawnShockwave(this.player.x, this.player.y, '#d946ef', 60);
           this.particles.spawnSparks(this.player.x, this.player.y, 25, '#d946ef', 2.0);
           this.particles.spawnFloatingText(this.player.x, this.player.y + 35, 'QUANTEN-RÜCKSTOSS!', '#d946ef', 22, true);
-          if (this.audio) this.audio.playProceduralSfx('sfx_slingshot_boost', { isBoost: true });
         }
 
         // 7. Death Collision (Disabled in Tutorial and during Active Shield)

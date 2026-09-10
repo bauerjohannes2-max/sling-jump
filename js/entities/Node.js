@@ -94,7 +94,6 @@ class OrbitNode {
       this.fragileTimer += dt;
       this.tickCounter += dt;
       if (this.tickCounter > 0.16) {
-        if (audio) audio.playProceduralSfx('sfx_ui_click');
         this.tickCounter = 0;
       }
 
@@ -106,7 +105,6 @@ class OrbitNode {
 
   breakNode(audio, onBreak) {
     this.isBroken = true;
-    if (audio) audio.playSfx('sfx_node_shatter');
     if (onBreak) onBreak(this);
   }
 

@@ -40,7 +40,6 @@ class ShopManager {
     }
 
     if (this.storage.data.cores < item.cost) {
-      if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
       return { success: false, message: 'Nicht genug Coins' };
     }
 
@@ -50,7 +49,6 @@ class ShopManager {
     this.storage.data[key].push(id);
     this.equipItem(category, id);
 
-    if (this.audio) this.audio.playSfx('sfx_slingshot_boost', { isBoost: true });
     return { success: true, message: `${item.name} freigeschaltet!` };
   }
 
@@ -63,7 +61,6 @@ class ShopManager {
       this.world.setTheme(id);
     }
 
-    if (this.audio) this.audio.playSfx('sfx_ui_click');
     return true;
   }
 }

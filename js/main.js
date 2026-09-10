@@ -40,11 +40,6 @@
   function bindUIButtons() {
     const ui = engine.ui;
     const state = engine.state;
-    const audio = engine.audio;
-
-    const clickSfx = () => {
-      if (audio) audio.playProceduralSfx('sfx_ui_click');
-    };
 
     const hapticTick = (ms = 12) => {
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -56,7 +51,6 @@
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener('click', (e) => {
-          clickSfx();
           handler(e);
         });
       }
@@ -66,7 +60,6 @@
     const btnMenuPlay = document.getElementById('btn-menu-play');
     if (btnMenuPlay) {
       btnMenuPlay.addEventListener('click', () => {
-        clickSfx();
         hapticTick(16);
         const unit = document.getElementById('ship-unit');
         if (unit) {
@@ -109,7 +102,6 @@
     if (createForm) {
       createForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        clickSfx();
         const input = document.getElementById('account-password-input');
         const pw = input ? input.value.trim() : '';
         if (!pw) {
@@ -133,7 +125,6 @@
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        clickSfx();
         const nameInput = document.getElementById('login-name-input');
         const pwInput = document.getElementById('login-password-input');
         const name = nameInput ? nameInput.value.trim() : '';
@@ -307,7 +298,6 @@
         menuShipIndex = next;
         renderMenuShip();
       });
-      clickSfx();
       hapticTick(10);
     }
 
@@ -336,7 +326,6 @@
           renderMenuShip();
           triggerQuickToast(result.message.toUpperCase());
         } else {
-          clickSfx();
           btnBuyShip.classList.add('shake');
           const buyLabel = btnBuyShip.querySelector('.buy-label');
           if (buyLabel) buyLabel.textContent = (result.message || 'ZU WENIG COINS').toUpperCase();
@@ -392,7 +381,6 @@
       if (!el) return;
       el.addEventListener('click', (e) => {
         if (!ui.isDebriefInteractive()) return;
-        clickSfx();
         handler(e);
       });
     };
@@ -408,7 +396,6 @@
     if (btnGameOverShare) {
       btnGameOverShare.addEventListener('click', async () => {
         if (!ui.isDebriefInteractive()) return;
-        clickSfx();
         const result = await ui.shareGameOverRun();
         if (result && result.copied) {
           const originalHtml = btnGameOverShare.innerHTML;

@@ -100,7 +100,6 @@ class Spaceship {
 
     closestNode.isHooked = true;
 
-    if (audio) audio.playSfx('sfx_grapple_lock');
     if (setSlowMo) setSlowMo(true);
     if (particleSystem) {
       particleSystem.spawnSparks(this.x, this.y, 10, '#00f0ff');
@@ -164,10 +163,6 @@ class Spaceship {
     this.hookedNode = null;
 
     if (setSlowMo) setSlowMo(false);
-
-    if (!forced && audio) {
-      audio.playSfx('sfx_slingshot_boost', { isBoost, isPerfect: isPerfectLaunch, combo: this.combo });
-    }
 
     if (particleSystem) {
       const shipDef = CONSTANTS.SHIPS.find(s => s.id === this.shipId) || CONSTANTS.SHIPS[0];

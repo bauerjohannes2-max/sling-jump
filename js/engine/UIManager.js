@@ -214,7 +214,7 @@ class UIManager {
         if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
         this.updateCurrency();
         this.refreshRemoteLeaderboard().then(() => this.updateMenuRank()).catch(() => {});
-        if (this.audio) this.audio.playMusic('bgm_menu');
+        if (this.audio) this.audio.stopMusic();
         break;
 
       case StateManager.STATES.PLAYING:
@@ -239,7 +239,7 @@ class UIManager {
         if (this.dom.hudLayer) this.dom.hudLayer.classList.remove('visible');
         if (this.dom.gameoverModal) this.dom.gameoverModal.classList.add('visible');
         this.populateGameOver(contextData);
-        if (this.audio) this.audio.playMusic('bgm_gameover', false);
+        if (this.audio && this.audio.fadeOutMusic) this.audio.fadeOutMusic(0.22);
         break;
 
       case StateManager.STATES.QUESTS:
@@ -481,7 +481,6 @@ class UIManager {
         setTimeout(() => { if (msgEl) msgEl.style.opacity = '0'; }, 2000);
       }
 
-      if (this.audio) this.audio.playProceduralSfx('sfx_ui_click');
     } else {
       if (msgEl) {
         msgEl.textContent = (res && res.message) || 'ÄNDERUNG NICHT MÖGLICH';
@@ -1708,9 +1707,10 @@ class UIManager {
       if (next) {
         this.audio.init();
         this.audio.updateVolumes();
-        if (this.state && this.state.currentState === StateManager.STATES.MENU) {
-          this.audio.playMusic('bgm_menu');
-        } else if (this.state && this.state.currentState === StateManager.STATES.PLAYING) {
+        if (this.state && (
+          this.state.currentState === StateManager.STATES.PLAYING ||
+          this.state.currentState === StateManager.STATES.TUTORIAL
+        )) {
           this.audio.playMusic('bgm_gameplay');
         }
       } else {

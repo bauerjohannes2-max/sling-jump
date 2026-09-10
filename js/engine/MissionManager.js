@@ -152,11 +152,6 @@ class MissionManager {
       this.storage.addCores(quest.reward);
       this.storage.markQuestClaimed(questId);
 
-      // Sound Fanfare
-      if (this.audio) {
-        this.audio.playSfx('sfx_slingshot_boost', { isBoost: true });
-      }
-
       // User requested: No pop-up when getting the coins of a completed task
       return true;
     }
