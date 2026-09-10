@@ -43,15 +43,14 @@ class GameEngine {
     this.isTutorial = false;
     this.tutorialPhase = 0;
     this.tutorialStep = 0;
-    this.tutorialStep3Releases = 0;
+    this.tutorialSlingshots = 0;
     this.tutorialFrozen = false;
     this.tutorialCelebrateTimer = 0;
+    this.shipFrozen = false;
     this.hookSlowMo = false;
     this.momentSlowMoLeft = 0;
     this.momentSlowMoFactor = 0.28;
     this.earlyCatchCooldown = 0;
-    this.tapAssistCount = 0;
-    this.tapAssistActive = false;
     this.maxAltitudeMeters = 0;
     this.startAltitudeY = 0;
     this.runCores = 0;
@@ -165,14 +164,13 @@ class GameEngine {
     this.isTutorial = tutorial;
     this.tutorialPhase = 0;
     this.tutorialStep = tutorial ? 1 : 0;
-    this.tutorialStep3Releases = 0;
+    this.tutorialSlingshots = 0;
     this.tutorialCelebrateTimer = 0;
+    this.shipFrozen = false;
     this.hookSlowMo = false;
     this.momentSlowMoLeft = 0;
     this.momentSlowMoFactor = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR;
     this.earlyCatchCooldown = 0;
-    this.tapAssistCount = 0;
-    this.tapAssistActive = false;
     this.cameraY = 0;
     this.maxAltitudeMeters = 0;
     this.runCores = 0;
@@ -233,6 +231,8 @@ class GameEngine {
     if (!this.isTutorial) return;
     this.isTutorial = false;
     this.tutorialStep = 0;
+    this.shipFrozen = false;
+    if (this.timeScale < 0.08) this.timeScale = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR;
     this.tutorialCelebrateTimer = 2.2;
     this.storage.data.settings.tutorialCompleted = true;
     this.storage.save();
@@ -252,6 +252,9 @@ class GameEngine {
     }
     this.isTutorial = false;
     this.tutorialStep = 0;
+    this.shipFrozen = false;
+    this.timeScale = 1;
+    this.targetTimeScale = this.hookSlowMo ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
     this.storage.data.settings.tutorialCompleted = true;
     this.storage.save();
     this.ui.updatePlayButtonLabel();
@@ -262,66 +265,71 @@ class GameEngine {
 
   onTutorialHooked() {
     if (!this.isTutorial) return;
-    if (this.tutorialStep <= 1) {
-      this.tutorialStep = 2;
-      return;
-    }
-    if (this.tutorialStep === 2) {
-      this.tutorialStep = 3;
+    this.shipFrozen = false;
+    const slow = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.05;
+    this.timeScale = slow;
+    this.targetTimeScale = slow;
+    if (this.player) {
+      this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
     }
   }
 
   onTutorialReleased(isPerfectLaunch) {
     if (!this.isTutorial) return;
-    if (this.tutorialStep <= 2) {
-      this.tutorialStep = 3;
-      return;
-    }
-    if (this.tutorialStep === 3) {
-      this.tutorialStep3Releases += 1;
-      if (isPerfectLaunch || this.tutorialStep3Releases >= 2) {
-        this.completeTutorial(!!isPerfectLaunch);
-      }
+    this.tutorialSlingshots += 1;
+    const needed = CONSTANTS.PHYSICS.TUTORIAL_CYCLES || 5;
+    if (this.tutorialSlingshots >= needed) {
+      this.completeTutorial(!!isPerfectLaunch);
     }
   }
 
   updateTutorialCoach() {
     if (!this.isTutorial || !this.player) return;
-    if (this.tutorialStep === 1 && this.player.isHooked) {
-      this.tutorialStep = 2;
+    if (this.player.isHooked) {
+      this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
     }
   }
 
   applyFirstOrbitFeel() {
-    if (!this.player || this.runSlingshots > 0) return;
-    this.player.orbitSpinScale = this.isTutorial
-      ? CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN
-      : CONSTANTS.PHYSICS.FIRST_ORBIT_SPIN;
-  }
-
-  updateTapAssist() {
-    this.ui.setPressCueVisible(false);
-    if (this.tutorialCelebrateTimer > 0 || !this.isTutorial) {
-      this.tapAssistActive = false;
+    if (!this.player) return;
+    if (this.isTutorial) {
+      this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
       return;
     }
-    if (!this.player || this.isDying || !this.gameStarted) {
-      this.tapAssistActive = false;
+    if (this.runSlingshots > 0) return;
+    this.player.orbitSpinScale = CONSTANTS.PHYSICS.FIRST_ORBIT_SPIN;
+  }
+
+  hasHookableNodeNearby() {
+    if (!this.player || !this.world || !this.world.nodes) return false;
+    const range = CONSTANTS.PHYSICS.HOOK_RANGE * 1.12;
+    for (let i = 0; i < this.world.nodes.length; i++) {
+      const node = this.world.nodes[i];
+      if (!node || node.isBroken || node.type === 'HAZARD' || node.type === 'DECOY') continue;
+      if (Math.hypot(this.player.x - node.x, this.player.y - node.y) <= range) return true;
+    }
+    return false;
+  }
+
+  updateShipFreeze() {
+    if (!this.isTutorial || !this.player || this.isDying || this.tutorialCelebrateTimer > 0) {
+      this.shipFrozen = false;
       return;
     }
     if (this.player.isHooked) {
-      this.tapAssistActive = false;
+      this.shipFrozen = false;
       return;
     }
-
-    const maxAssists = CONSTANTS.PHYSICS.TAP_ASSIST_MAX || 3;
-    // Freeze just before / just as the climb turns over — not after a long fall
-    const nearApex = this.player.vy < 180;
-    if (nearApex && this.tapAssistCount < maxAssists) {
-      if (!this.tapAssistActive) {
-        this.tapAssistActive = true;
-        this.tapAssistCount += 1;
-      }
+    if (this.shipFrozen) {
+      this.player.vx = 0;
+      this.player.vy = 0;
+      return;
+    }
+    const freezeVy = CONSTANTS.PHYSICS.TUTORIAL_FREEZE_VY || -180;
+    if (this.player.vy < freezeVy && this.hasHookableNodeNearby()) {
+      this.shipFrozen = true;
+      this.player.vx = 0;
+      this.player.vy = 0;
     }
   }
 
@@ -331,12 +339,11 @@ class GameEngine {
     }
     const node = this.nearestNode;
     const dist = node ? Math.hypot(this.player.x - node.x, this.player.y - node.y) : 9999;
-    return this.tapAssistActive || dist <= CONSTANTS.PHYSICS.HOOK_RANGE;
+    return this.shipFrozen || dist <= CONSTANTS.PHYSICS.HOOK_RANGE;
   }
 
   inEarlySafety() {
-    const groups = (CONSTANTS.PHYSICS && CONSTANTS.PHYSICS.EARLY_SAFETY_GROUPS) || 5;
-    return this.isTutorial || this.runSlingshots < groups;
+    return this.isTutorial === true;
   }
 
   triggerMomentSlowMo(seconds = 1.1, factor = CONSTANTS.PHYSICS.MOMENT_SLOWMO_FACTOR) {
@@ -352,11 +359,9 @@ class GameEngine {
     if (this.player.y > this.cameraY + 72) return false;
 
     this.player.y = this.cameraY + 88;
-    this.player.vy = Math.max(this.tapAssistActive ? 140 : 380, Math.abs(this.player.vy) * 0.45 + (this.tapAssistActive ? 80 : 260));
+    this.player.vy = Math.max(380, Math.abs(this.player.vy) * 0.45 + 260);
     this.player.vx *= 0.72;
-    if (!this.tapAssistActive) {
-      this.triggerMomentSlowMo(0.45, 0.36);
-    }
+    this.triggerMomentSlowMo(0.45, 0.36);
     this.earlyCatchCooldown = 0.35;
     return true;
   }
@@ -377,7 +382,11 @@ class GameEngine {
       this.ui.setSlowMoVisual(true);
       return;
     }
-    this.targetTimeScale = active ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
+    if (active && this.isTutorial) {
+      this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.05;
+    } else {
+      this.targetTimeScale = active ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
+    }
     this.ui.setSlowMoVisual(active);
   }
 
@@ -394,9 +403,9 @@ class GameEngine {
       const targetNode = this.nearestNode || this.world.getNearestNode(this.player, this.cameraY);
       const hooked = targetNode ? this.player.tryHook(targetNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY) : false;
       if (hooked) {
+        this.shipFrozen = false;
         this.onTutorialHooked();
         this.applyFirstOrbitFeel();
-        this.tapAssistActive = false;
         this.ui.setPressCueVisible(false);
       }
       if (!hooked && this.gameStarted) {
@@ -417,16 +426,6 @@ class GameEngine {
 
   handlePlayActionUp() {
     if (this.tutorialFrozen) return;
-
-    if (this.isTutorial && this.tutorialStep === 2 && this.player && this.player.isHooked) {
-      const ty = this.player.getLaunchTangentY();
-      if (ty < 0.32) {
-        if (this.particles) {
-          this.particles.spawnFloatingText(this.player.x, this.player.y + 40, 'WARTEN', '#4ade80', 18, true);
-        }
-        return;
-      }
-    }
 
     if (!this.gameStarted) {
       this.gameStarted = true;
@@ -763,10 +762,18 @@ class GameEngine {
         this.ui.setSlowMoVisual(!!this.hookSlowMo);
       }
     }
-    if (this.momentSlowMoLeft <= 0 && this.isTutorial && this.tapAssistActive && this.player && !this.player.isHooked) {
-      const freeze = CONSTANTS.PHYSICS.TAP_ASSIST_FREEZE || 0.12;
-      this.targetTimeScale = Math.max(freeze, (this.targetTimeScale || 1) - rawDt * 1.35);
-      this.ui.setSlowMoVisual(true);
+    if (this.player && (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL))) {
+      this.updateShipFreeze();
+    }
+    if (this.momentSlowMoLeft <= 0 && this.isTutorial && this.player && !this.isDying) {
+      if (this.player.isHooked) {
+        this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.05;
+        this.ui.setSlowMoVisual(true);
+      } else if (this.shipFrozen) {
+        this.targetTimeScale = 0;
+        this.timeScale = 0;
+        this.ui.setSlowMoVisual(false);
+      }
     }
     this.timeScale += (this.targetTimeScale - this.timeScale) * Math.min(1, rawDt * 16);
     const dt = rawDt * this.timeScale;
@@ -866,15 +873,20 @@ class GameEngine {
 
       // 3. Spaceship Dynamics
       if (!this.isDying) {
-        this.player.update(dt, this.width, this.particles);
+        if (this.shipFrozen) {
+          this.player.vx = 0;
+          this.player.vy = 0;
+        } else {
+          this.player.update(dt, this.width, this.particles);
+        }
 
         if (this.input.actionHeld && !this.player.isHooked) {
           if (nearestNode && Math.hypot(this.player.x - nearestNode.x, this.player.y - nearestNode.y) <= CONSTANTS.PHYSICS.HOOK_RANGE) {
             const hooked = this.player.tryHook(nearestNode, this.audio, (s) => this.setSlowMo(s), this.particles, this.cameraY);
             if (hooked) {
+              this.shipFrozen = false;
               this.onTutorialHooked();
               this.applyFirstOrbitFeel();
-              this.tapAssistActive = false;
               this.ui.setPressCueVisible(false);
             }
           }
@@ -884,7 +896,7 @@ class GameEngine {
       if (this.isTutorial) {
         this.updateTutorialCoach();
       }
-      this.updateTapAssist();
+      this.ui.setPressCueVisible(false);
 
       // 4. Camera Follow (Upwards Only, centered at 50% screen height)
       if (this.gameStarted && !this.isDying) {
@@ -924,8 +936,8 @@ class GameEngine {
           this.ui.setDangerVisual(0);
         }
 
-        // 6. Early-run safety: no death on the first groups — bounce back instead of freezing
-        if (this.inEarlySafety()) {
+        // 6. Tutorial safety net if the freeze never triggers (no node in range)
+        if (this.inEarlySafety() && !this.shipFrozen) {
           this.catchEarlyFall();
         }
 
