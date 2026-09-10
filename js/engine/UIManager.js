@@ -130,7 +130,6 @@ class UIManager {
 
       // Settings Inputs
       btnAudioToggle: document.getElementById('btn-audio-toggle'),
-      btnFullscreenToggle: document.getElementById('btn-fullscreen-toggle'),
       btnFpsToggle: document.getElementById('btn-fps-toggle'),
       btnPerfToggle: document.getElementById('btn-perf-toggle'),
       hudFpsBadge: document.getElementById('hud-fps-badge'),
@@ -152,8 +151,13 @@ class UIManager {
     this._remoteLeaderboard = null;
     this._leaderboardRenderGen = 0;
     this.activeMissionTab = 'all';
+    this._debriefSeqId = 0;
+    this._debriefAnimating = false;
+    this._debriefReady = false;
+    this._lastDebrief = null;
     this.initMissionTabsUI();
     this.initSettingsUI();
+    this.initDebriefInteraction();
     this.updateUserProfileNav();
     window._uiManager = this;
   }
@@ -189,6 +193,10 @@ class UIManager {
     modalOverlays.forEach(el => {
       if (el) el.classList.remove('active', 'visible');
     });
+
+    if (previousState === StateManager.STATES.GAME_OVER && state !== StateManager.STATES.GAME_OVER) {
+      this.cancelDebriefSequence();
+    }
 
     // Only hide menuOverlay when transitioning to active gameplay, tutorial run, or game over
     if (!isMenuTab && state !== StateManager.STATES.MENU) {
@@ -697,6 +705,23 @@ class UIManager {
     const isNewRecord = data.isNewRecord || false;
     const canRevive = data.canRevive !== false;
     const highScore = Math.max(altitude, (this.storage && this.storage.data && this.storage.data.highScore) || 0);
+    const barPct = highScore > 0 ? Math.min(100, Math.round((altitude / highScore) * 100)) : 100;
+    const seqId = ++this._debriefSeqId;
+
+    this._lastDebrief = {
+      altitude,
+      cores,
+      crystals,
+      isNewRecord,
+      highScore,
+      grapples: data.grapples || 0,
+      bestSwing: data.bestSwing || 0,
+      flightTime: data.flightTime || '0:00',
+      barPct
+    };
+
+    this.setDebriefInteractive(false);
+    this._debriefAnimating = true;
 
     // Update dynamic trajectory line to actual crash point
     this.updateDebriefTrajectory(altitude, highScore, isNewRecord);
@@ -704,10 +729,12 @@ class UIManager {
     // Reset and trigger sequenced arrival animation on the debrief card
     const debriefCard = document.getElementById('debrief-card');
     if (debriefCard) {
-      debriefCard.classList.remove('play-seq');
+      debriefCard.classList.remove('play-seq', 'seq-done');
       void debriefCard.offsetWidth; // Force reflow to re-arm keyframe animations
       debriefCard.classList.add('play-seq');
     }
+
+    this.armDebriefSequence(seqId);
 
     // Count-up helper (Tween with cubic-ease-out and delay)
     const animateCountUp = (element, targetValue, duration = 600, delay = 0, prefix = '+') => {
@@ -717,8 +744,10 @@ class UIManager {
         return;
       }
       setTimeout(() => {
+        if (seqId !== this._debriefSeqId) return;
         const startTime = performance.now();
         const step = (now) => {
+          if (seqId !== this._debriefSeqId) return;
           const elapsed = now - startTime;
           const progress = Math.min(1, elapsed / duration);
           const easeOut = 1 - Math.pow(1 - progress, 3);
@@ -760,11 +789,11 @@ class UIManager {
 
     const barFill = document.getElementById('debrief-bar-fill');
     const gapText = document.getElementById('debrief-gap-text');
-    const pct = highScore > 0 ? Math.min(100, Math.round((altitude / highScore) * 100)) : 100;
     if (barFill) {
       barFill.style.width = '0%';
       setTimeout(() => {
-        barFill.style.width = `${pct}%`;
+        if (seqId !== this._debriefSeqId) return;
+        barFill.style.width = `${barPct}%`;
       }, 2550);
     }
     if (gapText) {
@@ -857,6 +886,312 @@ class UIManager {
       }
     }
 
+  }
+
+  isDebriefInteractive() {
+    if (!this._debriefReady) return false;
+    if (this._debriefSkipGuardUntil && performance.now() < this._debriefSkipGuardUntil) return false;
+    return true;
+  }
+
+  initDebriefInteraction() {
+    const modal = this.dom.gameoverModal;
+    if (!modal || this._debriefSkipBound) return;
+    this._debriefSkipBound = true;
+
+    const swallowIfLocked = (e) => {
+      if (this.isDebriefInteractive()) return;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    modal.addEventListener('pointerdown', (e) => {
+      if (!this._debriefAnimating) return;
+      swallowIfLocked(e);
+      this.skipDebriefSequence();
+    }, true);
+
+    modal.addEventListener('click', swallowIfLocked, true);
+  }
+
+  setDebriefInteractive(ready) {
+    this._debriefReady = !!ready;
+    if (ready) this._debriefAnimating = false;
+    const card = document.getElementById('debrief-card');
+    if (card) card.classList.toggle('seq-done', !!ready);
+    const actions = document.getElementById('debrief-actions');
+    if (actions) {
+      if ('inert' in actions) actions.inert = !ready;
+      actions.style.pointerEvents = ready ? '' : 'none';
+      actions.querySelectorAll('button').forEach((btn) => {
+        if (!ready) {
+          btn.disabled = true;
+          return;
+        }
+        if (btn.id === 'btn-gameover-revive' && btn.classList.contains('disabled')) {
+          btn.disabled = true;
+          return;
+        }
+        btn.disabled = false;
+      });
+    }
+  }
+
+  armDebriefSequence(seqId) {
+    const actions = document.getElementById('debrief-actions');
+    if (actions) {
+      const onEnd = (e) => {
+        if (e.animationName !== 'debrief-row-in') return;
+        if (seqId !== this._debriefSeqId) return;
+        actions.removeEventListener('animationend', onEnd);
+        this.setDebriefInteractive(true);
+      };
+      actions.addEventListener('animationend', onEnd);
+    }
+    setTimeout(() => {
+      if (seqId !== this._debriefSeqId) return;
+      if (!this._debriefReady) this.setDebriefInteractive(true);
+    }, 4900);
+  }
+
+  applyDebriefFinalValues() {
+    const d = this._lastDebrief;
+    if (!d) return;
+    const altVal = document.getElementById('final-altitude-val');
+    if (altVal) altVal.textContent = Number(d.altitude || 0).toLocaleString('de-DE');
+    const orbsEl = document.getElementById('final-orbs') || this.dom.finalOrbs;
+    if (orbsEl) orbsEl.textContent = `+${Number(d.cores || 0).toLocaleString('de-DE')}`;
+    const crystalsEl = document.getElementById('final-crystals') || this.dom.finalCrystals;
+    if (crystalsEl) crystalsEl.textContent = `+${Number(d.crystals || 0).toLocaleString('de-DE')}`;
+    const barFill = document.getElementById('debrief-bar-fill');
+    if (barFill) barFill.style.width = `${d.barPct || 0}%`;
+  }
+
+  skipDebriefSequence() {
+    if (this._debriefReady) return;
+    this._debriefSeqId += 1;
+    this._debriefAnimating = false;
+    const card = document.getElementById('debrief-card');
+    if (card) {
+      card.classList.remove('play-seq');
+      card.classList.add('seq-done');
+    }
+    this.applyDebriefFinalValues();
+    this._debriefSkipGuardUntil = performance.now() + 350;
+    setTimeout(() => this.setDebriefInteractive(true), 90);
+  }
+
+  cancelDebriefSequence() {
+    this._debriefSeqId += 1;
+    this._debriefAnimating = false;
+    this._debriefReady = false;
+    const card = document.getElementById('debrief-card');
+    if (card) card.classList.remove('play-seq', 'seq-done');
+    const actions = document.getElementById('debrief-actions');
+    if (actions) {
+      if ('inert' in actions) actions.inert = true;
+      actions.style.pointerEvents = 'none';
+    }
+  }
+
+  async shareGameOverRun() {
+    const data = this._lastDebrief || {};
+    const alt = Number(data.altitude || 0).toLocaleString('de-DE');
+    const shareText = `Space Jump: ${alt}m Flugdistanz gemeistert! Kannst du mich schlagen?`;
+    let file = null;
+    try {
+      file = await this.buildHighscoreShareFile(data);
+    } catch (e) {
+      file = null;
+    }
+
+    if (file && navigator.share) {
+      const withFile = { title: 'Space Jump', text: shareText, files: [file] };
+      try {
+        if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+          await navigator.share(withFile);
+          return { ok: true };
+        }
+      } catch (e) {
+        if (e && e.name === 'AbortError') return { ok: false, aborted: true };
+      }
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Space Jump', text: shareText, url: window.location.href });
+        return { ok: true };
+      } catch (e) {
+        if (e && e.name === 'AbortError') return { ok: false, aborted: true };
+      }
+    }
+
+    if (file && navigator.clipboard && window.ClipboardItem) {
+      try {
+        const blob = file instanceof Blob ? file : new Blob([file], { type: 'image/png' });
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'image/png': blob,
+            'text/plain': new Blob([shareText], { type: 'text/plain' })
+          })
+        ]);
+        return { ok: true, copied: true };
+      } catch (e) {}
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(shareText);
+        return { ok: true, copied: true };
+      } catch (e) {}
+    }
+    return { ok: false };
+  }
+
+  async buildHighscoreShareFile(data = {}) {
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch (e) {}
+    }
+    const w = 1080;
+    const h = 1350;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const altitude = Number(data.altitude || 0);
+    const highScore = Number(data.highScore || altitude);
+    const isNewRecord = !!(data.isNewRecord || altitude >= highScore);
+    const fmt = (n) => Number(n || 0).toLocaleString('de-DE');
+    let profileName = 'Pilot';
+    try {
+      const profile = this.storage && this.storage.getPlayerProfile ? this.storage.getPlayerProfile() : null;
+      profileName = (profile && (profile.pilotName || profile.accountName)) || profileName;
+    } catch (e) {}
+
+    ctx.fillStyle = '#050810';
+    ctx.fillRect(0, 0, w, h);
+    const bg = ctx.createRadialGradient(w * 0.5, h * 0.28, 40, w * 0.5, h * 0.4, 900);
+    bg.addColorStop(0, '#121a33');
+    bg.addColorStop(1, '#050810');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.fillStyle = '#ffffff';
+    const starSeed = (altitude * 13 + 17) % 97;
+    for (let i = 0; i < 70; i++) {
+      const sx = ((i * 137 + starSeed * 11) % 1080);
+      const sy = ((i * 89 + starSeed * 7) % 1350);
+      const sr = (i % 5 === 0) ? 2.1 : 1.15;
+      ctx.globalAlpha = 0.18 + (i % 6) * 0.08;
+      ctx.beginPath();
+      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    const pathEl = document.getElementById('debrief-trace-path');
+    if (pathEl && typeof Path2D === 'function') {
+      try {
+        const d = pathEl.getAttribute('d');
+        if (d) {
+          ctx.save();
+          ctx.translate(72, 110);
+          ctx.scale(1.05, 1.15);
+          const grad = ctx.createLinearGradient(0, 890, 0, 160);
+          grad.addColorStop(0, 'rgba(56,232,255,0.18)');
+          grad.addColorStop(0.6, 'rgba(56,232,255,0.9)');
+          grad.addColorStop(1, '#e11d48');
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 3.2;
+          ctx.lineCap = 'round';
+          ctx.stroke(new Path2D(d));
+          ctx.restore();
+        }
+      } catch (e) {}
+    }
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#8b93b8';
+    ctx.font = '700 28px Rajdhani, sans-serif';
+    ctx.fillText('SPACE JUMP', 220, 160);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 24px Rajdhani, sans-serif';
+    ctx.fillText(String(profileName).slice(0, 18).toUpperCase(), 220, 198);
+
+    ctx.fillStyle = '#8b93b8';
+    ctx.font = '700 22px Rajdhani, sans-serif';
+    ctx.letterSpacing = '8px';
+    ctx.fillText('FLUGDISTANZ', 220, 310);
+
+    ctx.letterSpacing = '0px';
+    const scoreGrad = ctx.createLinearGradient(220, 340, 220, 520);
+    scoreGrad.addColorStop(0, '#ffffff');
+    scoreGrad.addColorStop(1, '#a9b6e8');
+    ctx.fillStyle = scoreGrad;
+    ctx.font = '900 168px Orbitron, sans-serif';
+    ctx.fillText(fmt(altitude), 210, 500);
+    const scoreWidth = ctx.measureText(fmt(altitude)).width;
+    ctx.fillStyle = '#38e8ff';
+    ctx.font = '700 42px Rajdhani, sans-serif';
+    ctx.fillText('m', 230 + scoreWidth, 488);
+
+    if (isNewRecord) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = '800 36px Rajdhani, sans-serif';
+      ctx.fillText('NEUER REKORD', 220, 570);
+    } else {
+      const gap = Math.max(0, highScore - altitude);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '600 28px Rajdhani, sans-serif';
+      ctx.fillText(`Nur ${fmt(gap)} m bis zum neuen Rekord.`, 220, 570);
+    }
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = '700 22px Rajdhani, sans-serif';
+    ctx.fillText('BEST', 220, 640);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = '700 28px Orbitron, sans-serif';
+    ctx.fillText(`${fmt(highScore)} m`, 300, 642);
+
+    const barX = 220;
+    const barY = 670;
+    const barW = 760;
+    const barH = 10;
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(barX, barY, barW, barH);
+    ctx.fillStyle = isNewRecord ? '#fbbf24' : '#38e8ff';
+    ctx.fillRect(barX, barY, barW * Math.max(0.04, Math.min(1, (data.barPct || 0) / 100)), barH);
+
+    const stats = [
+      { k: 'GRAPPLES', v: String(data.grapples || 0) },
+      { k: 'BESTER SWING', v: `${fmt(data.bestSwing)} m` },
+      { k: 'FLUGZEIT', v: data.flightTime || '0:00' }
+    ];
+    stats.forEach((s, i) => {
+      const x = 220 + i * 270;
+      ctx.fillStyle = '#64748b';
+      ctx.font = '700 18px Rajdhani, sans-serif';
+      ctx.fillText(s.k, x, 760);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 40px Orbitron, sans-serif';
+      ctx.fillText(s.v, x, 812);
+    });
+
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = '700 32px Rajdhani, sans-serif';
+    ctx.fillText(`C  +${fmt(data.cores)}`, 220, 900);
+    ctx.fillStyle = '#e879f9';
+    ctx.fillText(`+${fmt(data.crystals)}  Sparks`, 430, 900);
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 24px Rajdhani, sans-serif';
+    ctx.fillText('Kannst du mich schlagen?', 220, 1240);
+
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) return null;
+    return new File([blob], 'space-jump-flugdistanz.png', { type: 'image/png' });
   }
 
   /* =========================================================================
@@ -1337,19 +1672,6 @@ class UIManager {
       });
     }
 
-    if (this.dom.btnFullscreenToggle) {
-      this.updateFullscreenToggleBtn();
-      this.dom.btnFullscreenToggle.addEventListener('click', () => {
-        this.toggleFullscreen();
-      });
-      document.addEventListener('fullscreenchange', () => {
-        this.updateFullscreenToggleBtn();
-      });
-      document.addEventListener('webkitfullscreenchange', () => {
-        this.updateFullscreenToggleBtn();
-      });
-    }
-
     if (this.dom.btnFpsToggle) {
       this.updateFpsToggleBtn();
       this.dom.btnFpsToggle.addEventListener('click', () => {
@@ -1412,41 +1734,6 @@ class UIManager {
       this.dom.btnAudioToggle.style.background = 'rgba(255, 255, 255, 0.04)';
       this.dom.btnAudioToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
       this.dom.btnAudioToggle.style.boxShadow = 'none';
-    }
-  }
-
-  toggleFullscreen() {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      const docEl = document.documentElement;
-      if (docEl.requestFullscreen) {
-        docEl.requestFullscreen().catch(() => {});
-      } else if (docEl.webkitRequestFullscreen) {
-        docEl.webkitRequestFullscreen();
-      }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
-    }
-    setTimeout(() => this.updateFullscreenToggleBtn(), 100);
-  }
-
-  updateFullscreenToggleBtn() {
-    if (!this.dom.btnFullscreenToggle) return;
-    const isFullscreen = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
-    this.dom.btnFullscreenToggle.textContent = isFullscreen ? 'AN' : 'AUS';
-    if (isFullscreen) {
-      this.dom.btnFullscreenToggle.style.color = '#ffffff';
-      this.dom.btnFullscreenToggle.style.background = 'rgba(225, 29, 72, 0.22)';
-      this.dom.btnFullscreenToggle.style.borderColor = 'var(--accent-crimson)';
-      this.dom.btnFullscreenToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
-    } else {
-      this.dom.btnFullscreenToggle.style.color = '#64748b';
-      this.dom.btnFullscreenToggle.style.background = 'rgba(255, 255, 255, 0.04)';
-      this.dom.btnFullscreenToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-      this.dom.btnFullscreenToggle.style.boxShadow = 'none';
     }
   }
 

@@ -2681,6 +2681,12 @@ canvas#gameCanvas {
   animation: debrief-row-in 0.70s 4.10s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Invisible debrief CTAs must not eat taps (skip-to-end + accidental restart). */
+.play-seq:not(.seq-done) .debrief-actions,
+.debrief-actions[inert] {
+  pointer-events: none;
+}
+
 /* Fallback visibility for non-sequenced runs / instantaneous testing */
 .debrief-container:not(.play-seq) .debrief-scoreblock,
 .debrief-container:not(.play-seq) .debrief-chase,

@@ -12,11 +12,11 @@
       }
     })();
   </script>
-  <link rel="manifest" href="manifest.json?v=5.18.22">
-  <link rel="shortcut icon" href="favicon.ico?v=5.18.22">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.22">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-punch-192.png?v=5.18.22">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.22">
+  <link rel="manifest" href="manifest.json?v=5.18.23">
+  <link rel="shortcut icon" href="favicon.ico?v=5.18.23">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.23">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-punch-192.png?v=5.18.23">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.23">
   <link rel="apple-touch-icon" href="apple-touch-icon-punch.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-punch.png">
   <meta name="theme-color" content="#080b10">
@@ -28,10 +28,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Oxanium:wght@800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=5.18.22">
+  <link rel="stylesheet" href="css/style.css?v=5.18.23">
   <script>
     (function() {
-      var APP_VERSION = '5.18.22';
+      var APP_VERSION = '5.18.23';
       var storedVer = localStorage.getItem('space_jump_installed_version') || localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('space_jump_installed_version', APP_VERSION);
@@ -457,7 +457,7 @@
           </div>
 
           <!-- Actions -->
-          <div class="debrief-actions">
+          <div class="debrief-actions" id="debrief-actions" inert>
             <!-- Revive (Second Chance) -->
             <button class="debrief-btn revive" id="btn-gameover-revive">
               <span class="ttl" id="revive-btn-text">ZWEITE CHANCE</span>
@@ -489,10 +489,6 @@
               <button class="debrief-ghost" id="btn-gameover-menu">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5.5 9.5V20h13V9.5"/></svg>
                 MENÜ
-              </button>
-              <button class="debrief-ghost" id="btn-gameover-leaderboard">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 5H4a3 3 0 003 4M17 5h3a3 3 0 01-3 4"/></svg>
-                RANG
               </button>
               <button class="debrief-ghost" id="btn-gameover-share">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
@@ -688,10 +684,6 @@
             <button class="btn-toggle" id="btn-audio-toggle" type="button">AN</button>
           </div>
           <div class="setting-row">
-            <span class="setting-label">Vollbild</span>
-            <button class="btn-toggle" id="btn-fullscreen-toggle" type="button">AUS</button>
-          </div>
-          <div class="setting-row">
             <span class="setting-label">FPS-Anzeige</span>
             <button class="btn-toggle" id="btn-fps-toggle" type="button">AUS</button>
           </div>
@@ -705,7 +697,7 @@
           <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag">SPACE JUMP v5.18.22</div>
+        <div class="settings-version-tag">SPACE JUMP v5.18.23</div>
       </div>
     </div>
 
@@ -843,23 +835,23 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=5.18.22"></script>
-  <script src="js/config/CloudConfig.js?v=5.18.22"></script>
-  <script src="js/services/CloudBackend.js?v=5.18.22"></script>
-  <script src="js/services/StorageService.js?v=5.18.22"></script>
-  <script src="js/audio/AudioManager.js?v=5.18.22"></script>
-  <script src="js/engine/ParticleSystem.js?v=5.18.22"></script>
-  <script src="js/engine/InputManager.js?v=5.18.22"></script>
-  <script src="js/engine/MissionManager.js?v=5.18.22"></script>
-  <script src="js/entities/Node.js?v=5.18.22"></script>
-  <script src="js/entities/EnergyOrb.js?v=5.18.22"></script>
-  <script src="js/entities/ShipArt.js?v=5.18.22"></script>
-  <script src="js/entities/Spaceship.js?v=5.18.22"></script>
-  <script src="js/world/WorldManager.js?v=5.18.22"></script>
-  <script src="js/engine/ShopManager.js?v=5.18.22"></script>
-  <script src="js/engine/StateManager.js?v=5.18.22"></script>
-  <script src="js/engine/UIManager.js?v=5.18.22"></script>
-  <script src="js/engine/GameEngine.js?v=5.18.22"></script>
-  <script src="js/main.js?v=5.18.22"></script>
+  <script src="js/config/Constants.js?v=5.18.23"></script>
+  <script src="js/config/CloudConfig.js?v=5.18.23"></script>
+  <script src="js/services/CloudBackend.js?v=5.18.23"></script>
+  <script src="js/services/StorageService.js?v=5.18.23"></script>
+  <script src="js/audio/AudioManager.js?v=5.18.23"></script>
+  <script src="js/engine/ParticleSystem.js?v=5.18.23"></script>
+  <script src="js/engine/InputManager.js?v=5.18.23"></script>
+  <script src="js/engine/MissionManager.js?v=5.18.23"></script>
+  <script src="js/entities/Node.js?v=5.18.23"></script>
+  <script src="js/entities/EnergyOrb.js?v=5.18.23"></script>
+  <script src="js/entities/ShipArt.js?v=5.18.23"></script>
+  <script src="js/entities/Spaceship.js?v=5.18.23"></script>
+  <script src="js/world/WorldManager.js?v=5.18.23"></script>
+  <script src="js/engine/ShopManager.js?v=5.18.23"></script>
+  <script src="js/engine/StateManager.js?v=5.18.23"></script>
+  <script src="js/engine/UIManager.js?v=5.18.23"></script>
+  <script src="js/engine/GameEngine.js?v=5.18.23"></script>
+  <script src="js/main.js?v=5.18.23"></script>
 </body>
 </html>

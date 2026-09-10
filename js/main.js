@@ -328,33 +328,35 @@
     onBtn('btn-pause-quit', () => state.changeState(StateManager.STATES.MENU));
 
     // --- GAME OVER BUTTONS ---
-    onBtn('btn-gameover-revive', () => engine.revivePlayer());
-    onBtn('btn-gameover-restart', () => {
+    const onDebriefBtn = (id, handler) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('click', (e) => {
+        if (!ui.isDebriefInteractive()) return;
+        clickSfx();
+        handler(e);
+      });
+    };
+
+    onDebriefBtn('btn-gameover-revive', () => engine.revivePlayer());
+    onDebriefBtn('btn-gameover-restart', () => {
       hapticTick(12);
       engine.startNewRun();
     });
-    onBtn('btn-gameover-menu', () => state.changeState(StateManager.STATES.MENU));
-    onBtn('btn-gameover-leaderboard', () => state.changeState(StateManager.STATES.LEADERBOARD));
+    onDebriefBtn('btn-gameover-menu', () => state.changeState(StateManager.STATES.MENU));
 
     const btnGameOverShare = document.getElementById('btn-gameover-share');
     if (btnGameOverShare) {
       btnGameOverShare.addEventListener('click', async () => {
+        if (!ui.isDebriefInteractive()) return;
         clickSfx();
-        const alt = document.getElementById('final-altitude-val')?.textContent || '0';
-        const shareText = `Space Jump: ${alt}m Flugdistanz gemeistert! Kannst du mich schlagen?`;
-        if (navigator.share) {
-          try {
-            await navigator.share({ title: 'Space Jump', text: shareText, url: window.location.href });
-          } catch (e) {}
-        } else if (navigator.clipboard) {
-          try {
-            await navigator.clipboard.writeText(shareText);
-            const originalHtml = btnGameOverShare.innerHTML;
-            btnGameOverShare.textContent = 'KOPIERT!';
-            setTimeout(() => {
-              btnGameOverShare.innerHTML = originalHtml;
-            }, 1500);
-          } catch (e) {}
+        const result = await ui.shareGameOverRun();
+        if (result && result.copied) {
+          const originalHtml = btnGameOverShare.innerHTML;
+          btnGameOverShare.textContent = 'KOPIERT!';
+          setTimeout(() => {
+            btnGameOverShare.innerHTML = originalHtml;
+          }, 1500);
         }
       });
     }
