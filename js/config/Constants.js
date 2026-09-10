@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '5.18.35',
+  VERSION: '5.18.36',
   STORAGE_KEY: 'space_jump_save_v2',
   LEGACY_STORAGE_KEY: 'sling_jump_save_v2',
 
@@ -107,7 +107,7 @@ const CONSTANTS = {
   SHIPS: [
     {
       id: 'pfeil',
-      name: 'PFEIL',
+      name: 'DART',
       tier: 'Starter',
       role: 'Starter',
       description: 'Delta-Starter mit einer zentralen Düse.',
@@ -124,7 +124,7 @@ const CONSTANTS = {
     },
     {
       id: 'habicht',
-      name: 'HABICHT',
+      name: 'HAWK',
       tier: 'Recon',
       role: 'Recon',
       description: 'Waverider-Aufklärer mit Zwillingsdüsen.',
@@ -142,7 +142,7 @@ const CONSTANTS = {
     },
     {
       id: 'lanze',
-      name: 'LANZE',
+      name: 'LANCE',
       tier: 'Interceptor',
       role: 'Interceptor',
       description: 'Speerrumpf mit Mega-Düse und Heckfinnen.',
@@ -161,7 +161,7 @@ const CONSTANTS = {
     },
     {
       id: 'jaeger',
-      name: 'JÄGER',
+      name: 'HUNTER',
       tier: 'Air Superiority',
       role: 'Air Superiority',
       description: 'Luftüberlegenheitsjäger mit getrennten Düsen.',
@@ -183,7 +183,7 @@ const CONSTANTS = {
     },
     {
       id: 'falke',
-      name: 'FALKE',
+      name: 'FALCON',
       tier: 'Apex Fighter',
       role: 'Apex Fighter',
       description: 'Apex-Jäger mit Vorwärtspfeilung und Heckbuchten.',

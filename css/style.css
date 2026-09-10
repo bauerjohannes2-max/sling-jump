@@ -4548,48 +4548,44 @@ canvas#gameCanvas {
   transform: translateY(-1px);
 }
 
-.settings-version-tag {
-  font-family: 'Orbitron', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-  color: #64748b;
-  margin-top: 14px;
-  text-align: center;
-}
-
-.legal-links {
+.settings-legal-foot {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 12px;
 }
 
-.legal-links-menu {
-  margin-top: 8px;
+.settings-legal-foot .settings-version-tag {
+  margin-top: 0;
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #334155;
+  text-align: center;
 }
 
 .legal-link {
   background: none;
   border: none;
   padding: 0;
-  color: #64748b;
+  color: #334155;
   font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.1px;
-  text-transform: uppercase;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
   cursor: pointer;
 }
 
 .legal-link:hover {
-  color: #e2e8f0;
+  color: #64748b;
 }
 
 .legal-sep {
-  color: #334155;
-  font-size: 10px;
+  color: #1e293b;
+  font-size: 8px;
 }
 
 .legal-modal-card {
