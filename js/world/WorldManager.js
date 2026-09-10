@@ -328,11 +328,11 @@ class WorldManager {
     const dx = newNode.x - prevNode.x;
     const dy = newNode.y - prevNode.y;
 
-    // 1. Ultra-Rare Hyper-Kristall Spawn (Ultra-rare: 0.25% chance above 8,000m deep space altitude)
+    // 1. Rare Spark (Hyper-Kristall): 0.35% per new node above 6,500 m, min ~625 m apart
     const baseOriginY = (this.startY !== undefined && this.startY !== null) ? this.startY : 0;
     const currentAltitudeMeters = Math.max(0, (this.lastNodeY - baseOriginY) * (CONSTANTS.PHYSICS.METERS_PER_PIXEL || 0.125));
-    const hasNearbyCrystal = this.energyOrbs.some(o => o.type === 'CRYSTAL' && Math.abs(o.y - this.lastNodeY) < 6000);
-    if (currentAltitudeMeters >= 8000 && !hasNearbyCrystal && Math.random() < 0.0025) {
+    const hasNearbyCrystal = this.energyOrbs.some(o => o.type === 'CRYSTAL' && Math.abs(o.y - this.lastNodeY) < 5000);
+    if (currentAltitudeMeters >= 6500 && !hasNearbyCrystal && Math.random() < 0.0035) {
       const crystalX = Math.random() * (width - 140) + 70;
       const crystalY = (prevNode.y + newNode.y) / 2 + (Math.random() * 20 - 10);
       this.addSafeStar(crystalX, crystalY, width, 'CRYSTAL');

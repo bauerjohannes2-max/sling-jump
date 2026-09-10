@@ -352,43 +352,104 @@ class SupabaseAdapter extends BaseCloudAdapter {
     };
   }
 
+  rpcMissing(res, data) {
+    if (!res || res.ok) return false;
+    const code = data && data.code;
+    const msg = data ? JSON.stringify(data) : '';
+    return res.status === 404 || code === 'PGRST202' || /could not find the function/i.test(msg);
+  }
+
+  mapRpcFailure(data, fallback) {
+    if (data && data.ok === false) {
+      return {
+        ok: false,
+        error: data.error || fallback,
+        nameTaken: !!data.nameTaken,
+        requiresPassword: !!data.requiresPassword,
+        tokenExpired: !!data.tokenExpired
+      };
+    }
+    return { ok: false, error: fallback };
+  }
+
+  async callSaveRpc(name, body) {
+    const res = await fetch(`${this.supabaseUrl}/rest/v1/rpc/${name}`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(body)
+    });
+    const data = await readJsonApi(res);
+    return { res, data };
+  }
+
+  fakeSessionToken() {
+    return 'sb_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+
   async sync(payload) {
     if (!this.supabaseUrl || !this.supabaseAnonKey) {
       return { ok: false, error: 'SUPABASE_NOT_CONFIGURED' };
     }
 
     try {
-      const row = {
-        player_id: payload.playerId,
-        username: payload.username || (payload.state && payload.state.playerProfile && (payload.state.playerProfile.accountName || payload.state.playerProfile.pilotName)) || null,
-        state: payload.state,
-        updated_at: new Date().toISOString()
-      };
-      if (payload.passwordHash) {
-        row.password_hash = payload.passwordHash;
-      }
-      if (payload.removePassword) {
-        row.password_hash = null;
-      }
-
-      const res = await fetch(`${this.supabaseUrl}/rest/v1/${this.tableName}?on_conflict=player_id`, {
-        method: 'POST',
-        headers: this.getHeaders({
-          'Prefer': 'resolution=merge-duplicates, return=representation'
-        }),
-        body: JSON.stringify(row)
+      const username = payload.username || (payload.state && payload.state.playerProfile && (payload.state.playerProfile.accountName || payload.state.playerProfile.pilotName)) || null;
+      const rpc = await this.callSaveRpc('sync_player_save', {
+        p_player_id: payload.playerId,
+        p_username: username,
+        p_password_hash: payload.passwordHash || null,
+        p_session_token: payload.sessionToken || null,
+        p_state: payload.state || {},
+        p_remove_password: !!payload.removePassword
       });
 
-      if (!res.ok) {
-        return { ok: false, error: `SUPABASE_HTTP_${res.status}` };
+      if (rpc.res.ok && rpc.data && rpc.data.ok) {
+        return {
+          ok: true,
+          sessionToken: rpc.data.sessionToken,
+          updatedAt: rpc.data.updatedAt
+        };
       }
-      const rows = await res.json().catch(() => []);
-      const updated = Array.isArray(rows) && rows[0] ? rows[0] : row;
-      const fakeToken = 'sb_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      return { ok: true, sessionToken: fakeToken, updatedAt: updated.updated_at };
+      if (rpc.res.ok && rpc.data && rpc.data.ok === false) {
+        return this.mapRpcFailure(rpc.data, 'SYNC_REJECTED');
+      }
+      if (!this.rpcMissing(rpc.res, rpc.data)) {
+        return this.mapRpcFailure(rpc.data, `SUPABASE_HTTP_${rpc.res.status}`);
+      }
+
+      return this.syncViaTable(payload, username);
     } catch (e) {
       return { ok: false, error: 'SUPABASE_SYNC_ERROR' };
     }
+  }
+
+  async syncViaTable(payload, username) {
+    const row = {
+      player_id: payload.playerId,
+      username: username || null,
+      state: payload.state,
+      updated_at: new Date().toISOString()
+    };
+    if (payload.passwordHash) {
+      row.password_hash = payload.passwordHash;
+    }
+    if (payload.removePassword) {
+      row.password_hash = null;
+    }
+
+    const res = await fetch(`${this.supabaseUrl}/rest/v1/${this.tableName}?on_conflict=player_id`, {
+      method: 'POST',
+      headers: this.getHeaders({
+        'Prefer': 'resolution=merge-duplicates, return=representation'
+      }),
+      body: JSON.stringify(row)
+    });
+
+    if (!res.ok) {
+      return { ok: false, error: `SUPABASE_HTTP_${res.status}` };
+    }
+    const rows = await res.json().catch(() => []);
+    const updated = Array.isArray(rows) && rows[0] ? rows[0] : row;
+    return { ok: true, sessionToken: this.fakeSessionToken(), updatedAt: updated.updated_at };
   }
 
   async restore(playerId, passwordHash, username) {
@@ -397,47 +458,70 @@ class SupabaseAdapter extends BaseCloudAdapter {
     }
 
     try {
-      const filter = username
-        ? `username=eq.${encodeURIComponent(username)}`
-        : `player_id=eq.${encodeURIComponent(playerId)}`;
-      const url = `${this.supabaseUrl}/rest/v1/${this.tableName}?${filter}&select=*`;
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: this.getHeaders()
+      const rpc = await this.callSaveRpc('restore_player_save', {
+        p_player_id: playerId || null,
+        p_username: username || null,
+        p_password_hash: passwordHash || null
       });
 
-      if (!res.ok) {
-        return { ok: false, error: 'SPIELER NICHT GEFUNDEN' };
+      if (rpc.res.ok && rpc.data && rpc.data.ok) {
+        return {
+          ok: true,
+          player: rpc.data.player,
+          sessionToken: rpc.data.sessionToken
+        };
+      }
+      if (rpc.res.ok && rpc.data && rpc.data.ok === false) {
+        return this.mapRpcFailure(rpc.data, 'RESTORE_REJECTED');
+      }
+      if (!this.rpcMissing(rpc.res, rpc.data)) {
+        return this.mapRpcFailure(rpc.data, `SUPABASE_HTTP_${rpc.res.status}`);
       }
 
-      const rows = await res.json().catch(() => []);
-      if (!Array.isArray(rows) || rows.length === 0) {
-        return { ok: false, error: 'SPIELER NICHT GEFUNDEN' };
-      }
-
-      const record = rows[0];
-      if (record.password_hash) {
-        if (!passwordHash) {
-          return { ok: false, requiresPassword: true, error: 'PASSWORT ERFORDERLICH' };
-        }
-        if (record.password_hash !== passwordHash) {
-          return { ok: false, error: 'FALSCHES PASSWORT' };
-        }
-      }
-
-      const sessionToken = 'sb_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      return {
-        ok: true,
-        player: {
-          playerId: record.player_id,
-          state: record.state,
-          updatedAt: record.updated_at
-        },
-        sessionToken
-      };
+      return this.restoreViaTable(playerId, passwordHash, username);
     } catch (e) {
       return { ok: false, error: 'SUPABASE_RESTORE_ERROR' };
     }
+  }
+
+  async restoreViaTable(playerId, passwordHash, username) {
+    const filter = username
+      ? `username=eq.${encodeURIComponent(username)}`
+      : `player_id=eq.${encodeURIComponent(playerId)}`;
+    const url = `${this.supabaseUrl}/rest/v1/${this.tableName}?${filter}&select=*`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: this.getHeaders()
+    });
+
+    if (!res.ok) {
+      return { ok: false, error: 'SPIELER NICHT GEFUNDEN' };
+    }
+
+    const rows = await res.json().catch(() => []);
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return { ok: false, error: 'SPIELER NICHT GEFUNDEN' };
+    }
+
+    const record = rows[0];
+    if (record.password_hash) {
+      if (!passwordHash) {
+        return { ok: false, requiresPassword: true, error: 'PASSWORT ERFORDERLICH' };
+      }
+      if (record.password_hash !== passwordHash) {
+        return { ok: false, error: 'FALSCHES PASSWORT' };
+      }
+    }
+
+    return {
+      ok: true,
+      player: {
+        playerId: record.player_id,
+        state: record.state,
+        updatedAt: record.updated_at
+      },
+      sessionToken: this.fakeSessionToken()
+    };
   }
 
   async login(playerId, passwordHash, username) {
@@ -449,7 +533,7 @@ class SupabaseAdapter extends BaseCloudAdapter {
   }
 
   async removePassword(playerId, passwordHash, sessionToken, state) {
-    return this.sync({ playerId, removePassword: true, state });
+    return this.sync({ playerId, passwordHash, sessionToken, removePassword: true, state });
   }
 }
 

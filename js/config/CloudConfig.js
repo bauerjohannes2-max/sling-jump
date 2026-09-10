@@ -2,8 +2,8 @@
  * Public cloud config for GitHub Pages.
  *
  * Leave both strings empty for local `npm start` (uses serve.js).
- * For a worldwide leaderboard, create a free Supabase project, run sql/leaderboard.sql,
- * then paste Project URL + anon public key below and commit.
+ * For a worldwide leaderboard and locked cloud saves, create a free Supabase project,
+ * run sql/leaderboard.sql and sql/player_saves.sql, then paste Project URL + anon public key below and commit.
  *
  * The anon key is designed to be public. Never paste the service_role key.
  */
