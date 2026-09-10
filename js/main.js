@@ -35,6 +35,7 @@
   // Unlock WebAudio on user gesture
   const unlockAudio = () => {
     if (engine.audio && engine.audio.enabled) {
+      if (engine.audio.isPageHidden && engine.audio.isPageHidden()) return;
       engine.audio.init();
       if (engine.audio.ctx && engine.audio.ctx.state === 'suspended') {
         engine.audio.ctx.resume();

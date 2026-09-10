@@ -14,6 +14,8 @@ class AudioManager {
     this.currentMusicKey = null;
     this.currentMusicSource = null;
     this.currentMusicGain = null;
+    this._backgroundMusicKey = null;
+    this._suspendedForBackground = false;
 
     this.tracks = {
       bgm_gameplay: 'assets/audio/music/bgm_gameplay.m4a',
@@ -22,6 +24,70 @@ class AudioManager {
     this.audioBuffers = new Map();
 
     this.enabled = this.storage ? (this.storage.data.settings.audioEnabled !== false) : true;
+    this._bindPageLifecycle();
+  }
+
+  isPageHidden() {
+    if (typeof document === 'undefined') return false;
+    return document.hidden === true || document.visibilityState === 'hidden';
+  }
+
+  _bindPageLifecycle() {
+    if (typeof document === 'undefined' || this._lifecycleBound) return;
+    this._lifecycleBound = true;
+    const onHide = () => this.suspendForBackground();
+    const onShow = () => this.resumeFromBackground();
+    document.addEventListener('visibilitychange', () => {
+      if (this.isPageHidden()) onHide();
+      else onShow();
+    });
+    window.addEventListener('pagehide', onHide);
+    window.addEventListener('pageshow', onShow);
+    window.addEventListener('freeze', onHide);
+    window.addEventListener('resume', onShow);
+  }
+
+  _stopSource() {
+    if (this.currentMusicSource) {
+      try {
+        this.currentMusicSource.stop();
+      } catch (e) {}
+    }
+    this.currentMusicSource = null;
+    this.currentMusicGain = null;
+  }
+
+  suspendForBackground() {
+    this._suspendedForBackground = true;
+    if (this.currentMusicKey) this._backgroundMusicKey = this.currentMusicKey;
+    this._stopSource();
+    if (this.ctx && this.ctx.state === 'running') {
+      this.ctx.suspend().catch(() => {});
+    }
+  }
+
+  resumeFromBackground() {
+    if (this.isPageHidden()) return;
+    const wasSuspended = this._suspendedForBackground;
+    this._suspendedForBackground = false;
+    if (!this.enabled) return;
+    const key = this._backgroundMusicKey || this.currentMusicKey;
+    this._backgroundMusicKey = null;
+    if (!wasSuspended && this.currentMusicSource) return;
+    this.init();
+    if (!this.ctx) return;
+    const start = () => {
+      if (this.isPageHidden() || !this.enabled) return;
+      if (key) {
+        this.currentMusicKey = null;
+        this.playMusic(key);
+      }
+    };
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().then(start).catch(() => {});
+      return;
+    }
+    start();
   }
 
   getMusicVolume() {
@@ -35,7 +101,7 @@ class AudioManager {
   init() {
     if (!this.enabled) return;
     if (this.ctx) {
-      if (this.ctx.state === 'suspended') {
+      if (this.ctx.state === 'suspended' && !this.isPageHidden()) {
         this.ctx.resume();
       }
       return;
@@ -102,6 +168,13 @@ class AudioManager {
       this.stopMusic();
       return;
     }
+    if (this.isPageHidden()) {
+      this._backgroundMusicKey = key;
+      this._suspendedForBackground = true;
+      this._stopSource();
+      this.currentMusicKey = key;
+      return;
+    }
     this.init();
     if (!this.ctx) return;
     if (this.currentMusicKey === key && this.currentMusicSource) return;
@@ -134,13 +207,9 @@ class AudioManager {
   }
 
   stopMusic() {
-    if (this.currentMusicSource) {
-      try {
-        this.currentMusicSource.stop();
-      } catch (e) {}
-    }
-    this.currentMusicSource = null;
-    this.currentMusicGain = null;
+    this._stopSource();
     this.currentMusicKey = null;
+    this._backgroundMusicKey = null;
+    this._suspendedForBackground = false;
   }
 }
