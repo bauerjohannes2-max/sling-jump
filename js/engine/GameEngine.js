@@ -302,7 +302,7 @@ class GameEngine {
 
   hasHookableNodeNearby() {
     if (!this.player || !this.world || !this.world.nodes) return false;
-    const range = CONSTANTS.PHYSICS.HOOK_RANGE * 1.12;
+    const range = CONSTANTS.PHYSICS.HOOK_RANGE;
     for (let i = 0; i < this.world.nodes.length; i++) {
       const node = this.world.nodes[i];
       if (!node || node.isBroken || node.type === 'HAZARD' || node.type === 'DECOY') continue;
