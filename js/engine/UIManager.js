@@ -48,6 +48,7 @@ class UIManager {
       settingsModal: document.getElementById('settings-modal'),
       legalModal: document.getElementById('legal-modal'),
       confirmModal: document.getElementById('confirm-modal'),
+      deleteAccountModal: document.getElementById('delete-account-modal'),
       tutorialModal: document.getElementById('tutorial-modal'),
       profileModal: document.getElementById('profile-modal'),
 
@@ -197,7 +198,8 @@ class UIManager {
       this.dom.settingsModal,
       this.dom.legalModal,
       this.dom.tutorialModal,
-      this.dom.profileModal
+      this.dom.profileModal,
+      this.dom.deleteAccountModal
     ];
     modalOverlays.forEach(el => {
       if (el) el.classList.remove('active', 'visible');
@@ -222,7 +224,9 @@ class UIManager {
       case StateManager.STATES.MENU:
         if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
         this.updateCurrency();
-        this.refreshRemoteLeaderboard().then(() => this.updateMenuRank()).catch(() => {});
+        this.refreshRemoteLeaderboard(previousState === StateManager.STATES.GAME_OVER)
+          .then(() => this.updateMenuRank())
+          .catch(() => {});
         break;
 
       case StateManager.STATES.PLAYING:
@@ -273,6 +277,7 @@ class UIManager {
         this.updateMusicVolumeUI();
         this.updateFpsToggleBtn();
         this.updatePerfToggleBtn();
+        this.updateCloudDeleteButton();
         break;
     }
 
@@ -1351,7 +1356,11 @@ class UIManager {
     this.renderLeaderboard();
   }
 
-  async refreshRemoteLeaderboard() {
+  async refreshRemoteLeaderboard(force = false) {
+    const ttlMs = 60000;
+    if (!force && this._remoteLeaderboard && (Date.now() - (this._leaderboardFetchedAt || 0)) < ttlMs) {
+      return this._remoteLeaderboard;
+    }
     const backend = this.storage && this.storage.getCloudBackend ? this.storage.getCloudBackend() : null;
     if (!backend || typeof backend.fetchLeaderboard !== 'function') {
       this._remoteLeaderboard = null;
@@ -1360,6 +1369,7 @@ class UIManager {
     const res = await backend.fetchLeaderboard();
     if (res && res.ok && Array.isArray(res.entries)) {
       this._remoteLeaderboard = res.entries;
+      this._leaderboardFetchedAt = Date.now();
       return res.entries;
     }
     this._remoteLeaderboard = null;
@@ -1371,7 +1381,7 @@ class UIManager {
     this._leaderboardRenderGen += 1;
     const gen = this._leaderboardRenderGen;
     this.paintLeaderboard(this._remoteLeaderboard);
-    this.refreshRemoteLeaderboard().then((remote) => {
+    this.refreshRemoteLeaderboard(true).then((remote) => {
       if (gen !== this._leaderboardRenderGen) return;
       this.paintLeaderboard(remote);
       this.updateMenuRank();
@@ -1751,6 +1761,14 @@ class UIManager {
         }
       }
     } catch (e) {}
+    this.updateCloudDeleteButton();
+  }
+
+  updateCloudDeleteButton() {
+    const btn = document.getElementById('btn-delete-cloud-account');
+    if (!btn) return;
+    const hasAccount = this.storage && this.storage.hasAccount ? this.storage.hasAccount() : false;
+    btn.hidden = !hasAccount;
   }
 
   initLegalUI() {

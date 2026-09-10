@@ -16,6 +16,9 @@ class StorageService {
     this.key = CONSTANTS.STORAGE_KEY;
     this.data = this.getDefaultState();
     this._cloudBackend = null;
+    this._cloudSyncTimer = null;
+    this._lastCloudSyncAt = 0;
+    this._cloudSyncMinIntervalMs = 60000;
     this.load();
     this.syncToCloud();
   }
@@ -368,10 +371,12 @@ class StorageService {
   syncToCloud() {
     if (!this.hasAccount()) return;
     if (this._cloudSyncTimer) return;
+    const elapsed = Date.now() - (this._lastCloudSyncAt || 0);
+    const wait = Math.max(800, this._cloudSyncMinIntervalMs - elapsed);
     this._cloudSyncTimer = setTimeout(async () => {
       this._cloudSyncTimer = null;
       await this._performCloudSync();
-    }, 800);
+    }, wait);
   }
 
   async syncToCloudNow() {
@@ -408,7 +413,6 @@ class StorageService {
           stats: this.data.stats,
           questProgress: this.data.questProgress,
           claimedQuestIds: this.data.claimedQuestIds,
-          leaderboard: this.data.leaderboard,
           settings: this.data.settings
         }
       };
@@ -422,6 +426,7 @@ class StorageService {
           this.data.playerProfile.sessionToken = null;
         }
       } else if (res && res.ok) {
+        this._lastCloudSyncAt = Date.now();
         if (res.sessionToken && this.data && this.data.playerProfile) {
           this.data.playerProfile.sessionToken = res.sessionToken;
           try {
@@ -560,6 +565,52 @@ class StorageService {
     return this.restoreFromCloud(identifier, password);
   }
 
+  async deleteCloudAccount(plainPassword) {
+    if (!this.hasAccount()) {
+      return { success: false, message: 'Kein Cloud-Account.' };
+    }
+    if (!plainPassword || !String(plainPassword).trim()) {
+      return { success: false, message: 'Passwort erforderlich.' };
+    }
+
+    let pwHash = '';
+    try {
+      pwHash = await StorageService.hashPassword(plainPassword);
+    } catch (e) {
+      return { success: false, message: 'Passwort-Verschlüsselung fehlgeschlagen.' };
+    }
+
+    const profile = this.getPlayerProfile();
+    try {
+      const backend = this.getCloudBackend();
+      if (!backend || typeof backend.deleteAccount !== 'function') {
+        return { success: false, message: 'Server nicht erreichbar.' };
+      }
+      const res = await backend.deleteAccount({
+        playerId: profile.playerId,
+        passwordHash: pwHash,
+        sessionToken: profile.sessionToken || null
+      });
+      if (res && res.requiresPassword) {
+        return { success: false, message: 'Passwort erforderlich.' };
+      }
+      if (!res || !res.ok) {
+        return { success: false, message: (res && res.error) || 'Name oder Passwort falsch.' };
+      }
+
+      profile.passwordHash = null;
+      profile.sessionToken = null;
+      profile.accountName = null;
+      profile.playerId = StorageService.generateUniqueUserId();
+      try {
+        localStorage.setItem(this.key, JSON.stringify(this.data));
+      } catch (e) {}
+      return { success: true, message: 'Cloud-Account gelöscht.' };
+    } catch (e) {
+      return { success: false, message: 'Server nicht erreichbar.' };
+    }
+  }
+
   async setPassword(plainPassword) {
     return this.createAccount(plainPassword);
   }
@@ -650,6 +701,7 @@ class StorageService {
     }
 
     this.save();
+    this.syncToCloudNow();
     return { totalScore, isNewHighScore };
   }
 

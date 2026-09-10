@@ -273,3 +273,67 @@ revoke all on function public.sync_player_save(text, text, text, text, jsonb, bo
 revoke all on function public.restore_player_save(text, text, text) from public;
 grant execute on function public.sync_player_save(text, text, text, text, jsonb, boolean) to anon, authenticated;
 grant execute on function public.restore_player_save(text, text, text) to anon, authenticated;
+
+create or replace function public.delete_player_account(
+  p_player_id text,
+  p_password_hash text default null,
+  p_session_token text default null
+)
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  clean_id text;
+  clean_hash text;
+  clean_token text;
+  rec public.player_saves%rowtype;
+  authed boolean := false;
+begin
+  clean_id := upper(trim(coalesce(p_player_id, '')));
+  if clean_id is null or length(clean_id) < 4 or length(clean_id) > 24 then
+    return json_build_object('ok', false, 'error', 'INVALID_ID');
+  end if;
+
+  clean_hash := nullif(trim(coalesce(p_password_hash, '')), '');
+  clean_token := nullif(trim(coalesce(p_session_token, '')), '');
+
+  select * into rec from public.player_saves where player_id = clean_id;
+  if not found then
+    return json_build_object('ok', false, 'error', 'SPIELER NICHT GEFUNDEN');
+  end if;
+
+  if clean_token is not null then
+    if exists (
+      select 1 from public.player_sessions
+       where token = clean_token
+         and player_id = clean_id
+         and expires_at > now()
+    ) then
+      authed := true;
+    end if;
+  end if;
+
+  if not authed then
+    if rec.password_hash is not null and rec.password_hash <> '' then
+      if clean_hash is null then
+        return json_build_object('ok', false, 'error', 'PASSWORT ERFORDERLICH', 'requiresPassword', true);
+      end if;
+      if rec.password_hash <> clean_hash then
+        return json_build_object('ok', false, 'error', 'FALSCHES PASSWORT');
+      end if;
+    else
+      return json_build_object('ok', false, 'error', 'PASSWORT ERFORDERLICH', 'requiresPassword', true);
+    end if;
+  end if;
+
+  delete from public.leaderboard where player_id = clean_id;
+  delete from public.player_saves where player_id = clean_id;
+
+  return json_build_object('ok', true);
+end;
+$$;
+
+revoke all on function public.delete_player_account(text, text, text) from public;
+grant execute on function public.delete_player_account(text, text, text) to anon, authenticated;

@@ -48,6 +48,9 @@ class ShopManager {
     const key = `unlocked${this.capitalize(category)}`;
     this.storage.data[key].push(id);
     this.equipItem(category, id);
+    if (typeof this.storage.syncToCloudNow === 'function') {
+      this.storage.syncToCloudNow();
+    }
 
     return { success: true, message: `${item.name} freigeschaltet!` };
   }

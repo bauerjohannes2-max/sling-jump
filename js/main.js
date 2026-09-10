@@ -46,6 +46,11 @@
   };
   window.addEventListener('pointerdown', unlockAudio, { passive: true });
   window.addEventListener('keydown', unlockAudio, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && engine.storage && engine.storage.syncToCloudNow) {
+      engine.storage.syncToCloudNow();
+    }
+  });
 
   // --- QUICK TOAST NOTIFICATION ---
   let toastTimeout;
@@ -458,6 +463,44 @@
     onBtn('btn-confirm-no', () => {
       if (ui.dom.confirmModal) ui.dom.confirmModal.classList.remove('visible');
     });
+
+    const openDeleteAccountModal = () => {
+      const modal = document.getElementById('delete-account-modal');
+      const input = document.getElementById('delete-account-password');
+      if (input) input.value = '';
+      if (modal) modal.classList.add('visible');
+    };
+    const closeDeleteAccountModal = () => {
+      const modal = document.getElementById('delete-account-modal');
+      if (modal) modal.classList.remove('visible');
+    };
+    onBtn('btn-delete-cloud-account', openDeleteAccountModal);
+    onBtn('btn-delete-account-no', closeDeleteAccountModal);
+    onBtn('btn-delete-account-yes', async () => {
+      const input = document.getElementById('delete-account-password');
+      const pw = input ? input.value.trim() : '';
+      const res = await engine.storage.deleteCloudAccount(pw);
+      if (!res || !res.success) {
+        triggerQuickToast((res && res.message) || 'Löschen fehlgeschlagen.');
+        return;
+      }
+      closeDeleteAccountModal();
+      ui.initSettingsUI();
+      ui.updateUserProfileNav();
+      if (ui.dom.settingsModal) ui.dom.settingsModal.classList.remove('visible');
+      state.changeState(StateManager.STATES.MENU);
+      triggerQuickToast(res.message || 'Cloud-Account gelöscht.');
+    });
+    const deletePwInput = document.getElementById('delete-account-password');
+    if (deletePwInput) {
+      deletePwInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const yes = document.getElementById('btn-delete-account-yes');
+          if (yes) yes.click();
+        }
+      });
+    }
 
     // --- PWA INSTALLATION & BANNER LOGIC ---
     let deferredPrompt = null;

@@ -77,6 +77,10 @@ class BaseCloudAdapter {
   async removePassword(playerId, passwordHash, sessionToken, state) {
     throw new Error('removePassword() must be implemented by adapter');
   }
+
+  async deleteAccount(/* payload */) {
+    throw new Error('deleteAccount() must be implemented by adapter');
+  }
 }
 
 /**
@@ -281,6 +285,33 @@ class LocalNodeAdapter extends BaseCloudAdapter {
       return { ok: false, error: 'NETWORK_ERROR' };
     }
   }
+
+  async deleteAccount(payload = {}) {
+    if (typeof fetch === 'undefined' || isFileProtocol() || isGitHubPagesHost()) {
+      return { ok: false, error: isGitHubPagesHost() ? 'STATIC_HOST' : 'OFFLINE_OR_FILE_PROTOCOL' };
+    }
+    try {
+      const res = await fetch(`${this.baseUrl}/api/player/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerId: payload.playerId || null,
+          passwordHash: payload.passwordHash || null,
+          sessionToken: payload.sessionToken || null
+        })
+      });
+      const data = await readJsonApi(res);
+      if (res.status === 403) {
+        return { ok: false, error: (data && data.error) || 'FALSCHES PASSWORT', requiresPassword: true };
+      }
+      if (!res.ok) {
+        return { ok: false, error: (data && data.error) || `HTTP_${res.status}` };
+      }
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: 'NETWORK_ERROR' };
+    }
+  }
 }
 
 /**
@@ -460,6 +491,31 @@ class SupabaseAdapter extends BaseCloudAdapter {
 
   async removePassword(playerId, passwordHash, sessionToken, state) {
     return this.sync({ playerId, passwordHash, sessionToken, removePassword: true, state });
+  }
+
+  async deleteAccount(payload = {}) {
+    if (!this.supabaseUrl || !this.supabaseAnonKey) {
+      return { ok: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+    try {
+      const rpc = await this.callSaveRpc('delete_player_account', {
+        p_player_id: payload.playerId || null,
+        p_password_hash: payload.passwordHash || null,
+        p_session_token: payload.sessionToken || null
+      });
+      if (rpc.res.ok && rpc.data && rpc.data.ok) {
+        return { ok: true };
+      }
+      if (rpc.res.ok && rpc.data && rpc.data.ok === false) {
+        return this.mapRpcFailure(rpc.data, 'DELETE_REJECTED');
+      }
+      if (!this.rpcMissing(rpc.res, rpc.data)) {
+        return this.mapRpcFailure(rpc.data, `SUPABASE_HTTP_${rpc.res.status}`);
+      }
+      return { ok: false, error: 'DELETE_RPC_UNAVAILABLE' };
+    } catch (e) {
+      return { ok: false, error: 'SUPABASE_DELETE_ERROR' };
+    }
   }
 }
 

@@ -31,6 +31,7 @@ const MIME_TYPES = {
   '.wav': 'audio/wav',
   '.mp3': 'audio/mpeg',
   '.m4a': 'audio/mp4',
+  '.woff2': 'font/woff2',
   '.ico': 'image/x-icon'
 };
 
@@ -697,6 +698,60 @@ function createRequestListener() {
           sessionToken: token,
           expiresAt: sessionsStore[token].expiresAt
         }));
+      });
+      return;
+    }
+
+    // API: Delete cloud account (POST /api/player/delete)
+    if (req.method === 'POST' && reqUrl === '/api/player/delete') {
+      readJsonBody(req, res, corsOrigin, (err, payload) => {
+        withPlayersStoreLock(() => {
+        let rawId = (payload.playerId || '').trim().toUpperCase();
+        if (rawId && !rawId.startsWith('#')) rawId = '#' + rawId;
+        if (!rawId || !ID_REGEX.test(rawId)) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'INVALID_ID' }));
+          return;
+        }
+
+        const record = playersStore[rawId];
+        if (!record) {
+          res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+          res.end(JSON.stringify({ ok: false, error: 'SPIELER NICHT GEFUNDEN' }));
+          return;
+        }
+
+        const clientPwHash = (payload.passwordHash || '').trim() || null;
+        let token = (payload.sessionToken || '').trim() || null;
+        const authHeader = req.headers['authorization'];
+        if (!token && authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+          token = authHeader.slice(7).trim();
+        }
+
+        let authed = false;
+        if (token) {
+          const session = validateSessionToken(token, rawId);
+          authed = !!(session && session.valid);
+        }
+        if (!authed) {
+          const authResult = verifyPassword(record.passwordHash, clientPwHash);
+          if (!authResult.valid) {
+            res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': corsOrigin || '*' });
+            res.end(JSON.stringify({ ok: false, error: 'FALSCHES PASSWORT', requiresPassword: true }));
+            return;
+          }
+        }
+
+        revokePlayerSessions(rawId);
+        delete playersStore[rawId];
+        savePlayers();
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': corsOrigin || '*',
+          'Vary': 'Origin'
+        });
+        res.end(JSON.stringify({ ok: true }));
+        });
       });
       return;
     }
