@@ -1000,7 +1000,8 @@ canvas#gameCanvas {
 
 .hangar-ship-meta {
   position: absolute;
-  top: 10px;
+  top: auto;
+  bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -1031,21 +1032,18 @@ canvas#gameCanvas {
 }
 
 .hangar-ship-name {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  color: #ffffff;
-}
-
-.hangar-ship-tier {
-  margin-top: 2px;
   font-family: var(--font-numbers);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.32em;
+  margin-right: -0.32em;
   text-transform: uppercase;
   color: var(--neutral-cyan);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+}
+
+.hangar-stage-container.hangar-skin-locked .hangar-ship-meta {
+  bottom: 58px;
 }
 
 /* Pokemon Silhouette Coming Soon Effect */
@@ -1328,7 +1326,9 @@ canvas#gameCanvas {
     height: 105px;
   }
   .hangar-ship-name {
-    font-size: 13px;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    margin-right: -0.28em;
   }
   .btn-play-bold {
     height: 58px;

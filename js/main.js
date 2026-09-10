@@ -224,7 +224,7 @@
       const sSvg = document.getElementById('ship-svg');
       const btnBuy = document.getElementById('btn-buy-ship');
       const nameEl = document.getElementById('hangar-ship-name');
-      const tierEl = document.getElementById('hangar-ship-tier');
+      const hangarStage = document.getElementById('hangar-stage');
       const unlocked = isShipUnlocked(ship.id);
 
       if (sSvg && typeof ShipArt !== 'undefined') {
@@ -232,7 +232,6 @@
       }
 
       if (nameEl) nameEl.textContent = ship.name;
-      if (tierEl) tierEl.textContent = ship.role || '';
 
       if (btnBuy) {
         if (!unlocked) {
@@ -248,6 +247,7 @@
         if (!unlocked) sUnit.classList.add('pokemon-locked');
         else sUnit.classList.remove('pokemon-locked');
       }
+      if (hangarStage) hangarStage.classList.toggle('hangar-skin-locked', !unlocked);
 
       for (let i = 0; i < menuShips.length; i++) {
         const dot = document.getElementById('dot-' + i);
