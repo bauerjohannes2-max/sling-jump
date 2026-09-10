@@ -134,10 +134,6 @@ class GameEngine {
       }
     }
 
-    if (newState === StateManager.STATES.PLAYING && oldState === StateManager.STATES.PAUSED) {
-      if (this.audio) this.audio.setDucking(false);
-    }
-
     if (newState === StateManager.STATES.MENU) {
       this.gameStarted = false;
       this.player = null;
@@ -210,7 +206,6 @@ class GameEngine {
   setSlowMo(active) {
     this.targetTimeScale = active ? CONSTANTS.PHYSICS.SLOWMO_FACTOR : 1.0;
     this.ui.setSlowMoVisual(active);
-    if (this.audio) this.audio.setDucking(active);
   }
 
   handlePlayActionDown() {

@@ -130,6 +130,10 @@ class UIManager {
 
       // Settings Inputs
       btnAudioToggle: document.getElementById('btn-audio-toggle'),
+      sliderMusicVolume: document.getElementById('slider-music-volume'),
+      musicVolumeValue: document.getElementById('music-volume-value'),
+      btnVolumeDown: document.getElementById('btn-volume-down'),
+      btnVolumeUp: document.getElementById('btn-volume-up'),
       btnFpsToggle: document.getElementById('btn-fps-toggle'),
       btnPerfToggle: document.getElementById('btn-perf-toggle'),
       hudFpsBadge: document.getElementById('hud-fps-badge'),
@@ -232,7 +236,6 @@ class UIManager {
       case StateManager.STATES.PAUSED:
         if (this.dom.hudLayer) this.dom.hudLayer.classList.add('visible');
         if (this.dom.pauseModal) this.dom.pauseModal.classList.add('visible');
-        if (this.audio) this.audio.setDucking(true);
         break;
 
       case StateManager.STATES.GAME_OVER:
@@ -266,6 +269,7 @@ class UIManager {
         }
         if (this.dom.settingsModal) this.dom.settingsModal.classList.add('visible');
         this.updateAudioToggleBtn();
+        this.updateMusicVolumeUI();
         this.updateFpsToggleBtn();
         this.updatePerfToggleBtn();
         break;
@@ -1671,6 +1675,29 @@ class UIManager {
       });
     }
 
+    this.updateMusicVolumeUI();
+    if (!this._volumeUiBound) {
+      this._volumeUiBound = true;
+      if (this.dom.sliderMusicVolume) {
+        this.dom.sliderMusicVolume.addEventListener('input', (e) => {
+          this.setMusicVolume(Number(e.target.value) / 100, false);
+        });
+        this.dom.sliderMusicVolume.addEventListener('change', (e) => {
+          this.setMusicVolume(Number(e.target.value) / 100, true);
+        });
+      }
+      if (this.dom.btnVolumeDown) {
+        this.dom.btnVolumeDown.addEventListener('click', () => {
+          this.nudgeMusicVolume(-0.1);
+        });
+      }
+      if (this.dom.btnVolumeUp) {
+        this.dom.btnVolumeUp.addEventListener('click', () => {
+          this.nudgeMusicVolume(0.1);
+        });
+      }
+    }
+
     if (this.dom.btnFpsToggle) {
       this.updateFpsToggleBtn();
       this.dom.btnFpsToggle.addEventListener('click', () => {
@@ -1718,6 +1745,33 @@ class UIManager {
       }
     }
     this.updateAudioToggleBtn();
+  }
+
+  getStoredMusicVolume() {
+    const raw = this.storage && this.storage.data && this.storage.data.settings
+      ? Number(this.storage.data.settings.musicVolume)
+      : 0.7;
+    if (!Number.isFinite(raw)) return 0.7;
+    return Math.max(0, Math.min(1, raw));
+  }
+
+  nudgeMusicVolume(delta) {
+    this.setMusicVolume(this.getStoredMusicVolume() + delta, true);
+  }
+
+  setMusicVolume(volume, persist) {
+    const next = Math.max(0, Math.min(1, Number(volume) || 0));
+    this.storage.data.settings.musicVolume = next;
+    if (persist) this.storage.save();
+    else this.storage.saveDeferred();
+    if (this.audio) this.audio.updateVolumes();
+    this.updateMusicVolumeUI();
+  }
+
+  updateMusicVolumeUI() {
+    const pct = Math.round(this.getStoredMusicVolume() * 100);
+    if (this.dom.sliderMusicVolume) this.dom.sliderMusicVolume.value = String(pct);
+    if (this.dom.musicVolumeValue) this.dom.musicVolumeValue.textContent = `${pct}%`;
   }
 
   updateAudioToggleBtn() {

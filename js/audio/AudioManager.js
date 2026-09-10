@@ -1,6 +1,6 @@
 /**
  * Space Jump - AudioManager
- * Gameplay BGM only: WebAudio buffer loop with slow-mo ducking.
+ * Gameplay BGM only: WebAudio buffer loop at the player's chosen volume.
  */
 class AudioManager {
   constructor(storageService) {
@@ -9,17 +9,22 @@ class AudioManager {
 
     this.masterGain = null;
     this.musicGain = null;
-    this.musicFilter = null;
 
     this.currentMusicKey = null;
     this.currentMusicSource = null;
     this.currentMusicGain = null;
-    this.isDucked = false;
 
     this.gameplayPath = 'assets/audio/music/bgm_gameplay.mp3';
     this.audioBuffers = new Map();
 
     this.enabled = this.storage ? (this.storage.data.settings.audioEnabled !== false) : true;
+  }
+
+  getMusicVolume() {
+    if (!this.storage || !this.storage.data || !this.storage.data.settings) return 0.7;
+    const raw = Number(this.storage.data.settings.musicVolume);
+    if (!Number.isFinite(raw)) return 0.7;
+    return Math.max(0, Math.min(1, raw));
   }
 
   init() {
@@ -39,13 +44,8 @@ class AudioManager {
       this.masterGain = this.ctx.createGain();
       this.masterGain.connect(this.ctx.destination);
 
-      this.musicFilter = this.ctx.createBiquadFilter();
-      this.musicFilter.type = 'lowpass';
-      this.musicFilter.frequency.setValueAtTime(20000, this.ctx.currentTime);
-
       this.musicGain = this.ctx.createGain();
-      this.musicGain.connect(this.musicFilter);
-      this.musicFilter.connect(this.masterGain);
+      this.musicGain.connect(this.masterGain);
 
       this.updateVolumes();
       this.preloadAssets();
@@ -55,30 +55,15 @@ class AudioManager {
   }
 
   updateVolumes() {
-    if (!this.enabled || !this.ctx || !this.storage) return;
-    const settings = this.storage.data.settings;
+    if (!this.enabled || !this.ctx) return;
     const now = this.ctx.currentTime;
+    const vol = this.getMusicVolume();
 
     if (this.masterGain) {
-      this.masterGain.gain.setTargetAtTime(settings.masterVolume, now, 0.05);
+      this.masterGain.gain.setTargetAtTime(1, now, 0.03);
     }
     if (this.musicGain) {
-      const targetVol = this.isDucked ? settings.musicVolume * 0.35 : settings.musicVolume;
-      this.musicGain.gain.setTargetAtTime(targetVol, now, 0.05);
-    }
-  }
-
-  setDucking(active) {
-    if (!this.enabled || !this.ctx || this.isDucked === active) return;
-    this.isDucked = active;
-    const now = this.ctx.currentTime;
-
-    if (this.musicFilter && this.musicGain && this.storage) {
-      const targetFreq = active ? 650 : 20000;
-      const targetVol = active ? this.storage.data.settings.musicVolume * 0.35 : this.storage.data.settings.musicVolume;
-
-      this.musicFilter.frequency.setTargetAtTime(targetFreq, now, 0.15);
-      this.musicGain.gain.setTargetAtTime(targetVol, now, 0.15);
+      this.musicGain.gain.setTargetAtTime(vol, now, 0.03);
     }
   }
 
