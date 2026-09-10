@@ -12,11 +12,11 @@
       }
     })();
   </script>
-  <link rel="manifest" href="manifest.json?v=5.18.30">
-  <link rel="shortcut icon" href="favicon.ico?v=5.18.30">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.30">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-punch-192.png?v=5.18.30">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.30">
+  <link rel="manifest" href="manifest.json?v=5.18.32">
+  <link rel="shortcut icon" href="favicon.ico?v=5.18.32">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.32">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-punch-192.png?v=5.18.32">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.32">
   <link rel="apple-touch-icon" href="apple-touch-icon-punch.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-punch.png">
   <meta name="theme-color" content="#080b10">
@@ -28,10 +28,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Oxanium:wght@800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=5.18.30">
+  <link rel="stylesheet" href="css/style.css?v=5.18.32">
   <script>
     (function() {
-      var APP_VERSION = '5.18.30';
+      var APP_VERSION = '5.18.32';
       var storedVer = localStorage.getItem('space_jump_installed_version') || localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('space_jump_installed_version', APP_VERSION);
@@ -325,7 +325,22 @@
         </div>
       </div>
 
-      <div class="record-banner" id="record-banner">NEUER HÖHEN-REKORD!</div>
+      <div class="record-fx" id="record-fx" aria-hidden="true">
+        <div class="record-fx-gate">
+          <div class="record-fx-gate-line"></div>
+          <div class="record-fx-gate-tag" id="record-fx-gate-tag">BEST 0 m</div>
+        </div>
+        <div class="record-fx-shards">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="record-fx-rings"><i></i><i></i><i></i></div>
+        <div class="record-fx-slash"></div>
+        <div class="record-fx-stamp">
+          <div class="record-fx-kicker">HÖHE DURCHBROCHEN</div>
+          <div class="record-fx-title"><b class="l">NEUER</b><b class="r">REKORD</b></div>
+          <div class="record-fx-meters"><em id="record-fx-meters">0</em><small>m</small></div>
+        </div>
+      </div>
 
     </div>
 
@@ -708,7 +723,7 @@
           <button class="btn-settings-action btn-settings-update" id="btn-check-update" type="button">NACH UPDATES SUCHEN</button>
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
-        <div class="settings-version-tag">SPACE JUMP v5.18.30</div>
+        <div class="settings-version-tag">SPACE JUMP v5.18.32</div>
       </div>
     </div>
 
@@ -846,23 +861,23 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=5.18.30"></script>
-  <script src="js/config/CloudConfig.js?v=5.18.30"></script>
-  <script src="js/services/CloudBackend.js?v=5.18.30"></script>
-  <script src="js/services/StorageService.js?v=5.18.30"></script>
-  <script src="js/audio/AudioManager.js?v=5.18.30"></script>
-  <script src="js/engine/ParticleSystem.js?v=5.18.30"></script>
-  <script src="js/engine/InputManager.js?v=5.18.30"></script>
-  <script src="js/engine/MissionManager.js?v=5.18.30"></script>
-  <script src="js/entities/Node.js?v=5.18.30"></script>
-  <script src="js/entities/EnergyOrb.js?v=5.18.30"></script>
-  <script src="js/entities/ShipArt.js?v=5.18.30"></script>
-  <script src="js/entities/Spaceship.js?v=5.18.30"></script>
-  <script src="js/world/WorldManager.js?v=5.18.30"></script>
-  <script src="js/engine/ShopManager.js?v=5.18.30"></script>
-  <script src="js/engine/StateManager.js?v=5.18.30"></script>
-  <script src="js/engine/UIManager.js?v=5.18.30"></script>
-  <script src="js/engine/GameEngine.js?v=5.18.30"></script>
-  <script src="js/main.js?v=5.18.30"></script>
+  <script src="js/config/Constants.js?v=5.18.32"></script>
+  <script src="js/config/CloudConfig.js?v=5.18.32"></script>
+  <script src="js/services/CloudBackend.js?v=5.18.32"></script>
+  <script src="js/services/StorageService.js?v=5.18.32"></script>
+  <script src="js/audio/AudioManager.js?v=5.18.32"></script>
+  <script src="js/engine/ParticleSystem.js?v=5.18.32"></script>
+  <script src="js/engine/InputManager.js?v=5.18.32"></script>
+  <script src="js/engine/MissionManager.js?v=5.18.32"></script>
+  <script src="js/entities/Node.js?v=5.18.32"></script>
+  <script src="js/entities/EnergyOrb.js?v=5.18.32"></script>
+  <script src="js/entities/ShipArt.js?v=5.18.32"></script>
+  <script src="js/entities/Spaceship.js?v=5.18.32"></script>
+  <script src="js/world/WorldManager.js?v=5.18.32"></script>
+  <script src="js/engine/ShopManager.js?v=5.18.32"></script>
+  <script src="js/engine/StateManager.js?v=5.18.32"></script>
+  <script src="js/engine/UIManager.js?v=5.18.32"></script>
+  <script src="js/engine/GameEngine.js?v=5.18.32"></script>
+  <script src="js/main.js?v=5.18.32"></script>
 </body>
 </html>

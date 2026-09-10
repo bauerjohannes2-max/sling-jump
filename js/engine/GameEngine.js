@@ -683,7 +683,7 @@ class GameEngine {
 
           if (!this.isTutorial && this.storage.data.highScore > 0 && this.maxAltitudeMeters > this.storage.data.highScore && !this.recordBrokenThisRun) {
             this.recordBrokenThisRun = true;
-            this.ui.showRecordFlash();
+            this.ui.showRecordFlash(this.storage.data.highScore, this.maxAltitudeMeters);
           }
         }
 

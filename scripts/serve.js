@@ -30,6 +30,7 @@ const MIME_TYPES = {
   '.svg': 'image/svg+xml',
   '.wav': 'audio/wav',
   '.mp3': 'audio/mpeg',
+  '.m4a': 'audio/mp4',
   '.ico': 'image/x-icon'
 };
 

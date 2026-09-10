@@ -54,7 +54,9 @@ class UIManager {
       slowmoOverlay: document.getElementById('slowmo-overlay'),
       dangerOverlay: document.getElementById('danger-overlay'),
       flashOverlay: document.getElementById('flash-overlay'),
-      recordBanner: document.getElementById('record-banner'),
+      recordFx: document.getElementById('record-fx'),
+      recordFxGateTag: document.getElementById('record-fx-gate-tag'),
+      recordFxMeters: document.getElementById('record-fx-meters'),
 
       // HUD Elements
       altitudeVal: document.getElementById('altitude-val'),
@@ -218,18 +220,15 @@ class UIManager {
         if (this.dom.menuOverlay) this.dom.menuOverlay.classList.add('visible');
         this.updateCurrency();
         this.refreshRemoteLeaderboard().then(() => this.updateMenuRank()).catch(() => {});
-        if (this.audio) this.audio.stopMusic();
         break;
 
       case StateManager.STATES.PLAYING:
         if (this.dom.hudLayer) this.dom.hudLayer.classList.add('visible');
-        if (this.audio) this.audio.playMusic('bgm_gameplay');
         this.updateActiveHUDQuest();
         break;
 
       case StateManager.STATES.TUTORIAL:
         if (this.dom.hudLayer) this.dom.hudLayer.classList.add('visible');
-        if (this.audio) this.audio.playMusic('bgm_gameplay');
         this.updateHUD(0, this.storage.data.highScore, this.storage.data.cores);
         break;
 
@@ -242,7 +241,6 @@ class UIManager {
         if (this.dom.hudLayer) this.dom.hudLayer.classList.remove('visible');
         if (this.dom.gameoverModal) this.dom.gameoverModal.classList.add('visible');
         this.populateGameOver(contextData);
-        if (this.audio && this.audio.fadeOutMusic) this.audio.fadeOutMusic(0.22);
         break;
 
       case StateManager.STATES.QUESTS:
@@ -274,6 +272,14 @@ class UIManager {
         this.updatePerfToggleBtn();
         break;
     }
+
+    this.syncMusic(state);
+  }
+
+  syncMusic(state) {
+    if (!this.audio) return;
+    const inRun = state === StateManager.STATES.PLAYING || state === StateManager.STATES.TUTORIAL;
+    this.audio.playMusic(inRun ? 'bgm_gameplay' : 'bgm_menu');
   }
 
   showTutorialTip(text) {
@@ -579,14 +585,34 @@ class UIManager {
     }
   }
 
-  showRecordFlash() {
-    if (this.dom.flashOverlay) {
-      this.dom.flashOverlay.classList.add('flash');
-      setTimeout(() => this.dom.flashOverlay.classList.remove('flash'), 60);
+  showRecordFlash(previousBest, newAltitude) {
+    const prev = Math.max(0, Math.round(Number(previousBest) || 0));
+    const next = Math.max(prev, Math.round(Number(newAltitude) || prev));
+    const fmt = (n) => n.toLocaleString('de-DE');
+
+    if (this.dom.recordFxGateTag) {
+      this.dom.recordFxGateTag.textContent = `BEST  ${fmt(prev)} m`;
     }
-    if (this.dom.recordBanner) {
-      this.dom.recordBanner.classList.add('show');
-      setTimeout(() => this.dom.recordBanner.classList.remove('show'), 3200);
+    if (this.dom.recordFxMeters) {
+      this.dom.recordFxMeters.textContent = fmt(next);
+    }
+
+    const fx = this.dom.recordFx;
+    if (fx) {
+      fx.classList.remove('play');
+      void fx.offsetWidth;
+      fx.classList.add('play');
+      clearTimeout(this._recordFxTimer);
+      this._recordFxTimer = setTimeout(() => fx.classList.remove('play'), 3000);
+    }
+
+    const hud = this.dom.scoreContainer;
+    if (hud) {
+      hud.classList.remove('record-fx-pulse');
+      void hud.offsetWidth;
+      hud.classList.add('record-fx-pulse');
+      clearTimeout(this._recordHudTimer);
+      this._recordHudTimer = setTimeout(() => hud.classList.remove('record-fx-pulse'), 2800);
     }
   }
 
@@ -1734,12 +1760,7 @@ class UIManager {
       if (next) {
         this.audio.init();
         this.audio.updateVolumes();
-        if (this.state && (
-          this.state.currentState === StateManager.STATES.PLAYING ||
-          this.state.currentState === StateManager.STATES.TUTORIAL
-        )) {
-          this.audio.playMusic('bgm_gameplay');
-        }
+        this.syncMusic(this.state ? this.state.currentState : StateManager.STATES.MENU);
       } else {
         this.audio.stopMusic();
       }

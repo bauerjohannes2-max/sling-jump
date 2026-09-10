@@ -1,6 +1,7 @@
 /**
  * Space Jump - AudioManager
- * Gameplay BGM only: WebAudio buffer loop at the player's chosen volume.
+ * Two looping BGM beds: menu/out-of-run, and in-run gameplay.
+ * Track files already contain their own fades — do not wrap extra envelopes.
  */
 class AudioManager {
   constructor(storageService) {
@@ -14,7 +15,10 @@ class AudioManager {
     this.currentMusicSource = null;
     this.currentMusicGain = null;
 
-    this.gameplayPath = 'assets/audio/music/bgm_gameplay.m4a';
+    this.tracks = {
+      bgm_gameplay: 'assets/audio/music/bgm_gameplay.m4a',
+      bgm_menu: 'assets/audio/music/bgm_menu.m4a'
+    };
     this.audioBuffers = new Map();
 
     this.enabled = this.storage ? (this.storage.data.settings.audioEnabled !== false) : true;
@@ -69,33 +73,38 @@ class AudioManager {
 
   async preloadAssets() {
     if (!this.enabled || !this.ctx) return;
+    await Promise.all(Object.keys(this.tracks).map((key) => this.loadTrack(key)));
+  }
+
+  async loadTrack(key) {
+    const path = this.tracks[key];
+    if (!path || this.audioBuffers.has(key)) return;
     try {
-      const response = await fetch(this.gameplayPath);
+      const response = await fetch(path);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const arrayBuffer = await response.arrayBuffer();
       const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
-      this.audioBuffers.set('bgm_gameplay', audioBuffer);
-      if (this.currentMusicKey === 'bgm_gameplay') {
+      this.audioBuffers.set(key, audioBuffer);
+      if (this.currentMusicKey === key && !this.currentMusicSource) {
         this.currentMusicKey = null;
-        this.playMusic('bgm_gameplay');
+        this.playMusic(key);
       }
     } catch (err) {
-      console.warn('AudioManager: Failed to load gameplay music.', err);
+      console.warn(`AudioManager: Failed to load ${key}.`, err);
     }
   }
 
-  playMusic(key = 'bgm_gameplay') {
+  playMusic(key = 'bgm_menu') {
     if (!this.enabled) return;
-    if (key !== 'bgm_gameplay') {
+    if (!this.tracks[key]) {
       this.stopMusic();
       return;
     }
     this.init();
-    if (!this.ctx || this.currentMusicKey === key) return;
+    if (!this.ctx) return;
+    if (this.currentMusicKey === key && this.currentMusicSource) return;
 
-    const now = this.ctx.currentTime;
-    const oldSource = this.currentMusicSource;
-    const oldGain = this.currentMusicGain;
+    this.stopMusic();
     this.currentMusicKey = key;
 
     const buffer = this.audioBuffers.get(key);
@@ -107,53 +116,19 @@ class AudioManager {
     newSource.loopStart = 0;
     newSource.loopEnd = buffer.duration;
 
-    const fadeGain = this.ctx.createGain();
-    fadeGain.gain.setValueAtTime(1, now);
+    const trackGain = this.ctx.createGain();
+    trackGain.gain.setValueAtTime(1, this.ctx.currentTime);
 
-    newSource.connect(fadeGain);
-    fadeGain.connect(this.musicGain);
+    newSource.connect(trackGain);
+    trackGain.connect(this.musicGain);
 
     newSource.start(0);
     this.currentMusicSource = newSource;
-    this.currentMusicGain = fadeGain;
-
-    if (oldGain) {
-      try {
-        oldGain.gain.cancelScheduledValues(now);
-        oldGain.gain.setValueAtTime(Math.max(0.001, oldGain.gain.value), now);
-        oldGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-      } catch (e) {}
-    }
-    if (oldSource) {
-      try {
-        oldSource.stop(now + 0.5);
-      } catch (e) {}
-    }
+    this.currentMusicGain = trackGain;
   }
 
   fadeOutMusic(seconds = 0.25) {
-    if (!this.ctx) {
-      this.stopMusic();
-      return;
-    }
-    const now = this.ctx.currentTime;
-    const fade = Math.max(0.05, seconds);
-    if (this.currentMusicGain) {
-      try {
-        this.currentMusicGain.gain.cancelScheduledValues(now);
-        this.currentMusicGain.gain.setValueAtTime(Math.max(0.001, this.currentMusicGain.gain.value), now);
-        this.currentMusicGain.gain.exponentialRampToValueAtTime(0.001, now + fade);
-      } catch (e) {}
-    }
-    const src = this.currentMusicSource;
-    if (src) {
-      try {
-        src.stop(now + fade);
-      } catch (e) {}
-    }
-    this.currentMusicSource = null;
-    this.currentMusicGain = null;
-    this.currentMusicKey = null;
+    this.stopMusic();
   }
 
   stopMusic() {

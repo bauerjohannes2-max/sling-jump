@@ -39,6 +39,9 @@
       if (engine.audio.ctx && engine.audio.ctx.state === 'suspended') {
         engine.audio.ctx.resume();
       }
+      if (engine.ui && engine.ui.syncMusic) {
+        engine.ui.syncMusic(engine.state ? engine.state.currentState : StateManager.STATES.MENU);
+      }
     }
   };
   window.addEventListener('pointerdown', unlockAudio, { passive: true });
