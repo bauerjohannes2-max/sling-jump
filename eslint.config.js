@@ -30,6 +30,10 @@ const browserGlobals = {
   URLSearchParams: 'readonly',
   crypto: 'readonly',
   TextEncoder: 'readonly',
+  AbortController: 'readonly',
+  ClipboardItem: 'readonly',
+  Path2D: 'readonly',
+  File: 'readonly',
   caches: 'readonly',
   self: 'readonly',
   atob: 'readonly',
@@ -67,6 +71,7 @@ const projectGlobals = {
   Spaceship: 'readonly',
   OrbitNode: 'readonly',
   EnergyOrb: 'readonly',
+  ShipArt: 'readonly',
   LocalNodeAdapter: 'readonly',
   SupabaseAdapter: 'readonly'
 };
