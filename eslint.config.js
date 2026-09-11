@@ -73,7 +73,9 @@ const projectGlobals = {
   EnergyOrb: 'readonly',
   ShipArt: 'readonly',
   LocalNodeAdapter: 'readonly',
-  SupabaseAdapter: 'readonly'
+  SupabaseAdapter: 'readonly',
+  leaderboardNameKey: 'readonly',
+  dedupeLeaderboardByName: 'readonly'
 };
 
 const sharedRules = {

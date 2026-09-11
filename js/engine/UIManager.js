@@ -482,14 +482,44 @@ class UIManager {
     }
   }
 
-  saveProfile(e) {
+  async isPilotNameTaken(name) {
+    const key = String(name || '').trim().toLowerCase();
+    if (!key) return false;
+    const profile = this.storage ? this.storage.getPlayerProfile() : null;
+    const myName = String((profile && profile.pilotName) || '').trim().toLowerCase();
+    if (key === myName) return false;
+    const myId = String((profile && profile.playerId) || '').toUpperCase();
+    try {
+      const remote = await this.refreshRemoteLeaderboard(true);
+      if (!Array.isArray(remote)) return false;
+      return remote.some((row) => {
+        const rowKey = String((row && row.name) || '').trim().toLowerCase();
+        const rowId = String((row && (row.playerId || row.player_id)) || '').toUpperCase();
+        return rowKey === key && (!myId || rowId !== myId);
+      });
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async saveProfile(e) {
     if (e) e.preventDefault();
     const inputEl = document.getElementById('profile-name-input');
     const name = inputEl ? inputEl.value : '';
+    const msgEl = document.getElementById('profile-status-message');
+    const taken = await this.isPilotNameTaken(name);
+    if (taken) {
+      if (msgEl) {
+        msgEl.textContent = 'NAME SCHON VERGEBEN';
+        msgEl.style.color = '#f59e0b';
+        msgEl.style.opacity = '1';
+        setTimeout(() => { if (msgEl) msgEl.style.opacity = '0'; }, 2200);
+      }
+      return;
+    }
     const res = this.storage.registerPlayer(name);
     
     const heroNameEl = document.getElementById('profile-hero-name');
-    const msgEl = document.getElementById('profile-status-message');
     const noticeEl = document.getElementById('profile-change-notice');
     const saveBtn = document.getElementById('btn-profile-save');
 
@@ -1386,7 +1416,8 @@ class UIManager {
     const storedRuns = (remote || ((this.storage && this.storage.data && this.storage.data.leaderboard) || [])).map(r => {
       const entryId = String(r.playerId || r.player_id || '').toUpperCase();
       const isPlayer = remote
-        ? !!(playerId && entryId && entryId === playerId)
+        ? !!(playerId && entryId && entryId === playerId) ||
+          (!!playerName && String(r.name || '').trim().toLowerCase() === String(playerName).trim().toLowerCase())
         : (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')));
       return {
         name: r.name || playerName,
@@ -1404,13 +1435,18 @@ class UIManager {
     });
 
     storedRuns.forEach(r => {
-      const key = r.isPlayer ? '__CURRENT_PLAYER__' : ((r.playerId || r.name || 'Contender').toString().trim());
+      const key = (typeof leaderboardNameKey === 'function')
+        ? (leaderboardNameKey(r.name) || (r.playerId || 'contender'))
+        : ((r.playerId || r.name || 'Contender').toString().trim());
       const existing = playerBestMap.get(key);
+      const isPlayer = !!(r.isPlayer || (existing && existing.isPlayer));
       if (!existing || r.altitude > existing.altitude) {
         playerBestMap.set(key, {
           altitude: r.altitude,
-          isPlayer: r.isPlayer
+          isPlayer
         });
+      } else if (isPlayer) {
+        existing.isPlayer = true;
       }
     });
 
@@ -1515,7 +1551,8 @@ class UIManager {
       const entryId = String(r.playerId || r.player_id || '').toUpperCase();
       const altitude = Math.floor(Number(r.altitude) || 0);
       const isPlayer = remote
-        ? !!(playerId && entryId && entryId === playerId)
+        ? !!(playerId && entryId && entryId === playerId) ||
+          (!!playerName && String(r.name || '').trim().toLowerCase() === String(playerName).trim().toLowerCase())
         : (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')));
       return {
         name: r.name || playerName,
@@ -1539,18 +1576,22 @@ class UIManager {
     }
 
     storedRuns.forEach(r => {
-      const key = r.isPlayer
-        ? '__CURRENT_PLAYER__'
+      const key = (typeof leaderboardNameKey === 'function')
+        ? (leaderboardNameKey(r.name) || (r.playerId || 'contender'))
         : ((r.playerId || r.name || '').toString().trim() || 'Contender');
       const existing = playerBestMap.get(key);
+      const isPlayer = !!(r.isPlayer || (existing && existing.isPlayer));
       if (!existing || r.altitude > existing.altitude) {
         playerBestMap.set(key, {
-          name: r.isPlayer ? `${playerName} (DU)` : r.name,
+          name: isPlayer ? `${playerName} (DU)` : r.name,
           altitude: r.altitude,
           country: r.country,
           countryName: r.countryName,
-          isPlayer: r.isPlayer
+          isPlayer
         });
+      } else if (isPlayer) {
+        existing.isPlayer = true;
+        existing.name = `${playerName} (DU)`;
       }
     });
 

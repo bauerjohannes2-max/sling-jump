@@ -520,6 +520,31 @@ function sanitizeLeaderboardName(name) {
   return cleaned || 'Pilot';
 }
 
+function leaderboardNameKey(name) {
+  return sanitizeLeaderboardName(name).toLowerCase();
+}
+
+function rememberLeaderboardEntry(best, playerId, name, altitude) {
+  const cleanName = sanitizeLeaderboardName(name);
+  const nameKey = leaderboardNameKey(cleanName);
+  let targetId = playerId;
+  for (const [id, row] of best.entries()) {
+    if (leaderboardNameKey(row.name) === nameKey) {
+      targetId = id;
+      break;
+    }
+  }
+  const existing = best.get(targetId);
+  if (!existing || altitude > existing.altitude) {
+    best.set(targetId, { name: cleanName, altitude, playerId: targetId });
+  } else if (existing && cleanName && cleanName !== 'Pilot') {
+    existing.name = cleanName;
+  }
+  if (playerId && playerId !== targetId) {
+    best.delete(playerId);
+  }
+}
+
 function buildPublicLeaderboard() {
   const best = new Map();
   for (const [id, record] of Object.entries(playersStore || {})) {
@@ -533,14 +558,9 @@ function buildPublicLeaderboard() {
     const profile = state.playerProfile && typeof state.playerProfile === 'object' && !Array.isArray(state.playerProfile)
       ? state.playerProfile
       : {};
-    const name = sanitizeLeaderboardName(
-      record.username || profile.accountName || profile.pilotName || ''
-    );
+    const name = record.username || profile.accountName || profile.pilotName || '';
     const playerId = typeof record.playerId === 'string' ? record.playerId : id;
-    const existing = best.get(playerId);
-    if (!existing || altitude > existing.altitude) {
-      best.set(playerId, { name, altitude, playerId });
-    }
+    rememberLeaderboardEntry(best, playerId, name, altitude);
   }
 
   const extras = readJsonStore(PUBLIC_LB_FILE) || {};
@@ -550,13 +570,7 @@ function buildPublicLeaderboard() {
     const playerId = parsePlayerId(row.playerId || id);
     const altitude = clampInt(row.altitude, 0, SCHEMA_BOUNDS.MAX_HIGH_SCORE, 0);
     if (!playerId || altitude <= 0) continue;
-    const name = sanitizeLeaderboardName(row.name || '');
-    const existing = best.get(playerId);
-    if (!existing || altitude > existing.altitude) {
-      best.set(playerId, { name, altitude, playerId });
-    } else if (existing && name && name !== 'Pilot') {
-      existing.name = name;
-    }
+    rememberLeaderboardEntry(best, playerId, row.name || '', altitude);
   }
 
   return Array.from(best.values()).sort((a, b) => b.altitude - a.altitude).slice(0, 100);
@@ -1025,14 +1039,29 @@ function createRequestListener() {
         }
 
         const store = readJsonStore(PUBLIC_LB_FILE) || {};
-        const existing = store[playerId];
+        let targetId = playerId;
+        const nameKey = leaderboardNameKey(name);
+        for (const [id, row] of Object.entries(store)) {
+          if (!row || typeof row !== 'object') continue;
+          if (leaderboardNameKey(row.name) === nameKey) {
+            const existingId = parsePlayerId(row.playerId || id);
+            if (existingId) {
+              targetId = existingId;
+              break;
+            }
+          }
+        }
+        const existing = store[targetId] || store[playerId];
         const nextAltitude = existing && existing.altitude > altitude ? existing.altitude : altitude;
-        store[playerId] = {
-          playerId,
+        store[targetId] = {
+          playerId: targetId,
           name,
           altitude: nextAltitude,
           updatedAt: new Date().toISOString()
         };
+        if (playerId !== targetId && store[playerId]) {
+          delete store[playerId];
+        }
         if (!writeJsonStore(PUBLIC_LB_FILE, store)) {
           res.writeHead(500, {
             'Content-Type': 'application/json',

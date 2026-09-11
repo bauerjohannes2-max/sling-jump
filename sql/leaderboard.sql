@@ -19,6 +19,20 @@ create policy "public read leaderboard"
 
 grant select on public.leaderboard to anon, authenticated;
 
+-- One display name, one row. Keep the best altitude, then the newest update.
+delete from public.leaderboard a
+ using public.leaderboard b
+ where lower(a.name) = lower(b.name)
+   and a.player_id <> b.player_id
+   and (
+     b.altitude > a.altitude
+     or (b.altitude = a.altitude and b.updated_at > a.updated_at)
+     or (b.altitude = a.altitude and b.updated_at = a.updated_at and b.player_id < a.player_id)
+   );
+
+create unique index if not exists leaderboard_name_ci_idx
+  on public.leaderboard (lower(name));
+
 create or replace function public.submit_leaderboard(p_player_id text, p_name text, p_altitude integer)
 returns json
 language plpgsql
@@ -29,6 +43,7 @@ declare
   clean_id text;
   clean_name text;
   clean_alt integer;
+  named_id text;
   result_row public.leaderboard%rowtype;
 begin
   clean_id := upper(trim(coalesce(p_player_id, '')));
@@ -44,6 +59,23 @@ begin
   clean_alt := least(greatest(coalesce(p_altitude, 0), 0), 500000);
   if clean_alt <= 0 then
     return json_build_object('ok', false, 'error', 'NO_SCORE');
+  end if;
+
+  select s.player_id into named_id
+    from public.leaderboard s
+   where lower(s.name) = lower(clean_name)
+   limit 1;
+
+  if named_id is not null and named_id <> clean_id then
+    if exists (select 1 from public.leaderboard where player_id = clean_id) then
+      return json_build_object('ok', false, 'error', 'NAME_TAKEN', 'nameTaken', true);
+    end if;
+    update public.leaderboard
+       set altitude = greatest(public.leaderboard.altitude, clean_alt),
+           updated_at = now()
+     where player_id = named_id
+     returning * into result_row;
+    return json_build_object('ok', true, 'altitude', result_row.altitude);
   end if;
 
   insert into public.leaderboard (player_id, name, altitude, updated_at)

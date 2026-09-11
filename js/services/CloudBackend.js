@@ -42,11 +42,29 @@ async function readJsonApi(res) {
 
 function mapLeaderboardEntries(rows) {
   if (!Array.isArray(rows)) return [];
-  return rows.map((row) => ({
+  const mapped = rows.map((row) => ({
     playerId: String((row && (row.playerId || row.player_id)) || '').trim(),
     name: String((row && row.name) || 'Pilot').trim() || 'Pilot',
     altitude: Math.floor(Number(row && row.altitude) || 0)
   })).filter((row) => row.playerId && row.altitude > 0);
+  return dedupeLeaderboardByName(mapped);
+}
+
+function leaderboardNameKey(name) {
+  return String(name || '').trim().toLowerCase();
+}
+
+function dedupeLeaderboardByName(entries) {
+  const best = new Map();
+  for (const row of entries || []) {
+    const key = leaderboardNameKey(row && row.name);
+    if (!key) continue;
+    const existing = best.get(key);
+    if (!existing || Number(row.altitude) > Number(existing.altitude)) {
+      best.set(key, row);
+    }
+  }
+  return Array.from(best.values()).sort((a, b) => Number(b.altitude) - Number(a.altitude));
 }
 
 class BaseCloudAdapter {

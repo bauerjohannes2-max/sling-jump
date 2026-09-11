@@ -130,6 +130,21 @@ async function main() {
     const guest = boardAfter.json.entries.find((e) => e.playerId === guestId);
     assert(guest && guest.altitude === 350, 'guest score must appear on GET /api/leaderboard');
 
+    const twinName = `Twin${nonce}`;
+    const twinA = `#TWA2-${nonce}`;
+    const twinB = `#TWB3-${nonce}`;
+    const twinLow = await request(gamePort, 'POST', '/api/leaderboard', {
+      body: { playerId: twinA, name: twinName, altitude: 120 }
+    });
+    const twinHigh = await request(gamePort, 'POST', '/api/leaderboard', {
+      body: { playerId: twinB, name: twinName, altitude: 480 }
+    });
+    assert(twinLow.status === 200 && twinHigh.status === 200, 'same-name scores should be accepted');
+    const twinBoard = await request(gamePort, 'GET', '/api/leaderboard');
+    const twins = (twinBoard.json.entries || []).filter((e) => e.name === twinName);
+    assert(twins.length === 1, `same display name must appear once, got ${twins.length}`);
+    assert(twins[0].altitude === 480, 'same-name rows must keep the best altitude');
+
     console.log('[smoke] serve.js passed');
   } finally {
     await closeServer(gameServer);
