@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '5.18.53',
+  VERSION: '5.18.54',
   STORAGE_KEY: 'space_jump_save_v2',
   LEGACY_STORAGE_KEY: 'sling_jump_save_v2',
 
@@ -18,8 +18,7 @@ const CONSTANTS = {
     TUTORIAL_ORBIT_SPIN: 1.0,
     SLOWMO_FACTOR: 0.40,
     MOMENT_SLOWMO_FACTOR: 0.28,
-    // 90° “Loslassen” window — used in tutorial and live play.
-    // ~14° before vertical through ~22° after; at 0.018 time scale that is ~3.6s real time.
+    // 90° “Loslassen” window — tutorial only.
     TUTORIAL_RELEASE_SLOWMO: 0.018,
     TUTORIAL_RELEASE_ENTER: 0.97,
     TUTORIAL_RELEASE_EXIT: 0.93,

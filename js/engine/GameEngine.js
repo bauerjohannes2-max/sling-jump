@@ -308,13 +308,11 @@ class GameEngine {
   }
 
   updateLaunchWindow() {
-    if (!this.player || !this.player.isHooked) {
+    if (!this.isTutorial || !this.player || !this.player.isHooked) {
       this.launchWindowActive = false;
       return;
     }
-    if (this.isTutorial) {
-      this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
-    }
+    this.player.orbitSpinScale = CONSTANTS.PHYSICS.TUTORIAL_ORBIT_SPIN;
     const ty = this.player.getLaunchTangentY();
     const enter = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_ENTER || 0.97;
     const exit = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_EXIT || 0.93;
@@ -845,7 +843,7 @@ class GameEngine {
     }
     if (this.momentSlowMoLeft <= 0 && this.player && !this.isDying &&
         (this.state.is(StateManager.STATES.PLAYING) || this.state.is(StateManager.STATES.TUTORIAL))) {
-      if (this.player.isHooked && this.launchWindowActive) {
+      if (this.isTutorial && this.player.isHooked && this.launchWindowActive) {
         this.targetTimeScale = CONSTANTS.PHYSICS.TUTORIAL_RELEASE_SLOWMO || 0.018;
         if (this.timeScale > 0.08) this.timeScale = 0.08;
         this.ui.setSlowMoVisual(true);
@@ -1117,7 +1115,7 @@ class GameEngine {
 
       if (this.player && this.ui) {
         const playerScreenY = this.height - (this.player.y - this.cameraY);
-        if (this.player.isHooked && this.launchWindowActive) {
+        if (this.isTutorial && this.player.isHooked && this.launchWindowActive) {
           this.ui.setTrainingHint('Loslassen', this.player.x, playerScreenY, 'above', this.width, this.height);
         } else if (this.isTutorial && !this.player.isHooked && this.shouldShowPressCue()) {
           this.ui.setTrainingHint('Drücken und halten', this.player.x, playerScreenY, 'beside', this.width, this.height);
