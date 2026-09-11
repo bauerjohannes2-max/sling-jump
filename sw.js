@@ -1,9 +1,9 @@
 /**
  * Space Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 5.18.52
+ * Version: 5.18.53
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'space-jump-v5.18.52';
+const CACHE_NAME = 'space-jump-v5.18.53';
 
 const PRECACHE_ASSETS = [
   './',
@@ -38,13 +38,17 @@ const PRECACHE_ASSETS = [
   './js/main.js'
 ];
 
-// 1. Install: Pre-cache core shell. Do not skipWaiting here — taking over
-// mid-run reloads the page and shifts the mobile viewport until a cold start.
+// 1. Install: Precache is best-effort. cache.addAll() is atomic — one 404 or
+// GitHub Pages redirect aborts the entire install, so phones stay on the old
+// worker forever. Skip waiting so a new worker activates without the old page
+// having to message it; the page defers the reload if a run is in progress.
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
-    })
+      return Promise.all(PRECACHE_ASSETS.map((url) => cache.add(url).catch((err) => {
+        console.warn('[SW] precache skipped', url, err);
+      })));
+    }).finally(() => self.skipWaiting())
   );
 });
 
@@ -82,11 +86,10 @@ self.addEventListener('fetch', (event) => {
   }
 
   // version.json and the web manifest must always hit the network.
-  // A cached manifest keeps phones on the old homescreen icon URL.
+  // Do not respondWith: intercepting here can pin phones to a CDN/SW copy
+  // and the page already fetches these with cache: 'no-store'.
+  // A cached manifest also keeps phones on the old homescreen icon URL.
   if (url.pathname.endsWith('version.json') || url.pathname.endsWith('manifest.json')) {
-    event.respondWith(
-      fetch(event.request, { cache: 'no-store' })
-    );
     return;
   }
 

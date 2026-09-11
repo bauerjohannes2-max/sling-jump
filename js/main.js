@@ -590,9 +590,21 @@
     return false;
   }
 
+  function documentBaseUrl() {
+    const u = new URL(window.location.href);
+    u.hash = '';
+    u.search = '';
+    if (/\/index\.html$/i.test(u.pathname)) {
+      u.pathname = u.pathname.replace(/index\.html$/i, '');
+    } else if (!u.pathname.endsWith('/')) {
+      u.pathname += '/';
+    }
+    return u;
+  }
+
   function versionCheckSources() {
     const t = Date.now();
-    const sources = [new URL(`version.json?t=${t}`, window.location.href).href];
+    const sources = [new URL(`version.json?t=${t}`, documentBaseUrl()).href];
     if (!/\.github\.io$/i.test(window.location.hostname)) {
       sources.push(`/api/version?t=${t}`);
       sources.push(`${PUBLISHED_PAGES_VERSION}?t=${t}`);
@@ -608,14 +620,12 @@
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 7000);
     try {
+      // Do not set Cache-Control/Pragma request headers. They are not CORS
+      // safelisted, so GitHub raw answers the preflight with 403 and phones
+      // never see the published version.json that bypasses a stale Pages CDN.
       const res = await fetch(url, {
         cache: 'no-store',
-        signal: ctrl.signal,
-        headers: {
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
+        signal: ctrl.signal
       });
       if (!res.ok) return null;
       const data = await res.json();
@@ -667,6 +677,7 @@
   }
 
   async function navigateForUpdate(url) {
+    window._sjUpdateReload = true;
     if (typeof url === 'string') {
       window._sjSuppressSwReload = true;
       try {
@@ -710,6 +721,7 @@
   };
 
   async function forceAppUpdate(serverVer) {
+    if (window._sjUpdateReload) return;
     const next = new URL(location.href);
     next.searchParams.set('v', serverVer);
     next.searchParams.set('_', String(Date.now()));
@@ -734,6 +746,7 @@
 
   async function checkServerVersion(isManual = false) {
     if (!window.location.protocol.startsWith('http')) return;
+    if (window._sjUpdateReload) return;
     if (versionCheckInFlight && !isManual) return;
     versionCheckInFlight = true;
 
@@ -788,15 +801,29 @@
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (window._sjSuppressSwReload) return;
+      if (window._sjSuppressSwReload || window._sjUpdateReload) return;
       if (!refreshing) {
         refreshing = true;
         performOrDeferReload();
       }
     });
 
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none', scope: './' }).then((reg) => {
+    const watchWorker = (worker, onInstalled) => {
+      if (!worker) return;
+      worker.addEventListener('statechange', () => {
+        if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+          onInstalled();
+        }
+      });
+    };
+
+    const registerAppServiceWorker = () => {
+      const base = documentBaseUrl();
+      const swUrl = new URL('sw.js', base).href;
+      navigator.serviceWorker.register(swUrl, {
+        updateViaCache: 'none',
+        scope: base.pathname
+      }).then((reg) => {
         const activateWaitingWorker = () => {
           if (isInActiveRun()) {
             pendingReloadUrl = pendingReloadUrl || true;
@@ -808,31 +835,25 @@
           }
         };
 
-        // Check for updates on register
-        reg.update();
+        // Listen before update() so we cannot miss updatefound on a fast path.
+        watchWorker(reg.installing, activateWaitingWorker);
+        reg.addEventListener('updatefound', () => watchWorker(reg.installing, activateWaitingWorker));
         activateWaitingWorker();
-
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                activateWaitingWorker();
-              }
-            });
-          }
-        });
+        reg.update();
       }).catch(() => {});
+    };
 
-      // Check server version on launch
-      checkServerVersion(false);
-    });
+    if (document.readyState === 'complete') registerAppServiceWorker();
+    else window.addEventListener('load', registerAppServiceWorker);
+  }
 
-    // Also check for updates whenever user returns to the app tab / home screen
+  // Version checks must not live inside the serviceWorker feature-detect: iOS
+  // home-screen resumes often skip SW updatefound, but a raw version.json
+  // probe still unsticks the install. pageshow covers bfcache / PWA relaunch.
+  if (window.location.protocol.startsWith('http')) {
+    window.addEventListener('pageshow', () => checkServerVersion(false));
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        checkServerVersion(false);
-      }
+      if (document.visibilityState === 'visible') checkServerVersion(false);
     });
   }
 

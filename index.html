@@ -7,16 +7,16 @@
   <script>
     (function () {
       var path = location.pathname || '/';
-      if (/\.github\.io$/i.test(location.hostname) && path.indexOf('/space-jump') !== 0) {
+      if (/\.github\.io$/i.test(location.hostname) && path.indexOf('/space-jump/') !== 0) {
         location.replace('/space-jump/' + location.search + location.hash);
       }
     })();
   </script>
-  <link rel="manifest" href="manifest.json?v=5.18.52">
-  <link rel="shortcut icon" href="favicon.ico?v=5.18.52">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.52">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-punch-192.png?v=5.18.52">
-  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.52">
+  <link rel="manifest" href="manifest.json?v=5.18.53">
+  <link rel="shortcut icon" href="favicon.ico?v=5.18.53">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=5.18.53">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-punch-192.png?v=5.18.53">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=5.18.53">
   <link rel="apple-touch-icon" href="apple-touch-icon-punch.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-punch.png">
   <meta name="theme-color" content="#080b10">
@@ -25,14 +25,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Space Jump">
   <meta name="format-detection" content="telephone=no">
-  <link rel="preload" href="assets/fonts/rajdhani-700-latin.woff2?v=5.18.52" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/oxanium-800-latin.woff2?v=5.18.52" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/orbitron-latin.woff2?v=5.18.52" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/fonts.css?v=5.18.52">
-  <link rel="stylesheet" href="css/style.css?v=5.18.52">
+  <link rel="preload" href="assets/fonts/rajdhani-700-latin.woff2?v=5.18.53" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/oxanium-800-latin.woff2?v=5.18.53" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/orbitron-latin.woff2?v=5.18.53" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css?v=5.18.53">
+  <link rel="stylesheet" href="css/style.css?v=5.18.53">
   <script>
     (function() {
-      var APP_VERSION = '5.18.52';
+      var APP_VERSION = '5.18.53';
       var storedVer = localStorage.getItem('space_jump_installed_version') || localStorage.getItem('sling_jump_installed_version');
       if (storedVer && storedVer !== APP_VERSION) {
         localStorage.setItem('space_jump_installed_version', APP_VERSION);
@@ -51,6 +51,66 @@
       } else if (!storedVer) {
         localStorage.setItem('space_jump_installed_version', APP_VERSION);
       }
+
+      // Probe published version.json without CORS-unsafe headers. Cache-Control
+      // and Pragma on the request trigger a preflight that GitHub raw 403s, so
+      // phones never saw the fallback that bypasses a stale Pages/SW copy.
+      if (location.protocol.indexOf('http') !== 0) return;
+      function parseVer(value) {
+        if (value == null) return null;
+        var m = String(value).trim().replace(/^v/i, '').match(/^(\d+)\.(\d+)\.(\d+)/);
+        return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;
+      }
+      function isNewer(remote, local) {
+        var a = parseVer(remote);
+        var b = parseVer(local);
+        if (!a || !b) return false;
+        for (var i = 0; i < 3; i++) {
+          if (a[i] > b[i]) return true;
+          if (a[i] < b[i]) return false;
+        }
+        return false;
+      }
+      function nukeAndReload(serverVer) {
+        if (window._sjUpdateReload) return;
+        var attempts = Number(sessionStorage.getItem('sj_update_attempts') || '0');
+        if (attempts >= 3) return;
+        window._sjUpdateReload = true;
+        window._sjSuppressSwReload = true;
+        sessionStorage.setItem('sj_update_attempts', String(attempts + 1));
+        var chain = Promise.resolve();
+        if ('caches' in window) {
+          chain = caches.keys().then(function(keys) {
+            return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+          });
+        }
+        chain.then(function() {
+          if (!('serviceWorker' in navigator)) return;
+          return navigator.serviceWorker.getRegistrations().then(function(regs) {
+            return Promise.all(regs.map(function(r) { return r.unregister(); }));
+          });
+        }).then(function() {
+          var next = new URL(location.href);
+          next.searchParams.set('v', serverVer);
+          next.searchParams.set('_', String(Date.now()));
+          location.replace(next.pathname + next.search + next.hash);
+        }).catch(function() {
+          window._sjUpdateReload = false;
+        });
+      }
+      var t = Date.now();
+      var probes = ['version.json?t=' + t];
+      if (!/\.github\.io$/i.test(location.hostname)) probes.push('/api/version?t=' + t);
+      probes.push('https://raw.githubusercontent.com/bauerjohannes2-max/space-jump/main/version.json?t=' + t);
+      probes.forEach(function(url) {
+        fetch(url, { cache: 'no-store' }).then(function(res) {
+          return res.ok ? res.json() : null;
+        }).then(function(data) {
+          var ver = data && (data.version || data.tag);
+          if (!ver) return;
+          if (isNewer(ver, APP_VERSION)) nukeAndReload(String(ver).replace(/^v/i, ''));
+        }).catch(function() {});
+      });
     })();
   </script>
 </head>
@@ -731,7 +791,7 @@
           <button class="btn-settings-action btn-settings-danger" id="btn-reset-data" type="button">SPIELSTAND ZURÜCKSETZEN</button>
         </div>
         <div class="settings-legal-foot">
-          <span class="settings-version-tag">SPACE JUMP v5.18.52</span>
+          <span class="settings-version-tag">SPACE JUMP v5.18.53</span>
           <span class="legal-sep">·</span>
           <button type="button" class="legal-link" data-legal="impressum">Impressum</button>
           <span class="legal-sep">·</span>
@@ -935,23 +995,23 @@
   </div>
 
   <!-- Modular Scripts in Dependency Order with Version Query -->
-  <script src="js/config/Constants.js?v=5.18.52"></script>
-  <script src="js/config/CloudConfig.js?v=5.18.52"></script>
-  <script src="js/services/CloudBackend.js?v=5.18.52"></script>
-  <script src="js/services/StorageService.js?v=5.18.52"></script>
-  <script src="js/audio/AudioManager.js?v=5.18.52"></script>
-  <script src="js/engine/ParticleSystem.js?v=5.18.52"></script>
-  <script src="js/engine/InputManager.js?v=5.18.52"></script>
-  <script src="js/engine/MissionManager.js?v=5.18.52"></script>
-  <script src="js/entities/Node.js?v=5.18.52"></script>
-  <script src="js/entities/EnergyOrb.js?v=5.18.52"></script>
-  <script src="js/entities/ShipArt.js?v=5.18.52"></script>
-  <script src="js/entities/Spaceship.js?v=5.18.52"></script>
-  <script src="js/world/WorldManager.js?v=5.18.52"></script>
-  <script src="js/engine/ShopManager.js?v=5.18.52"></script>
-  <script src="js/engine/StateManager.js?v=5.18.52"></script>
-  <script src="js/engine/UIManager.js?v=5.18.52"></script>
-  <script src="js/engine/GameEngine.js?v=5.18.52"></script>
-  <script src="js/main.js?v=5.18.52"></script>
+  <script src="js/config/Constants.js?v=5.18.53"></script>
+  <script src="js/config/CloudConfig.js?v=5.18.53"></script>
+  <script src="js/services/CloudBackend.js?v=5.18.53"></script>
+  <script src="js/services/StorageService.js?v=5.18.53"></script>
+  <script src="js/audio/AudioManager.js?v=5.18.53"></script>
+  <script src="js/engine/ParticleSystem.js?v=5.18.53"></script>
+  <script src="js/engine/InputManager.js?v=5.18.53"></script>
+  <script src="js/engine/MissionManager.js?v=5.18.53"></script>
+  <script src="js/entities/Node.js?v=5.18.53"></script>
+  <script src="js/entities/EnergyOrb.js?v=5.18.53"></script>
+  <script src="js/entities/ShipArt.js?v=5.18.53"></script>
+  <script src="js/entities/Spaceship.js?v=5.18.53"></script>
+  <script src="js/world/WorldManager.js?v=5.18.53"></script>
+  <script src="js/engine/ShopManager.js?v=5.18.53"></script>
+  <script src="js/engine/StateManager.js?v=5.18.53"></script>
+  <script src="js/engine/UIManager.js?v=5.18.53"></script>
+  <script src="js/engine/GameEngine.js?v=5.18.53"></script>
+  <script src="js/main.js?v=5.18.53"></script>
 </body>
 </html>

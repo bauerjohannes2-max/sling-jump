@@ -31,5 +31,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
 
+      - name: PWA update registration
+        run: npm run test:pwa
+
       - name: Playwright visual suite
         run: npm test
