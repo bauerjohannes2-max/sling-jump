@@ -127,6 +127,70 @@ async function withBrowser(fn) {
   }
 }
 
+function isNavigationDestroy(err) {
+  const msg = String((err && err.message) || err);
+  return msg.includes('Execution context was destroyed') || msg.includes('because of a navigation');
+}
+
+async function evaluateAfterNav(page, fn, arg, attempts = 6) {
+  let lastErr = null;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await page.evaluate(fn, arg);
+    } catch (err) {
+      lastErr = err;
+      if (!isNavigationDestroy(err)) throw err;
+      await page.waitForLoadState('domcontentloaded');
+    }
+  }
+  throw lastErr;
+}
+
+async function stubCurrentVersionJson(page) {
+  const pkg = JSON.parse(read('package.json'));
+  const body = JSON.stringify({ version: pkg.version, tag: `v${pkg.version}` });
+  await page.route('**/*', async (route) => {
+    const url = route.request().url();
+    if (url.includes('version.json') || url.includes('/api/version') || url.includes('raw.githubusercontent.com')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body,
+        headers: { 'Access-Control-Allow-Origin': '*' }
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function gotoGameAndSettle(page, url) {
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  const deadline = Date.now() + 20000;
+  while (Date.now() < deadline) {
+    try {
+      await page.waitForSelector('#btn-menu-play', { timeout: 5000 });
+      await page.waitForFunction(() => !!(navigator.serviceWorker && navigator.serviceWorker.controller), { timeout: 5000 });
+      await sleep(400);
+      const settled = await page.evaluate(() => !!(
+        navigator.serviceWorker.controller &&
+        document.getElementById('btn-menu-play')
+      ));
+      if (settled) return;
+    } catch (err) {
+      if (!isNavigationDestroy(err)) throw err;
+      try {
+        await page.waitForLoadState('domcontentloaded');
+      } catch (e) {}
+    }
+  }
+  throw new Error('game shell did not settle after service worker control');
+}
+
 async function testBestEffortInstall() {
   const server = startFixtureServer();
   const port = await listen(server);
@@ -151,9 +215,9 @@ async function testLiveGameWorker() {
   try {
     await withBrowser(async (browser) => {
       const page = await browser.newPage({ serviceWorkers: 'allow' });
-      await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.controller, { timeout: 20000 });
-      const info = await page.evaluate(async () => {
+      await stubCurrentVersionJson(page);
+      await gotoGameAndSettle(page, `http://127.0.0.1:${port}/`);
+      const info = await evaluateAfterNav(page, async () => {
         const ready = await navigator.serviceWorker.ready;
         return {
           script: ready.active && ready.active.scriptURL,
@@ -269,9 +333,9 @@ async function testSettingsUpdateButtonWhenCurrent() {
         }
         await route.continue();
       });
-      await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'domcontentloaded' });
-      await page.waitForSelector('#btn-menu-settings', { timeout: 10000 });
+      await gotoGameAndSettle(page, `http://127.0.0.1:${port}/`);
       await page.click('#btn-menu-settings');
+      await page.waitForSelector('#settings-modal.visible', { timeout: 8000 });
       await page.click('#btn-check-update');
       await page.waitForFunction(() => {
         const t = document.getElementById('btn-check-update');
