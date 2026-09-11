@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '5.18.58',
+  VERSION: '1.0.0',
   STORAGE_KEY: 'space_jump_save_v2',
   LEGACY_STORAGE_KEY: 'sling_jump_save_v2',
 

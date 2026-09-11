@@ -1,7 +1,7 @@
 -- Space Jump cloud saves (Supabase SQL editor)
--- Run AFTER 5.18.33 is live on GitHub Pages, so the client already talks to these RPCs.
 -- The anon key stays in the client; RLS + these RPCs are what protect player data.
 -- Direct table reads/writes are revoked. Password hashes never leave the database.
+-- Passwords are stored with pgcrypto bcrypt. Restore always needs a password.
 
 create extension if not exists pgcrypto;
 
@@ -21,6 +21,9 @@ create table if not exists public.player_sessions (
 
 create index if not exists player_sessions_player_id_idx on public.player_sessions (player_id);
 create index if not exists player_sessions_expires_at_idx on public.player_sessions (expires_at);
+create unique index if not exists player_saves_username_ci_idx
+  on public.player_saves (lower(username))
+  where username is not null;
 
 alter table public.player_saves enable row level security;
 alter table public.player_sessions enable row level security;
@@ -40,6 +43,40 @@ end $$;
 
 revoke all on public.player_saves from public, anon, authenticated;
 revoke all on public.player_sessions from public, anon, authenticated;
+
+create or replace function public._hash_password(p_secret text)
+returns text
+language plpgsql
+volatile
+set search_path = public, extensions
+as $$
+begin
+  if p_secret is null or trim(p_secret) = '' then
+    return null;
+  end if;
+  return crypt(trim(p_secret), gen_salt('bf', 10));
+end;
+$$;
+
+create or replace function public._password_matches(p_stored text, p_secret text)
+returns boolean
+language plpgsql
+immutable
+set search_path = public, extensions
+as $$
+begin
+  if p_stored is null or p_stored = '' or p_secret is null or trim(p_secret) = '' then
+    return false;
+  end if;
+  if left(p_stored, 3) in ('$2a', '$2b', '$2y') then
+    return p_stored = crypt(trim(p_secret), p_stored);
+  end if;
+  return p_stored = trim(p_secret);
+end;
+$$;
+
+revoke all on function public._hash_password(text) from public, anon, authenticated;
+revoke all on function public._password_matches(text, text) from public, anon, authenticated;
 
 create or replace function public._scrub_save_state(p_state jsonb)
 returns jsonb
@@ -148,7 +185,7 @@ begin
       end if;
     end if;
     insert into public.player_saves (player_id, username, password_hash, state, updated_at)
-    values (clean_id, clean_name, clean_hash, clean_state, now())
+    values (clean_id, clean_name, public._hash_password(clean_hash), clean_state, now())
     returning * into rec;
   else
     if clean_token is not null then
@@ -169,7 +206,7 @@ begin
         if clean_hash is null then
           return json_build_object('ok', false, 'error', 'PASSWORT ERFORDERLICH', 'requiresPassword', true);
         end if;
-        if rec.password_hash <> clean_hash then
+        if not public._password_matches(rec.password_hash, clean_hash) then
           return json_build_object('ok', false, 'error', 'FALSCHES PASSWORT');
         end if;
       elsif clean_hash is null then
@@ -193,7 +230,7 @@ begin
        set username = coalesce(clean_name, username),
            password_hash = case
              when p_remove_password then null
-             when clean_hash is not null then clean_hash
+             when clean_hash is not null then public._hash_password(clean_hash)
              else password_hash
            end,
            state = clean_state,
@@ -247,13 +284,11 @@ begin
     return json_build_object('ok', false, 'error', 'SPIELER NICHT GEFUNDEN');
   end if;
 
-  if rec.password_hash is not null and rec.password_hash <> '' then
-    if clean_hash is null then
-      return json_build_object('ok', false, 'error', 'PASSWORT ERFORDERLICH', 'requiresPassword', true);
-    end if;
-    if rec.password_hash <> clean_hash then
-      return json_build_object('ok', false, 'error', 'FALSCHES PASSWORT');
-    end if;
+  if clean_hash is null then
+    return json_build_object('ok', false, 'error', 'PASSWORT ERFORDERLICH', 'requiresPassword', true);
+  end if;
+  if not public._password_matches(rec.password_hash, clean_hash) then
+    return json_build_object('ok', false, 'error', 'FALSCHES PASSWORT');
   end if;
 
   new_token := public._issue_player_session(rec.player_id);
@@ -320,7 +355,7 @@ begin
       if clean_hash is null then
         return json_build_object('ok', false, 'error', 'PASSWORT ERFORDERLICH', 'requiresPassword', true);
       end if;
-      if rec.password_hash <> clean_hash then
+      if not public._password_matches(rec.password_hash, clean_hash) then
         return json_build_object('ok', false, 'error', 'FALSCHES PASSWORT');
       end if;
     else
