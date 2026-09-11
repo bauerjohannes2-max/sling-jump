@@ -3,6 +3,7 @@
  */
 const http = require('http');
 const { createServer } = require('./serve.js');
+const { mapLeaderboardEntries } = require('../js/services/CloudBackend.js');
 
 function request(port, method, urlPath, { body, headers } = {}) {
   return new Promise((resolve, reject) => {
@@ -47,6 +48,23 @@ function assert(cond, message) {
 }
 
 async function main() {
+  const collapsed = mapLeaderboardEntries([
+    { player_id: '#KR73-H7R4', name: 'ApexStriker', altitude: 4820 },
+    { player_id: '#ZLDC-2ZMK', name: 'ApexStriker', altitude: 4820 },
+    { player_id: '#QQFM-YNW7', name: 'ApexStriker', altitude: 4820 },
+    { player_id: '#C4QR-MQ55', name: 'ApexStriker', altitude: 4820 },
+    { player_id: '#97M7-D4QJ', name: 'ApexStriker', altitude: 4820 },
+    { player_id: '#Q2MZ-JWQP', name: 'JoJosenx', altitude: 6314 },
+    { player_id: '#BKZF-U25N', name: 'JoJosenx', altitude: 4892 },
+    { player_id: '#LFEK-QJHP', name: 'BlazeBlade82', altitude: 9783 }
+  ]);
+  const apex = collapsed.filter((row) => row.name === 'ApexStriker');
+  const jojo = collapsed.filter((row) => row.name === 'JoJosenx');
+  assert(collapsed.length === 3, `duplicate names must collapse, got ${collapsed.length} rows`);
+  assert(apex.length === 1 && apex[0].altitude === 4820, 'ApexStriker must appear once');
+  assert(jojo.length === 1 && jojo[0].altitude === 6314, 'JoJosenx must keep the best altitude');
+  assert(collapsed[0].name === 'BlazeBlade82', 'collapsed board must stay sorted by altitude');
+
   const gameServer = createServer();
   const gamePort = await listen(gameServer);
 

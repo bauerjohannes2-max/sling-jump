@@ -591,11 +591,20 @@ class CloudBackend {
 }
 
 // Export for Node and Browser environments
+if (typeof window !== 'undefined') {
+  window.leaderboardNameKey = leaderboardNameKey;
+  window.dedupeLeaderboardByName = dedupeLeaderboardByName;
+  window.mapLeaderboardEntries = mapLeaderboardEntries;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     BaseCloudAdapter,
     LocalNodeAdapter,
     SupabaseAdapter,
-    CloudBackend
+    CloudBackend,
+    leaderboardNameKey,
+    dedupeLeaderboardByName,
+    mapLeaderboardEntries
   };
 }

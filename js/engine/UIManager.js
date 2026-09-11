@@ -8,6 +8,12 @@ class UIManager {
   static COIN_SVG = '<svg class="currency-icon coin-icon" viewBox="0 0 36 36" fill="none" style="width:15px;height:15px;vertical-align:middle;display:inline-block;"><circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8"/><circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4"/><circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75"/><text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="\'Rajdhani\', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select:none;">C</text></svg>';
   static CRYSTAL_SVG = '<svg class="currency-icon spark-icon" viewBox="0 0 40 40" fill="none" style="width:14px;height:14px;vertical-align:middle;display:inline-block;"><polygon points="20,2 24,15 38,20 24,25 20,38 16,25 2,20 16,15" fill="url(#sparkCoreGrad)" stroke="#d8b4fe" stroke-width="1" stroke-linejoin="round"/><polygon points="20,2 24,15 20,20" fill="#ffffff" opacity="0.16"/><polygon points="2,20 16,15 20,20" fill="#ffffff" opacity="0.10"/><polygon points="20,38 24,25 20,20" fill="#3b0764" opacity="0.35"/><polygon points="38,20 24,25 20,20" fill="#3b0764" opacity="0.25"/><line x1="24" y1="15" x2="16" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5"/><line x1="16" y1="15" x2="24" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5"/><circle cx="20" cy="20" r="1.6" fill="#f5d0fe"/></svg>';
 
+  static displayNameKey(name, fallbackId) {
+    const key = String(name || '').trim().toLowerCase();
+    if (key) return key;
+    return String(fallbackId || 'contender').trim() || 'contender';
+  }
+
   static getMissionIcon(type) {
     switch (type) {
       case 'altitude_single':
@@ -1435,9 +1441,7 @@ class UIManager {
     });
 
     storedRuns.forEach(r => {
-      const key = (typeof leaderboardNameKey === 'function')
-        ? (leaderboardNameKey(r.name) || (r.playerId || 'contender'))
-        : ((r.playerId || r.name || 'Contender').toString().trim());
+      const key = UIManager.displayNameKey(r.name, r.playerId);
       const existing = playerBestMap.get(key);
       const isPlayer = !!(r.isPlayer || (existing && existing.isPlayer));
       if (!existing || r.altitude > existing.altitude) {
@@ -1576,9 +1580,7 @@ class UIManager {
     }
 
     storedRuns.forEach(r => {
-      const key = (typeof leaderboardNameKey === 'function')
-        ? (leaderboardNameKey(r.name) || (r.playerId || 'contender'))
-        : ((r.playerId || r.name || '').toString().trim() || 'Contender');
+      const key = UIManager.displayNameKey(r.name, r.playerId);
       const existing = playerBestMap.get(key);
       const isPlayer = !!(r.isPlayer || (existing && existing.isPlayer));
       if (!existing || r.altitude > existing.altitude) {

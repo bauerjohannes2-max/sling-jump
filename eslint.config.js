@@ -75,7 +75,8 @@ const projectGlobals = {
   LocalNodeAdapter: 'readonly',
   SupabaseAdapter: 'readonly',
   leaderboardNameKey: 'readonly',
-  dedupeLeaderboardByName: 'readonly'
+  dedupeLeaderboardByName: 'readonly',
+  mapLeaderboardEntries: 'readonly'
 };
 
 const sharedRules = {
