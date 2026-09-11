@@ -516,7 +516,7 @@ function sanitizeState(state) {
 
 function sanitizeLeaderboardName(name) {
   if (typeof name !== 'string') return 'Pilot';
-  const cleaned = name.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 24);
+  const cleaned = name.replace(/[\u0000-\u001F\u007F]/g, '').replace(/\s*\(du\)\s*$/i, '').trim().slice(0, 24);
   return cleaned || 'Pilot';
 }
 

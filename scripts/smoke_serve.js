@@ -163,6 +163,21 @@ async function main() {
     assert(twins.length === 1, `same display name must appear once, got ${twins.length}`);
     assert(twins[0].altitude === 480, 'same-name rows must keep the best altitude');
 
+    const renameId = `#RNM2-${nonce}`;
+    await request(gamePort, 'POST', '/api/leaderboard', {
+      body: { playerId: renameId, name: `Old${nonce}`, altitude: 220 }
+    });
+    const renamed = await request(gamePort, 'POST', '/api/leaderboard', {
+      body: { playerId: renameId, name: `New${nonce}`, altitude: 220 }
+    });
+    assert(renamed.status === 200 && renamed.json && renamed.json.ok, 'rename submit should succeed');
+    const afterRename = await request(gamePort, 'GET', '/api/leaderboard');
+    const renameRows = (afterRename.json.entries || []).filter((e) => e.playerId === renameId);
+    const oldNameRows = (afterRename.json.entries || []).filter((e) => e.name === `Old${nonce}`);
+    assert(renameRows.length === 1, `renamed player must keep one row, got ${renameRows.length}`);
+    assert(renameRows[0].name === `New${nonce}`, 'renamed player must show the new name');
+    assert(oldNameRows.length === 0, 'old display name must not stay on the board');
+
     console.log('[smoke] serve.js passed');
   } finally {
     await closeServer(gameServer);

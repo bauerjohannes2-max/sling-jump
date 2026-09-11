@@ -286,6 +286,15 @@ class StorageService {
     const id = existing.playerId || StorageService.generateUniqueUserId();
     const hasChanged = cleanName !== existing.pilotName;
 
+    if (hasChanged && existing.pilotName && Array.isArray(this.data.leaderboard)) {
+      const oldKey = String(existing.pilotName).trim().toLowerCase();
+      this.data.leaderboard.forEach((row) => {
+        if (row && String(row.name || '').trim().toLowerCase() === oldKey) {
+          row.name = cleanName;
+        }
+      });
+    }
+
     this.data.playerProfile = {
       ...existing,
       registered: true,
@@ -743,7 +752,7 @@ class StorageService {
     if (!backend || typeof backend.submitScore !== 'function') return;
     backend.submitScore({
       playerId: profile.playerId,
-      name: profile.pilotName || profile.accountName || 'Pilot',
+      name: String(profile.pilotName || profile.accountName || 'Pilot').replace(/\s*\(du\)\s*$/i, '').trim() || 'Pilot',
       altitude: Math.floor(altitude)
     }).catch(() => {});
   }

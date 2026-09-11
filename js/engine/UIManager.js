@@ -8,10 +8,69 @@ class UIManager {
   static COIN_SVG = '<svg class="currency-icon coin-icon" viewBox="0 0 36 36" fill="none" style="width:15px;height:15px;vertical-align:middle;display:inline-block;"><circle cx="18" cy="18" r="17.2" fill="url(#coinRimGrad)" stroke="#260b02" stroke-width="0.8"/><circle cx="18" cy="18" r="15.6" stroke="#fef08a" stroke-width="0.5" stroke-opacity="0.4"/><circle cx="18" cy="18" r="13.6" fill="url(#coinWellDepth)" stroke="#1a0601" stroke-width="0.75"/><text x="18" y="18.5" text-anchor="middle" dominant-baseline="central" font-family="\'Rajdhani\', sans-serif" font-weight="700" font-size="23" fill="#fef08a" style="user-select:none;">C</text></svg>';
   static CRYSTAL_SVG = '<svg class="currency-icon spark-icon" viewBox="0 0 40 40" fill="none" style="width:14px;height:14px;vertical-align:middle;display:inline-block;"><polygon points="20,2 24,15 38,20 24,25 20,38 16,25 2,20 16,15" fill="url(#sparkCoreGrad)" stroke="#d8b4fe" stroke-width="1" stroke-linejoin="round"/><polygon points="20,2 24,15 20,20" fill="#ffffff" opacity="0.16"/><polygon points="2,20 16,15 20,20" fill="#ffffff" opacity="0.10"/><polygon points="20,38 24,25 20,20" fill="#3b0764" opacity="0.35"/><polygon points="38,20 24,25 20,20" fill="#3b0764" opacity="0.25"/><line x1="24" y1="15" x2="16" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5"/><line x1="16" y1="15" x2="24" y2="25" stroke="#f5d0fe" stroke-width="0.75" opacity="0.5"/><circle cx="20" cy="20" r="1.6" fill="#f5d0fe"/></svg>';
 
+  static stripOwnTag(name) {
+    return String(name || '').replace(/\s*\(du\)\s*$/i, '').trim();
+  }
+
   static displayNameKey(name, fallbackId) {
-    const key = String(name || '').trim().toLowerCase();
+    const key = UIManager.stripOwnTag(name).toLowerCase();
     if (key) return key;
     return String(fallbackId || 'contender').trim() || 'contender';
+  }
+
+  static foldLeaderboardRuns(runs, playerName, playerId) {
+    const ownId = String(playerId || '').toUpperCase();
+    const ownKey = UIManager.displayNameKey(playerName, ownId);
+    const byId = new Map();
+    const noId = [];
+
+    (runs || []).forEach((raw) => {
+      const id = String((raw && (raw.playerId || raw.player_id)) || '').toUpperCase();
+      const name = UIManager.stripOwnTag((raw && raw.name) || playerName);
+      const altitude = Math.floor(Number(raw && raw.altitude) || 0);
+      const isPlayer = !!(raw && raw.isPlayer) ||
+        (!!ownId && !!id && id === ownId) ||
+        (!!ownKey && UIManager.displayNameKey(name) === ownKey);
+      const row = {
+        name,
+        altitude,
+        country: (raw && raw.country) || 'DE',
+        countryName: (raw && raw.countryName) || 'Deutschland',
+        playerId: id || null,
+        isPlayer
+      };
+      if (id) {
+        const prev = byId.get(id);
+        if (!prev || row.altitude > prev.altitude) {
+          byId.set(id, { ...row, isPlayer: !!(row.isPlayer || (prev && prev.isPlayer)) });
+        } else if (row.isPlayer) {
+          prev.isPlayer = true;
+        }
+      } else {
+        noId.push(row);
+      }
+    });
+
+    const byName = new Map();
+    [...byId.values(), ...noId].forEach((row) => {
+      const key = row.isPlayer
+        ? (ownKey || UIManager.displayNameKey(row.name, row.playerId))
+        : UIManager.displayNameKey(row.name, row.playerId);
+      const prev = byName.get(key);
+      const isPlayer = !!(row.isPlayer || (prev && prev.isPlayer));
+      if (!prev || row.altitude > prev.altitude) {
+        byName.set(key, {
+          ...row,
+          isPlayer,
+          name: isPlayer ? playerName : row.name
+        });
+      } else if (isPlayer) {
+        prev.isPlayer = true;
+        prev.name = playerName;
+      }
+    });
+
+    return Array.from(byName.values()).sort((a, b) => b.altitude - a.altitude);
   }
 
   static getMissionIcon(type) {
@@ -565,6 +624,16 @@ class UIManager {
         }
       }
       this.updateUserProfileNav();
+
+      const best = (this.storage && this.storage.data && this.storage.data.highScore) || 0;
+      if (best > 0 && this.storage.submitPublicScore) {
+        this.storage.submitPublicScore(best);
+      }
+      if (this.storage.syncToCloudNow) this.storage.syncToCloudNow();
+      this.refreshRemoteLeaderboard(true).then(() => {
+        this.renderLeaderboard();
+        this.updateMenuRank();
+      }).catch(() => {});
 
       if (msgEl) {
         msgEl.textContent = 'PROFIL GESPEICHERT';
@@ -1419,22 +1488,13 @@ class UIManager {
     const playerName = profile.pilotName || 'Player';
     const playerId = (profile.playerId || '').toUpperCase();
     const remote = Array.isArray(this._remoteLeaderboard) ? this._remoteLeaderboard : null;
-
-    const playerBestMap = new Map();
-    const storedRuns = (remote || ((this.storage && this.storage.data && this.storage.data.leaderboard) || [])).map(r => {
-      const entryId = String(r.playerId || r.player_id || '').toUpperCase();
-      const isPlayer = remote
-        ? !!(playerId && entryId && entryId === playerId) ||
-          (!!playerName && String(r.name || '').trim().toLowerCase() === String(playerName).trim().toLowerCase())
-        : (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')));
-      return {
-        name: r.name || playerName,
-        altitude: Math.floor(Number(r.altitude) || 0),
-        playerId: r.playerId || r.player_id || '',
-        isPlayer
-      };
-    });
-
+    const sourceRuns = remote || ((this.storage && this.storage.data && this.storage.data.leaderboard) || []);
+    const storedRuns = sourceRuns.map((r) => ({
+      name: r.name || playerName,
+      altitude: Math.floor(Number(r.altitude) || 0),
+      playerId: r.playerId || r.player_id || '',
+      isPlayer: false
+    }));
     storedRuns.push({
       name: playerName,
       altitude: bestAltitude,
@@ -1442,22 +1502,7 @@ class UIManager {
       isPlayer: true
     });
 
-    storedRuns.forEach(r => {
-      const key = UIManager.displayNameKey(r.name, r.playerId);
-      const existing = playerBestMap.get(key);
-      const isPlayer = !!(r.isPlayer || (existing && existing.isPlayer));
-      if (!existing || r.altitude > existing.altitude) {
-        playerBestMap.set(key, {
-          altitude: r.altitude,
-          isPlayer
-        });
-      } else if (isPlayer) {
-        existing.isPlayer = true;
-      }
-    });
-
-    const displayList = Array.from(playerBestMap.values());
-    displayList.sort((a, b) => b.altitude - a.altitude);
+    const displayList = UIManager.foldLeaderboardRuns(storedRuns, playerName, playerId);
     const fullRank = displayList.findIndex(e => e.isPlayer) + 1;
     return fullRank > 0 ? fullRank : null;
   }
@@ -1551,24 +1596,15 @@ class UIManager {
     const remote = Array.isArray(remoteEntries) ? remoteEntries : null;
     const sharedBoard = !!remote;
 
-    const playerBestMap = new Map();
     const sourceRuns = remote || (this.storage.data.leaderboard || []);
-    const storedRuns = sourceRuns.map(r => {
-      const entryId = String(r.playerId || r.player_id || '').toUpperCase();
-      const altitude = Math.floor(Number(r.altitude) || 0);
-      const isPlayer = remote
-        ? !!(playerId && entryId && entryId === playerId) ||
-          (!!playerName && String(r.name || '').trim().toLowerCase() === String(playerName).trim().toLowerCase())
-        : (r.name === playerName || !r.name || (typeof r.name === 'string' && r.name.includes('(DU)')));
-      return {
-        name: r.name || playerName,
-        altitude,
-        country: r.country || 'DE',
-        countryName: r.countryName || 'Deutschland',
-        playerId: r.playerId || r.player_id || null,
-        isPlayer
-      };
-    });
+    const storedRuns = sourceRuns.map(r => ({
+      name: r.name || playerName,
+      altitude: Math.floor(Number(r.altitude) || 0),
+      country: r.country || 'DE',
+      countryName: r.countryName || 'Deutschland',
+      playerId: r.playerId || r.player_id || null,
+      isPlayer: false
+    }));
 
     if (bestAltitude > 0) {
       storedRuns.push({
@@ -1581,26 +1617,10 @@ class UIManager {
       });
     }
 
-    storedRuns.forEach(r => {
-      const key = UIManager.displayNameKey(r.name, r.playerId);
-      const existing = playerBestMap.get(key);
-      const isPlayer = !!(r.isPlayer || (existing && existing.isPlayer));
-      if (!existing || r.altitude > existing.altitude) {
-        playerBestMap.set(key, {
-          name: isPlayer ? `${playerName} (DU)` : r.name,
-          altitude: r.altitude,
-          country: r.country,
-          countryName: r.countryName,
-          isPlayer
-        });
-      } else if (isPlayer) {
-        existing.isPlayer = true;
-        existing.name = `${playerName} (DU)`;
-      }
+    const displayList = UIManager.foldLeaderboardRuns(storedRuns, playerName, playerId);
+    displayList.forEach((entry) => {
+      if (entry.isPlayer) entry.name = `${playerName} (DU)`;
     });
-
-    const displayList = Array.from(playerBestMap.values());
-    displayList.sort((a, b) => b.altitude - a.altitude);
     const top100 = displayList.slice(0, 100);
 
     // Assign ranking numbers

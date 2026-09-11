@@ -44,14 +44,14 @@ function mapLeaderboardEntries(rows) {
   if (!Array.isArray(rows)) return [];
   const mapped = rows.map((row) => ({
     playerId: String((row && (row.playerId || row.player_id)) || '').trim(),
-    name: String((row && row.name) || 'Pilot').trim() || 'Pilot',
+    name: String((row && row.name) || 'Pilot').replace(/\s*\(du\)\s*$/i, '').trim() || 'Pilot',
     altitude: Math.floor(Number(row && row.altitude) || 0)
   })).filter((row) => row.playerId && row.altitude > 0);
   return dedupeLeaderboardByName(mapped);
 }
 
 function leaderboardNameKey(name) {
-  return String(name || '').trim().toLowerCase();
+  return String(name || '').replace(/\s*\(du\)\s*$/i, '').trim().toLowerCase();
 }
 
 function dedupeLeaderboardByName(entries) {

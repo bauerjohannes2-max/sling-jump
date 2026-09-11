@@ -52,6 +52,7 @@ begin
   end if;
 
   clean_name := left(trim(coalesce(p_name, 'Pilot')), 24);
+  clean_name := regexp_replace(clean_name, '\s*\(DU\)\s*$', '', 'i');
   if clean_name = '' then
     clean_name := 'Pilot';
   end if;
