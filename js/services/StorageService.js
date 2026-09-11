@@ -681,7 +681,7 @@ class StorageService {
     this.data.stats.totalSlingshots += slingshots;
     this.data.stats.totalNearMisses += nearMisses;
 
-    const totalScore = Math.floor(altitude + (coresCollected * CONSTANTS.SCORE.PARTICLE_VALUE));
+    const totalScore = Math.floor(altitude + coresCollected);
     let isNewHighScore = false;
 
     if (altitude > this.data.highScore) {

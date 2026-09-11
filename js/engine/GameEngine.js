@@ -946,11 +946,12 @@ class GameEngine {
               this.particles.spawnShards(orb.x, orb.y, 25, '#d946ef');
               this.particles.spawnSparks(orb.x, orb.y, 20, '#f43f5e', 1.8);
             } else {
-              this.runCores++;
-              this.storage.addCores(1);
+              const coins = CONSTANTS.SCORE.COIN_VALUE || 10;
+              this.runCores += coins;
+              this.storage.addCores(coins);
               this.missions.onCoreCollected();
 
-              this.particles.spawnFloatingText(orb.x, orb.y + 15, `+${CONSTANTS.SCORE.PARTICLE_VALUE}`, '#fbbf24');
+              this.particles.spawnFloatingText(orb.x, orb.y + 15, `+${coins}`, '#fbbf24');
               this.particles.spawnSparks(orb.x, orb.y, 14, '#fbbf24', 1.2);
             }
 

@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '5.18.54',
+  VERSION: '5.18.55',
   STORAGE_KEY: 'space_jump_save_v2',
   LEGACY_STORAGE_KEY: 'sling_jump_save_v2',
 
@@ -41,7 +41,7 @@ const CONSTANTS = {
 
   // Scoring & Currency
   SCORE: {
-    PARTICLE_VALUE: 50
+    COIN_VALUE: 10
   },
 
   // Music slider is 0–1; bus gain is the ceiling at 100%.
