@@ -1567,10 +1567,24 @@ class UIManager {
     if (res && res.ok && Array.isArray(res.entries)) {
       this._remoteLeaderboard = res.entries;
       this._leaderboardFetchedAt = Date.now();
+      this.syncOwnLeaderboardName(res.entries);
       return res.entries;
     }
     this._remoteLeaderboard = null;
     return null;
+  }
+
+  syncOwnLeaderboardName(entries) {
+    if (!this.storage || typeof this.storage.submitPublicScore !== 'function') return;
+    const profile = this.storage.getPlayerProfile ? this.storage.getPlayerProfile() : null;
+    const myId = String((profile && profile.playerId) || '').toUpperCase();
+    const myName = UIManager.stripOwnTag((profile && profile.pilotName) || '');
+    const best = (this.storage.data && this.storage.data.highScore) || 0;
+    if (!myId || !myName || !(best > 0)) return;
+    const mine = (entries || []).find((row) => String(row.playerId || row.player_id || '').toUpperCase() === myId);
+    if (!mine) return;
+    if (UIManager.displayNameKey(mine.name) === UIManager.displayNameKey(myName)) return;
+    this.storage.submitPublicScore(best);
   }
 
   renderLeaderboard() {

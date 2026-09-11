@@ -1,9 +1,9 @@
 /**
  * Space Jump - Service Worker (PWA Offline & Instant Updates)
- * Version: 1.0.1
+ * Version: 1.0.2
  * Architecture: Network-First for Navigation (HTML), Stale-While-Revalidate for Assets
  */
-const CACHE_NAME = 'space-jump-v1.0.1';
+const CACHE_NAME = 'space-jump-v1.0.2';
 
 const PRECACHE_ASSETS = [
   './',
