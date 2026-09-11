@@ -98,12 +98,13 @@ class StorageService {
       settings: {
         audioEnabled: true,
         masterVolume: 0.85,
-        musicVolume: 0.55,
+        musicVolume: 0.5,
         sfxVolume: 0.90,
         screenShakeIntensity: 1.0, // 0.0, 0.5, 1.0
         performanceMode: false,
-        showFps: true,
-        tutorialCompleted: false
+        showFps: false,
+        tutorialCompleted: false,
+        settingsPresetVersion: 2
       }
     };
   }
@@ -148,6 +149,26 @@ class StorageService {
     }
     merged.questProgress = { ...defaultState.questProgress, ...(saved.questProgress || {}) };
     merged.playerProfile = { ...defaultState.playerProfile, ...(saved.playerProfile || {}) };
+
+    // One-time factory presets: music on, FPS off, performance off, volume 50%.
+    // Read the saved version before merge, because defaults already stamp the latest preset.
+    const savedPreset = Number(saved.settings && saved.settings.settingsPresetVersion) || 0;
+    if (savedPreset < 2) {
+      if (merged.settings.showFps === true) {
+        merged.settings.showFps = false;
+      }
+      const vol = Number(merged.settings.musicVolume);
+      if (savedPreset < 1 && (!Number.isFinite(vol) || Math.abs(vol - 0.55) < 0.001)) {
+        merged.settings.musicVolume = 0.5;
+      }
+      if (merged.settings.audioEnabled !== false) {
+        merged.settings.audioEnabled = true;
+      }
+      if (merged.settings.performanceMode !== true) {
+        merged.settings.performanceMode = false;
+      }
+      merged.settings.settingsPresetVersion = 2;
+    }
 
     // Ensure array integrity & valid selected equipment
     const validShipIds = CONSTANTS.SHIPS.map(s => s.id);

@@ -107,6 +107,7 @@ class UIManager {
       globalLeaderboardList: document.getElementById('global-leaderboard-list'),
       btnLbTabGlobal: document.getElementById('btn-lb-tab-global'),
       btnLbTabLocal: document.getElementById('btn-lb-tab-local'),
+      playerRankCard: document.getElementById('player-rank-card'),
       playerRankBadge: document.getElementById('player-rank-badge'),
       playerRankPercentile: document.getElementById('player-rank-percentile'),
       playerRankDelta: document.getElementById('player-rank-delta'),
@@ -146,6 +147,7 @@ class UIManager {
       btnStatsClose: document.getElementById('btn-stats-close'),
 
       // Settings Inputs
+      btnMenuMusic: document.getElementById('btn-menu-music'),
       btnAudioToggle: document.getElementById('btn-audio-toggle'),
       sliderMusicVolume: document.getElementById('slider-music-volume'),
       musicVolumeValue: document.getElementById('music-volume-value'),
@@ -1633,8 +1635,7 @@ class UIManager {
       top100.forEach(entry => {
         const row = document.createElement('div');
         const rankClass = entry.rank <= 3 ? `top-rank-${entry.rank}` : '';
-        const playerClass = entry.isPlayer ? 'player-entry' : '';
-        row.className = `leaderboard-row ${rankClass} ${playerClass}`.trim();
+        row.className = `leaderboard-row ${rankClass}`.trim();
         // Strictly 3 columns: Rank, Name, Metres
         row.appendChild(makeCell('lb-rank', `#${entry.rank}`));
         row.appendChild(makeCell('lb-name', entry.name));
@@ -1680,6 +1681,16 @@ class UIManager {
         this.dom.rankPillBadge.textContent = '';
         this.dom.rankPillBadge.style.display = 'none';
         this.dom.rankPillBadge.classList.add('unranked');
+      }
+    }
+
+    if (this.dom.playerRankCard) {
+      this.dom.playerRankCard.classList.remove('top-rank-1', 'top-rank-2', 'top-rank-3');
+      const heroRank = playerEntry
+        ? playerEntry.rank
+        : (bestAltitude > 0 ? displayList.findIndex(e => e.isPlayer) + 1 : 0);
+      if (heroRank >= 1 && heroRank <= 3) {
+        this.dom.playerRankCard.classList.add(`top-rank-${heroRank}`);
       }
     }
   }
@@ -1860,45 +1871,51 @@ class UIManager {
      SETTINGS UI
      ========================================================================= */
   initSettingsUI() {
+    this.updateAudioToggleBtn();
+    this.updateMusicVolumeUI();
+    this.updateFpsToggleBtn();
+    this.updatePerfToggleBtn();
+
+    if (this._settingsUiBound) return;
+    this._settingsUiBound = true;
+
     if (this.dom.btnAudioToggle) {
-      this.updateAudioToggleBtn();
       this.dom.btnAudioToggle.addEventListener('click', () => {
         this.toggleAudio();
       });
     }
+    if (this.dom.btnMenuMusic) {
+      this.dom.btnMenuMusic.addEventListener('click', () => {
+        this.toggleAudio();
+      });
+    }
 
-    this.updateMusicVolumeUI();
-    if (!this._volumeUiBound) {
-      this._volumeUiBound = true;
-      if (this.dom.sliderMusicVolume) {
-        this.dom.sliderMusicVolume.addEventListener('input', (e) => {
-          this.setMusicVolume(Number(e.target.value) / 100, false);
-        });
-        this.dom.sliderMusicVolume.addEventListener('change', (e) => {
-          this.setMusicVolume(Number(e.target.value) / 100, true);
-        });
-      }
-      if (this.dom.btnVolumeDown) {
-        this.dom.btnVolumeDown.addEventListener('click', () => {
-          this.nudgeMusicVolume(-0.1);
-        });
-      }
-      if (this.dom.btnVolumeUp) {
-        this.dom.btnVolumeUp.addEventListener('click', () => {
-          this.nudgeMusicVolume(0.1);
-        });
-      }
+    if (this.dom.sliderMusicVolume) {
+      this.dom.sliderMusicVolume.addEventListener('input', (e) => {
+        this.setMusicVolume(Number(e.target.value) / 100, false);
+      });
+      this.dom.sliderMusicVolume.addEventListener('change', (e) => {
+        this.setMusicVolume(Number(e.target.value) / 100, true);
+      });
+    }
+    if (this.dom.btnVolumeDown) {
+      this.dom.btnVolumeDown.addEventListener('click', () => {
+        this.nudgeMusicVolume(-0.1);
+      });
+    }
+    if (this.dom.btnVolumeUp) {
+      this.dom.btnVolumeUp.addEventListener('click', () => {
+        this.nudgeMusicVolume(0.1);
+      });
     }
 
     if (this.dom.btnFpsToggle) {
-      this.updateFpsToggleBtn();
       this.dom.btnFpsToggle.addEventListener('click', () => {
         this.toggleFps();
       });
     }
 
     if (this.dom.btnPerfToggle) {
-      this.updatePerfToggleBtn();
       this.dom.btnPerfToggle.addEventListener('click', () => {
         this.togglePerfMode();
       });
@@ -1987,7 +2004,7 @@ class UIManager {
   }
 
   getStoredMusicVolume() {
-    const fallback = (CONSTANTS.AUDIO && CONSTANTS.AUDIO.MUSIC_VOLUME_DEFAULT) || 0.55;
+    const fallback = (CONSTANTS.AUDIO && CONSTANTS.AUDIO.MUSIC_VOLUME_DEFAULT) || 0.5;
     const raw = this.storage && this.storage.data && this.storage.data.settings
       ? Number(this.storage.data.settings.musicVolume)
       : fallback;
@@ -2015,19 +2032,27 @@ class UIManager {
   }
 
   updateAudioToggleBtn() {
-    if (!this.dom.btnAudioToggle) return;
     const isEnabled = this.storage.data.settings.audioEnabled !== false;
-    this.dom.btnAudioToggle.textContent = isEnabled ? 'AN' : 'AUS';
-    if (isEnabled) {
-      this.dom.btnAudioToggle.style.color = '#ffffff';
-      this.dom.btnAudioToggle.style.background = 'rgba(225, 29, 72, 0.22)';
-      this.dom.btnAudioToggle.style.borderColor = 'var(--accent-crimson)';
-      this.dom.btnAudioToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
-    } else {
-      this.dom.btnAudioToggle.style.color = '#64748b';
-      this.dom.btnAudioToggle.style.background = 'rgba(255, 255, 255, 0.04)';
-      this.dom.btnAudioToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-      this.dom.btnAudioToggle.style.boxShadow = 'none';
+    if (this.dom.btnAudioToggle) {
+      this.dom.btnAudioToggle.textContent = isEnabled ? 'AN' : 'AUS';
+      if (isEnabled) {
+        this.dom.btnAudioToggle.style.color = '#ffffff';
+        this.dom.btnAudioToggle.style.background = 'rgba(225, 29, 72, 0.22)';
+        this.dom.btnAudioToggle.style.borderColor = 'var(--accent-crimson)';
+        this.dom.btnAudioToggle.style.boxShadow = '0 0 12px var(--accent-crimson-glow)';
+      } else {
+        this.dom.btnAudioToggle.style.color = '#64748b';
+        this.dom.btnAudioToggle.style.background = 'rgba(255, 255, 255, 0.04)';
+        this.dom.btnAudioToggle.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        this.dom.btnAudioToggle.style.boxShadow = 'none';
+      }
+    }
+    if (this.dom.btnMenuMusic) {
+      this.dom.btnMenuMusic.classList.toggle('is-muted', !isEnabled);
+      this.dom.btnMenuMusic.setAttribute('aria-pressed', isEnabled ? 'true' : 'false');
+      const label = isEnabled ? 'Musik an — Lautstärke aufdrehen' : 'Musik aus';
+      this.dom.btnMenuMusic.setAttribute('aria-label', isEnabled ? 'Musik an' : 'Musik aus');
+      this.dom.btnMenuMusic.setAttribute('title', label);
     }
   }
 

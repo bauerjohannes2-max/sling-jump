@@ -4,7 +4,7 @@
  */
 
 const CONSTANTS = {
-  VERSION: '5.18.57',
+  VERSION: '5.18.58',
   STORAGE_KEY: 'space_jump_save_v2',
   LEGACY_STORAGE_KEY: 'sling_jump_save_v2',
 
@@ -48,7 +48,7 @@ const CONSTANTS = {
   // Console mixes sit near -23 LUFS; these tracks are mastered hot, so 70% of full scale (~-3 dB) was too loud.
   AUDIO: {
     MUSIC_BUS_GAIN: 0.28, // ~-11 dB at slider 100%
-    MUSIC_VOLUME_DEFAULT: 0.55
+    MUSIC_VOLUME_DEFAULT: 0.5
   },
 
   // 4 Farbwelten (Universe Themes)

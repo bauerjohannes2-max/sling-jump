@@ -91,7 +91,7 @@ class AudioManager {
   }
 
   getMusicVolume() {
-    const fallback = (typeof CONSTANTS !== 'undefined' && CONSTANTS.AUDIO && CONSTANTS.AUDIO.MUSIC_VOLUME_DEFAULT) || 0.55;
+    const fallback = (typeof CONSTANTS !== 'undefined' && CONSTANTS.AUDIO && CONSTANTS.AUDIO.MUSIC_VOLUME_DEFAULT) || 0.5;
     if (!this.storage || !this.storage.data || !this.storage.data.settings) return fallback;
     const raw = Number(this.storage.data.settings.musicVolume);
     if (!Number.isFinite(raw)) return fallback;
